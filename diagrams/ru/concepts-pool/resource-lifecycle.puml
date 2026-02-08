@@ -1,0 +1,31 @@
+@startuml
+
+title Жизненный цикл ресурса
+
+start
+
+:acquire();
+
+if (Есть свободный ресурс?) then (да)
+    :Взять из idle buffer;
+else (нет)
+    if (Кол-во < max?) then (да)
+        :Создать новый\n(factory);
+    else (нет)
+        :Ждать освобождения;
+    endif
+endif
+
+:Использование;
+
+:release();
+
+if (beforeRelease успешен?) then (да)
+    :Вернуть в idle buffer;
+else (нет)
+    :Уничтожить (destructor);
+endif
+
+stop
+
+@enduml

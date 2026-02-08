@@ -1,0 +1,62 @@
+hero:
+  badge: "Экспериментальная версия"
+  title: "Настоящая асинхронность для PHP"
+  description: "Представьте PHP с корутинами, где знакомые функции поддерживают конкурентный ввод вывод. Создавайте высокопроизводительные конкурентные приложения с чистым, читаемым кодом и минимумом изменений!"
+  buttons:
+    - label: "Начать работу"
+      url: "/ru/docs.html"
+      style: primary
+    - label: "Скачать"
+      url: "/ru/download.html"
+      style: secondary
+    - label: "Discord"
+      url: "https://discord.gg/yqBQPBHKp5"
+      style: secondary
+      external: true
+
+features:
+  title: "Ключевые возможности"
+  items:
+    - title: "Корутины"
+      icon: "coroutines"
+      text: "Лёгкие корутины для эффективного конкурентного выполнения. Никаких цветных <code>async</code> функций. Просто делай <code>spawn()</code> и вперёд!"
+    - title: "Неблокирующий I/O"
+      icon: "io"
+      text: "<code>fread</code>, <code>fwrite</code>, <code>file_get_contents</code>, <code>ob_start</code>, Curl, MySQL, PostgreSQL и другие API прямо из коробки. Обычные функции PHP теперь работают асинхронно без дополнительных усилий."
+    - title: "Асинхронные Web-серверы"
+      icon: "web-servers"
+      text: "Поддержка модели: несколько запросов - один PHP-процесс."
+    - title: "Корпоративная отмена"
+      icon: "cancellation"
+      text: "Простой и гибкий API для отмены корутин, покрывающий разные сценарии"
+    - title: "Структурная конкурентность"
+      icon: "structured-concurrency"
+      text: "Контроль времени жизни корутин с помощью песочницы <code>Scope</code>. Управление группой корутин через <code>TaskGroup</code>"
+    - title: "PDO Pool"
+      icon: "pdo-pool"
+      text: "Поддержка пула соединений прямо в <code>PDO</code>. Автоматическое управление коннектами для максимальной производительности."
+    - title: "Channel"
+      icon: "channel"
+      text: "Типобезопасный обмен данными между корутинами. Буферизованные и небуферизованные каналы для producer/consumer паттернов."
+    - title: "Futures"
+      icon: "futures"
+      text: "Отложенные результаты для асинхронных вычислений. Композиция через <code>awaitAll</code>, <code>awaitFirst</code> и гибкое управление результатами."
+    - title: "Context"
+      icon: "context"
+      text: "Передача контекста через всё дерево корутин. Таймауты, дедлайны и отмена операций с автоматической очисткой ресурсов."
+
+cta:
+  title: "Готовы создавать асинхронные PHP-приложения?"
+  description: "Начните работу с TrueAsync за несколько минут. Установите через Composer и пишите конкурентный код уже сегодня."
+  buttons:
+    - label: "Читать документацию"
+      url: "/ru/docs.html"
+      style: primary
+    - label: "Смотреть на GitHub"
+      url: "https://github.com/true-async"
+      style: secondary
+      external: true
+    - label: "Чат в Discord"
+      url: "https://discord.gg/yqBQPBHKp5"
+      style: secondary
+      external: true

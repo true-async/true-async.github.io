@@ -1,0 +1,44 @@
+@startuml
+
+title release() — внутренний алгоритм
+
+start
+
+:zend_async_pool_release(pool, resource);
+
+:active_count--;
+
+if (beforeRelease\nзадан?) then (да)
+    if (beforeRelease\nвернул true?) then (да)
+    else (нет)
+        :reportFailure()\nв CircuitBreaker;
+        :Уничтожить ресурс\n(destructor);
+        stop
+    endif
+endif
+
+:reportSuccess()\nв CircuitBreaker;
+
+if (Pool закрыт?) then (да)
+    :Уничтожить ресурс;
+    stop
+endif
+
+if (Есть ожидающие\nкорутины?) then (да)
+    :Поместить ресурс\nв idle buffer;
+
+    :Разбудить первую\nкорутину из очереди;
+
+    note right
+        Корутина проснётся
+        и заберёт ресурс
+        через retry в acquire()
+    end note
+
+    stop
+else (нет)
+    :Вернуть в idle buffer;
+    stop
+endif
+
+@enduml

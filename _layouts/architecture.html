@@ -1,0 +1,39 @@
+---
+layout: default
+---
+{% assign t = site.data.i18n[page.lang] %}
+
+<!-- Page Header -->
+<div class="page-header">
+    <div class="page-header-inner">
+        <h1>{{ t.architecture.title }}</h1>
+        <p>{{ t.architecture.subtitle }}</p>
+    </div>
+</div>
+
+<!-- Sidebar Toggle (mobile) -->
+<button class="docs-sidebar-toggle" id="sidebarToggle">{{ t.architecture.menu | default: "Menu" }}</button>
+
+<!-- Architecture Layout -->
+<div class="docs-layout">
+    <aside class="docs-sidebar" id="docsSidebar">
+        {% for group in t.architecture.sidebar %}
+        <div class="docs-nav-title"{% if forloop.first == false %} style="margin-top: 1.5rem;"{% endif %}>{{ group.title }}</div>
+        <nav class="docs-nav">
+            {% for item in group.items %}
+            {% if item.url %}<a href="{{ item.url }}"{% if page.permalink == item.url %} class="active"{% endif %}>{{ item.label }}</a>{% else %}<a href="#{{ item.id }}">{{ item.label }}</a>{% endif %}
+            {% endfor %}
+        </nav>
+        {% endfor %}
+    </aside>
+
+    <main class="docs-content">
+        {{ content }}
+    </main>
+</div>
+
+<script>
+document.getElementById('sidebarToggle').addEventListener('click', function() {
+    document.getElementById('docsSidebar').classList.toggle('open');
+});
+</script>

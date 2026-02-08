@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="{{ page.lang | default: 'en' }}">
+<head>
+    {% include head.html %}
+</head>
+<body>
+
+{% include navbar.html %}
+
+{{ content }}
+
+{% include footer.html %}
+
+<script>
+document.getElementById('navToggle').addEventListener('click', function() {
+    document.getElementById('navMenu').classList.toggle('open');
+});
+document.getElementById('langToggle').addEventListener('click', function(e) {
+    e.stopPropagation();
+    document.getElementById('langDropdown').classList.toggle('open');
+});
+document.addEventListener('click', function() {
+    document.getElementById('langDropdown').classList.remove('open');
+});
+</script>
+
+</body>
+</html>

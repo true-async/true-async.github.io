@@ -1,0 +1,62 @@
+hero:
+  badge: "Experimental Version"
+  title: "True Asynchronous inside PHP"
+  description: "Imagine PHP with coroutines, where familiar functions support concurrent I/O. Build high-performance concurrent applications with clean, readable code and minimal changes!"
+  buttons:
+    - label: "Get Started"
+      url: "/en/docs.html"
+      style: primary
+    - label: "Download"
+      url: "/en/download.html"
+      style: secondary
+    - label: "Discord"
+      url: "https://discord.gg/yqBQPBHKp5"
+      style: secondary
+      external: true
+
+features:
+  title: "Key Features"
+  items:
+    - title: "Coroutines"
+      icon: "coroutines"
+      text: "Lightweight coroutines for efficient concurrent execution. No colored <code>async</code> functions. Just do <code>spawn()</code> and go!"
+    - title: "Non-blocking I/O"
+      icon: "io"
+      text: "<code>fread</code>, <code>fwrite</code>, <code>file_get_contents</code>, <code>ob_start</code>, Curl, MySQL, PostgreSQL and other APIs out of the box. Regular PHP functions now work asynchronously without extra effort."
+    - title: "Async Web Servers"
+      icon: "web-servers"
+      text: "Support for the model: multiple requests — one PHP process."
+    - title: "Cooperative Cancellation"
+      icon: "cancellation"
+      text: "Simple and flexible API for coroutine cancellation, covering various scenarios."
+    - title: "Structured Concurrency"
+      icon: "structured-concurrency"
+      text: "Control coroutine lifetime with <code>Scope</code> sandbox. Manage groups of coroutines via <code>TaskGroup</code>."
+    - title: "PDO Pool"
+      icon: "pdo-pool"
+      text: "Connection pooling built right into <code>PDO</code>. Automatic connection management for maximum performance."
+    - title: "Channel"
+      icon: "channel"
+      text: "Type-safe data exchange between coroutines. Buffered and unbuffered channels for producer/consumer patterns."
+    - title: "Futures"
+      icon: "futures"
+      text: "Deferred results for asynchronous computations. Composition via <code>awaitAll</code>, <code>awaitFirst</code> and flexible result management."
+    - title: "Context"
+      icon: "context"
+      text: "Context propagation through the entire coroutine tree. Timeouts, deadlines and operation cancellation with automatic resource cleanup."
+
+cta:
+  title: "Ready to Build Async PHP Applications?"
+  description: "Get started with TrueAsync in minutes. Install via Composer and start writing concurrent code today."
+  buttons:
+    - label: "Read the Docs"
+      url: "/en/docs.html"
+      style: primary
+    - label: "View on GitHub"
+      url: "https://github.com/true-async"
+      style: secondary
+      external: true
+    - label: "Chat on Discord"
+      url: "https://discord.gg/yqBQPBHKp5"
+      style: secondary
+      external: true

@@ -1,0 +1,152 @@
+---
+layout: default
+---
+{% assign t = site.data.i18n[page.lang] %}
+{% assign releases = site.data.releases %}
+
+<!-- Page Header -->
+<div class="page-header">
+    <div class="page-header-inner">
+        <h1>{{ t.download.title }}</h1>
+        <p>{{ t.download.subtitle }}</p>
+    </div>
+</div>
+
+<!-- Download Content -->
+<div class="download-page">
+<div class="download-main">
+<div class="download-layout">
+
+    <!-- Releases -->
+    {% for release in releases.versions %}
+    <div class="download-card" id="release-{{ release.version }}">
+        <span class="version-badge{% if release.old %} version-badge--old{% endif %}">{% if release.old %}{{ t.download.old_release }}{% else %}{{ t.download.current_release }}{% endif %}</span>
+        <div class="release-header">
+            <h2>TrueAsync {{ release.version }} (<a href="{{ release.changelog_url | default: '#' }}">{{ t.download.changelog }}</a>)</h2>
+            <span class="release-meta">{{ t.download.release_date }}: {{ release.date }}</span>
+        </div>
+        <p class="release-note">{{ t.download.requires_php }} {{ release.php_requires }}. {{ t.download.all_builds_zts }}</p>
+
+        {% for platform in release.platforms %}
+        <div class="release-platform">
+            <h3>
+                {% if platform.name == "Windows" %}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                {% elsif platform.name == "Linux" %}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>
+                {% elsif platform.name == "macOS" %}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22A4.91 4.91 0 0 0 17 5c-2.22 0-4 1.44-5 2-1-.56-2.78-2-5-2a4.9 4.9 0 0 0-5 4.78C2 14 5 22 8 22c1.25 0 2.5-1.06 4-1.06z"/><path d="M10 2c1 .5 2 2 2 5"/></svg>
+                {% elsif platform.name == "source" %}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                {% endif %}
+                {% if platform.name == "source" %}{{ t.download.source_code }}{% else %}{{ platform.name }}{% endif %}
+            </h3>
+            {% for file in platform.files %}
+            <div class="release-file">
+                <div class="release-file-row">
+                    <a href="{{ file.url | default: '#' }}" class="release-file-name">{{ file.name }}</a>
+                    <span class="release-file-sig">[<a href="{{ file.sig_url | default: '#' }}">sig</a>]</span>
+                    <span class="release-file-size">{{ file.size }}</span>
+                </div>
+                <span class="release-file-hash"><span>sha256:</span> {{ file.sha256 }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+    </div>
+    {% endfor %}
+
+    <!-- Docker -->
+    <div class="download-card" id="docker">
+        <h2>{{ t.download.docker_title }}</h2>
+        <p>{{ t.download.docker_description }}</p>
+
+        <div class="release-platform">
+            <h3>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12H2"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+                {{ t.download.available_images }}
+            </h3>
+            {% for image in releases.docker_images %}
+            <div class="release-file">
+                <div class="release-file-row">
+                    <code style="background: var(--color-code-bg); padding: 0.125rem 0.5rem; border-radius: var(--radius-md); font-size: 0.8125rem;">{{ image.tag }}</code>
+                    <span class="release-file-size">{{ image.description }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <h3 style="font-size: 0.9375rem; margin-top: 1.5rem; margin-bottom: 0.75rem;">{{ t.download.quick_start }}</h3>
+        <pre><code>docker pull true-async/php:8.4-zts</code></pre>
+        <p>{{ t.download.run_script }}:</p>
+        <pre><code>docker run --rm -v $(pwd):/app -w /app true-async/php:8.4-zts php script.php</code></pre>
+
+        <h3 style="font-size: 0.9375rem; margin-top: 1.5rem; margin-bottom: 0.75rem;">{{ t.download.dockerfile_usage }}</h3>
+        <pre><code>FROM true-async/php:8.4-zts
+
+COPY . /app
+WORKDIR /app
+
+CMD ["php", "server.php"]</code></pre>
+    </div>
+
+    <!-- System Requirements -->
+    <div class="download-card" id="requirements">
+        <h2>{{ t.download.system_requirements }}</h2>
+        <ul>
+            {% for req in t.download.requirements_list %}
+            <li>{{ req }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!-- GPG Keys -->
+    <div class="download-card" id="gpg-keys">
+        <h2>{{ t.download.gpg_title }}</h2>
+        <p>{{ t.download.gpg_description }}</p>
+        <pre><code>gpg --keyserver keyserver.ubuntu.com --recv-keys XXXXXXXXXXXXXXXX</code></pre>
+        <p>{{ t.download.gpg_verify }}:</p>
+        <pre><code>gpg --verify true_async-1.0.0-ts-php8.3-x64.zip.asc true_async-1.0.0-ts-php8.3-x64.zip</code></pre>
+
+        <h3 style="font-size: 0.9375rem; margin-top: 1.25rem; margin-bottom: 0.5rem;">TrueAsync 1.0.x / 0.5.x</h3>
+        <div class="gpg-key-block">pub   ed25519 2025-01-15 [SC]
+      XXXX XXXX XXXX XXXX XXXX  XXXX XXXX XXXX XXXX XXXX
+uid           [ultimate] TrueAsync Release Signing &lt;release@true-async.dev&gt;
+sub   cv25519 2025-01-15 [E]</div>
+    </div>
+
+    <!-- Additional Resources -->
+    <div class="download-card" id="resources">
+        <h2>{{ t.download.additional_resources }}</h2>
+        <ul class="release-resources">
+            <li><a href="https://github.com/true-async/true-async/releases" target="_blank" rel="noopener">{{ t.download.all_releases }}</a></li>
+            <li><a href="https://github.com/true-async/true-async/releases" target="_blank" rel="noopener">{{ t.download.old_versions }}</a></li>
+            <li><a href="https://github.com/true-async" target="_blank" rel="noopener">{{ t.download.source_on_github }}</a></li>
+            <li><a href="/{{ page.lang }}/docs.html">{{ t.download.install_docs }}</a></li>
+        </ul>
+    </div>
+
+</div>
+</div>
+
+<!-- Right Sidebar -->
+<aside class="download-sidebar">
+    <div class="docs-nav-title">{{ t.download.sidebar_releases }}</div>
+    <nav class="docs-nav">
+        {% for release in releases.versions %}
+        <a href="#release-{{ release.version }}">TrueAsync {{ release.version }}</a>
+        {% endfor %}
+    </nav>
+    <div class="docs-nav-title" style="margin-top: 1.5rem;">{{ t.download.sidebar_install }}</div>
+    <nav class="docs-nav">
+        <a href="#docker">Docker</a>
+    </nav>
+    <div class="docs-nav-title" style="margin-top: 1.5rem;">{{ t.download.sidebar_help }}</div>
+    <nav class="docs-nav">
+        <a href="#requirements">{{ t.download.system_requirements }}</a>
+        <a href="#gpg-keys">{{ t.download.gpg_keys }}</a>
+        <a href="#resources">{{ t.download.resources_link }}</a>
+    </nav>
+</aside>
+
+</div>

@@ -1,0 +1,25 @@
+@startuml
+
+title Healthcheck — периодическая проверка
+
+start
+
+:Таймер сработал;
+
+while (Есть ресурсы\nв idle buffer?) is (да)
+    :Извлечь ресурс;
+
+    if (healthcheck()\nвернул true?) then (да)
+        :Вернуть\nв idle buffer;
+    else (нет)
+        :Уничтожить\n(destructor);
+
+        if (Всего < min?) then (да)
+            :Создать замену\n(factory);
+        endif
+    endif
+endwhile (нет)
+
+stop
+
+@enduml

@@ -1,0 +1,78 @@
+@startuml
+skinparam backgroundColor #FAFAFA
+skinparam activityBorderColor #333333
+skinparam activityBackgroundColor #FFFFFF
+skinparam activityDiamondBackgroundColor #FFF9C4
+skinparam activityDiamondBorderColor #333333
+skinparam arrowColor #555555
+skinparam noteBackgroundColor #FFFFEE
+skinparam noteBorderColor #AAAAAA
+
+title Жизненный цикл соединения в пуле
+
+start
+
+:Корутина вызывает
+$pdo->query() / exec() / prepare();
+
+if (Есть соединение для этой корутины?) then (да)
+    :Использовать существующее;
+else (нет)
+    :Запросить у пула (pool acquire);
+
+    if (Есть свободное соединение?) then (да)
+        :Выдать свободное;
+    elseif (Текущее кол-во < max?) then (да)
+        :Создать новое соединение;
+
+        note right
+            pdo_pool_factory():
+            1. ecalloc(pdo_dbh_t)
+            2. estrdup(DSN, user, pass)
+            3. driver->db_handle_factory()
+            4. efree(копии credentials)
+        end note
+    else (нет)
+        :Ожидание освобождения;
+
+        note right
+            Корутина приостановлена.
+            Другие корутины
+            продолжают работать.
+        end note
+    endif
+
+    :Привязать соединение\nк coroutine ID;
+
+    :Зарегистрировать cleanup\nна завершение корутины;
+endif
+
+:Выполнить запрос через conn->methods;
+
+if (Активная транзакция или statement?) then (да)
+    :Соединение **закреплено** за корутиной;
+
+    note right
+        Pinning: соединение
+        не вернётся в пул,
+        пока не завершатся
+        все транзакции и
+        стейтменты.
+    end note
+
+    stop
+else (нет)
+    :Соединение возвращается в пул;
+
+    note right
+        before_release():
+        если in_txn == true,
+        выполнит ROLLBACK
+    end note
+
+    :Доступно для других корутин;
+
+    stop
+endif
+
+@enduml

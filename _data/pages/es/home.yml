@@ -1,0 +1,62 @@
+hero:
+  badge: "Versión experimental"
+  title: "Asincronía real para PHP"
+  description: "Imagina PHP con corrutinas, donde las funciones habituales soportan E/S concurrente. ¡Crea aplicaciones concurrentes de alto rendimiento con código limpio, legible y cambios mínimos!"
+  buttons:
+    - label: "Comenzar"
+      url: "/es/docs.html"
+      style: primary
+    - label: "Descargar"
+      url: "/es/download.html"
+      style: secondary
+    - label: "Discord"
+      url: "https://discord.gg/yqBQPBHKp5"
+      style: secondary
+      external: true
+
+features:
+  title: "Características principales"
+  items:
+    - title: "Corrutinas"
+      icon: "coroutines"
+      text: "Corrutinas ligeras para una ejecución concurrente eficiente. Sin funciones <code>async</code> coloreadas. Simplemente haz <code>spawn()</code> y listo."
+    - title: "I/O no bloqueante"
+      icon: "io"
+      text: "<code>fread</code>, <code>fwrite</code>, <code>file_get_contents</code>, <code>ob_start</code>, Curl, MySQL, PostgreSQL y otras API listas para usar. Las funciones habituales de PHP ahora funcionan de forma asíncrona sin esfuerzo adicional."
+    - title: "Servidores Web asíncronos"
+      icon: "web-servers"
+      text: "Soporte del modelo: múltiples solicitudes — un solo proceso PHP."
+    - title: "Cancelación cooperativa"
+      icon: "cancellation"
+      text: "API simple y flexible para cancelar corrutinas, cubriendo diferentes escenarios."
+    - title: "Concurrencia estructurada"
+      icon: "structured-concurrency"
+      text: "Control del ciclo de vida de las corrutinas mediante el sandbox <code>Scope</code>. Gestión de grupos de corrutinas con <code>TaskGroup</code>."
+    - title: "PDO Pool"
+      icon: "pdo-pool"
+      text: "Soporte de pool de conexiones directamente en <code>PDO</code>. Gestión automática de conexiones para máximo rendimiento."
+    - title: "Channel"
+      icon: "channel"
+      text: "Intercambio de datos con seguridad de tipos entre corrutinas. Canales con y sin búfer para patrones producer/consumer."
+    - title: "Futures"
+      icon: "futures"
+      text: "Resultados diferidos para cálculos asíncronos. Composición mediante <code>awaitAll</code>, <code>awaitFirst</code> y gestión flexible de resultados."
+    - title: "Context"
+      icon: "context"
+      text: "Propagación de contexto a través de todo el árbol de corrutinas. Tiempos de espera, plazos límite y cancelación de operaciones con limpieza automática de recursos."
+
+cta:
+  title: "¿Listo para crear aplicaciones PHP asíncronas?"
+  description: "Comienza con TrueAsync en minutos. Instálalo con Composer y escribe código concurrente hoy mismo."
+  buttons:
+    - label: "Leer la documentación"
+      url: "/es/docs.html"
+      style: primary
+    - label: "Ver en GitHub"
+      url: "https://github.com/true-async"
+      style: secondary
+      external: true
+    - label: "Chat en Discord"
+      url: "https://discord.gg/yqBQPBHKp5"
+      style: secondary
+      external: true

@@ -1,0 +1,62 @@
+hero:
+  badge: "Version expérimentale"
+  title: "De véritables primitives asynchrones pour PHP"
+  description: "Imaginez PHP avec des coroutines, où les fonctions familières prennent en charge les E/S concurrentes. Créez des applications concurrentes haute performance avec un code propre et lisible, et un minimum de modifications !"
+  buttons:
+    - label: "Commencer"
+      url: "/fr/docs.html"
+      style: primary
+    - label: "Télécharger"
+      url: "/fr/download.html"
+      style: secondary
+    - label: "Discord"
+      url: "https://discord.gg/yqBQPBHKp5"
+      style: secondary
+      external: true
+
+features:
+  title: "Fonctionnalités clés"
+  items:
+    - title: "Coroutines"
+      icon: "coroutines"
+      text: "Des coroutines légères pour une exécution concurrente efficace. Pas de fonctions <code>async</code> colorées. Faites simplement <code>spawn()</code> et c'est parti !"
+    - title: "I/O non bloquante"
+      icon: "io"
+      text: "<code>fread</code>, <code>fwrite</code>, <code>file_get_contents</code>, <code>ob_start</code>, Curl, MySQL, PostgreSQL et d'autres API prêtes à l'emploi. Les fonctions PHP classiques fonctionnent désormais de manière asynchrone sans effort supplémentaire."
+    - title: "Serveurs Web asynchrones"
+      icon: "web-servers"
+      text: "Prise en charge du modèle : plusieurs requêtes pour un seul processus PHP."
+    - title: "Annulation coopérative"
+      icon: "cancellation"
+      text: "Une API simple et flexible pour l'annulation des coroutines, couvrant différents scénarios."
+    - title: "Concurrence structurée"
+      icon: "structured-concurrency"
+      text: "Contrôle du cycle de vie des coroutines grâce au bac à sable <code>Scope</code>. Gestion d'un groupe de coroutines via <code>TaskGroup</code>."
+    - title: "PDO Pool"
+      icon: "pdo-pool"
+      text: "Prise en charge du pool de connexions directement dans <code>PDO</code>. Gestion automatique des connexions pour des performances maximales."
+    - title: "Channel"
+      icon: "channel"
+      text: "Échange de données typé entre coroutines. Canaux avec et sans tampon pour les patrons producteur/consommateur."
+    - title: "Futures"
+      icon: "futures"
+      text: "Résultats différés pour les calculs asynchrones. Composition via <code>awaitAll</code>, <code>awaitFirst</code> et gestion flexible des résultats."
+    - title: "Context"
+      icon: "context"
+      text: "Propagation du contexte à travers l'arbre des coroutines. Délais d'expiration, échéances et annulation des opérations avec nettoyage automatique des ressources."
+
+cta:
+  title: "Prêt à créer des applications PHP asynchrones ?"
+  description: "Démarrez avec TrueAsync en quelques minutes. Installez via Composer et écrivez du code concurrent dès aujourd'hui."
+  buttons:
+    - label: "Lire la documentation"
+      url: "/fr/docs.html"
+      style: primary
+    - label: "Voir sur GitHub"
+      url: "https://github.com/true-async"
+      style: secondary
+      external: true
+    - label: "Chat sur Discord"
+      url: "https://discord.gg/yqBQPBHKp5"
+      style: secondary
+      external: true

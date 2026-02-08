@@ -1,0 +1,394 @@
+---
+layout: docs
+lang: ru
+path_key: "/docs/concepts/coroutines.html"
+nav_active: docs
+permalink: /ru/docs/concepts/coroutines.html
+page_title: "Корутины"
+description: "Корутины в TrueAsync — создание, жизненный цикл, suspend, отмена, обработка ошибок и реальные примеры."
+---
+
+# Корутины: легковесные задачи
+
+## Корутины в TrueAsync
+
+Когда обычная функция вызывает операцию ввода-вывода `fread`, `fwrite` (чтение файла или сетевой запрос),
+управление передаётся ядру операционной системы, и `PHP` блокируется, пока операция не завершится.
+
+Но если функция выполняется в корутине и вызывает операцию ввода-вывода,
+блокируется только корутина, а не весь процесс `PHP`.
+При этом управление передаётся другой корутине, если такая имеется.
+
+В этом смысле корутины очень похожи на потоки операционной системы (threads),
+но управляются в пользовательском пространстве, а не ядром ОС.
+
+Ещё одно важное отличие состоит в том, что корутины разделяют процессорное время по очереди,
+самостоятельно уступая управление, в то время как потоки могут быть прерваны в любой момент.
+
+Корутины `TrueAsync` выполняются в рамках одного потока,
+не являются параллельными. Из этого следует несколько важных последствий:
+- Переменные можно свободно читать и изменять из разных корутин без блокировок, так как они не выполняются одновременно.
+- Корутины не могут одновременно использовать несколько ядер процессора.
+- Если одна корутина выполняет долгую синхронную операцию, она блокирует весь процесс, так как не уступает управление другим корутинам.
+
+## Создание корутины
+
+Корутина создаётся с помощью функции `spawn()`:
+
+```php
+use function Async\spawn;
+
+// Создаем корутину
+$coroutine = spawn(function() {
+    echo "Привет из корутины!\n";
+    return 42;
+});
+
+// $coroutine - это объект типа Async\Coroutine
+// Корутина уже запланирована к выполнению
+```
+
+После того как `spawn` вызван, функция будет выполнена асинхронно планировщиком так скоро как только возможно.
+
+## Передача параметров
+
+Функция `spawn` принимает `callable` и любые параметры, которые будут переданы в эту функцию,
+передаются `callable` в момент старта функции.
+
+```php
+function fetchUser(int $userId) {
+    return file_get_contents("https://api/users/$userId");
+}
+
+// Передаем функцию и параметры
+$coroutine = spawn(fetchUser(...), 123);
+```
+
+## Получение результата
+
+Чтобы получить результат корутины, используйте `await()`:
+
+```php
+$coroutine = spawn(function() {
+    sleep(2);
+    return "Готово!";
+});
+
+echo "Корутина запущена\n";
+
+// Ждем результата
+$result = await($coroutine);
+
+echo "Результат: $result\n";
+```
+
+**Важно:** `await()` блокирует выполнение **текущей корутины**, но весь PHP процесс. Другие корутины продолжают работать.
+
+## Жизненный цикл корутины
+
+Корутина проходит несколько состояний:
+
+
+
+### Проверка состояния
+
+```php
+$coro = spawn(longTask(...));
+
+var_dump($coro->isStarted());    // true - корутина начала работу
+var_dump($coro->isRunning());    // false - сейчас не выполняется
+var_dump($coro->isSuspended());  // true - приостановлена, ждет чего-то
+var_dump($coro->isCompleted());  // false - еще не закончила
+var_dump($coro->isCancelled());  // false - не отменена
+```
+
+## Приостановка: suspend
+
+Ключевое слово `suspend` останавливает корутину и передает управление планировщику:
+
+```php
+spawn(function() {
+    echo "До suspend\n";
+
+    suspend(); // Останавливаемся здесь
+
+    echo "После suspend\n";
+});
+
+echo "Основной код\n";
+
+// Вывод:
+// До suspend
+// Основной код
+// После suspend
+```
+
+Корутина остановилась на `suspend`, управление вернулось в основной код. Позже планировщик возобновил корутину.
+
+### suspend с ожиданием
+
+Обычно `suspend` используется для ожидания какого-то события:
+
+```php
+spawn(function() {
+    echo "Делаю HTTP-запрос\n";
+
+    $data = file_get_contents('https://api.example.com/data');
+    // Внутри file_get_contents неявно вызывается suspend
+    // Пока идет сетевой запрос, корутина приостановлена
+
+    echo "Получил данные: $data\n";
+});
+```
+
+PHP автоматически приостанавливает корутину на I/O операциях. Вам не нужно вручную писать `suspend`.
+
+## Отмена корутины
+
+```php
+$coro = spawn(function() {
+    try {
+        echo "Начинаю долгую работу\n";
+
+        for ($i = 0; $i < 100; $i++) {
+            Async\sleep(100); // Спим 100ms
+            echo "Итерация $i\n";
+        }
+
+        echo "Закончил\n";
+    } catch (Async\CancellationException $e) {
+        echo "Меня отменили на итерации\n";
+    }
+});
+
+// Даем корутине поработать 1 секунду
+Async\sleep(1000);
+
+// Отменяем
+$coro->cancel();
+
+// Корутина получит CancellationException при следующем await/suspend
+```
+
+**Важно:** Отмена работает кооперативно. Корутина должна проверять отмену (через `await`, `sleep`, или `suspend`). Нельзя убить корутину силой.
+
+## Множественные корутины
+
+Запускайте сколько угодно:
+
+```php
+$tasks = [];
+
+for ($i = 0; $i < 10; $i++) {
+    $tasks[] = spawn(function() use ($i) {
+        $result = file_get_contents("https://api/data/$i");
+        return $result;
+    });
+}
+
+// Ждем все корутины
+$results = array_map(fn($t) => await($t), $tasks);
+
+echo "Загрузили " . count($results) . " результатов\n";
+```
+
+Все 10 запросов идут конкурентно. Вместо 10 секунд (по секунде каждый) выполнится за ~1 секунду.
+
+## Обработка ошибок
+
+Ошибки в корутинах обрабатываются обычным `try-catch`:
+
+```php
+$coro = spawn(function() {
+    throw new Exception("Упс!");
+});
+
+try {
+    $result = await($coro);
+} catch (Exception $e) {
+    echo "Поймали ошибку: " . $e->getMessage() . "\n";
+}
+```
+
+Если не поймать ошибку, она всплывет в родительский scope:
+
+```php
+$scope = new Async\Scope();
+
+spawn with $scope function() {
+    throw new Exception("Ошибка в корутине!");
+};
+
+try {
+    $scope->awaitCompletion();
+} catch (Exception $e) {
+    echo "Ошибка всплыла в scope: " . $e->getMessage() . "\n";
+}
+```
+
+## Корутина = объект
+
+Корутина — это полноценный PHP объект. Можно передавать куда угодно:
+
+```php
+function startBackgroundTask(): Async\Coroutine {
+    return spawn(function() {
+        // Долгая работа
+        Async\sleep(10000);
+        return "Результат";
+    });
+}
+
+$task = startBackgroundTask();
+
+// Передаем в другую функцию
+processTask($task);
+
+// Или сохраняем в массив
+$tasks[] = $task;
+
+// Или в свойство объекта
+$this->backgroundTask = $task;
+```
+
+## Вложенные корутины
+
+Корутины могут запускать другие корутины:
+
+```php
+spawn(function() {
+    echo "Родительская корутина\n";
+
+    $child1 = spawn(function() {
+        echo "Дочерняя корутина 1\n";
+        return "Результат 1";
+    });
+
+    $child2 = spawn(function() {
+        echo "Дочерняя корутина 2\n";
+        return "Результат 2";
+    });
+
+    // Ждем обе дочерние корутины
+    $result1 = await($child1);
+    $result2 = await($child2);
+
+    echo "Родитель получил: $result1 и $result2\n";
+});
+```
+
+## Finally: гарантированная очистка
+
+Даже если корутину отменят, `finally` выполнится:
+
+```php
+spawn(function() {
+    $file = fopen('data.txt', 'r');
+
+    try {
+        while ($line = fgets($file)) {
+            processLine($line);
+            suspend(); // Может быть отменено здесь
+        }
+    } finally {
+        // Гарантированно закроем файл
+        fclose($file);
+        echo "Файл закрыт\n";
+    }
+});
+```
+
+## Отладка корутин
+
+### Получить стек вызовов
+
+```php
+$coro = spawn(function() {
+    doSomething();
+});
+
+// Получаем стек вызовов корутины
+$trace = $coro->getTrace();
+print_r($trace);
+```
+
+### Узнать, где корутина создана
+
+```php
+$coro = spawn(someFunction(...));
+
+// Где был вызван spawn()
+$location = $coro->getSpawnLocation();
+echo "Корутина создана в: {$location['file']}:{$location['line']}\n";
+```
+
+Очень полезно для отладки — сразу видно, откуда взялась корутина.
+
+## Корутины vs Потоки
+
+| Корутины                      | Потоки (threads)            |
+|-------------------------------|-----------------------------|
+| Легковесные (~KB памяти)      | Тяжелые (~MB памяти)        |
+| Быстрое создание (<1μs)       | Медленное создание (~1ms)   |
+| Один поток ОС                 | Много потоков ОС            |
+| Кооперативная многозадачность | Вытесняющая многозадачность |
+| Нет race conditions           | Есть race conditions        |
+| Нужны await точки             | Могут прерваться где угодно |
+| Для I/O операций              | Для CPU-вычислений          |
+
+## Реальный пример: краулер
+
+```php
+class WebCrawler {
+    private array $visited = [];
+
+    public function crawl(string $startUrl, int $maxDepth = 3): array {
+        $taskGroup = new Async\TaskGroup(captureResults: true);
+
+        $this->crawlRecursive($startUrl, 0, $maxDepth, $taskGroup);
+
+        return await($taskGroup);
+    }
+
+    private function crawlRecursive(
+        string $url,
+        int $depth,
+        int $maxDepth,
+        Async\TaskGroup $group
+    ): void {
+        if ($depth > $maxDepth || isset($this->visited[$url])) {
+            return;
+        }
+
+        $this->visited[$url] = true;
+
+        spawn with $group function() use ($url, $depth, $maxDepth, $group) {
+            // Загружаем страницу (асинхронно!)
+            $html = file_get_contents($url);
+
+            // Парсим ссылки
+            preg_match_all('/<a href="([^"]+)"/', $html, $matches);
+
+            // Рекурсивно обходим найденные ссылки
+            foreach ($matches[1] as $link) {
+                $this->crawlRecursive($link, $depth + 1, $maxDepth, $group);
+            }
+
+            return ['url' => $url, 'size' => strlen($html)];
+        };
+    }
+}
+
+$crawler = new WebCrawler();
+$results = $crawler->crawl('https://example.com', maxDepth: 2);
+
+echo "Обошли " . count($results) . " страниц\n";
+```
+
+Все страницы загружаются конкурентно. Сотни запросов одновременно, без блокировок.
+
+## Дальше что?
+
+- [Scope](/ru/docs/concepts/scope.html) — управление группами корутин
+- [spawn()](/ru/docs/reference/spawn.html) — полная документация
+- [await()](/ru/docs/reference/await.html) — полная документация

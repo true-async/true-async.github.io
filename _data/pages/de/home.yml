@@ -1,0 +1,62 @@
+hero:
+  badge: "Experimentelle Version"
+  title: "Echte Asynchronität für PHP"
+  description: "Stellen Sie sich PHP mit Koroutinen vor, bei dem vertraute Funktionen nebenläufige Ein-/Ausgabe unterstützen. Erstellen Sie hochperformante nebenläufige Anwendungen mit sauberem, lesbarem Code und minimalen Änderungen!"
+  buttons:
+    - label: "Erste Schritte"
+      url: "/de/docs.html"
+      style: primary
+    - label: "Herunterladen"
+      url: "/de/download.html"
+      style: secondary
+    - label: "Discord"
+      url: "https://discord.gg/yqBQPBHKp5"
+      style: secondary
+      external: true
+
+features:
+  title: "Hauptfunktionen"
+  items:
+    - title: "Koroutinen"
+      icon: "coroutines"
+      text: "Leichtgewichtige Koroutinen für effiziente nebenläufige Ausführung. Keine farbigen <code>async</code>-Funktionen. Einfach <code>spawn()</code> aufrufen und loslegen!"
+    - title: "Nicht-blockierende I/O"
+      icon: "io"
+      text: "<code>fread</code>, <code>fwrite</code>, <code>file_get_contents</code>, <code>ob_start</code>, Curl, MySQL, PostgreSQL und weitere APIs sofort einsatzbereit. Gewöhnliche PHP-Funktionen arbeiten jetzt asynchron ohne zusätzlichen Aufwand."
+    - title: "Asynchrone Webserver"
+      icon: "web-servers"
+      text: "Unterstützung des Modells: mehrere Anfragen – ein PHP-Prozess."
+    - title: "Kooperative Abbruchsteuerung"
+      icon: "cancellation"
+      text: "Einfache und flexible API zum Abbrechen von Koroutinen, die verschiedene Szenarien abdeckt."
+    - title: "Strukturierte Nebenläufigkeit"
+      icon: "structured-concurrency"
+      text: "Kontrolle der Lebensdauer von Koroutinen mit der <code>Scope</code>-Sandbox. Verwaltung von Koroutinen-Gruppen über <code>TaskGroup</code>."
+    - title: "PDO Pool"
+      icon: "pdo-pool"
+      text: "Unterstützung für Verbindungs-Pooling direkt in <code>PDO</code>. Automatische Verbindungsverwaltung für maximale Leistung."
+    - title: "Channel"
+      icon: "channel"
+      text: "Typsicherer Datenaustausch zwischen Koroutinen. Gepufferte und ungepufferte Kanäle für Producer/Consumer-Muster."
+    - title: "Futures"
+      icon: "futures"
+      text: "Verzögerte Ergebnisse für asynchrone Berechnungen. Komposition über <code>awaitAll</code>, <code>awaitFirst</code> und flexible Ergebnisverwaltung."
+    - title: "Context"
+      icon: "context"
+      text: "Kontextweitergabe durch den gesamten Koroutinen-Baum. Timeouts, Deadlines und Abbruch von Operationen mit automatischer Ressourcenbereinigung."
+
+cta:
+  title: "Bereit, asynchrone PHP-Anwendungen zu erstellen?"
+  description: "Starten Sie mit TrueAsync in wenigen Minuten. Installieren Sie es über Composer und schreiben Sie noch heute nebenläufigen Code."
+  buttons:
+    - label: "Dokumentation lesen"
+      url: "/de/docs.html"
+      style: primary
+    - label: "Auf GitHub ansehen"
+      url: "https://github.com/true-async"
+      style: secondary
+      external: true
+    - label: "Discord-Chat"
+      url: "https://discord.gg/yqBQPBHKp5"
+      style: secondary
+      external: true

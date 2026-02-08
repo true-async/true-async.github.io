@@ -1,0 +1,23 @@
+title: TrueAsync
+description: True Asynchronous inside PHP
+url: https://true-async.github.io
+baseurl: ""
+
+markdown: kramdown
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+
+permalink: pretty
+
+exclude:
+  - README.md
+  - .idea
+  - .claude
+  - plantuml.jar
+
+defaults:
+  - scope:
+      path: ""
+    values:
+      layout: default
