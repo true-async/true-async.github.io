@@ -8,8 +8,36 @@
 <link rel="stylesheet" href="/css/style.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"
-    onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // GitHub Pages forces kramdown math_engine: mathjax, which wraps formulas
+    // in <script type="math/tex"> tags. Render them with KaTeX.
+    document.querySelectorAll("script[type='math/tex; mode=display']").forEach(function(el) {
+        var p = document.createElement("div");
+        p.className = "kdmath";
+        try { katex.render(el.textContent, p, {displayMode: true, throwOnError: false}); }
+        catch(e) { p.textContent = el.textContent; }
+        el.parentNode.replaceChild(p, el);
+    });
+    document.querySelectorAll("script[type='math/tex']").forEach(function(el) {
+        var s = document.createElement("span");
+        s.className = "kdmath";
+        try { katex.render(el.textContent, s, {displayMode: false, throwOnError: false}); }
+        catch(e) { s.textContent = el.textContent; }
+        el.parentNode.replaceChild(s, el);
+    });
+    // Fallback: if math_engine: null works, auto-render catches $$...$$ in text
+    renderMathInElement(document.body, {
+        delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "\\(", right: "\\)", display: false}
+        ],
+        throwOnError: false
+    });
+});
+</script>
 <link rel="icon" type="image/png" href="/assets/logo-header.png">
 {% for lang in site.data.languages %}
 <link rel="alternate" hreflang="{{ lang.code }}" href="/{{ lang.code }}{{ page.path_key | default: '/' }}">
