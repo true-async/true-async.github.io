@@ -6,6 +6,9 @@ hero:
     - label: "Get Started"
       url: "/en/docs.html"
       style: primary
+    - label: "How Coroutines Work"
+      url: "/en/interactive/coroutine-demo.html"
+      style: secondary
     - label: "Download"
       url: "/en/download.html"
       style: secondary

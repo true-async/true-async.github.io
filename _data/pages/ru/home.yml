@@ -6,6 +6,9 @@ hero:
     - label: "Начать работу"
       url: "/ru/docs.html"
       style: primary
+    - label: "Как работают корутины"
+      url: "/ru/interactive/coroutine-demo.html"
+      style: secondary
     - label: "Скачать"
       url: "/ru/download.html"
       style: secondary

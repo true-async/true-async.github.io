@@ -1373,3 +1373,20 @@ pre code {
         border-bottom-right-radius: var(--radius-4xl);
     }
 }
+
+/* ---- Interactive Demo ---- */
+
+.interactive-demo {
+    background: #0d1117;
+    padding: 1.5rem 1rem 2rem;
+}
+
+.interactive-demo * {
+    box-sizing: border-box;
+}
+
+@media (min-width: 640px) {
+    .interactive-demo {
+        padding: 2rem 1.5rem 3rem;
+    }
+}

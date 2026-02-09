@@ -1,0 +1,988 @@
+---
+layout: interactive
+lang: ru
+path_key: "/interactive/coroutine-demo.html"
+nav_active: ""
+permalink: /ru/interactive/coroutine-demo.html
+page_title: "Как работают корутины"
+description: "Интерактивная визуализация работы корутин в TrueAsync"
+---
+
+<style>
+    .interactive-demo .container {
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .interactive-demo h1.demo-title {
+        text-align: center;
+        margin-bottom: 4px;
+        color: #58a6ff;
+        font-size: 1.5em;
+    }
+
+    .interactive-demo .subtitle {
+        text-align: center;
+        color: #8b949e;
+        margin-bottom: 12px;
+        font-size: 0.9em;
+    }
+
+    .interactive-demo .main-layout {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-bottom: 12px;
+    }
+
+    @media (max-width: 1000px) {
+        .interactive-demo .main-layout {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .interactive-demo .code-panel {
+        background: #161b22;
+        border-radius: 8px;
+        overflow: hidden;
+        border: 2px solid transparent;
+        transition: border-color 0.3s;
+    }
+
+    .interactive-demo .code-panel.active-coro1 {
+        border-color: rgba(88, 166, 255, 0.5);
+    }
+
+    .interactive-demo .code-panel.active-coro2 {
+        border-color: rgba(210, 168, 255, 0.5);
+    }
+
+    .interactive-demo .code-header {
+        background: #21262d;
+        padding: 6px 12px;
+        font-size: 0.8em;
+        color: #8b949e;
+        border-bottom: 1px solid #30363d;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .interactive-demo .iteration-badge {
+        background: #30363d;
+        padding: 2px 8px;
+        border-radius: 10px;
+        font-size: 0.85em;
+    }
+
+    .interactive-demo .code-content {
+        padding: 8px 12px;
+        font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+        font-size: 0.75em;
+        line-height: 1.4;
+        overflow-x: auto;
+    }
+
+    .interactive-demo .code-line {
+        padding: 2px 8px;
+        border-radius: 3px;
+        transition: background 0.2s;
+        white-space: pre;
+        color: #c9d1d9;
+    }
+
+    .interactive-demo .code-line.active-cpu {
+        background: rgba(63, 185, 80, 0.25);
+        border-left: 3px solid #3fb950;
+    }
+
+    .interactive-demo .code-line.active-wait {
+        background: rgba(136, 146, 157, 0.15);
+        border-left: 3px solid #6e7681;
+    }
+
+    .interactive-demo .keyword { color: #ff7b72; }
+    .interactive-demo .function { color: #d2a8ff; }
+    .interactive-demo .string { color: #a5d6ff; }
+    .interactive-demo .variable { color: #ffa657; }
+    .interactive-demo .comment { color: #6e7681; font-style: italic; }
+    .interactive-demo .class { color: #79c0ff; }
+    .interactive-demo .number { color: #79c0ff; }
+
+    .interactive-demo .timeline-panel {
+        background: #161b22;
+        border-radius: 8px;
+        padding: 12px 15px;
+    }
+
+    .interactive-demo .timeline-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .interactive-demo .timeline-title {
+        font-size: 1em;
+        color: #8b949e;
+    }
+
+    .interactive-demo .time-display {
+        font-family: monospace;
+        color: #58a6ff;
+        font-size: 1.2em;
+        min-width: 80px;
+        text-align: right;
+    }
+
+    .interactive-demo .timeline-track {
+        margin-bottom: 10px;
+    }
+
+    .interactive-demo .track-label {
+        display: flex;
+        align-items: center;
+        margin-bottom: 4px;
+        gap: 8px;
+    }
+
+    .interactive-demo .track-name {
+        font-weight: 600;
+        font-size: 0.85em;
+        min-width: 90px;
+    }
+
+    .interactive-demo .track-name.coro1 { color: #58a6ff; }
+    .interactive-demo .track-name.coro2 { color: #d2a8ff; }
+
+    .interactive-demo .track-status {
+        font-size: 0.75em;
+        padding: 2px 10px;
+        border-radius: 10px;
+        background: #21262d;
+        min-width: 80px;
+        text-align: center;
+    }
+
+    .interactive-demo .track-bar {
+        height: 38px;
+        background: #21262d;
+        border-radius: 5px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .interactive-demo .segment {
+        position: absolute;
+        top: 3px;
+        bottom: 3px;
+        border-radius: 3px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.6em;
+        font-weight: 500;
+        transition: opacity 0.3s;
+        overflow: hidden;
+    }
+
+    .interactive-demo .segment-label {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+        padding: 0 2px;
+    }
+
+    .interactive-demo .segment-time {
+        font-size: 0.9em;
+        opacity: 0.8;
+    }
+
+    .interactive-demo .segment.cpu {
+        background: linear-gradient(135deg, #238636, #2ea043);
+        color: white;
+    }
+
+    .interactive-demo .segment.db-wait {
+        background: repeating-linear-gradient(90deg, #1a3a5c, #1a3a5c 4px, #0d1f33 4px, #0d1f33 8px);
+        color: #58a6ff;
+        border: 1px solid #1f4a7a;
+    }
+
+    .interactive-demo .segment.socket-wait {
+        background: repeating-linear-gradient(90deg, #3d3021, #3d3021 4px, #261e15 4px, #261e15 8px);
+        color: #d29922;
+        border: 1px solid #5c4a1f;
+    }
+
+    .interactive-demo .segment.future {
+        opacity: 0.25;
+    }
+
+    .interactive-demo .playhead {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 3px;
+        background: #f85149;
+        z-index: 10;
+        box-shadow: 0 0 8px rgba(248, 81, 73, 0.5);
+    }
+
+    .interactive-demo .playhead::after {
+        content: '';
+        position: absolute;
+        top: -5px;
+        left: -5px;
+        width: 13px;
+        height: 13px;
+        background: #f85149;
+        border-radius: 50%;
+        box-shadow: 0 0 6px rgba(248, 81, 73, 0.8);
+    }
+
+    .interactive-demo .time-scale {
+        display: flex;
+        justify-content: space-between;
+        padding: 3px 0 0 0;
+        font-size: 0.65em;
+        color: #6e7681;
+    }
+
+    .interactive-demo .cpu-indicator {
+        margin-top: 10px;
+        padding: 8px 12px;
+        background: #21262d;
+        border-radius: 5px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .interactive-demo .cpu-label {
+        font-size: 0.8em;
+        color: #8b949e;
+        white-space: nowrap;
+    }
+
+    .interactive-demo .cpu-bar {
+        flex: 1;
+        height: 28px;
+        background: #161b22;
+        border-radius: 4px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .interactive-demo .cpu-fill {
+        height: 100%;
+        transition: all 0.15s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8em;
+        font-weight: 600;
+        color: white;
+    }
+
+    .interactive-demo .cpu-fill.coro1 {
+        background: linear-gradient(90deg, #1f6feb, #58a6ff);
+    }
+
+    .interactive-demo .cpu-fill.coro2 {
+        background: linear-gradient(90deg, #8957e5, #d2a8ff);
+    }
+
+    .interactive-demo .cpu-fill.idle {
+        background: #30363d;
+        color: #6e7681;
+    }
+
+    .interactive-demo .controls {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 12px;
+        flex-wrap: wrap;
+    }
+
+    .interactive-demo .demo-btn {
+        padding: 7px 14px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 0.85em;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+
+    .interactive-demo .demo-btn-primary {
+        background: #238636;
+        color: white;
+    }
+
+    .interactive-demo .demo-btn-primary:hover {
+        background: #2ea043;
+    }
+
+    .interactive-demo .demo-btn-secondary {
+        background: #21262d;
+        color: #c9d1d9;
+        border: 1px solid #30363d;
+    }
+
+    .interactive-demo .demo-btn-secondary:hover {
+        background: #30363d;
+    }
+
+    .interactive-demo .demo-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .interactive-demo .speed-control {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        background: #21262d;
+        padding: 4px 10px;
+        border-radius: 5px;
+    }
+
+    .interactive-demo .speed-control label {
+        font-size: 0.8em;
+        color: #8b949e;
+    }
+
+    .interactive-demo .speed-control select {
+        background: #161b22;
+        color: #c9d1d9;
+        border: 1px solid #30363d;
+        padding: 4px 8px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.85em;
+    }
+
+    .interactive-demo .loop-control {
+        display: flex;
+        align-items: center;
+        background: #21262d;
+        padding: 4px 10px;
+        border-radius: 5px;
+    }
+
+    .interactive-demo .loop-control label {
+        font-size: 0.8em;
+        color: #8b949e;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .interactive-demo .loop-control input {
+        cursor: pointer;
+    }
+
+    .interactive-demo .legend {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-top: 10px;
+        flex-wrap: wrap;
+    }
+
+    .interactive-demo .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 0.75em;
+        color: #8b949e;
+    }
+
+    .interactive-demo .legend-color {
+        width: 14px;
+        height: 14px;
+        border-radius: 2px;
+    }
+
+    .interactive-demo .legend-color.cpu {
+        background: linear-gradient(135deg, #238636, #2ea043);
+    }
+
+    .interactive-demo .legend-color.db {
+        background: repeating-linear-gradient(90deg, #1a3a5c, #1a3a5c 2px, #0d1f33 2px, #0d1f33 4px);
+        border: 1px solid #1f4a7a;
+    }
+
+    .interactive-demo .legend-color.socket {
+        background: repeating-linear-gradient(90deg, #3d3021, #3d3021 2px, #261e15 2px, #261e15 4px);
+        border: 1px solid #5c4a1f;
+    }
+
+    .interactive-demo .stats {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+        margin-top: 10px;
+    }
+
+    @media (max-width: 600px) {
+        .interactive-demo .stats {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    .interactive-demo .stat-card {
+        background: #21262d;
+        padding: 8px;
+        border-radius: 5px;
+        text-align: center;
+    }
+
+    .interactive-demo .stat-value {
+        font-size: 1.1em;
+        font-weight: 600;
+        color: #58a6ff;
+    }
+
+    .interactive-demo .stat-value.highlight {
+        color: #3fb950;
+    }
+
+    .interactive-demo .stat-label {
+        font-size: 0.7em;
+        color: #8b949e;
+        margin-top: 2px;
+    }
+
+    .interactive-demo .explanation {
+        background: #161b22;
+        border-radius: 6px;
+        padding: 12px 15px;
+        margin-top: 12px;
+        border-left: 3px solid #58a6ff;
+    }
+
+    .interactive-demo .explanation h3 {
+        color: #58a6ff;
+        margin-bottom: 6px;
+        font-size: 0.9em;
+    }
+
+    .interactive-demo .explanation p {
+        color: #8b949e;
+        font-size: 0.85em;
+        line-height: 1.5;
+    }
+
+    .interactive-demo .explanation .highlight {
+        color: #3fb950;
+        font-weight: 500;
+    }
+
+    .interactive-demo .explanation .db-highlight {
+        color: #58a6ff;
+    }
+
+    .interactive-demo .explanation .socket-highlight {
+        color: #d29922;
+    }
+</style>
+
+<div class="container">
+    <h1 class="demo-title">Как работают корутины</h1>
+    <p class="subtitle">Две корутины эффективно делят процессорное время</p>
+
+    <div class="main-layout">
+        <div class="code-panel" id="codePanel1">
+            <div class="code-header">
+                <span>Корутина 1 — Обработка пользователей</span>
+                <span class="iteration-badge" id="iter1">Итерация: 0/3</span>
+            </div>
+            <div class="code-content" id="code1">
+                <div class="code-line" data-line="1"><span class="variable">$coro1</span> = <span class="function">spawn</span>(<span class="keyword">function</span>() {</div>
+                <div class="code-line" data-line="2">  <span class="variable">$pdo</span> = <span class="keyword">new</span> <span class="class">PDO</span>(<span class="variable">$dsn</span>);</div>
+                <div class="code-line" data-line="5">  <span class="keyword">foreach</span> ([<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>] <span class="keyword">as</span> <span class="variable">$id</span>) {</div>
+                <div class="code-line" data-line="6">    <span class="variable">$stmt</span> = <span class="variable">$pdo</span>-><span class="function">prepare</span>(<span class="string">"SELECT * FROM users WHERE id=?"</span>);</div>
+                <div class="code-line" data-line="9"><span class="code-wait" data-line="9w">    <span class="variable">$stmt</span>-><span class="function">execute</span>([<span class="variable">$id</span>]); <span class="comment">// ⏳ 15ms</span></span></div>
+                <div class="code-line" data-line="11">    <span class="variable">$user</span> = <span class="variable">$stmt</span>-><span class="function">fetch</span>();</div>
+                <div class="code-line" data-line="12">    <span class="function">processUser</span>(<span class="variable">$user</span>);</div>
+                <div class="code-line" data-line="13">  }</div>
+                <div class="code-line" data-line="14">});</div>
+            </div>
+        </div>
+
+        <div class="code-panel" id="codePanel2">
+            <div class="code-header">
+                <span>Корутина 2 — Логирование + уведомления</span>
+                <span class="iteration-badge" id="iter2">Итерация: 0/3</span>
+            </div>
+            <div class="code-content" id="code2">
+                <div class="code-line" data-line="1"><span class="variable">$coro2</span> = <span class="function">spawn</span>(<span class="keyword">function</span>() {</div>
+                <div class="code-line" data-line="2">  <span class="variable">$pdo</span> = <span class="keyword">new</span> <span class="class">PDO</span>(<span class="variable">$dsn</span>);</div>
+                <div class="code-line" data-line="3">  <span class="variable">$socket</span> = <span class="function">fsockopen</span>(<span class="variable">$host</span>, <span class="number">9000</span>);</div>
+                <div class="code-line" data-line="6">  <span class="keyword">foreach</span> ([<span class="string">'login'</span>,<span class="string">'click'</span>,<span class="string">'logout'</span>] <span class="keyword">as</span> <span class="variable">$e</span>) {</div>
+                <div class="code-line" data-line="7">    <span class="variable">$stmt</span> = <span class="variable">$pdo</span>-><span class="function">prepare</span>(<span class="string">"INSERT INTO logs VALUES(?)"</span>);</div>
+                <div class="code-line" data-line="10"><span class="code-wait" data-line="10w">    <span class="variable">$stmt</span>-><span class="function">execute</span>([<span class="variable">$e</span>]); <span class="comment">// ⏳ 12ms</span></span></div>
+                <div class="code-line" data-line="12"><span class="code-wait" data-line="12w">    <span class="function">fwrite</span>(<span class="variable">$socket</span>, <span class="variable">$e</span>); <span class="comment">// ⏳ 20ms</span></span></div>
+                <div class="code-line" data-line="13">  }</div>
+                <div class="code-line" data-line="14">});</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="timeline-panel">
+        <div class="timeline-header">
+            <span class="timeline-title">Timeline выполнения</span>
+            <span class="time-display" id="timeDisplay">0 ms</span>
+        </div>
+
+        <div class="timeline-track">
+            <div class="track-label">
+                <span class="track-name coro1">Корутина 1</span>
+                <span class="track-status" id="status1">готова</span>
+            </div>
+            <div class="track-bar" id="track1"></div>
+        </div>
+
+        <div class="timeline-track">
+            <div class="track-label">
+                <span class="track-name coro2">Корутина 2</span>
+                <span class="track-status" id="status2">готова</span>
+            </div>
+            <div class="track-bar" id="track2"></div>
+        </div>
+
+        <div class="time-scale">
+            <span>0</span>
+            <span>25</span>
+            <span>50</span>
+            <span>75</span>
+            <span>100ms</span>
+        </div>
+
+        <div class="cpu-indicator">
+            <span class="cpu-label">CPU:</span>
+            <div class="cpu-bar">
+                <div class="cpu-fill idle" id="cpuFill" style="width: 100%">Ожидание</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="demo-btn demo-btn-primary" id="playBtn">&#9654; Запустить</button>
+            <button class="demo-btn demo-btn-secondary" id="stepBtn">&#9197; Шаг</button>
+            <button class="demo-btn demo-btn-secondary" id="resetBtn">&#8634; Сначала</button>
+            <div class="speed-control">
+                <label>Скорость:</label>
+                <select id="speedSelect">
+                    <option value="800">0.5x</option>
+                    <option value="400" selected>1x</option>
+                    <option value="200">2x</option>
+                    <option value="100">4x</option>
+                </select>
+            </div>
+            <div class="loop-control">
+                <label>
+                    <input type="checkbox" id="loopCheckbox">
+                    Зациклить
+                </label>
+            </div>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color cpu"></div>
+                <span>CPU работает</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color db"></div>
+                <span>Ожидание БД</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color socket"></div>
+                <span>Ожидание сети</span>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-value" id="totalTime">0 ms</div>
+                <div class="stat-label">Общее время</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="dbWaitTime">0 ms</div>
+                <div class="stat-label">Ожидание БД</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="socketWaitTime">0 ms</div>
+                <div class="stat-label">Ожидание сети</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value highlight" id="savedTime">0 ms</div>
+                <div class="stat-label">Сэкономлено</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="explanation">
+        <h3 id="explanationTitle">Нажмите "Запустить" для начала</h3>
+        <p id="explanationText">
+            Визуализация показывает, как две корутины эффективно делят процессор.
+            Пока одна ждёт ответа от <span class="db-highlight">базы данных</span> или <span class="socket-highlight">сети</span>,
+            другая выполняет полезную работу. Это <span class="highlight">кооперативная многозадачность</span>.
+        </p>
+    </div>
+</div>
+
+<script>
+    (function() {
+        const TOTAL_DURATION = 100;
+
+        const timeline1 = [
+            { start: 0, duration: 2, type: 'cpu', label: 'prepare', iter: 1 },
+            { start: 2, duration: 15, type: 'db-wait', label: 'SELECT', iter: 1 },
+            { start: 17, duration: 3, type: 'cpu', label: 'process', iter: 1 },
+            { start: 20, duration: 2, type: 'cpu', label: 'prepare', iter: 2 },
+            { start: 22, duration: 15, type: 'db-wait', label: 'SELECT', iter: 2 },
+            { start: 37, duration: 3, type: 'cpu', label: 'process', iter: 2 },
+            { start: 40, duration: 2, type: 'cpu', label: 'prepare', iter: 3 },
+            { start: 42, duration: 15, type: 'db-wait', label: 'SELECT', iter: 3 },
+            { start: 57, duration: 3, type: 'cpu', label: 'process', iter: 3 },
+        ];
+
+        const timeline2 = [
+            { start: 2, duration: 2, type: 'cpu', label: 'prepare', iter: 1 },
+            { start: 4, duration: 12, type: 'db-wait', label: 'INSERT', iter: 1 },
+            { start: 16, duration: 1, type: 'cpu', label: 'fwrite', iter: 1 },
+            { start: 17, duration: 20, type: 'socket-wait', label: 'send', iter: 1 },
+            { start: 37, duration: 2, type: 'cpu', label: 'prepare', iter: 2 },
+            { start: 39, duration: 12, type: 'db-wait', label: 'INSERT', iter: 2 },
+            { start: 51, duration: 1, type: 'cpu', label: 'fwrite', iter: 2 },
+            { start: 52, duration: 20, type: 'socket-wait', label: 'send', iter: 2 },
+            { start: 72, duration: 2, type: 'cpu', label: 'prepare', iter: 3 },
+            { start: 74, duration: 12, type: 'db-wait', label: 'INSERT', iter: 3 },
+            { start: 86, duration: 1, type: 'cpu', label: 'fwrite', iter: 3 },
+            { start: 87, duration: 13, type: 'socket-wait', label: 'send', iter: 3 },
+        ];
+
+        const steps = [
+            { time: 0, title: 'Старт', text: 'Обе корутины созданы через <span class="highlight">spawn()</span> и готовы к выполнению. Планировщик начинает работу.', coro1Line: '1', coro2Line: '1', cpu: 'idle', iter1: 0, iter2: 0 },
+            { time: 1, title: 'Корутина 1: подготовка запроса', text: 'Корутина 1 создаёт PDO statement для SELECT. Это быстрая операция в памяти.', coro1Line: '6', coro2Line: '1', cpu: 'coro1', iter1: 1, iter2: 0 },
+            { time: 2, title: 'Корутина 1: отправка SELECT', text: 'Вызов <span class="highlight">execute()</span> отправляет запрос в БД. Корутина <span class="db-highlight">приостанавливается</span> и отдаёт CPU.', coro1Line: '9w', coro2Line: '1', cpu: 'coro2', iter1: 1, iter2: 0 },
+            { time: 3, title: 'Корутина 2: подготовка INSERT', text: 'Пока корутина 1 ждёт БД, корутина 2 начинает работу — готовит INSERT запрос.', coro1Line: '9w', coro2Line: '7', cpu: 'coro2', iter1: 1, iter2: 1 },
+            { time: 4, title: 'Корутина 2: отправка INSERT', text: 'INSERT отправлен в БД. Теперь <span class="db-highlight">обе корутины ждут</span> ответа от базы данных.', coro1Line: '9w', coro2Line: '10w', cpu: 'idle', iter1: 1, iter2: 1 },
+            { time: 16, title: 'Корутина 2: БД ответила', text: 'INSERT завершился за ~12ms. Корутина 2 возобновляется и отправляет данные в сокет.', coro1Line: '9w', coro2Line: '12', cpu: 'coro2', iter1: 1, iter2: 1 },
+            { time: 17, title: 'Корутина 1: БД ответила', text: 'SELECT вернул данные за ~15ms. Корутина 1 возобновляется, обрабатывает результат. Корутина 2 ждёт <span class="socket-highlight">сеть</span>.', coro1Line: '12', coro2Line: '12w', cpu: 'coro1', iter1: 1, iter2: 1 },
+            { time: 20, title: 'Корутина 1: итерация 2', text: 'Первая итерация завершена. Корутина 1 начинает вторую итерацию цикла — новый SELECT.', coro1Line: '6', coro2Line: '12w', cpu: 'coro1', iter1: 2, iter2: 1 },
+            { time: 22, title: 'Обе корутины ждут I/O', text: 'Корутина 1 ждёт <span class="db-highlight">БД</span>, корутина 2 ждёт <span class="socket-highlight">сеть</span>. CPU свободен, но это нормально — внешние системы работают.', coro1Line: '9w', coro2Line: '12w', cpu: 'idle', iter1: 2, iter2: 1 },
+            { time: 37, title: 'Обе корутины возобновляются', text: 'I/O операции завершились почти одновременно. Корутины по очереди обрабатывают результаты.', coro1Line: '12', coro2Line: '7', cpu: 'coro1', iter1: 2, iter2: 2 },
+            { time: 40, title: 'Корутина 1: итерация 3', text: 'Последняя итерация корутины 1. SELECT для третьего пользователя.', coro1Line: '9w', coro2Line: '10w', cpu: 'idle', iter1: 3, iter2: 2 },
+            { time: 51, title: 'Параллельная работа', text: 'Корутина 2 отправляет данные в сокет, корутина 1 продолжает ждать SELECT.', coro1Line: '9w', coro2Line: '12w', cpu: 'idle', iter1: 3, iter2: 2 },
+            { time: 57, title: 'Корутина 1: финальная обработка', text: 'Третий SELECT вернул данные. Корутина 1 обрабатывает последнего пользователя.', coro1Line: '12', coro2Line: '12w', cpu: 'coro1', iter1: 3, iter2: 2 },
+            { time: 60, title: 'Корутина 1 завершена', text: 'Все 3 пользователя обработаны. Корутина 1 завершилась. Корутина 2 продолжает работу.', coro1Line: '14', coro2Line: '12w', cpu: 'idle', iter1: 3, iter2: 2 },
+            { time: 72, title: 'Корутина 2: итерация 3', text: 'Последняя итерация корутины 2. Финальный INSERT в логи.', coro1Line: '14', coro2Line: '10w', cpu: 'idle', iter1: 3, iter2: 3 },
+            { time: 86, title: 'Корутина 2: финальная отправка', text: 'Последние данные отправляются в сокет.', coro1Line: '14', coro2Line: '12w', cpu: 'idle', iter1: 3, iter2: 3 },
+            { time: 100, title: 'Готово!', text: 'Обе корутины завершены за <span class="highlight">~100ms</span>. Последовательное выполнение заняло бы ~156ms. Экономия <span class="highlight">~36%</span>!', coro1Line: '14', coro2Line: '14', cpu: 'idle', iter1: 3, iter2: 3 },
+        ];
+
+        const track1 = document.getElementById('track1');
+        const track2 = document.getElementById('track2');
+        const status1 = document.getElementById('status1');
+        const status2 = document.getElementById('status2');
+        const cpuFill = document.getElementById('cpuFill');
+        const timeDisplay = document.getElementById('timeDisplay');
+        const playBtn = document.getElementById('playBtn');
+        const stepBtn = document.getElementById('stepBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const speedSelect = document.getElementById('speedSelect');
+        const loopCheckbox = document.getElementById('loopCheckbox');
+        const totalTimeEl = document.getElementById('totalTime');
+        const dbWaitTimeEl = document.getElementById('dbWaitTime');
+        const socketWaitTimeEl = document.getElementById('socketWaitTime');
+        const savedTimeEl = document.getElementById('savedTime');
+        const explanationTitle = document.getElementById('explanationTitle');
+        const explanationText = document.getElementById('explanationText');
+        const code1 = document.getElementById('code1');
+        const code2 = document.getElementById('code2');
+        const codePanel1 = document.getElementById('codePanel1');
+        const codePanel2 = document.getElementById('codePanel2');
+        const iter1El = document.getElementById('iter1');
+        const iter2El = document.getElementById('iter2');
+
+        let isPlaying = false;
+        let currentStepIndex = 0;
+        let animationId = null;
+        let playhead1, playhead2;
+
+        function createSegments() {
+            track1.innerHTML = '';
+            track2.innerHTML = '';
+
+            timeline1.forEach(function(seg) {
+                track1.appendChild(createSegmentElement(seg));
+            });
+
+            timeline2.forEach(function(seg) {
+                track2.appendChild(createSegmentElement(seg));
+            });
+
+            playhead1 = document.createElement('div');
+            playhead1.className = 'playhead';
+            playhead1.style.left = '0%';
+            track1.appendChild(playhead1);
+
+            playhead2 = document.createElement('div');
+            playhead2.className = 'playhead';
+            playhead2.style.left = '0%';
+            track2.appendChild(playhead2);
+        }
+
+        function createSegmentElement(seg) {
+            var el = document.createElement('div');
+            el.className = 'segment ' + seg.type + ' future';
+            el.style.left = (seg.start / TOTAL_DURATION) * 100 + '%';
+            el.style.width = (seg.duration / TOTAL_DURATION) * 100 + '%';
+
+            var labelEl = document.createElement('div');
+            labelEl.className = 'segment-label';
+            labelEl.textContent = seg.label;
+
+            var timeEl = document.createElement('div');
+            timeEl.className = 'segment-time';
+            timeEl.textContent = seg.duration + 'ms';
+
+            el.appendChild(labelEl);
+            el.appendChild(timeEl);
+
+            el.dataset.start = seg.start;
+            el.dataset.end = seg.start + seg.duration;
+
+            return el;
+        }
+
+        function updateTimeline(time) {
+            var percent = (time / TOTAL_DURATION) * 100;
+
+            document.querySelectorAll('#track1 .segment, #track2 .segment').forEach(function(seg) {
+                var start = parseFloat(seg.dataset.start);
+                if (start <= time) {
+                    seg.classList.remove('future');
+                } else {
+                    seg.classList.add('future');
+                }
+            });
+
+            var coro1End = 60;
+            playhead1.style.left = Math.min(percent, (coro1End / TOTAL_DURATION) * 100) + '%';
+            playhead2.style.left = percent + '%';
+
+            timeDisplay.textContent = Math.round(time) + ' ms';
+        }
+
+        function updateCodeHighlight(step) {
+            code1.querySelectorAll('.code-line').forEach(function(line) {
+                line.classList.remove('active-cpu', 'active-wait');
+            });
+            code2.querySelectorAll('.code-line').forEach(function(line) {
+                line.classList.remove('active-cpu', 'active-wait');
+            });
+
+            codePanel1.classList.remove('active-coro1', 'active-coro2');
+            codePanel2.classList.remove('active-coro1', 'active-coro2');
+
+            if (step.coro1Line) {
+                var isWait = step.coro1Line.endsWith('w');
+                var lineNum = isWait ? step.coro1Line.slice(0, -1) : step.coro1Line;
+                var line1 = code1.querySelector('[data-line="' + lineNum + '"]');
+                if (line1) {
+                    if (isWait) {
+                        line1.classList.add('active-wait');
+                    } else {
+                        line1.classList.add('active-cpu');
+                        if (step.cpu === 'coro1') codePanel1.classList.add('active-coro1');
+                    }
+                }
+            }
+
+            if (step.coro2Line) {
+                var isWait2 = step.coro2Line.endsWith('w');
+                var lineNum2 = isWait2 ? step.coro2Line.slice(0, -1) : step.coro2Line;
+                var line2 = code2.querySelector('[data-line="' + lineNum2 + '"]');
+                if (line2) {
+                    if (isWait2) {
+                        line2.classList.add('active-wait');
+                    } else {
+                        line2.classList.add('active-cpu');
+                        if (step.cpu === 'coro2') codePanel2.classList.add('active-coro2');
+                    }
+                }
+            }
+        }
+
+        function updateCPU(state) {
+            cpuFill.className = 'cpu-fill';
+            if (state === 'coro1') {
+                cpuFill.classList.add('coro1');
+                cpuFill.textContent = 'Корутина 1';
+            } else if (state === 'coro2') {
+                cpuFill.classList.add('coro2');
+                cpuFill.textContent = 'Корутина 2';
+            } else {
+                cpuFill.classList.add('idle');
+                cpuFill.textContent = 'Ожидание I/O';
+            }
+        }
+
+        function updateStatus(step) {
+            var time = step.time;
+
+            if (time >= 60) {
+                status1.textContent = 'завершена';
+                status1.style.color = '#3fb950';
+            } else if (step.coro1Line && step.coro1Line.endsWith('w')) {
+                status1.textContent = 'ждёт БД';
+                status1.style.color = '#58a6ff';
+            } else if (step.cpu === 'coro1') {
+                status1.textContent = 'работает';
+                status1.style.color = '#3fb950';
+            } else {
+                status1.textContent = 'в очереди';
+                status1.style.color = '#8b949e';
+            }
+
+            if (time >= 100) {
+                status2.textContent = 'завершена';
+                status2.style.color = '#3fb950';
+            } else if (step.coro2Line === '12w') {
+                status2.textContent = 'ждёт сеть';
+                status2.style.color = '#d29922';
+            } else if (step.coro2Line && step.coro2Line.endsWith('w')) {
+                status2.textContent = 'ждёт БД';
+                status2.style.color = '#58a6ff';
+            } else if (step.cpu === 'coro2') {
+                status2.textContent = 'работает';
+                status2.style.color = '#3fb950';
+            } else {
+                status2.textContent = 'в очереди';
+                status2.style.color = '#8b949e';
+            }
+
+            iter1El.textContent = 'Итерация: ' + step.iter1 + '/3';
+            iter2El.textContent = 'Итерация: ' + step.iter2 + '/3';
+        }
+
+        function updateStats(time) {
+            totalTimeEl.textContent = Math.round(time) + ' ms';
+
+            var dbWait = 0;
+            var socketWait = 0;
+
+            [].concat(timeline1, timeline2).forEach(function(seg) {
+                var segEnd = seg.start + seg.duration;
+                if (seg.start < time) {
+                    var visibleDuration = Math.min(segEnd, time) - seg.start;
+                    if (seg.type === 'db-wait') {
+                        dbWait += visibleDuration;
+                    } else if (seg.type === 'socket-wait') {
+                        socketWait += visibleDuration;
+                    }
+                }
+            });
+
+            dbWaitTimeEl.textContent = Math.round(dbWait) + ' ms';
+            socketWaitTimeEl.textContent = Math.round(socketWait) + ' ms';
+
+            var sequentialTime = 156;
+            var saved = Math.max(0, sequentialTime - time);
+            savedTimeEl.textContent = Math.round(saved) + ' ms';
+        }
+
+        function goToStep(stepIndex) {
+            if (stepIndex < 0 || stepIndex >= steps.length) return;
+
+            currentStepIndex = stepIndex;
+            var step = steps[stepIndex];
+
+            updateTimeline(step.time);
+            updateCodeHighlight(step);
+            updateCPU(step.cpu);
+            updateStatus(step);
+            updateStats(step.time);
+
+            explanationTitle.textContent = step.title;
+            explanationText.innerHTML = step.text;
+        }
+
+        function nextStep() {
+            if (currentStepIndex < steps.length - 1) {
+                goToStep(currentStepIndex + 1);
+            } else if (loopCheckbox.checked && isPlaying) {
+                currentStepIndex = 0;
+                goToStep(0);
+            } else {
+                stopAnimation();
+            }
+        }
+
+        function animate() {
+            if (!isPlaying) return;
+            nextStep();
+            if (currentStepIndex < steps.length - 1 || loopCheckbox.checked) {
+                var speed = parseInt(speedSelect.value);
+                animationId = setTimeout(animate, speed);
+            }
+        }
+
+        function startAnimation() {
+            if (currentStepIndex >= steps.length - 1 && !loopCheckbox.checked) {
+                reset();
+            }
+            isPlaying = true;
+            playBtn.innerHTML = '&#9208; Пауза';
+            stepBtn.disabled = true;
+            var speed = parseInt(speedSelect.value);
+            animationId = setTimeout(animate, speed);
+        }
+
+        function stopAnimation() {
+            isPlaying = false;
+            playBtn.innerHTML = '&#9654; Запустить';
+            stepBtn.disabled = false;
+            if (animationId) {
+                clearTimeout(animationId);
+                animationId = null;
+            }
+        }
+
+        function reset() {
+            stopAnimation();
+            currentStepIndex = 0;
+            goToStep(0);
+        }
+
+        playBtn.addEventListener('click', function() {
+            if (isPlaying) {
+                stopAnimation();
+            } else {
+                startAnimation();
+            }
+        });
+
+        stepBtn.addEventListener('click', nextStep);
+        resetBtn.addEventListener('click', reset);
+
+        speedSelect.addEventListener('change', function() {
+            if (isPlaying) {
+                stopAnimation();
+                startAnimation();
+            }
+        });
+
+        createSegments();
+        goToStep(0);
+    })();
+</script>
