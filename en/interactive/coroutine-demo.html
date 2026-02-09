@@ -9,492 +9,296 @@ description: "Interactive visualization of how coroutines work in TrueAsync"
 ---
 
 <style>
-    .interactive-demo .container {
-        max-width: 1400px;
-        margin: 0 auto;
-    }
-
-    .interactive-demo h1.demo-title {
-        text-align: center;
-        margin-bottom: 4px;
-        color: #58a6ff;
-        font-size: 1.5em;
-    }
+    .interactive-demo .container { max-width: 1400px; margin: 0 auto; }
 
     .interactive-demo .subtitle {
         text-align: center;
-        color: #8b949e;
-        margin-bottom: 12px;
-        font-size: 0.9em;
+        color: var(--color-text-muted);
+        margin-bottom: 16px;
+        font-size: 0.95em;
     }
 
     .interactive-demo .main-layout {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 12px;
-        margin-bottom: 12px;
+        margin-bottom: 16px;
     }
-
     @media (max-width: 1000px) {
-        .interactive-demo .main-layout {
-            grid-template-columns: 1fr;
-        }
+        .interactive-demo .main-layout { grid-template-columns: 1fr; }
     }
 
+    /* Code panels */
     .interactive-demo .code-panel {
-        background: #161b22;
-        border-radius: 8px;
+        background: var(--color-code-bg);
+        border-radius: var(--radius-xl);
         overflow: hidden;
-        border: 2px solid transparent;
+        border: 2px solid var(--color-border);
         transition: border-color 0.3s;
     }
-
-    .interactive-demo .code-panel.active-coro1 {
-        border-color: rgba(88, 166, 255, 0.5);
-    }
-
-    .interactive-demo .code-panel.active-coro2 {
-        border-color: rgba(210, 168, 255, 0.5);
-    }
+    .interactive-demo .code-panel.active-coro1 { border-color: rgba(107, 88, 255, 0.5); }
+    .interactive-demo .code-panel.active-coro2 { border-color: rgba(137, 87, 229, 0.5); }
 
     .interactive-demo .code-header {
-        background: #21262d;
-        padding: 6px 12px;
+        background: var(--color-bg-subtle);
+        padding: 8px 14px;
         font-size: 0.8em;
-        color: #8b949e;
-        border-bottom: 1px solid #30363d;
+        font-weight: 600;
+        color: var(--color-text-secondary);
+        border-bottom: 1px solid var(--color-border);
         display: flex;
         justify-content: space-between;
         align-items: center;
     }
-
     .interactive-demo .iteration-badge {
-        background: #30363d;
-        padding: 2px 8px;
-        border-radius: 10px;
+        background: var(--color-border);
+        padding: 2px 10px;
+        border-radius: var(--radius-full);
         font-size: 0.85em;
+        font-weight: 500;
+        color: var(--color-text-muted);
     }
-
     .interactive-demo .code-content {
-        padding: 8px 12px;
-        font-family: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
-        font-size: 0.75em;
-        line-height: 1.4;
+        padding: 10px 14px;
+        font-family: var(--font-mono);
+        font-size: 0.8em;
+        line-height: 1.5;
         overflow-x: auto;
     }
-
     .interactive-demo .code-line {
         padding: 2px 8px;
-        border-radius: 3px;
+        border-radius: var(--radius-md);
         transition: background 0.2s;
         white-space: pre;
-        color: #c9d1d9;
+        color: var(--color-text);
     }
-
     .interactive-demo .code-line.active-cpu {
-        background: rgba(63, 185, 80, 0.25);
-        border-left: 3px solid #3fb950;
+        background: rgba(22, 163, 74, 0.12);
+        border-left: 3px solid #16A34A;
     }
-
     .interactive-demo .code-line.active-wait {
-        background: rgba(136, 146, 157, 0.15);
-        border-left: 3px solid #6e7681;
+        background: rgba(107, 114, 128, 0.1);
+        border-left: 3px solid #9CA3AF;
     }
 
-    .interactive-demo .keyword { color: #ff7b72; }
-    .interactive-demo .function { color: #d2a8ff; }
-    .interactive-demo .string { color: #a5d6ff; }
-    .interactive-demo .variable { color: #ffa657; }
-    .interactive-demo .comment { color: #6e7681; font-style: italic; }
-    .interactive-demo .class { color: #79c0ff; }
-    .interactive-demo .number { color: #79c0ff; }
+    /* Syntax highlighting — matches site's Rouge palette */
+    .interactive-demo .keyword { color: #8250DF; font-weight: 500; }
+    .interactive-demo .function { color: #6639BA; }
+    .interactive-demo .string { color: #0A3069; }
+    .interactive-demo .variable { color: #0550AE; }
+    .interactive-demo .comment { color: #6B7280; font-style: italic; }
+    .interactive-demo .class { color: #6639BA; font-weight: 600; }
+    .interactive-demo .number { color: #0550AE; }
 
+    /* Timeline panel */
     .interactive-demo .timeline-panel {
-        background: #161b22;
-        border-radius: 8px;
-        padding: 12px 15px;
+        background: var(--color-bg-subtle);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-xl);
+        padding: 16px 18px;
     }
-
     .interactive-demo .timeline-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 10px;
+        margin-bottom: 12px;
     }
-
     .interactive-demo .timeline-title {
         font-size: 1em;
-        color: #8b949e;
+        font-weight: 600;
+        color: var(--color-text-secondary);
     }
-
     .interactive-demo .time-display {
-        font-family: monospace;
-        color: #58a6ff;
+        font-family: var(--font-mono);
+        color: var(--color-primary);
         font-size: 1.2em;
+        font-weight: 600;
         min-width: 80px;
         text-align: right;
     }
 
-    .interactive-demo .timeline-track {
-        margin-bottom: 10px;
-    }
-
+    /* Tracks */
+    .interactive-demo .timeline-track { margin-bottom: 10px; }
     .interactive-demo .track-label {
         display: flex;
         align-items: center;
         margin-bottom: 4px;
         gap: 8px;
     }
-
-    .interactive-demo .track-name {
-        font-weight: 600;
-        font-size: 0.85em;
-        min-width: 90px;
-    }
-
-    .interactive-demo .track-name.coro1 { color: #58a6ff; }
-    .interactive-demo .track-name.coro2 { color: #d2a8ff; }
-
+    .interactive-demo .track-name { font-weight: 600; font-size: 0.85em; min-width: 90px; }
+    .interactive-demo .track-name.coro1 { color: var(--color-primary); }
+    .interactive-demo .track-name.coro2 { color: #8957E5; }
     .interactive-demo .track-status {
         font-size: 0.75em;
         padding: 2px 10px;
-        border-radius: 10px;
-        background: #21262d;
+        border-radius: var(--radius-full);
+        background: var(--color-code-bg);
+        border: 1px solid var(--color-border);
         min-width: 80px;
         text-align: center;
+        color: var(--color-text-muted);
     }
-
     .interactive-demo .track-bar {
-        height: 38px;
-        background: #21262d;
-        border-radius: 5px;
+        height: 40px;
+        background: var(--color-code-bg);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-lg);
         position: relative;
         overflow: hidden;
     }
 
+    /* Segments */
     .interactive-demo .segment {
-        position: absolute;
-        top: 3px;
-        bottom: 3px;
-        border-radius: 3px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.6em;
-        font-weight: 500;
+        position: absolute; top: 3px; bottom: 3px;
+        border-radius: var(--radius-md);
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        font-size: 0.6em; font-weight: 600;
         transition: opacity 0.3s;
         overflow: hidden;
     }
-
-    .interactive-demo .segment-label {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        max-width: 100%;
-        padding: 0 2px;
-    }
-
-    .interactive-demo .segment-time {
-        font-size: 0.9em;
-        opacity: 0.8;
-    }
-
+    .interactive-demo .segment-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; padding: 0 2px; }
+    .interactive-demo .segment-time { font-size: 0.9em; opacity: 0.7; }
     .interactive-demo .segment.cpu {
-        background: linear-gradient(135deg, #238636, #2ea043);
+        background: linear-gradient(135deg, #16A34A, #22C55E);
         color: white;
     }
-
     .interactive-demo .segment.db-wait {
-        background: repeating-linear-gradient(90deg, #1a3a5c, #1a3a5c 4px, #0d1f33 4px, #0d1f33 8px);
-        color: #58a6ff;
-        border: 1px solid #1f4a7a;
+        background: rgba(107, 88, 255, 0.15);
+        color: var(--color-primary);
+        border: 1px solid rgba(107, 88, 255, 0.3);
     }
-
     .interactive-demo .segment.socket-wait {
-        background: repeating-linear-gradient(90deg, #3d3021, #3d3021 4px, #261e15 4px, #261e15 8px);
-        color: #d29922;
-        border: 1px solid #5c4a1f;
+        background: rgba(217, 119, 6, 0.12);
+        color: #B45309;
+        border: 1px solid rgba(217, 119, 6, 0.3);
     }
+    .interactive-demo .segment.future { opacity: 0.25; }
 
-    .interactive-demo .segment.future {
-        opacity: 0.25;
-    }
-
+    /* Playhead */
     .interactive-demo .playhead {
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        width: 3px;
-        background: #f85149;
-        z-index: 10;
-        box-shadow: 0 0 8px rgba(248, 81, 73, 0.5);
+        position: absolute; top: 0; bottom: 0; width: 3px;
+        background: #DC2626; z-index: 10;
+        box-shadow: 0 0 6px rgba(220, 38, 38, 0.4);
     }
-
     .interactive-demo .playhead::after {
-        content: '';
-        position: absolute;
-        top: -5px;
-        left: -5px;
-        width: 13px;
-        height: 13px;
-        background: #f85149;
-        border-radius: 50%;
-        box-shadow: 0 0 6px rgba(248, 81, 73, 0.8);
+        content: ''; position: absolute; top: -5px; left: -5px;
+        width: 13px; height: 13px;
+        background: #DC2626; border-radius: 50%;
+        box-shadow: 0 0 4px rgba(220, 38, 38, 0.6);
     }
 
     .interactive-demo .time-scale {
-        display: flex;
-        justify-content: space-between;
-        padding: 3px 0 0 0;
-        font-size: 0.65em;
-        color: #6e7681;
+        display: flex; justify-content: space-between;
+        padding: 4px 0 0; font-size: 0.7em;
+        color: var(--color-text-muted);
     }
 
+    /* CPU indicator */
     .interactive-demo .cpu-indicator {
-        margin-top: 10px;
-        padding: 8px 12px;
-        background: #21262d;
-        border-radius: 5px;
-        display: flex;
-        align-items: center;
-        gap: 12px;
+        margin-top: 12px; padding: 8px 14px;
+        background: var(--color-code-bg);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-lg);
+        display: flex; align-items: center; gap: 12px;
     }
-
-    .interactive-demo .cpu-label {
-        font-size: 0.8em;
-        color: #8b949e;
-        white-space: nowrap;
-    }
-
+    .interactive-demo .cpu-label { font-size: 0.8em; font-weight: 600; color: var(--color-text-secondary); white-space: nowrap; }
     .interactive-demo .cpu-bar {
-        flex: 1;
-        height: 28px;
-        background: #161b22;
-        border-radius: 4px;
-        position: relative;
-        overflow: hidden;
+        flex: 1; height: 30px;
+        background: white; border: 1px solid var(--color-border);
+        border-radius: var(--radius-md);
+        position: relative; overflow: hidden;
     }
-
     .interactive-demo .cpu-fill {
-        height: 100%;
-        transition: all 0.15s;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.8em;
-        font-weight: 600;
-        color: white;
+        height: 100%; transition: all 0.15s;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.8em; font-weight: 600; color: white;
     }
+    .interactive-demo .cpu-fill.coro1 { background: linear-gradient(90deg, #5A47E6, #6B58FF); }
+    .interactive-demo .cpu-fill.coro2 { background: linear-gradient(90deg, #7C3AED, #8957E5); }
+    .interactive-demo .cpu-fill.idle { background: var(--color-border); color: var(--color-text-muted); }
 
-    .interactive-demo .cpu-fill.coro1 {
-        background: linear-gradient(90deg, #1f6feb, #58a6ff);
-    }
-
-    .interactive-demo .cpu-fill.coro2 {
-        background: linear-gradient(90deg, #8957e5, #d2a8ff);
-    }
-
-    .interactive-demo .cpu-fill.idle {
-        background: #30363d;
-        color: #6e7681;
-    }
-
+    /* Controls */
     .interactive-demo .controls {
-        display: flex;
-        justify-content: center;
-        gap: 8px;
-        margin-top: 12px;
-        flex-wrap: wrap;
+        display: flex; justify-content: center; gap: 8px;
+        margin-top: 14px; flex-wrap: wrap;
     }
-
     .interactive-demo .demo-btn {
-        padding: 7px 14px;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 0.85em;
-        font-weight: 500;
-        transition: all 0.2s;
+        padding: 8px 16px; border: none; border-radius: var(--radius-full);
+        cursor: pointer; font-size: 0.85em; font-weight: 600;
+        font-family: var(--font-sans); transition: all 0.15s;
     }
-
-    .interactive-demo .demo-btn-primary {
-        background: #238636;
-        color: white;
-    }
-
-    .interactive-demo .demo-btn-primary:hover {
-        background: #2ea043;
-    }
-
+    .interactive-demo .demo-btn-primary { background: var(--color-primary); color: white; }
+    .interactive-demo .demo-btn-primary:hover { background: var(--color-primary-dark); }
     .interactive-demo .demo-btn-secondary {
-        background: #21262d;
-        color: #c9d1d9;
-        border: 1px solid #30363d;
+        background: white; color: var(--color-text);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.06), inset 0 0 0 1px rgba(0,0,0,0.08);
     }
-
-    .interactive-demo .demo-btn-secondary:hover {
-        background: #30363d;
-    }
-
-    .interactive-demo .demo-btn:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-    }
+    .interactive-demo .demo-btn-secondary:hover { background: var(--color-bg-subtle); }
+    .interactive-demo .demo-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
     .interactive-demo .speed-control {
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        background: #21262d;
-        padding: 4px 10px;
-        border-radius: 5px;
+        display: flex; align-items: center; gap: 5px;
+        background: white; padding: 4px 12px; border-radius: var(--radius-full);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.06), inset 0 0 0 1px rgba(0,0,0,0.08);
     }
-
-    .interactive-demo .speed-control label {
-        font-size: 0.8em;
-        color: #8b949e;
-    }
-
+    .interactive-demo .speed-control label { font-size: 0.8em; color: var(--color-text-muted); font-weight: 500; }
     .interactive-demo .speed-control select {
-        background: #161b22;
-        color: #c9d1d9;
-        border: 1px solid #30363d;
-        padding: 4px 8px;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 0.85em;
+        background: var(--color-bg-subtle); color: var(--color-text);
+        border: 1px solid var(--color-border); padding: 4px 8px;
+        border-radius: var(--radius-md); cursor: pointer; font-size: 0.85em;
+        font-family: var(--font-sans);
     }
-
     .interactive-demo .loop-control {
-        display: flex;
-        align-items: center;
-        background: #21262d;
-        padding: 4px 10px;
-        border-radius: 5px;
+        display: flex; align-items: center;
+        background: white; padding: 4px 12px; border-radius: var(--radius-full);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.06), inset 0 0 0 1px rgba(0,0,0,0.08);
     }
-
     .interactive-demo .loop-control label {
-        font-size: 0.8em;
-        color: #8b949e;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 4px;
+        font-size: 0.8em; color: var(--color-text-muted); font-weight: 500;
+        cursor: pointer; display: flex; align-items: center; gap: 4px;
     }
 
-    .interactive-demo .loop-control input {
-        cursor: pointer;
-    }
-
+    /* Legend */
     .interactive-demo .legend {
-        display: flex;
-        justify-content: center;
-        gap: 15px;
-        margin-top: 10px;
-        flex-wrap: wrap;
+        display: flex; justify-content: center; gap: 16px;
+        margin-top: 12px; flex-wrap: wrap;
     }
+    .interactive-demo .legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.8em; color: var(--color-text-secondary); }
+    .interactive-demo .legend-color { width: 14px; height: 14px; border-radius: 3px; }
+    .interactive-demo .legend-color.cpu { background: linear-gradient(135deg, #16A34A, #22C55E); }
+    .interactive-demo .legend-color.db { background: rgba(107, 88, 255, 0.2); border: 1px solid rgba(107, 88, 255, 0.4); }
+    .interactive-demo .legend-color.socket { background: rgba(217, 119, 6, 0.15); border: 1px solid rgba(217, 119, 6, 0.4); }
 
-    .interactive-demo .legend-item {
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        font-size: 0.75em;
-        color: #8b949e;
-    }
-
-    .interactive-demo .legend-color {
-        width: 14px;
-        height: 14px;
-        border-radius: 2px;
-    }
-
-    .interactive-demo .legend-color.cpu {
-        background: linear-gradient(135deg, #238636, #2ea043);
-    }
-
-    .interactive-demo .legend-color.db {
-        background: repeating-linear-gradient(90deg, #1a3a5c, #1a3a5c 2px, #0d1f33 2px, #0d1f33 4px);
-        border: 1px solid #1f4a7a;
-    }
-
-    .interactive-demo .legend-color.socket {
-        background: repeating-linear-gradient(90deg, #3d3021, #3d3021 2px, #261e15 2px, #261e15 4px);
-        border: 1px solid #5c4a1f;
-    }
-
+    /* Stats */
     .interactive-demo .stats {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 8px;
-        margin-top: 10px;
+        display: grid; grid-template-columns: repeat(4, 1fr);
+        gap: 8px; margin-top: 12px;
     }
-
     @media (max-width: 600px) {
-        .interactive-demo .stats {
-            grid-template-columns: repeat(2, 1fr);
-        }
+        .interactive-demo .stats { grid-template-columns: repeat(2, 1fr); }
     }
-
     .interactive-demo .stat-card {
-        background: #21262d;
-        padding: 8px;
-        border-radius: 5px;
-        text-align: center;
+        background: white; border: 1px solid var(--color-border);
+        padding: 10px; border-radius: var(--radius-lg); text-align: center;
     }
+    .interactive-demo .stat-value { font-size: 1.1em; font-weight: 700; color: var(--color-primary); }
+    .interactive-demo .stat-value.highlight { color: #16A34A; }
+    .interactive-demo .stat-label { font-size: 0.75em; color: var(--color-text-muted); margin-top: 2px; }
 
-    .interactive-demo .stat-value {
-        font-size: 1.1em;
-        font-weight: 600;
-        color: #58a6ff;
-    }
-
-    .interactive-demo .stat-value.highlight {
-        color: #3fb950;
-    }
-
-    .interactive-demo .stat-label {
-        font-size: 0.7em;
-        color: #8b949e;
-        margin-top: 2px;
-    }
-
+    /* Explanation */
     .interactive-demo .explanation {
-        background: #161b22;
-        border-radius: 6px;
-        padding: 12px 15px;
-        margin-top: 12px;
-        border-left: 3px solid #58a6ff;
+        background: var(--color-bg-subtle); border: 1px solid var(--color-border);
+        border-radius: var(--radius-lg); padding: 14px 18px;
+        margin-top: 16px; border-left: 3px solid var(--color-primary);
     }
-
-    .interactive-demo .explanation h3 {
-        color: #58a6ff;
-        margin-bottom: 6px;
-        font-size: 0.9em;
-    }
-
-    .interactive-demo .explanation p {
-        color: #8b949e;
-        font-size: 0.85em;
-        line-height: 1.5;
-    }
-
-    .interactive-demo .explanation .highlight {
-        color: #3fb950;
-        font-weight: 500;
-    }
-
-    .interactive-demo .explanation .db-highlight {
-        color: #58a6ff;
-    }
-
-    .interactive-demo .explanation .socket-highlight {
-        color: #d29922;
-    }
+    .interactive-demo .explanation h3 { color: var(--color-primary); margin-bottom: 6px; font-size: 0.95em; }
+    .interactive-demo .explanation p { color: var(--color-text-secondary); font-size: 0.875em; line-height: 1.6; }
+    .interactive-demo .explanation .highlight { color: #16A34A; font-weight: 600; }
+    .interactive-demo .explanation .db-highlight { color: var(--color-primary); font-weight: 500; }
+    .interactive-demo .explanation .socket-highlight { color: #B45309; font-weight: 500; }
 </style>
 
 <div class="container">
-    <h1 class="demo-title">How Coroutines Work</h1>
     <p class="subtitle">Two coroutines efficiently share CPU time</p>
 
     <div class="main-layout">
@@ -557,13 +361,7 @@ description: "Interactive visualization of how coroutines work in TrueAsync"
             <div class="track-bar" id="track2"></div>
         </div>
 
-        <div class="time-scale">
-            <span>0</span>
-            <span>25</span>
-            <span>50</span>
-            <span>75</span>
-            <span>100ms</span>
-        </div>
+        <div class="time-scale"><span>0</span><span>25</span><span>50</span><span>75</span><span>100ms</span></div>
 
         <div class="cpu-indicator">
             <span class="cpu-label">CPU:</span>
@@ -586,45 +384,21 @@ description: "Interactive visualization of how coroutines work in TrueAsync"
                 </select>
             </div>
             <div class="loop-control">
-                <label>
-                    <input type="checkbox" id="loopCheckbox">
-                    Loop
-                </label>
+                <label><input type="checkbox" id="loopCheckbox"> Loop</label>
             </div>
         </div>
 
         <div class="legend">
-            <div class="legend-item">
-                <div class="legend-color cpu"></div>
-                <span>CPU working</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color db"></div>
-                <span>Waiting for DB</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color socket"></div>
-                <span>Waiting for network</span>
-            </div>
+            <div class="legend-item"><div class="legend-color cpu"></div><span>CPU working</span></div>
+            <div class="legend-item"><div class="legend-color db"></div><span>Waiting for DB</span></div>
+            <div class="legend-item"><div class="legend-color socket"></div><span>Waiting for network</span></div>
         </div>
 
         <div class="stats">
-            <div class="stat-card">
-                <div class="stat-value" id="totalTime">0 ms</div>
-                <div class="stat-label">Total time</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value" id="dbWaitTime">0 ms</div>
-                <div class="stat-label">DB wait</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value" id="socketWaitTime">0 ms</div>
-                <div class="stat-label">Network wait</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-value highlight" id="savedTime">0 ms</div>
-                <div class="stat-label">Time saved</div>
-            </div>
+            <div class="stat-card"><div class="stat-value" id="totalTime">0 ms</div><div class="stat-label">Total time</div></div>
+            <div class="stat-card"><div class="stat-value" id="dbWaitTime">0 ms</div><div class="stat-label">DB wait</div></div>
+            <div class="stat-card"><div class="stat-value" id="socketWaitTime">0 ms</div><div class="stat-label">Network wait</div></div>
+            <div class="stat-card"><div class="stat-value highlight" id="savedTime">0 ms</div><div class="stat-label">Time saved</div></div>
         </div>
     </div>
 
@@ -639,350 +413,164 @@ description: "Interactive visualization of how coroutines work in TrueAsync"
 </div>
 
 <script>
-    (function() {
-        const TOTAL_DURATION = 100;
+(function() {
+    var TOTAL_DURATION = 100;
+    var timeline1 = [
+        { start: 0, duration: 2, type: 'cpu', label: 'prepare', iter: 1 },
+        { start: 2, duration: 15, type: 'db-wait', label: 'SELECT', iter: 1 },
+        { start: 17, duration: 3, type: 'cpu', label: 'process', iter: 1 },
+        { start: 20, duration: 2, type: 'cpu', label: 'prepare', iter: 2 },
+        { start: 22, duration: 15, type: 'db-wait', label: 'SELECT', iter: 2 },
+        { start: 37, duration: 3, type: 'cpu', label: 'process', iter: 2 },
+        { start: 40, duration: 2, type: 'cpu', label: 'prepare', iter: 3 },
+        { start: 42, duration: 15, type: 'db-wait', label: 'SELECT', iter: 3 },
+        { start: 57, duration: 3, type: 'cpu', label: 'process', iter: 3 }
+    ];
+    var timeline2 = [
+        { start: 2, duration: 2, type: 'cpu', label: 'prepare', iter: 1 },
+        { start: 4, duration: 12, type: 'db-wait', label: 'INSERT', iter: 1 },
+        { start: 16, duration: 1, type: 'cpu', label: 'fwrite', iter: 1 },
+        { start: 17, duration: 20, type: 'socket-wait', label: 'send', iter: 1 },
+        { start: 37, duration: 2, type: 'cpu', label: 'prepare', iter: 2 },
+        { start: 39, duration: 12, type: 'db-wait', label: 'INSERT', iter: 2 },
+        { start: 51, duration: 1, type: 'cpu', label: 'fwrite', iter: 2 },
+        { start: 52, duration: 20, type: 'socket-wait', label: 'send', iter: 2 },
+        { start: 72, duration: 2, type: 'cpu', label: 'prepare', iter: 3 },
+        { start: 74, duration: 12, type: 'db-wait', label: 'INSERT', iter: 3 },
+        { start: 86, duration: 1, type: 'cpu', label: 'fwrite', iter: 3 },
+        { start: 87, duration: 13, type: 'socket-wait', label: 'send', iter: 3 }
+    ];
+    var steps = [
+        { time: 0, title: 'Start', text: 'Both coroutines created via <span class="highlight">spawn()</span> and ready to execute. Scheduler begins work.', coro1Line: '1', coro2Line: '1', cpu: 'idle', iter1: 0, iter2: 0 },
+        { time: 1, title: 'Coroutine 1: preparing query', text: 'Coroutine 1 creates a PDO statement for SELECT. This is a fast in-memory operation.', coro1Line: '6', coro2Line: '1', cpu: 'coro1', iter1: 1, iter2: 0 },
+        { time: 2, title: 'Coroutine 1: sending SELECT', text: 'Calling <span class="highlight">execute()</span> sends the query to DB. Coroutine <span class="db-highlight">suspends</span> and yields CPU.', coro1Line: '9w', coro2Line: '1', cpu: 'coro2', iter1: 1, iter2: 0 },
+        { time: 3, title: 'Coroutine 2: preparing INSERT', text: 'While coroutine 1 waits for DB, coroutine 2 starts work — prepares INSERT query.', coro1Line: '9w', coro2Line: '7', cpu: 'coro2', iter1: 1, iter2: 1 },
+        { time: 4, title: 'Coroutine 2: sending INSERT', text: 'INSERT sent to DB. Now <span class="db-highlight">both coroutines are waiting</span> for database response.', coro1Line: '9w', coro2Line: '10w', cpu: 'idle', iter1: 1, iter2: 1 },
+        { time: 16, title: 'Coroutine 2: DB responded', text: 'INSERT completed in ~12ms. Coroutine 2 resumes and sends data to socket.', coro1Line: '9w', coro2Line: '12', cpu: 'coro2', iter1: 1, iter2: 1 },
+        { time: 17, title: 'Coroutine 1: DB responded', text: 'SELECT returned data in ~15ms. Coroutine 1 resumes, processes result. Coroutine 2 waits for <span class="socket-highlight">network</span>.', coro1Line: '12', coro2Line: '12w', cpu: 'coro1', iter1: 1, iter2: 1 },
+        { time: 20, title: 'Coroutine 1: iteration 2', text: 'First iteration complete. Coroutine 1 starts second loop iteration — new SELECT.', coro1Line: '6', coro2Line: '12w', cpu: 'coro1', iter1: 2, iter2: 1 },
+        { time: 22, title: 'Both coroutines waiting for I/O', text: 'Coroutine 1 waits for <span class="db-highlight">DB</span>, coroutine 2 waits for <span class="socket-highlight">network</span>. CPU is free, but that\'s OK — external systems are working.', coro1Line: '9w', coro2Line: '12w', cpu: 'idle', iter1: 2, iter2: 1 },
+        { time: 37, title: 'Both coroutines resume', text: 'I/O operations completed almost simultaneously. Coroutines take turns processing results.', coro1Line: '12', coro2Line: '7', cpu: 'coro1', iter1: 2, iter2: 2 },
+        { time: 40, title: 'Coroutine 1: iteration 3', text: 'Last iteration for coroutine 1. SELECT for third user.', coro1Line: '9w', coro2Line: '10w', cpu: 'idle', iter1: 3, iter2: 2 },
+        { time: 51, title: 'Parallel work', text: 'Coroutine 2 sends data to socket, coroutine 1 continues waiting for SELECT.', coro1Line: '9w', coro2Line: '12w', cpu: 'idle', iter1: 3, iter2: 2 },
+        { time: 57, title: 'Coroutine 1: final processing', text: 'Third SELECT returned data. Coroutine 1 processes last user.', coro1Line: '12', coro2Line: '12w', cpu: 'coro1', iter1: 3, iter2: 2 },
+        { time: 60, title: 'Coroutine 1 completed', text: 'All 3 users processed. Coroutine 1 finished. Coroutine 2 continues working.', coro1Line: '14', coro2Line: '12w', cpu: 'idle', iter1: 3, iter2: 2 },
+        { time: 72, title: 'Coroutine 2: iteration 3', text: 'Last iteration for coroutine 2. Final INSERT to logs.', coro1Line: '14', coro2Line: '10w', cpu: 'idle', iter1: 3, iter2: 3 },
+        { time: 86, title: 'Coroutine 2: final send', text: 'Last data being sent to socket.', coro1Line: '14', coro2Line: '12w', cpu: 'idle', iter1: 3, iter2: 3 },
+        { time: 100, title: 'Done!', text: 'Both coroutines completed in <span class="highlight">~100ms</span>. Sequential execution would take ~156ms. Savings of <span class="highlight">~36%</span>!', coro1Line: '14', coro2Line: '14', cpu: 'idle', iter1: 3, iter2: 3 }
+    ];
 
-        const timeline1 = [
-            { start: 0, duration: 2, type: 'cpu', label: 'prepare', iter: 1 },
-            { start: 2, duration: 15, type: 'db-wait', label: 'SELECT', iter: 1 },
-            { start: 17, duration: 3, type: 'cpu', label: 'process', iter: 1 },
-            { start: 20, duration: 2, type: 'cpu', label: 'prepare', iter: 2 },
-            { start: 22, duration: 15, type: 'db-wait', label: 'SELECT', iter: 2 },
-            { start: 37, duration: 3, type: 'cpu', label: 'process', iter: 2 },
-            { start: 40, duration: 2, type: 'cpu', label: 'prepare', iter: 3 },
-            { start: 42, duration: 15, type: 'db-wait', label: 'SELECT', iter: 3 },
-            { start: 57, duration: 3, type: 'cpu', label: 'process', iter: 3 },
-        ];
+    var track1 = document.getElementById('track1'), track2 = document.getElementById('track2');
+    var status1 = document.getElementById('status1'), status2 = document.getElementById('status2');
+    var cpuFill = document.getElementById('cpuFill'), timeDisplay = document.getElementById('timeDisplay');
+    var playBtn = document.getElementById('playBtn'), stepBtn = document.getElementById('stepBtn'), resetBtn = document.getElementById('resetBtn');
+    var speedSelect = document.getElementById('speedSelect'), loopCheckbox = document.getElementById('loopCheckbox');
+    var totalTimeEl = document.getElementById('totalTime'), dbWaitTimeEl = document.getElementById('dbWaitTime');
+    var socketWaitTimeEl = document.getElementById('socketWaitTime'), savedTimeEl = document.getElementById('savedTime');
+    var explanationTitle = document.getElementById('explanationTitle'), explanationText = document.getElementById('explanationText');
+    var code1 = document.getElementById('code1'), code2 = document.getElementById('code2');
+    var codePanel1 = document.getElementById('codePanel1'), codePanel2 = document.getElementById('codePanel2');
+    var iter1El = document.getElementById('iter1'), iter2El = document.getElementById('iter2');
+    var isPlaying = false, currentStepIndex = 0, animationId = null, playhead1, playhead2;
 
-        const timeline2 = [
-            { start: 2, duration: 2, type: 'cpu', label: 'prepare', iter: 1 },
-            { start: 4, duration: 12, type: 'db-wait', label: 'INSERT', iter: 1 },
-            { start: 16, duration: 1, type: 'cpu', label: 'fwrite', iter: 1 },
-            { start: 17, duration: 20, type: 'socket-wait', label: 'send', iter: 1 },
-            { start: 37, duration: 2, type: 'cpu', label: 'prepare', iter: 2 },
-            { start: 39, duration: 12, type: 'db-wait', label: 'INSERT', iter: 2 },
-            { start: 51, duration: 1, type: 'cpu', label: 'fwrite', iter: 2 },
-            { start: 52, duration: 20, type: 'socket-wait', label: 'send', iter: 2 },
-            { start: 72, duration: 2, type: 'cpu', label: 'prepare', iter: 3 },
-            { start: 74, duration: 12, type: 'db-wait', label: 'INSERT', iter: 3 },
-            { start: 86, duration: 1, type: 'cpu', label: 'fwrite', iter: 3 },
-            { start: 87, duration: 13, type: 'socket-wait', label: 'send', iter: 3 },
-        ];
-
-        const steps = [
-            { time: 0, title: 'Start', text: 'Both coroutines created via <span class="highlight">spawn()</span> and ready to execute. Scheduler begins work.', coro1Line: '1', coro2Line: '1', cpu: 'idle', iter1: 0, iter2: 0 },
-            { time: 1, title: 'Coroutine 1: preparing query', text: 'Coroutine 1 creates a PDO statement for SELECT. This is a fast in-memory operation.', coro1Line: '6', coro2Line: '1', cpu: 'coro1', iter1: 1, iter2: 0 },
-            { time: 2, title: 'Coroutine 1: sending SELECT', text: 'Calling <span class="highlight">execute()</span> sends the query to DB. Coroutine <span class="db-highlight">suspends</span> and yields CPU.', coro1Line: '9w', coro2Line: '1', cpu: 'coro2', iter1: 1, iter2: 0 },
-            { time: 3, title: 'Coroutine 2: preparing INSERT', text: 'While coroutine 1 waits for DB, coroutine 2 starts work — prepares INSERT query.', coro1Line: '9w', coro2Line: '7', cpu: 'coro2', iter1: 1, iter2: 1 },
-            { time: 4, title: 'Coroutine 2: sending INSERT', text: 'INSERT sent to DB. Now <span class="db-highlight">both coroutines are waiting</span> for database response.', coro1Line: '9w', coro2Line: '10w', cpu: 'idle', iter1: 1, iter2: 1 },
-            { time: 16, title: 'Coroutine 2: DB responded', text: 'INSERT completed in ~12ms. Coroutine 2 resumes and sends data to socket.', coro1Line: '9w', coro2Line: '12', cpu: 'coro2', iter1: 1, iter2: 1 },
-            { time: 17, title: 'Coroutine 1: DB responded', text: 'SELECT returned data in ~15ms. Coroutine 1 resumes, processes result. Coroutine 2 waits for <span class="socket-highlight">network</span>.', coro1Line: '12', coro2Line: '12w', cpu: 'coro1', iter1: 1, iter2: 1 },
-            { time: 20, title: 'Coroutine 1: iteration 2', text: 'First iteration complete. Coroutine 1 starts second loop iteration — new SELECT.', coro1Line: '6', coro2Line: '12w', cpu: 'coro1', iter1: 2, iter2: 1 },
-            { time: 22, title: 'Both coroutines waiting for I/O', text: 'Coroutine 1 waits for <span class="db-highlight">DB</span>, coroutine 2 waits for <span class="socket-highlight">network</span>. CPU is free, but that\'s OK — external systems are working.', coro1Line: '9w', coro2Line: '12w', cpu: 'idle', iter1: 2, iter2: 1 },
-            { time: 37, title: 'Both coroutines resume', text: 'I/O operations completed almost simultaneously. Coroutines take turns processing results.', coro1Line: '12', coro2Line: '7', cpu: 'coro1', iter1: 2, iter2: 2 },
-            { time: 40, title: 'Coroutine 1: iteration 3', text: 'Last iteration for coroutine 1. SELECT for third user.', coro1Line: '9w', coro2Line: '10w', cpu: 'idle', iter1: 3, iter2: 2 },
-            { time: 51, title: 'Parallel work', text: 'Coroutine 2 sends data to socket, coroutine 1 continues waiting for SELECT.', coro1Line: '9w', coro2Line: '12w', cpu: 'idle', iter1: 3, iter2: 2 },
-            { time: 57, title: 'Coroutine 1: final processing', text: 'Third SELECT returned data. Coroutine 1 processes last user.', coro1Line: '12', coro2Line: '12w', cpu: 'coro1', iter1: 3, iter2: 2 },
-            { time: 60, title: 'Coroutine 1 completed', text: 'All 3 users processed. Coroutine 1 finished. Coroutine 2 continues working.', coro1Line: '14', coro2Line: '12w', cpu: 'idle', iter1: 3, iter2: 2 },
-            { time: 72, title: 'Coroutine 2: iteration 3', text: 'Last iteration for coroutine 2. Final INSERT to logs.', coro1Line: '14', coro2Line: '10w', cpu: 'idle', iter1: 3, iter2: 3 },
-            { time: 86, title: 'Coroutine 2: final send', text: 'Last data being sent to socket.', coro1Line: '14', coro2Line: '12w', cpu: 'idle', iter1: 3, iter2: 3 },
-            { time: 100, title: 'Done!', text: 'Both coroutines completed in <span class="highlight">~100ms</span>. Sequential execution would take ~156ms. Savings of <span class="highlight">~36%</span>!', coro1Line: '14', coro2Line: '14', cpu: 'idle', iter1: 3, iter2: 3 },
-        ];
-
-        const track1 = document.getElementById('track1');
-        const track2 = document.getElementById('track2');
-        const status1 = document.getElementById('status1');
-        const status2 = document.getElementById('status2');
-        const cpuFill = document.getElementById('cpuFill');
-        const timeDisplay = document.getElementById('timeDisplay');
-        const playBtn = document.getElementById('playBtn');
-        const stepBtn = document.getElementById('stepBtn');
-        const resetBtn = document.getElementById('resetBtn');
-        const speedSelect = document.getElementById('speedSelect');
-        const loopCheckbox = document.getElementById('loopCheckbox');
-        const totalTimeEl = document.getElementById('totalTime');
-        const dbWaitTimeEl = document.getElementById('dbWaitTime');
-        const socketWaitTimeEl = document.getElementById('socketWaitTime');
-        const savedTimeEl = document.getElementById('savedTime');
-        const explanationTitle = document.getElementById('explanationTitle');
-        const explanationText = document.getElementById('explanationText');
-        const code1 = document.getElementById('code1');
-        const code2 = document.getElementById('code2');
-        const codePanel1 = document.getElementById('codePanel1');
-        const codePanel2 = document.getElementById('codePanel2');
-        const iter1El = document.getElementById('iter1');
-        const iter2El = document.getElementById('iter2');
-
-        let isPlaying = false;
-        let currentStepIndex = 0;
-        let animationId = null;
-        let playhead1, playhead2;
-
-        function createSegments() {
-            track1.innerHTML = '';
-            track2.innerHTML = '';
-
-            timeline1.forEach(function(seg) {
-                track1.appendChild(createSegmentElement(seg));
-            });
-
-            timeline2.forEach(function(seg) {
-                track2.appendChild(createSegmentElement(seg));
-            });
-
-            playhead1 = document.createElement('div');
-            playhead1.className = 'playhead';
-            playhead1.style.left = '0%';
-            track1.appendChild(playhead1);
-
-            playhead2 = document.createElement('div');
-            playhead2.className = 'playhead';
-            playhead2.style.left = '0%';
-            track2.appendChild(playhead2);
-        }
-
-        function createSegmentElement(seg) {
-            var el = document.createElement('div');
-            el.className = 'segment ' + seg.type + ' future';
-            el.style.left = (seg.start / TOTAL_DURATION) * 100 + '%';
-            el.style.width = (seg.duration / TOTAL_DURATION) * 100 + '%';
-
-            var labelEl = document.createElement('div');
-            labelEl.className = 'segment-label';
-            labelEl.textContent = seg.label;
-
-            var timeEl = document.createElement('div');
-            timeEl.className = 'segment-time';
-            timeEl.textContent = seg.duration + 'ms';
-
-            el.appendChild(labelEl);
-            el.appendChild(timeEl);
-
-            el.dataset.start = seg.start;
-            el.dataset.end = seg.start + seg.duration;
-
-            return el;
-        }
-
-        function updateTimeline(time) {
-            var percent = (time / TOTAL_DURATION) * 100;
-
-            document.querySelectorAll('#track1 .segment, #track2 .segment').forEach(function(seg) {
-                var start = parseFloat(seg.dataset.start);
-                if (start <= time) {
-                    seg.classList.remove('future');
-                } else {
-                    seg.classList.add('future');
-                }
-            });
-
-            var coro1End = 60;
-            playhead1.style.left = Math.min(percent, (coro1End / TOTAL_DURATION) * 100) + '%';
-            playhead2.style.left = percent + '%';
-
-            timeDisplay.textContent = Math.round(time) + ' ms';
-        }
-
-        function updateCodeHighlight(step) {
-            code1.querySelectorAll('.code-line').forEach(function(line) {
-                line.classList.remove('active-cpu', 'active-wait');
-            });
-            code2.querySelectorAll('.code-line').forEach(function(line) {
-                line.classList.remove('active-cpu', 'active-wait');
-            });
-
-            codePanel1.classList.remove('active-coro1', 'active-coro2');
-            codePanel2.classList.remove('active-coro1', 'active-coro2');
-
-            if (step.coro1Line) {
-                var isWait = step.coro1Line.endsWith('w');
-                var lineNum = isWait ? step.coro1Line.slice(0, -1) : step.coro1Line;
-                var line1 = code1.querySelector('[data-line="' + lineNum + '"]');
-                if (line1) {
-                    if (isWait) {
-                        line1.classList.add('active-wait');
-                    } else {
-                        line1.classList.add('active-cpu');
-                        if (step.cpu === 'coro1') codePanel1.classList.add('active-coro1');
-                    }
-                }
-            }
-
-            if (step.coro2Line) {
-                var isWait2 = step.coro2Line.endsWith('w');
-                var lineNum2 = isWait2 ? step.coro2Line.slice(0, -1) : step.coro2Line;
-                var line2 = code2.querySelector('[data-line="' + lineNum2 + '"]');
-                if (line2) {
-                    if (isWait2) {
-                        line2.classList.add('active-wait');
-                    } else {
-                        line2.classList.add('active-cpu');
-                        if (step.cpu === 'coro2') codePanel2.classList.add('active-coro2');
-                    }
-                }
-            }
-        }
-
-        function updateCPU(state) {
-            cpuFill.className = 'cpu-fill';
-            if (state === 'coro1') {
-                cpuFill.classList.add('coro1');
-                cpuFill.textContent = 'Coroutine 1';
-            } else if (state === 'coro2') {
-                cpuFill.classList.add('coro2');
-                cpuFill.textContent = 'Coroutine 2';
-            } else {
-                cpuFill.classList.add('idle');
-                cpuFill.textContent = 'Waiting for I/O';
-            }
-        }
-
-        function updateStatus(step) {
-            var time = step.time;
-
-            if (time >= 60) {
-                status1.textContent = 'completed';
-                status1.style.color = '#3fb950';
-            } else if (step.coro1Line && step.coro1Line.endsWith('w')) {
-                status1.textContent = 'waiting DB';
-                status1.style.color = '#58a6ff';
-            } else if (step.cpu === 'coro1') {
-                status1.textContent = 'running';
-                status1.style.color = '#3fb950';
-            } else {
-                status1.textContent = 'queued';
-                status1.style.color = '#8b949e';
-            }
-
-            if (time >= 100) {
-                status2.textContent = 'completed';
-                status2.style.color = '#3fb950';
-            } else if (step.coro2Line === '12w') {
-                status2.textContent = 'waiting net';
-                status2.style.color = '#d29922';
-            } else if (step.coro2Line && step.coro2Line.endsWith('w')) {
-                status2.textContent = 'waiting DB';
-                status2.style.color = '#58a6ff';
-            } else if (step.cpu === 'coro2') {
-                status2.textContent = 'running';
-                status2.style.color = '#3fb950';
-            } else {
-                status2.textContent = 'queued';
-                status2.style.color = '#8b949e';
-            }
-
-            iter1El.textContent = 'Iteration: ' + step.iter1 + '/3';
-            iter2El.textContent = 'Iteration: ' + step.iter2 + '/3';
-        }
-
-        function updateStats(time) {
-            totalTimeEl.textContent = Math.round(time) + ' ms';
-
-            var dbWait = 0;
-            var socketWait = 0;
-
-            [].concat(timeline1, timeline2).forEach(function(seg) {
-                var segEnd = seg.start + seg.duration;
-                if (seg.start < time) {
-                    var visibleDuration = Math.min(segEnd, time) - seg.start;
-                    if (seg.type === 'db-wait') {
-                        dbWait += visibleDuration;
-                    } else if (seg.type === 'socket-wait') {
-                        socketWait += visibleDuration;
-                    }
-                }
-            });
-
-            dbWaitTimeEl.textContent = Math.round(dbWait) + ' ms';
-            socketWaitTimeEl.textContent = Math.round(socketWait) + ' ms';
-
-            var sequentialTime = 156;
-            var saved = Math.max(0, sequentialTime - time);
-            savedTimeEl.textContent = Math.round(saved) + ' ms';
-        }
-
-        function goToStep(stepIndex) {
-            if (stepIndex < 0 || stepIndex >= steps.length) return;
-
-            currentStepIndex = stepIndex;
-            var step = steps[stepIndex];
-
-            updateTimeline(step.time);
-            updateCodeHighlight(step);
-            updateCPU(step.cpu);
-            updateStatus(step);
-            updateStats(step.time);
-
-            explanationTitle.textContent = step.title;
-            explanationText.innerHTML = step.text;
-        }
-
-        function nextStep() {
-            if (currentStepIndex < steps.length - 1) {
-                goToStep(currentStepIndex + 1);
-            } else if (loopCheckbox.checked && isPlaying) {
-                currentStepIndex = 0;
-                goToStep(0);
-            } else {
-                stopAnimation();
-            }
-        }
-
-        function animate() {
-            if (!isPlaying) return;
-            nextStep();
-            if (currentStepIndex < steps.length - 1 || loopCheckbox.checked) {
-                var speed = parseInt(speedSelect.value);
-                animationId = setTimeout(animate, speed);
-            }
-        }
-
-        function startAnimation() {
-            if (currentStepIndex >= steps.length - 1 && !loopCheckbox.checked) {
-                reset();
-            }
-            isPlaying = true;
-            playBtn.innerHTML = '&#9208; Pause';
-            stepBtn.disabled = true;
-            var speed = parseInt(speedSelect.value);
-            animationId = setTimeout(animate, speed);
-        }
-
-        function stopAnimation() {
-            isPlaying = false;
-            playBtn.innerHTML = '&#9654; Play';
-            stepBtn.disabled = false;
-            if (animationId) {
-                clearTimeout(animationId);
-                animationId = null;
-            }
-        }
-
-        function reset() {
-            stopAnimation();
-            currentStepIndex = 0;
-            goToStep(0);
-        }
-
-        playBtn.addEventListener('click', function() {
-            if (isPlaying) {
-                stopAnimation();
-            } else {
-                startAnimation();
-            }
+    function createSegments() {
+        track1.innerHTML = ''; track2.innerHTML = '';
+        timeline1.forEach(function(s) { track1.appendChild(createSegmentElement(s)); });
+        timeline2.forEach(function(s) { track2.appendChild(createSegmentElement(s)); });
+        playhead1 = document.createElement('div'); playhead1.className = 'playhead'; playhead1.style.left = '0%'; track1.appendChild(playhead1);
+        playhead2 = document.createElement('div'); playhead2.className = 'playhead'; playhead2.style.left = '0%'; track2.appendChild(playhead2);
+    }
+    function createSegmentElement(seg) {
+        var el = document.createElement('div');
+        el.className = 'segment ' + seg.type + ' future';
+        el.style.left = (seg.start / TOTAL_DURATION) * 100 + '%';
+        el.style.width = (seg.duration / TOTAL_DURATION) * 100 + '%';
+        var l = document.createElement('div'); l.className = 'segment-label'; l.textContent = seg.label;
+        var t = document.createElement('div'); t.className = 'segment-time'; t.textContent = seg.duration + 'ms';
+        el.appendChild(l); el.appendChild(t);
+        el.dataset.start = seg.start; el.dataset.end = seg.start + seg.duration;
+        return el;
+    }
+    function updateTimeline(time) {
+        var pct = (time / TOTAL_DURATION) * 100;
+        document.querySelectorAll('#track1 .segment, #track2 .segment').forEach(function(s) {
+            parseFloat(s.dataset.start) <= time ? s.classList.remove('future') : s.classList.add('future');
         });
+        playhead1.style.left = Math.min(pct, 60) + '%';
+        playhead2.style.left = pct + '%';
+        timeDisplay.textContent = Math.round(time) + ' ms';
+    }
+    function updateCodeHighlight(step) {
+        code1.querySelectorAll('.code-line').forEach(function(l) { l.classList.remove('active-cpu', 'active-wait'); });
+        code2.querySelectorAll('.code-line').forEach(function(l) { l.classList.remove('active-cpu', 'active-wait'); });
+        codePanel1.classList.remove('active-coro1', 'active-coro2');
+        codePanel2.classList.remove('active-coro1', 'active-coro2');
+        if (step.coro1Line) {
+            var w = step.coro1Line.endsWith('w'), n = w ? step.coro1Line.slice(0,-1) : step.coro1Line;
+            var el = code1.querySelector('[data-line="'+n+'"]');
+            if (el) { el.classList.add(w ? 'active-wait' : 'active-cpu'); if (!w && step.cpu==='coro1') codePanel1.classList.add('active-coro1'); }
+        }
+        if (step.coro2Line) {
+            var w2 = step.coro2Line.endsWith('w'), n2 = w2 ? step.coro2Line.slice(0,-1) : step.coro2Line;
+            var el2 = code2.querySelector('[data-line="'+n2+'"]');
+            if (el2) { el2.classList.add(w2 ? 'active-wait' : 'active-cpu'); if (!w2 && step.cpu==='coro2') codePanel2.classList.add('active-coro2'); }
+        }
+    }
+    function updateCPU(state) {
+        cpuFill.className = 'cpu-fill';
+        if (state === 'coro1') { cpuFill.classList.add('coro1'); cpuFill.textContent = 'Coroutine 1'; }
+        else if (state === 'coro2') { cpuFill.classList.add('coro2'); cpuFill.textContent = 'Coroutine 2'; }
+        else { cpuFill.classList.add('idle'); cpuFill.textContent = 'Waiting for I/O'; }
+    }
+    function updateStatus(step) {
+        var t = step.time;
+        if (t >= 60) { status1.textContent = 'completed'; status1.style.color = '#16A34A'; }
+        else if (step.coro1Line && step.coro1Line.endsWith('w')) { status1.textContent = 'waiting DB'; status1.style.color = '#6B58FF'; }
+        else if (step.cpu === 'coro1') { status1.textContent = 'running'; status1.style.color = '#16A34A'; }
+        else { status1.textContent = 'queued'; status1.style.color = '#6B7280'; }
 
-        stepBtn.addEventListener('click', nextStep);
-        resetBtn.addEventListener('click', reset);
+        if (t >= 100) { status2.textContent = 'completed'; status2.style.color = '#16A34A'; }
+        else if (step.coro2Line === '12w') { status2.textContent = 'waiting net'; status2.style.color = '#B45309'; }
+        else if (step.coro2Line && step.coro2Line.endsWith('w')) { status2.textContent = 'waiting DB'; status2.style.color = '#6B58FF'; }
+        else if (step.cpu === 'coro2') { status2.textContent = 'running'; status2.style.color = '#16A34A'; }
+        else { status2.textContent = 'queued'; status2.style.color = '#6B7280'; }
 
-        speedSelect.addEventListener('change', function() {
-            if (isPlaying) {
-                stopAnimation();
-                startAnimation();
-            }
+        iter1El.textContent = 'Iteration: ' + step.iter1 + '/3';
+        iter2El.textContent = 'Iteration: ' + step.iter2 + '/3';
+    }
+    function updateStats(time) {
+        totalTimeEl.textContent = Math.round(time) + ' ms';
+        var dbW = 0, soW = 0;
+        [].concat(timeline1, timeline2).forEach(function(s) {
+            if (s.start < time) { var d = Math.min(s.start + s.duration, time) - s.start; if (s.type === 'db-wait') dbW += d; else if (s.type === 'socket-wait') soW += d; }
         });
-
-        createSegments();
-        goToStep(0);
-    })();
+        dbWaitTimeEl.textContent = Math.round(dbW) + ' ms';
+        socketWaitTimeEl.textContent = Math.round(soW) + ' ms';
+        savedTimeEl.textContent = Math.round(Math.max(0, 156 - time)) + ' ms';
+    }
+    function goToStep(i) {
+        if (i < 0 || i >= steps.length) return;
+        currentStepIndex = i; var s = steps[i];
+        updateTimeline(s.time); updateCodeHighlight(s); updateCPU(s.cpu); updateStatus(s); updateStats(s.time);
+        explanationTitle.textContent = s.title; explanationText.innerHTML = s.text;
+    }
+    function nextStep() {
+        if (currentStepIndex < steps.length - 1) goToStep(currentStepIndex + 1);
+        else if (loopCheckbox.checked && isPlaying) goToStep(0);
+        else stopAnimation();
+    }
+    function animate() { if (!isPlaying) return; nextStep(); if (currentStepIndex < steps.length - 1 || loopCheckbox.checked) animationId = setTimeout(animate, parseInt(speedSelect.value)); }
+    function startAnimation() {
+        if (currentStepIndex >= steps.length - 1 && !loopCheckbox.checked) reset();
+        isPlaying = true; playBtn.innerHTML = '&#9208; Pause'; stepBtn.disabled = true;
+        animationId = setTimeout(animate, parseInt(speedSelect.value));
+    }
+    function stopAnimation() { isPlaying = false; playBtn.innerHTML = '&#9654; Play'; stepBtn.disabled = false; if (animationId) { clearTimeout(animationId); animationId = null; } }
+    function reset() { stopAnimation(); goToStep(0); }
+    playBtn.addEventListener('click', function() { isPlaying ? stopAnimation() : startAnimation(); });
+    stepBtn.addEventListener('click', nextStep);
+    resetBtn.addEventListener('click', reset);
+    speedSelect.addEventListener('change', function() { if (isPlaying) { stopAnimation(); startAnimation(); } });
+    createSegments(); goToStep(0);
+})();
 </script>
