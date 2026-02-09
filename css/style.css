@@ -555,6 +555,32 @@ pre code {
     font-size: inherit;
 }
 
+/* ---- Syntax Highlighting (Rouge) ---- */
+
+.highlight .c, .highlight .c1, .highlight .cm, .highlight .cs { color: #6B7280; font-style: italic; } /* comments */
+.highlight .k, .highlight .kd, .highlight .kn, .highlight .kp,
+.highlight .kr, .highlight .kt { color: #8250DF; font-weight: 500; } /* keywords */
+.highlight .o, .highlight .ow { color: #8250DF; } /* operators */
+.highlight .n { color: #1F2937; } /* names */
+.highlight .na { color: #6639BA; } /* name.attribute */
+.highlight .nb { color: #6639BA; } /* name.builtin */
+.highlight .nc { color: #6639BA; font-weight: 600; } /* name.class */
+.highlight .nf, .highlight .fm { color: #6639BA; } /* name.function */
+.highlight .ni { color: #1F2937; } /* name.entity */
+.highlight .no { color: #CF222E; } /* name.constant */
+.highlight .nv, .highlight .vi, .highlight .vg, .highlight .vc { color: #0550AE; } /* variables */
+.highlight .s, .highlight .s1, .highlight .s2, .highlight .sb,
+.highlight .sc, .highlight .sh, .highlight .sx { color: #0A3069; } /* strings */
+.highlight .sd { color: #0A3069; font-style: italic; } /* string.doc */
+.highlight .se { color: #CF222E; } /* string.escape */
+.highlight .si { color: #0550AE; } /* string.interpol */
+.highlight .sr { color: #0550AE; } /* string.regex */
+.highlight .m, .highlight .mi, .highlight .mf, .highlight .mh,
+.highlight .mo, .highlight .il { color: #0550AE; } /* numbers */
+.highlight .p { color: #1F2937; } /* punctuation */
+.highlight .cp { color: #CF222E; font-weight: 500; } /* comment.preproc (<?php) */
+.highlight .err { color: #CF222E; } /* error */
+
 /* ---- CTA Section ---- */
 
 .cta-section {
@@ -749,6 +775,49 @@ pre code {
 
 .docs-content a:hover {
     text-decoration-color: var(--color-primary);
+}
+
+.docs-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+    line-height: 1.6;
+}
+
+.docs-content thead th {
+    background: var(--color-bg-subtle);
+    font-weight: 600;
+    color: var(--color-text);
+    text-align: left;
+    padding: 0.625rem 0.875rem;
+    border-bottom: 2px solid var(--color-border);
+}
+
+.docs-content tbody td {
+    padding: 0.5rem 0.875rem;
+    color: var(--color-text-secondary);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.docs-content tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.docs-content tbody tr:hover {
+    background: rgba(107, 88, 255, 0.03);
+}
+
+.docs-content table code {
+    font-size: 0.8125rem;
+}
+
+@media (max-width: 767px) {
+    .docs-content table {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
 }
 
 /* ---- Download Section ---- */
