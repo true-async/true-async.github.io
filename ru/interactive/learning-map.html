@@ -20,7 +20,7 @@ description: "Интерактивная карта документации —
     .interactive-demo .map-legend {
         display: flex;
         flex-wrap: wrap;
-        gap: 14px;
+        gap: 16px;
         justify-content: center;
         align-items: center;
         font-size: 0.82em;
@@ -34,7 +34,7 @@ description: "Интерактивная карта документации —
     .interactive-demo .legend-dot {
         width: 10px;
         height: 10px;
-        border-radius: 50%;
+        border-radius: 3px;
         display: inline-block;
         flex-shrink: 0;
     }
@@ -45,7 +45,7 @@ description: "Интерактивная карта документации —
         width: 18px;
         height: 18px;
         border-radius: 50%;
-        background: var(--color-primary);
+        background: #6B58FF;
         color: #fff;
         font-size: 0.7em;
         font-weight: 700;
@@ -64,7 +64,7 @@ description: "Интерактивная карта документации —
     .interactive-demo .map-container svg {
         display: block;
         width: 100%;
-        min-width: 900px;
+        min-width: 1000px;
         height: auto;
     }
     .interactive-demo .map-scroll-hint {
@@ -74,7 +74,7 @@ description: "Интерактивная карта документации —
         color: var(--color-text-muted);
         margin-bottom: 8px;
     }
-    @media (max-width: 920px) {
+    @media (max-width: 1020px) {
         .interactive-demo .map-scroll-hint { display: block; }
     }
 
@@ -85,34 +85,41 @@ description: "Интерактивная карта документации —
         background: #fff;
         border: 1px solid var(--color-border);
         border-radius: var(--radius-lg);
-        padding: 8px 14px;
+        padding: 10px 14px;
         font-size: 0.82em;
-        box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.12);
         z-index: 100;
         opacity: 0;
         transition: opacity 0.18s;
-        max-width: 220px;
-        line-height: 1.4;
+        max-width: 240px;
+        line-height: 1.45;
     }
     .interactive-demo .map-tooltip.visible { opacity: 1; }
     .interactive-demo .tooltip-title {
-        font-weight: 600;
+        font-weight: 700;
         color: var(--color-text);
         margin-bottom: 2px;
+        font-size: 1.05em;
     }
-    .interactive-demo .tooltip-cat {
-        font-size: 0.9em;
-        color: var(--color-text-muted);
+    .interactive-demo .tooltip-desc {
+        color: var(--color-text-secondary);
+        margin-bottom: 4px;
+    }
+    .interactive-demo .tooltip-group {
+        font-size: 0.88em;
+        font-weight: 500;
     }
     .interactive-demo .tooltip-order {
         font-size: 0.85em;
         margin-top: 3px;
-        font-weight: 500;
+        font-weight: 600;
     }
     .interactive-demo .tooltip-sub {
         font-size: 0.85em;
-        margin-top: 4px;
+        margin-top: 5px;
         color: var(--color-text-secondary);
+        border-top: 1px solid var(--color-border);
+        padding-top: 5px;
     }
     .interactive-demo .tooltip-sub a {
         display: block;
@@ -120,35 +127,27 @@ description: "Интерактивная карта документации —
         text-decoration: none;
         padding: 1px 0;
     }
+    .interactive-demo .tooltip-sub a:hover { text-decoration: underline; }
 
     /* SVG node styles */
     .interactive-demo .node {
         cursor: pointer;
         transition: opacity 0.25s ease;
     }
-    .interactive-demo .node.dimmed { opacity: 0.15; }
-    .interactive-demo .node .node-circle {
-        transition: stroke-width 0.2s ease, filter 0.2s ease, transform 0.2s ease;
+    .interactive-demo .node.dimmed { opacity: 0.12; }
+    .interactive-demo .node .node-bg {
+        transition: stroke-width 0.2s ease, filter 0.2s ease;
     }
-    .interactive-demo .node.highlighted .node-circle {
-        stroke-width: 3.5;
+    .interactive-demo .node.highlighted .node-bg {
+        stroke-width: 2.5;
     }
     .interactive-demo .edge {
         transition: opacity 0.25s ease, stroke-width 0.2s ease;
     }
-    .interactive-demo .edge.dimmed { opacity: 0.06 !important; }
+    .interactive-demo .edge.dimmed { opacity: 0.04 !important; }
     .interactive-demo .edge.highlighted {
-        opacity: 0.85 !important;
-        stroke-width: 3 !important;
-    }
-
-    /* Central pulse */
-    @keyframes centralPulse {
-        0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.04); }
-    }
-    .interactive-demo .central-pulse {
-        animation: centralPulse 3s ease-in-out infinite;
+        opacity: 0.8 !important;
+        stroke-width: 2.5 !important;
     }
 
     /* Badge pop animation */
@@ -167,12 +166,19 @@ description: "Интерактивная карта документации —
         from { stroke-dashoffset: 800; }
         to { stroke-dashoffset: 0; }
     }
-    .interactive-demo .edge-path-anim {
+    .interactive-demo .edge-anim {
         stroke-dasharray: 800;
         animation: edgeDraw 1.2s ease forwards;
     }
 
-    /* Explanation box */
+    /* Group background zones */
+    .interactive-demo .group-zone {
+        opacity: 0.45;
+        transition: opacity 0.3s ease;
+    }
+    .interactive-demo .group-zone.dimmed { opacity: 0.05; }
+
+    /* Info box */
     .interactive-demo .map-info {
         margin-top: 20px;
         padding: 16px 20px;
@@ -190,56 +196,49 @@ description: "Интерактивная карта документации —
 
 <div class="map-controls">
     <div class="map-legend">
-        <span class="legend-item"><span class="legend-dot" style="background:#6B58FF"></span> Концепции</span>
-        <span class="legend-item"><span class="legend-dot" style="background:#2563EB"></span> Справочник</span>
+        <span class="legend-item"><span class="legend-dot" style="background:#6B58FF"></span> Асинхронные примитивы</span>
+        <span class="legend-item"><span class="legend-dot" style="background:#0891B2"></span> Управление и безопасность</span>
+        <span class="legend-item"><span class="legend-dot" style="background:#16A34A"></span> Ресурсы и пулы</span>
+        <span class="legend-item"><span class="legend-dot" style="background:#2563EB"></span> Справочник функций</span>
         <span class="legend-item">
-            <svg width="28" height="10"><line x1="0" y1="5" x2="28" y2="5" stroke="#6B58FF" stroke-width="2" marker-end="url(#legendArrow)"/><defs><marker id="legendArrow" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="7" markerHeight="5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="#6B58FF"/></marker></defs></svg>
+            <svg width="28" height="10"><line x1="0" y1="5" x2="28" y2="5" stroke="#6B58FF" stroke-width="2" marker-end="url(#legendArr)"/><defs><marker id="legendArr" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="7" markerHeight="5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="#6B58FF"/></marker></defs></svg>
             Зависимость
         </span>
-        <span class="legend-item">
-            <svg width="28" height="10"><line x1="0" y1="5" x2="28" y2="5" stroke="#9CA3AF" stroke-width="1.5" stroke-dasharray="4 3"/></svg>
-            Связано
-        </span>
-        <span class="legend-item"><span class="legend-badge">3</span> Порядок изучения</span>
+        <span class="legend-item"><span class="legend-badge">2</span> Порядок</span>
     </div>
 </div>
 
 <p class="map-scroll-hint">&#8592; Прокрутите для просмотра всей карты &#8594;</p>
 
 <div class="map-container">
-    <svg id="learningMap" viewBox="0 0 1200 750" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+    <svg id="learningMap" viewBox="0 0 1260 820" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
         <defs>
             <marker id="arrowPath" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
-                <polygon points="0 0,10 3.5,0 7" fill="#6B58FF" opacity="0.7"/>
+                <polygon points="0 0,10 3.5,0 7" fill="#6B58FF" opacity="0.65"/>
             </marker>
-            <filter id="nodeShadow" x="-30%" y="-30%" width="160%" height="160%">
-                <feDropShadow dx="0" dy="2" stdDeviation="4" flood-opacity="0.07"/>
+            <marker id="arrowTeal" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+                <polygon points="0 0,10 3.5,0 7" fill="#0891B2" opacity="0.65"/>
+            </marker>
+            <marker id="arrowGreen" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+                <polygon points="0 0,10 3.5,0 7" fill="#16A34A" opacity="0.65"/>
+            </marker>
+            <filter id="nodeShadow" x="-20%" y="-20%" width="140%" height="140%">
+                <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.06"/>
             </filter>
-            <filter id="glowPurple" x="-50%" y="-50%" width="200%" height="200%">
-                <feGaussianBlur stdDeviation="6" result="blur"/>
-                <feFlood flood-color="#6B58FF" flood-opacity="0.2" result="color"/>
-                <feComposite in="color" in2="blur" operator="in" result="glow"/>
-                <feMerge><feMergeNode in="glow"/><feMergeNode in="SourceGraphic"/></feMerge>
-            </filter>
-            <filter id="glowBlue" x="-50%" y="-50%" width="200%" height="200%">
-                <feGaussianBlur stdDeviation="6" result="blur"/>
-                <feFlood flood-color="#2563EB" flood-opacity="0.2" result="color"/>
-                <feComposite in="color" in2="blur" operator="in" result="glow"/>
-                <feMerge><feMergeNode in="glow"/><feMergeNode in="SourceGraphic"/></feMerge>
-            </filter>
-            <radialGradient id="centralGrad" cx="45%" cy="40%">
-                <stop offset="0%" stop-color="rgba(107,88,255,0.18)"/>
-                <stop offset="100%" stop-color="rgba(107,88,255,0.04)"/>
-            </radialGradient>
         </defs>
+        <!-- Group zone backgrounds -->
+        <g id="groupZones"></g>
+        <!-- Edges -->
         <g id="edgesGroup"></g>
+        <!-- Nodes -->
         <g id="nodesGroup"></g>
     </svg>
 </div>
 
 <div class="map-tooltip" id="mapTooltip">
     <div class="tooltip-title" id="tooltipTitle"></div>
-    <div class="tooltip-cat" id="tooltipCat"></div>
+    <div class="tooltip-desc" id="tooltipDesc"></div>
+    <div class="tooltip-group" id="tooltipGroup"></div>
     <div class="tooltip-order" id="tooltipOrder"></div>
     <div class="tooltip-sub" id="tooltipSub"></div>
 </div>
@@ -248,181 +247,269 @@ description: "Интерактивная карта документации —
     <strong>Наведите</strong> на узел, чтобы подсветить его связи.
     <strong>Нажмите</strong>, чтобы перейти к документации.
     Нумерованные значки показывают рекомендованный порядок изучения.
-    Сплошные стрелки — зависимости между концепциями, пунктирные линии — связанные темы.
 </div>
 
 <script>
 (function() {
-    /* ===== CATEGORIES ===== */
-    var CAT = {
-        concept:   { color: '#6B58FF', bg: 'rgba(107,88,255,0.07)', border: 'rgba(107,88,255,0.35)', glow: 'url(#glowPurple)', label: 'Концепция' },
-        reference: { color: '#2563EB', bg: 'rgba(37,99,235,0.07)',  border: 'rgba(37,99,235,0.35)',  glow: 'url(#glowBlue)',   label: 'Справочник' },
-        hub:       { color: '#6B58FF', bg: 'url(#centralGrad)',     border: 'rgba(107,88,255,0.5)',  glow: 'url(#glowPurple)', label: 'Документация' }
+    /* ===== SEMANTIC GROUPS ===== */
+    var GRP = {
+        primitives: { color: '#6B58FF', bg: 'rgba(107,88,255,0.06)', border: 'rgba(107,88,255,0.30)', arrow: 'url(#arrowPath)', label: 'Асинхронные примитивы' },
+        control:    { color: '#0891B2', bg: 'rgba(8,145,178,0.06)',  border: 'rgba(8,145,178,0.30)',  arrow: 'url(#arrowTeal)',  label: 'Управление и безопасность' },
+        resources:  { color: '#16A34A', bg: 'rgba(22,163,74,0.06)',  border: 'rgba(22,163,74,0.30)',  arrow: 'url(#arrowGreen)', label: 'Ресурсы и пулы' },
+        reference:  { color: '#2563EB', bg: 'rgba(37,99,235,0.06)',  border: 'rgba(37,99,235,0.30)',  arrow: 'url(#arrowPath)',  label: 'Справочник функций' }
     };
 
-    /* ===== NODE SIZE MAP ===== */
-    var SIZE = { xl: 52, lg: 38, md: 32, sm: 26 };
-    var FONT = { xl: 15, lg: 13, md: 12, sm: 11 };
-
-    /* ===== NODES ===== */
+    /* ===== NODES =====
+       Each node: id, title (bold), desc (why), url, group, cx, cy, w, h, order
+       w/h = balloon size */
     var nodes = [
-        /* Central hub */
-        { id: 'docs',         label: 'Документация',   url: '/ru/docs.html',                               cat: 'hub',       size: 'xl', order: 0,    cx: 540, cy: 360 },
+        /* === Primitives group === */
+        { id: 'coroutines', title: 'Корутины',  desc: 'Запускать код асинхронно',
+          url: '/ru/docs/concepts/coroutines.html', group: 'primitives', order: 1,
+          cx: 440, cy: 100, w: 150, h: 52 },
 
-        /* Concepts — learning path */
-        { id: 'coroutines',   label: 'Корутины',       url: '/ru/docs/concepts/coroutines.html',            cat: 'concept',   size: 'lg', order: 1,    cx: 540, cy: 150 },
-        { id: 'scope',        label: 'Scope',           url: '/ru/docs/concepts/scope.html',                cat: 'concept',   size: 'md', order: 2,    cx: 780, cy: 190 },
-        { id: 'future',       label: 'Future',          url: '/ru/docs/concepts/future.html',               cat: 'concept',   size: 'md', order: 3,    cx: 310, cy: 210 },
-        { id: 'channels',     label: 'Каналы',          url: '/ru/docs/concepts/channels.html',             cat: 'concept',   size: 'md', order: 4,    cx: 300, cy: 400 },
-        { id: 'context',      label: 'Context',         url: '/ru/docs/concepts/context.html',              cat: 'concept',   size: 'md', order: 5,    cx: 960, cy: 320 },
-        { id: 'cancellation', label: 'Отмена',          url: '/ru/docs/concepts/cancellation.html',         cat: 'concept',   size: 'md', order: 6,    cx: 820, cy: 430 },
-        { id: 'exceptions',   label: 'Исключения',     url: '/ru/docs/concepts/exceptions.html',            cat: 'concept',   size: 'md', order: 7,    cx: 1000, cy: 510 },
-        { id: 'interfaces',   label: 'Интерфейсы',     url: '/ru/docs/concepts/interfaces.html',            cat: 'concept',   size: 'sm', order: 8,    cx: 700, cy: 580 },
-        { id: 'pool',         label: 'Async\\Pool',     url: '/ru/docs/concepts/pool.html',                 cat: 'concept',   size: 'md', order: 9,    cx: 460, cy: 570 },
-        { id: 'pdo-pool',     label: 'PDO Pool',        url: '/ru/docs/concepts/pdo-pool.html',             cat: 'concept',   size: 'sm', order: 10,   cx: 340, cy: 660 },
+        { id: 'scope', title: 'Scope', desc: 'Контролировать время жизни корутин',
+          url: '/ru/docs/concepts/scope.html', group: 'primitives', order: 2,
+          cx: 700, cy: 100, w: 140, h: 52 },
 
-        /* Reference function groups */
-        { id: 'ref-spawn',    label: 'spawn / await',   url: '/ru/docs/reference/spawn.html',               cat: 'reference', size: 'md', order: null, cx: 180, cy: 140 },
-        { id: 'ref-batch',    label: 'await_all / any', url: '/ru/docs/reference/supported-functions.html',  cat: 'reference', size: 'sm', order: null, cx: 100, cy: 280 },
-        { id: 'ref-control',  label: 'delay / suspend', url: '/ru/docs/reference/delay.html',               cat: 'reference', size: 'sm', order: null, cx: 120, cy: 440 },
-        { id: 'ref-cancel',   label: 'protect / timeout', url: '/ru/docs/reference/protect.html',           cat: 'reference', size: 'sm', order: null, cx: 160, cy: 580 },
-        { id: 'ref-ctx',      label: 'current_context', url: '/ru/docs/reference/current-context.html',     cat: 'reference', size: 'sm', order: null, cx: 1080, cy: 190 },
-        { id: 'ref-info',     label: 'get_coroutines',  url: '/ru/docs/reference/get-coroutines.html',      cat: 'reference', size: 'sm', order: null, cx: 1100, cy: 400 },
-        { id: 'ref-shutdown', label: 'graceful_shutdown', url: '/ru/docs/reference/graceful-shutdown.html',  cat: 'reference', size: 'sm', order: null, cx: 900, cy: 650 }
+        { id: 'future', title: 'Future', desc: 'Получить результат асинхронной операции',
+          url: '/ru/docs/concepts/future.html', group: 'primitives', order: 3,
+          cx: 260, cy: 215, w: 140, h: 52 },
+
+        { id: 'channels', title: 'Каналы', desc: 'Передавать данные между корутинами',
+          url: '/ru/docs/concepts/channels.html', group: 'primitives', order: 4,
+          cx: 510, cy: 215, w: 140, h: 52 },
+
+        { id: 'context', title: 'Context', desc: 'Хранить данные в иерархии скоупов',
+          url: '/ru/docs/concepts/context.html', group: 'primitives', order: 5,
+          cx: 920, cy: 215, w: 140, h: 52 },
+
+        /* === Control group === */
+        { id: 'cancellation', title: 'Отмена', desc: 'Прерывать корутины безопасно',
+          url: '/ru/docs/concepts/cancellation.html', group: 'control', order: 6,
+          cx: 700, cy: 370, w: 140, h: 52 },
+
+        { id: 'exceptions', title: 'Исключения', desc: 'Обрабатывать ошибки в асинхронном коде',
+          url: '/ru/docs/concepts/exceptions.html', group: 'control', order: 7,
+          cx: 940, cy: 370, w: 148, h: 52 },
+
+        { id: 'interfaces', title: 'Интерфейсы', desc: 'Типы и контракты для расширения',
+          url: '/ru/docs/concepts/interfaces.html', group: 'control', order: 8,
+          cx: 820, cy: 480, w: 144, h: 52 },
+
+        /* === Resources group === */
+        { id: 'pool', title: 'Async\\Pool', desc: 'Переиспользовать дорогие ресурсы',
+          url: '/ru/docs/concepts/pool.html', group: 'resources', order: 9,
+          cx: 490, cy: 480, w: 150, h: 52 },
+
+        { id: 'pdo-pool', title: 'PDO Pool', desc: 'Пул соединений с базой данных',
+          url: '/ru/docs/concepts/pdo-pool.html', group: 'resources', order: 10,
+          cx: 490, cy: 590, w: 140, h: 52 },
+
+        /* === Reference functions === */
+        { id: 'ref-spawn', title: 'spawn / await', desc: 'Создание и ожидание корутин',
+          url: '/ru/docs/reference/spawn.html', group: 'reference', order: null,
+          cx: 160, cy: 100, w: 146, h: 48 },
+
+        { id: 'ref-await', title: 'Функции ожидания', desc: 'await_all, await_any, await_first_success...',
+          url: '/ru/docs/reference/supported-functions.html', group: 'reference', order: null,
+          cx: 100, cy: 310, w: 170, h: 48 },
+
+        { id: 'ref-control', title: 'delay / suspend', desc: 'Пауза и передача управления',
+          url: '/ru/docs/reference/delay.html', group: 'reference', order: null,
+          cx: 140, cy: 430, w: 152, h: 48 },
+
+        { id: 'ref-cancel', title: 'protect / timeout', desc: 'Защита от отмены и таймауты',
+          url: '/ru/docs/reference/protect.html', group: 'reference', order: null,
+          cx: 400, cy: 370, w: 160, h: 48 },
+
+        { id: 'ref-info', title: 'Информация', desc: 'get_coroutines, graceful_shutdown...',
+          url: '/ru/docs/reference/get-coroutines.html', group: 'reference', order: null,
+          cx: 1100, cy: 100, w: 134, h: 48 }
     ];
 
     /* ===== EDGES ===== */
     var edges = [
-        /* Hub connections */
-        { from: 'docs', to: 'coroutines',   type: 'path' },
-        { from: 'docs', to: 'channels',     type: 'related' },
-        { from: 'docs', to: 'pool',         type: 'related' },
-
-        /* Concept dependencies */
+        /* Core learning path */
         { from: 'coroutines', to: 'scope',         type: 'path' },
         { from: 'coroutines', to: 'future',        type: 'path' },
         { from: 'coroutines', to: 'channels',      type: 'path' },
         { from: 'scope',      to: 'context',       type: 'path' },
-        { from: 'coroutines', to: 'cancellation',  type: 'path' },
         { from: 'scope',      to: 'cancellation',  type: 'path' },
+        { from: 'coroutines', to: 'cancellation',  type: 'path' },
         { from: 'cancellation', to: 'exceptions',  type: 'path' },
-        { from: 'coroutines', to: 'interfaces',    type: 'path' },
+        { from: 'cancellation', to: 'interfaces',  type: 'path' },
         { from: 'scope',      to: 'pool',          type: 'path' },
         { from: 'channels',   to: 'pool',          type: 'related' },
         { from: 'pool',       to: 'pdo-pool',      type: 'path' },
 
         /* Reference connections */
-        { from: 'coroutines',   to: 'ref-spawn',    type: 'related' },
-        { from: 'ref-spawn',    to: 'ref-batch',    type: 'related' },
-        { from: 'coroutines',   to: 'ref-control',  type: 'related' },
-        { from: 'cancellation', to: 'ref-cancel',   type: 'related' },
-        { from: 'context',      to: 'ref-ctx',      type: 'related' },
-        { from: 'scope',        to: 'ref-info',     type: 'related' },
-        { from: 'cancellation', to: 'ref-shutdown', type: 'related' }
+        { from: 'coroutines',   to: 'ref-spawn',   type: 'related' },
+        { from: 'ref-spawn',    to: 'ref-await',   type: 'related' },
+        { from: 'coroutines',   to: 'ref-control', type: 'related' },
+        { from: 'cancellation', to: 'ref-cancel',  type: 'related' },
+        { from: 'scope',        to: 'ref-info',    type: 'related' }
     ];
 
-    /* ===== CLUSTER SUB-PAGES ===== */
-    var clusterPages = {
-        'ref-spawn':   [
+    /* ===== SUB-PAGES for clusters ===== */
+    var subPages = {
+        'ref-spawn': [
             { label: 'spawn()',      url: '/ru/docs/reference/spawn.html' },
             { label: 'spawn_with()', url: '/ru/docs/reference/spawn-with.html' },
             { label: 'await()',      url: '/ru/docs/reference/await.html' }
         ],
-        'ref-batch':   [
-            { label: 'await_all()',          url: '/ru/docs/reference/await-all.html' },
-            { label: 'await_all_or_fail()',  url: '/ru/docs/reference/await-all-or-fail.html' },
-            { label: 'await_any_or_fail()',  url: '/ru/docs/reference/await-any-or-fail.html' },
+        'ref-await': [
+            { label: 'await_all()',           url: '/ru/docs/reference/await-all.html' },
+            { label: 'await_all_or_fail()',   url: '/ru/docs/reference/await-all-or-fail.html' },
+            { label: 'await_any_or_fail()',   url: '/ru/docs/reference/await-any-or-fail.html' },
             { label: 'await_first_success()', url: '/ru/docs/reference/await-first-success.html' },
-            { label: 'await_any_of()',       url: '/ru/docs/reference/await-any-of.html' },
-            { label: 'Все функции...',       url: '/ru/docs/reference/supported-functions.html' }
+            { label: 'await_any_of()',        url: '/ru/docs/reference/await-any-of.html' },
+            { label: 'Все функции...',         url: '/ru/docs/reference/supported-functions.html' }
         ],
         'ref-control': [
             { label: 'suspend()', url: '/ru/docs/reference/suspend.html' },
             { label: 'delay()',   url: '/ru/docs/reference/delay.html' }
         ],
-        'ref-cancel':  [
+        'ref-cancel': [
             { label: 'protect()', url: '/ru/docs/reference/protect.html' },
             { label: 'timeout()', url: '/ru/docs/reference/timeout.html' }
         ],
-        'ref-ctx':     [
-            { label: 'current_context()',   url: '/ru/docs/reference/current-context.html' },
+        'ref-info': [
+            { label: 'get_coroutines()',    url: '/ru/docs/reference/get-coroutines.html' },
             { label: 'current_coroutine()', url: '/ru/docs/reference/current-coroutine.html' },
+            { label: 'current_context()',   url: '/ru/docs/reference/current-context.html' },
             { label: 'coroutine_context()', url: '/ru/docs/reference/coroutine-context.html' },
-            { label: 'root_context()',      url: '/ru/docs/reference/root-context.html' }
-        ],
-        'ref-info':    [
-            { label: 'get_coroutines()', url: '/ru/docs/reference/get-coroutines.html' }
-        ],
-        'ref-shutdown': [
+            { label: 'root_context()',      url: '/ru/docs/reference/root-context.html' },
             { label: 'graceful_shutdown()', url: '/ru/docs/reference/graceful-shutdown.html' }
         ]
     };
+
+    /* ===== GROUP ZONE DEFINITIONS (rounded bg areas) ===== */
+    var groupZones = [
+        { group: 'primitives', label: 'Асинхронные примитивы', x: 200, y: 48, w: 890, h: 240, rx: 18 },
+        { group: 'control',    label: 'Управление и безопасность', x: 595, y: 320, w: 420, h: 235, rx: 18 },
+        { group: 'resources',  label: 'Ресурсы и пулы', x: 370, y: 430, w: 210, h: 235, rx: 18 },
+        { group: 'reference',  label: 'Справочник функций', x: 40, y: 55, w: 270, h: 445, rx: 18 }
+    ];
 
     /* ===== STATE ===== */
     var NS = 'http://www.w3.org/2000/svg';
     var svgEl = document.getElementById('learningMap');
     var tooltipEl = document.getElementById('mapTooltip');
-    var tooltipTitle = document.getElementById('tooltipTitle');
-    var tooltipCat = document.getElementById('tooltipCat');
-    var tooltipOrder = document.getElementById('tooltipOrder');
-    var tooltipSub = document.getElementById('tooltipSub');
     var edgesGroup = document.getElementById('edgesGroup');
     var nodesGroup = document.getElementById('nodesGroup');
+    var zonesGroup = document.getElementById('groupZones');
 
     var nodeMap = {};
     var nodeEls = {};
     var edgeEls = [];
+    var zoneEls = {};
     var adj = {};
     var hoveredId = null;
 
-    /* ===== BUILD HELPERS ===== */
-    function buildNodeMap() {
+    /* ===== BUILD ===== */
+    function init() {
         nodes.forEach(function(n) { nodeMap[n.id] = n; adj[n.id] = new Set(); });
+        edges.forEach(function(e) { adj[e.from].add(e.to); adj[e.to].add(e.from); });
+        renderZones();
+        renderEdges();
+        renderNodes();
     }
-    function buildAdj() {
-        edges.forEach(function(e) {
-            adj[e.from].add(e.to);
-            adj[e.to].add(e.from);
+
+    /* ===== RENDER GROUP ZONES ===== */
+    function renderZones() {
+        groupZones.forEach(function(z) {
+            var grp = GRP[z.group];
+            var g = document.createElementNS(NS, 'g');
+            g.classList.add('group-zone');
+            g.dataset.group = z.group;
+
+            var rect = document.createElementNS(NS, 'rect');
+            rect.setAttribute('x', z.x);
+            rect.setAttribute('y', z.y);
+            rect.setAttribute('width', z.w);
+            rect.setAttribute('height', z.h);
+            rect.setAttribute('rx', z.rx);
+            rect.setAttribute('fill', grp.bg);
+            rect.setAttribute('stroke', grp.border);
+            rect.setAttribute('stroke-width', '1');
+            rect.setAttribute('stroke-dasharray', '6 3');
+            g.appendChild(rect);
+
+            /* Zone label in top-left */
+            var lbl = document.createElementNS(NS, 'text');
+            lbl.setAttribute('x', z.x + 14);
+            lbl.setAttribute('y', z.y + 18);
+            lbl.setAttribute('font-family', 'Fira Sans, sans-serif');
+            lbl.setAttribute('font-size', '11');
+            lbl.setAttribute('font-weight', '600');
+            lbl.setAttribute('fill', grp.color);
+            lbl.setAttribute('opacity', '0.6');
+            lbl.textContent = z.label;
+            g.appendChild(lbl);
+
+            zonesGroup.appendChild(g);
+            zoneEls[z.group] = g;
         });
     }
 
-    /* Quadratic bezier from edge endpoints, shortened by node radii */
-    function calcEdge(from, to) {
-        var r1 = SIZE[from.size], r2 = SIZE[to.size];
+    /* ===== RENDER EDGES ===== */
+    function calcPath(from, to) {
+        /* Connect from edge of balloon to edge of target balloon */
         var dx = to.cx - from.cx, dy = to.cy - from.cy;
         var dist = Math.sqrt(dx * dx + dy * dy);
         if (dist < 1) return null;
+
+        /* Find exit/entry points on rounded rects */
+        var angle = Math.atan2(dy, dx);
+        var s = exitPoint(from, angle);
+        var e = exitPoint(to, angle + Math.PI);
+
+        /* Bezier curvature */
+        var mx = (s.x + e.x) / 2, my = (s.y + e.y) / 2;
         var ux = dx / dist, uy = dy / dist;
-        var sx = from.cx + ux * r1, sy = from.cy + uy * r1;
-        var ex = to.cx - ux * r2, ey = to.cy - uy * r2;
-        /* perpendicular offset for curvature */
-        var mx = (sx + ex) / 2, my = (sy + ey) / 2;
-        var off = Math.min(dist * 0.15, 35);
+        var off = Math.min(dist * 0.12, 30);
         var px = -uy * off, py = ux * off;
-        return 'M' + sx + ',' + sy + ' Q' + (mx + px) + ',' + (my + py) + ' ' + ex + ',' + ey;
+        return 'M' + s.x + ',' + s.y + ' Q' + (mx + px) + ',' + (my + py) + ' ' + e.x + ',' + e.y;
     }
 
-    /* ===== RENDER EDGES ===== */
+    function exitPoint(n, angle) {
+        /* Approximate: find intersection of ray from center with rounded rect */
+        var hw = n.w / 2, hh = n.h / 2;
+        var cos = Math.cos(angle), sin = Math.sin(angle);
+        var tx = cos !== 0 ? hw / Math.abs(cos) : 9999;
+        var ty = sin !== 0 ? hh / Math.abs(sin) : 9999;
+        var t = Math.min(tx, ty);
+        return { x: n.cx + cos * t, y: n.cy + sin * t };
+    }
+
     function renderEdges() {
         edges.forEach(function(e, i) {
             var from = nodeMap[e.from], to = nodeMap[e.to];
-            var d = calcEdge(from, to);
+            var d = calcPath(from, to);
             if (!d) return;
+
+            var grp = GRP[from.group];
             var path = document.createElementNS(NS, 'path');
             path.setAttribute('d', d);
             path.setAttribute('fill', 'none');
+
             if (e.type === 'path') {
-                path.setAttribute('stroke', CAT[from.cat].color);
+                path.setAttribute('stroke', grp.color);
                 path.setAttribute('stroke-width', '2');
-                path.setAttribute('opacity', '0.45');
-                path.setAttribute('marker-end', 'url(#arrowPath)');
-                path.classList.add('edge', 'edge-path', 'edge-path-anim');
-                path.style.animationDelay = (i * 0.04) + 's';
+                path.setAttribute('opacity', '0.4');
+                /* Pick arrow color matching source group */
+                var arrowId = e.from.indexOf('ref-') === 0 ? 'arrowPath' :
+                              from.group === 'control' ? 'arrowTeal' :
+                              from.group === 'resources' ? 'arrowGreen' : 'arrowPath';
+                path.setAttribute('marker-end', 'url(#' + arrowId + ')');
+                path.classList.add('edge', 'edge-path', 'edge-anim');
+                path.style.animationDelay = (i * 0.05) + 's';
             } else {
-                path.setAttribute('stroke', '#9CA3AF');
+                path.setAttribute('stroke', '#94A3B8');
                 path.setAttribute('stroke-width', '1.5');
                 path.setAttribute('stroke-dasharray', '5 4');
-                path.setAttribute('opacity', '0.3');
+                path.setAttribute('opacity', '0.25');
                 path.classList.add('edge', 'edge-related');
             }
             path.dataset.from = e.from;
@@ -432,55 +519,71 @@ description: "Интерактивная карта документации —
         });
     }
 
-    /* ===== RENDER NODES ===== */
+    /* ===== RENDER NODES (BALLOONS) ===== */
     function renderNodes() {
         nodes.forEach(function(n) {
             var g = document.createElementNS(NS, 'g');
             g.classList.add('node');
             g.dataset.id = n.id;
+            g.dataset.group = n.group;
 
-            var r = SIZE[n.size];
-            var cat = CAT[n.cat];
-            var fs = FONT[n.size];
+            var grp = GRP[n.group];
+            var hw = n.w / 2, hh = n.h / 2;
+            var rx = Math.min(hh, 16);
 
-            /* Main circle */
-            var circ = document.createElementNS(NS, 'circle');
-            circ.setAttribute('cx', n.cx);
-            circ.setAttribute('cy', n.cy);
-            circ.setAttribute('r', r);
-            circ.setAttribute('fill', cat.bg);
-            circ.setAttribute('stroke', cat.border);
-            circ.setAttribute('stroke-width', n.cat === 'hub' ? '3' : '2');
-            circ.setAttribute('filter', 'url(#nodeShadow)');
-            circ.classList.add('node-circle');
-            if (n.cat === 'hub') {
-                circ.classList.add('central-pulse');
-                circ.style.transformOrigin = n.cx + 'px ' + n.cy + 'px';
-            }
-            g.appendChild(circ);
+            /* Balloon rect */
+            var rect = document.createElementNS(NS, 'rect');
+            rect.setAttribute('x', n.cx - hw);
+            rect.setAttribute('y', n.cy - hh);
+            rect.setAttribute('width', n.w);
+            rect.setAttribute('height', n.h);
+            rect.setAttribute('rx', rx);
+            rect.setAttribute('fill', '#fff');
+            rect.setAttribute('stroke', grp.border);
+            rect.setAttribute('stroke-width', '1.5');
+            rect.setAttribute('filter', 'url(#nodeShadow)');
+            rect.classList.add('node-bg');
+            g.appendChild(rect);
 
-            /* Label — might need multiline for long text */
-            var lines = n.label.split(' ');
-            if (lines.length > 1 && n.label.length > 10 && n.size !== 'xl') {
-                /* split into two lines */
-                var mid = Math.ceil(lines.length / 2);
-                var line1 = lines.slice(0, mid).join(' ');
-                var line2 = lines.slice(mid).join(' ');
-                var t1 = makeText(n.cx, n.cy - fs * 0.5, fs, cat.color, line1);
-                var t2 = makeText(n.cx, n.cy + fs * 0.6, fs, cat.color, line2);
-                g.appendChild(t1);
-                g.appendChild(t2);
-            } else {
-                var txt = makeText(n.cx, n.cy, fs, cat.color, n.label);
-                g.appendChild(txt);
+            /* Left color accent bar */
+            var bar = document.createElementNS(NS, 'rect');
+            bar.setAttribute('x', n.cx - hw);
+            bar.setAttribute('y', n.cy - hh);
+            bar.setAttribute('width', 4);
+            bar.setAttribute('height', n.h);
+            bar.setAttribute('rx', 2);
+            bar.setAttribute('fill', grp.color);
+            bar.setAttribute('opacity', '0.7');
+            /* Clip to rounded corners */
+            var clip = document.createElementNS(NS, 'clipPath');
+            var clipId = 'clip-' + n.id;
+            clip.id = clipId;
+            var clipRect = document.createElementNS(NS, 'rect');
+            clipRect.setAttribute('x', n.cx - hw);
+            clipRect.setAttribute('y', n.cy - hh);
+            clipRect.setAttribute('width', n.w);
+            clipRect.setAttribute('height', n.h);
+            clipRect.setAttribute('rx', rx);
+            clip.appendChild(clipRect);
+            g.appendChild(clip);
+            bar.setAttribute('clip-path', 'url(#' + clipId + ')');
+            g.appendChild(bar);
+
+            /* Title text */
+            var titleY = n.desc ? n.cy - 6 : n.cy;
+            var title = makeText(n.cx + 2, titleY, 12.5, grp.color, n.title, '600');
+            g.appendChild(title);
+
+            /* Description text */
+            if (n.desc) {
+                var desc = makeText(n.cx + 2, n.cy + 10, 10, '#6B7280', n.desc, '400');
+                g.appendChild(desc);
             }
 
             /* Order badge */
             if (n.order !== null && n.order > 0) {
-                var br = 11;
-                var angle = -Math.PI / 4;
-                var bx = n.cx + r * Math.cos(angle);
-                var by = n.cy + r * Math.sin(angle);
+                var bx = n.cx + hw - 2;
+                var by = n.cy - hh - 2;
 
                 var bg = document.createElementNS(NS, 'g');
                 bg.classList.add('order-badge-g');
@@ -490,8 +593,8 @@ description: "Интерактивная карта документации —
                 var bc = document.createElementNS(NS, 'circle');
                 bc.setAttribute('cx', bx);
                 bc.setAttribute('cy', by);
-                bc.setAttribute('r', br);
-                bc.setAttribute('fill', cat.color);
+                bc.setAttribute('r', 11);
+                bc.setAttribute('fill', grp.color);
                 bg.appendChild(bc);
 
                 var bt = document.createElementNS(NS, 'text');
@@ -499,6 +602,7 @@ description: "Интерактивная карта документации —
                 bt.setAttribute('y', by);
                 bt.setAttribute('text-anchor', 'middle');
                 bt.setAttribute('dominant-baseline', 'central');
+                bt.setAttribute('font-family', 'Fira Sans, sans-serif');
                 bt.setAttribute('font-size', '9');
                 bt.setAttribute('font-weight', '700');
                 bt.setAttribute('fill', '#fff');
@@ -519,7 +623,7 @@ description: "Интерактивная карта документации —
         });
     }
 
-    function makeText(x, y, fs, fill, content) {
+    function makeText(x, y, fs, fill, content, fw) {
         var t = document.createElementNS(NS, 'text');
         t.setAttribute('x', x);
         t.setAttribute('y', y);
@@ -527,7 +631,7 @@ description: "Интерактивная карта документации —
         t.setAttribute('dominant-baseline', 'central');
         t.setAttribute('font-family', 'Fira Sans, sans-serif');
         t.setAttribute('font-size', fs);
-        t.setAttribute('font-weight', '600');
+        t.setAttribute('font-weight', fw || '400');
         t.setAttribute('fill', fill);
         t.setAttribute('pointer-events', 'none');
         t.textContent = content;
@@ -538,15 +642,16 @@ description: "Интерактивная карта документации —
     function onEnter(id, ev) {
         hoveredId = id;
         var neighbors = adj[id] || new Set();
+        var hoverNode = nodeMap[id];
+        var activeGroups = new Set();
+        activeGroups.add(hoverNode.group);
 
         Object.keys(nodeEls).forEach(function(nid) {
             var el = nodeEls[nid];
-            if (nid === id) {
+            if (nid === id || neighbors.has(nid)) {
                 el.classList.remove('dimmed');
                 el.classList.add('highlighted');
-            } else if (neighbors.has(nid)) {
-                el.classList.remove('dimmed');
-                el.classList.add('highlighted');
+                activeGroups.add(nodeMap[nid].group);
             } else {
                 el.classList.add('dimmed');
                 el.classList.remove('highlighted');
@@ -563,6 +668,15 @@ description: "Интерактивная карта документации —
             }
         });
 
+        /* Dim non-active group zones */
+        Object.keys(zoneEls).forEach(function(gid) {
+            if (activeGroups.has(gid)) {
+                zoneEls[gid].classList.remove('dimmed');
+            } else {
+                zoneEls[gid].classList.add('dimmed');
+            }
+        });
+
         showTooltip(id, ev);
     }
 
@@ -573,6 +687,9 @@ description: "Интерактивная карта документации —
         });
         edgeEls.forEach(function(e) {
             e.el.classList.remove('dimmed', 'highlighted');
+        });
+        Object.keys(zoneEls).forEach(function(gid) {
+            zoneEls[gid].classList.remove('dimmed');
         });
         hideTooltip();
     }
@@ -586,32 +703,36 @@ description: "Интерактивная карта документации —
     function showTooltip(id, ev) {
         var n = nodeMap[id];
         if (!n) return;
-        var cat = CAT[n.cat];
+        var grp = GRP[n.group];
 
-        tooltipTitle.textContent = n.label;
-        tooltipCat.textContent = cat.label;
-        tooltipCat.style.color = cat.color;
+        document.getElementById('tooltipTitle').textContent = n.title;
+        document.getElementById('tooltipDesc').textContent = n.desc || '';
 
+        var groupEl = document.getElementById('tooltipGroup');
+        groupEl.textContent = grp.label;
+        groupEl.style.color = grp.color;
+
+        var orderEl = document.getElementById('tooltipOrder');
         if (n.order !== null && n.order > 0) {
-            tooltipOrder.textContent = 'Шаг ' + n.order + ' из 10';
-            tooltipOrder.style.color = cat.color;
-            tooltipOrder.style.display = '';
+            orderEl.textContent = 'Шаг ' + n.order + ' из 10';
+            orderEl.style.color = grp.color;
+            orderEl.style.display = '';
         } else {
-            tooltipOrder.style.display = 'none';
+            orderEl.style.display = 'none';
         }
 
-        /* Sub-pages for reference clusters */
-        if (clusterPages[id]) {
+        var subEl = document.getElementById('tooltipSub');
+        if (subPages[id]) {
             var html = '';
-            clusterPages[id].forEach(function(p) {
+            subPages[id].forEach(function(p) {
                 html += '<a href="' + p.url + '">' + p.label + '</a>';
             });
-            tooltipSub.innerHTML = html;
-            tooltipSub.style.display = '';
+            subEl.innerHTML = html;
+            subEl.style.display = '';
             tooltipEl.style.pointerEvents = 'auto';
         } else {
-            tooltipSub.innerHTML = '';
-            tooltipSub.style.display = 'none';
+            subEl.innerHTML = '';
+            subEl.style.display = 'none';
             tooltipEl.style.pointerEvents = 'none';
         }
 
@@ -620,12 +741,12 @@ description: "Интерактивная карта документации —
     }
 
     function positionTooltip(ev) {
-        var x = ev.clientX + 14;
-        var y = ev.clientY + 14;
-        var tw = tooltipEl.offsetWidth || 180;
-        var th = tooltipEl.offsetHeight || 60;
-        if (x + tw > window.innerWidth - 8) x = ev.clientX - tw - 10;
-        if (y + th > window.innerHeight - 8) y = ev.clientY - th - 10;
+        var x = ev.clientX + 16;
+        var y = ev.clientY + 16;
+        var tw = tooltipEl.offsetWidth || 200;
+        var th = tooltipEl.offsetHeight || 80;
+        if (x + tw > window.innerWidth - 10) x = ev.clientX - tw - 12;
+        if (y + th > window.innerHeight - 10) y = ev.clientY - th - 12;
         tooltipEl.style.left = x + 'px';
         tooltipEl.style.top = y + 'px';
     }
@@ -635,14 +756,12 @@ description: "Интерактивная карта документации —
         tooltipEl.style.pointerEvents = 'none';
     }
 
-    /* Update tooltip position on mouse move within nodes */
     svgEl.addEventListener('mousemove', function(ev) {
         if (hoveredId) positionTooltip(ev);
     });
 
     /* ===== TOUCH SUPPORT ===== */
-    var isTouchDevice = 'ontouchstart' in window;
-    if (isTouchDevice) {
+    if ('ontouchstart' in window) {
         svgEl.addEventListener('touchstart', function(ev) {
             var target = ev.target.closest('.node');
             if (target) {
@@ -660,9 +779,6 @@ description: "Интерактивная карта документации —
     }
 
     /* ===== INIT ===== */
-    buildNodeMap();
-    buildAdj();
-    renderEdges();
-    renderNodes();
+    init();
 })();
 </script>
