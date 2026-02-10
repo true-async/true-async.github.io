@@ -91,7 +91,7 @@ description: "Интерактивная карта документации —
         z-index: 100;
         opacity: 0;
         transition: opacity 0.18s;
-        max-width: 240px;
+        max-width: 320px;
         line-height: 1.45;
     }
     .interactive-demo .map-tooltip.visible { opacity: 1; }
@@ -128,6 +128,26 @@ description: "Интерактивная карта документации —
         padding: 1px 0;
     }
     .interactive-demo .tooltip-sub a:hover { text-decoration: underline; }
+
+    .interactive-demo .tooltip-code {
+        margin-top: 6px;
+        padding: 6px 8px;
+        background: #F3F4F6;
+        border-radius: 6px;
+        font-family: 'Fira Mono', monospace;
+        font-size: 0.82em;
+        line-height: 1.5;
+        color: #1F2937;
+        white-space: pre;
+        overflow-x: auto;
+        border: 1px solid #E5E7EB;
+    }
+    .interactive-demo .tooltip-code .kw { color: #7C3AED; font-weight: 600; }
+    .interactive-demo .tooltip-code .fn { color: #2563EB; }
+    .interactive-demo .tooltip-code .str { color: #16A34A; }
+    .interactive-demo .tooltip-code .var { color: #0891B2; }
+    .interactive-demo .tooltip-code .cm { color: #9CA3AF; font-style: italic; }
+    .interactive-demo .tooltip-code .num { color: #EA580C; }
 
     /* SVG node styles */
     .interactive-demo .node {
@@ -240,6 +260,7 @@ description: "Интерактивная карта документации —
     <div class="tooltip-desc" id="tooltipDesc"></div>
     <div class="tooltip-group" id="tooltipGroup"></div>
     <div class="tooltip-order" id="tooltipOrder"></div>
+    <div class="tooltip-code" id="tooltipCode"></div>
     <div class="tooltip-sub" id="tooltipSub"></div>
 </div>
 
@@ -265,65 +286,80 @@ description: "Интерактивная карта документации —
     var nodes = [
         /* === Primitives group === */
         { id: 'coroutines', title: 'Корутины',  desc: 'Запускать код асинхронно',
+          code: '<span class="var">$coro</span> = <span class="fn">spawn</span>(<span class="kw">function</span>() {\n  <span class="fn">echo</span> <span class="str">"async!"</span>;\n});',
           url: '/ru/docs/concepts/coroutines.html', group: 'primitives', order: 1,
           cx: 440, cy: 100, w: 150, h: 52 },
 
         { id: 'scope', title: 'Scope', desc: 'Контролировать время жизни корутин',
+          code: '<span class="var">$scope</span> = <span class="kw">new</span> Async\\<span class="fn">Scope</span>();\n<span class="fn">spawn</span>(<span class="var">$scope</span>, <span class="var">$task</span>);',
           url: '/ru/docs/concepts/scope.html', group: 'primitives', order: 2,
           cx: 700, cy: 100, w: 140, h: 52 },
 
         { id: 'future', title: 'Future', desc: 'Получить результат асинхронной операции',
+          code: '<span class="var">$future</span> = <span class="fn">spawn</span>(<span class="var">$task</span>);\n<span class="var">$result</span> = <span class="fn">await</span>(<span class="var">$future</span>);',
           url: '/ru/docs/concepts/future.html', group: 'primitives', order: 3,
           cx: 260, cy: 215, w: 140, h: 52 },
 
         { id: 'channels', title: 'Каналы', desc: 'Передавать данные между корутинами',
+          code: '<span class="var">$ch</span> = <span class="kw">new</span> <span class="fn">Channel</span>(<span class="num">10</span>);\n<span class="var">$ch</span>-><span class="fn">send</span>(<span class="str">"data"</span>);\n<span class="var">$val</span> = <span class="var">$ch</span>-><span class="fn">recv</span>();',
           url: '/ru/docs/concepts/channels.html', group: 'primitives', order: 4,
           cx: 510, cy: 215, w: 140, h: 52 },
 
         { id: 'context', title: 'Context', desc: 'Хранить данные в иерархии скоупов',
+          code: '<span class="fn">current_context</span>()-><span class="fn">set</span>(<span class="str">\'key\'</span>, <span class="str">\'val\'</span>);\n<span class="var">$v</span> = <span class="fn">current_context</span>()-><span class="fn">find</span>(<span class="str">\'key\'</span>);',
           url: '/ru/docs/concepts/context.html', group: 'primitives', order: 5,
           cx: 920, cy: 215, w: 140, h: 52 },
 
         /* === Control group === */
         { id: 'cancellation', title: 'Отмена', desc: 'Прерывать корутины безопасно',
+          code: '<span class="var">$coro</span>-><span class="fn">cancel</span>();\n<span class="cm">// or with timeout:</span>\n<span class="fn">await</span>(<span class="var">$coro</span>, <span class="fn">timeout</span>(<span class="num">5000</span>));',
           url: '/ru/docs/concepts/cancellation.html', group: 'control', order: 6,
           cx: 700, cy: 370, w: 140, h: 52 },
 
         { id: 'exceptions', title: 'Исключения', desc: 'Обрабатывать ошибки в асинхронном коде',
+          code: '<span class="kw">try</span> { <span class="fn">await</span>(<span class="var">$coro</span>); }\n<span class="kw">catch</span> (<span class="fn">CancellationError</span> <span class="var">$e</span>) {}',
           url: '/ru/docs/concepts/exceptions.html', group: 'control', order: 7,
           cx: 940, cy: 370, w: 148, h: 52 },
 
         { id: 'interfaces', title: 'Интерфейсы', desc: 'Типы и контракты для расширения',
+          code: '<span class="kw">interface</span> <span class="fn">Awaitable</span> {}\n<span class="kw">interface</span> <span class="fn">Completable</span> {}',
           url: '/ru/docs/concepts/interfaces.html', group: 'control', order: 8,
           cx: 820, cy: 480, w: 144, h: 52 },
 
         /* === Resources group === */
         { id: 'pool', title: 'Async\\Pool', desc: 'Переиспользовать дорогие ресурсы',
+          code: '<span class="var">$pool</span> = <span class="kw">new</span> <span class="fn">Pool</span>(\n  <span class="fn">factory</span>: <span class="kw">fn</span>() => <span class="kw">new</span> <span class="fn">Conn</span>(),\n  <span class="fn">max</span>: <span class="num">10</span>\n);',
           url: '/ru/docs/concepts/pool.html', group: 'resources', order: 9,
           cx: 490, cy: 480, w: 150, h: 52 },
 
         { id: 'pdo-pool', title: 'PDO Pool', desc: 'Пул соединений с базой данных',
+          code: '<span class="var">$pdo</span> = <span class="kw">new</span> <span class="fn">PDO</span>(<span class="var">$dsn</span>, <span class="var">$user</span>, <span class="var">$pwd</span>, [\n  PDO::<span class="fn">ATTR_POOL_MAX</span> => <span class="num">10</span>\n]);',
           url: '/ru/docs/concepts/pdo-pool.html', group: 'resources', order: 10,
           cx: 490, cy: 590, w: 140, h: 52 },
 
         /* === Reference functions === */
         { id: 'ref-spawn', title: 'spawn / await', desc: 'Создание и ожидание корутин',
+          code: '<span class="var">$c</span> = <span class="fn">spawn</span>(<span class="fn">fetchUser</span>(...), <span class="num">123</span>);\n<span class="var">$user</span> = <span class="fn">await</span>(<span class="var">$c</span>);',
           url: '/ru/docs/reference/spawn.html', group: 'reference', order: null,
           cx: 160, cy: 100, w: 146, h: 48 },
 
         { id: 'ref-await', title: 'Функции ожидания', desc: 'await_all, await_any, await_first_success...',
+          code: '<span class="var">$results</span> = <span class="fn">await_all</span>(<span class="var">$tasks</span>);\n<span class="var">$first</span> = <span class="fn">await_first_success</span>(<span class="var">$tasks</span>);',
           url: '/ru/docs/reference/supported-functions.html', group: 'reference', order: null,
           cx: 100, cy: 310, w: 170, h: 48 },
 
         { id: 'ref-control', title: 'delay / suspend', desc: 'Пауза и передача управления',
+          code: '<span class="fn">delay</span>(<span class="num">1000</span>); <span class="cm">// 1 сек</span>\n<span class="fn">suspend</span>();  <span class="cm">// yield</span>',
           url: '/ru/docs/reference/delay.html', group: 'reference', order: null,
           cx: 140, cy: 430, w: 152, h: 48 },
 
         { id: 'ref-cancel', title: 'protect / timeout', desc: 'Защита от отмены и таймауты',
+          code: '<span class="fn">protect</span>(<span class="kw">function</span>() {\n  <span class="var">$db</span>-><span class="fn">commit</span>();\n});',
           url: '/ru/docs/reference/protect.html', group: 'reference', order: null,
           cx: 400, cy: 370, w: 160, h: 48 },
 
         { id: 'ref-info', title: 'Информация', desc: 'get_coroutines, graceful_shutdown...',
+          code: '<span class="var">$all</span> = <span class="fn">get_coroutines</span>();\n<span class="fn">graceful_shutdown</span>();',
           url: '/ru/docs/reference/get-coroutines.html', group: 'reference', order: null,
           cx: 1100, cy: 100, w: 134, h: 48 }
     ];
@@ -719,6 +755,14 @@ description: "Интерактивная карта документации —
             orderEl.style.display = '';
         } else {
             orderEl.style.display = 'none';
+        }
+
+        var codeEl = document.getElementById('tooltipCode');
+        if (n.code) {
+            codeEl.innerHTML = n.code;
+            codeEl.style.display = '';
+        } else {
+            codeEl.style.display = 'none';
         }
 
         var subEl = document.getElementById('tooltipSub');
