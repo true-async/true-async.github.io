@@ -9,9 +9,6 @@ hero:
     - label: "Wie Koroutinen funktionieren"
       url: "/de/interactive/coroutine-demo.html"
       style: secondary
-    - label: "Wie der PDO Pool funktioniert"
-      url: "/de/interactive/pdo-pool-demo.html"
-      style: secondary
     - label: "Herunterladen"
       url: "/de/download.html"
       style: secondary
