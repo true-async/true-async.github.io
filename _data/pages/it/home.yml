@@ -6,6 +6,12 @@ hero:
     - label: "Inizia"
       url: "/it/docs.html"
       style: primary
+    - label: "Come funzionano le coroutine"
+      url: "/it/interactive/coroutine-demo.html"
+      style: secondary
+    - label: "Come funziona il PDO Pool"
+      url: "/it/interactive/pdo-pool-demo.html"
+      style: secondary
     - label: "Scarica"
       url: "/it/download.html"
       style: secondary

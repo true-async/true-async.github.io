@@ -1,11 +1,11 @@
 ---
 layout: interactive
-lang: en
+lang: it
 path_key: "/interactive/pdo-pool-demo.html"
 nav_active: ""
-permalink: /en/interactive/pdo-pool-demo.html
-page_title: "How PDO Connection Pool Works"
-description: "Interactive visualization of PDO connection pooling in TrueAsync"
+permalink: /it/interactive/pdo-pool-demo.html
+page_title: "Come funziona il pool di connessioni PDO"
+description: "Visualizzazione interattiva del pool di connessioni al database in TrueAsync"
 ---
 
 <style>
@@ -434,17 +434,17 @@ description: "Interactive visualization of PDO connection pooling in TrueAsync"
 </style>
 
 <div class="container">
-    <p class="subtitle">3 coroutines, 2 pooled connections — automatic management via $stmt and transactions</p>
+    <p class="subtitle">3 coroutine, 2 connessioni in pool — gestione automatica tramite $stmt e transazioni</p>
 
     <div class="main-layout">
         <!-- Left: Code -->
         <div>
             <div class="code-panel" id="codePanel">
                 <div class="code-header">
-                    <span>Code — one PDO with pool, 3 coroutines</span>
+                    <span>Codice — un PDO con pool, 3 coroutine</span>
                 </div>
                 <div class="code-content" id="codeBlock">
-                    <div class="code-line" data-line="1"><span class="comment">// Single PDO object with a pool of 2 connections</span></div>
+                    <div class="code-line" data-line="1"><span class="comment">// Un singolo oggetto PDO con un pool di 2 connessioni</span></div>
                     <div class="code-line" data-line="2"><span class="variable">$pdo</span> = <span class="keyword">new</span> <span class="class">PDO</span>(<span class="variable">$dsn</span>, <span class="variable">$user</span>, <span class="variable">$pass</span>, [</div>
                     <div class="code-line" data-line="3">  <span class="class">PDO</span>::<span class="variable">ATTR_POOL_ENABLED</span> => <span class="keyword">true</span>,</div>
                     <div class="code-line" data-line="4">  <span class="class">PDO</span>::<span class="variable">ATTR_POOL_MAX</span>     => <span class="number">2</span>,</div>
@@ -452,15 +452,15 @@ description: "Interactive visualization of PDO connection pooling in TrueAsync"
                     <div class="code-line" data-line="6"></div>
                     <div class="code-line" data-line="7"><span class="keyword">for</span> (<span class="variable">$i</span> = <span class="number">1</span>; <span class="variable">$i</span> &lt;= <span class="number">3</span>; <span class="variable">$i</span>++) {</div>
                     <div class="code-line" data-line="8">  <span class="function">spawn</span>(<span class="keyword">function</span>() <span class="keyword">use</span> (<span class="variable">$pdo</span>, <span class="variable">$i</span>) {</div>
-                    <div class="code-line" data-line="9">    <span class="comment">// prepare() auto-acquires conn from pool</span></div>
+                    <div class="code-line" data-line="9">    <span class="comment">// prepare() acquisisce automaticamente una conn dal pool</span></div>
                     <div class="code-line" data-line="10">    <span class="variable">$stmt</span> = <span class="variable">$pdo</span>-><span class="function">prepare</span>(<span class="string">"SELECT * FROM users WHERE id=?"</span>);</div>
-                    <div class="code-line" data-line="11">    <span class="variable">$stmt</span>-><span class="function">execute</span>([<span class="variable">$i</span>]);  <span class="comment">// waits for DB</span></div>
+                    <div class="code-line" data-line="11">    <span class="variable">$stmt</span>-><span class="function">execute</span>([<span class="variable">$i</span>]);  <span class="comment">// attende il DB</span></div>
                     <div class="code-line" data-line="12">    <span class="variable">$user</span> = <span class="variable">$stmt</span>-><span class="function">fetch</span>();</div>
                     <div class="code-line" data-line="13"></div>
                     <div class="code-line" data-line="14">    <span class="function">processUser</span>(<span class="variable">$user</span>);</div>
                     <div class="code-line" data-line="15"></div>
-                    <div class="code-line" data-line="16">    <span class="comment">// $stmt goes out of scope -> refcount=0</span></div>
-                    <div class="code-line" data-line="17">    <span class="comment">// conn auto-returns to pool!</span></div>
+                    <div class="code-line" data-line="16">    <span class="comment">// $stmt esce dallo scope -> refcount=0</span></div>
+                    <div class="code-line" data-line="17">    <span class="comment">// la conn torna automaticamente al pool!</span></div>
                     <div class="code-line" data-line="18">  });</div>
                     <div class="code-line" data-line="19">}</div>
                 </div>
@@ -475,37 +475,37 @@ description: "Interactive visualization of PDO connection pooling in TrueAsync"
                 <div class="pool-slots">
                     <div class="pool-slot free" id="slot0">
                         <div class="slot-icon" id="slotIcon0">🔌</div>
-                        <div class="slot-label">Connection #1</div>
-                        <div class="slot-user free" id="slotUser0">available</div>
+                        <div class="slot-label">Connessione #1</div>
+                        <div class="slot-user free" id="slotUser0">disponibile</div>
                         <div class="slot-pin" id="slotPin0"></div>
                     </div>
                     <div class="pool-slot free" id="slot1">
                         <div class="slot-icon" id="slotIcon1">🔌</div>
-                        <div class="slot-label">Connection #2</div>
-                        <div class="slot-user free" id="slotUser1">available</div>
+                        <div class="slot-label">Connessione #2</div>
+                        <div class="slot-user free" id="slotUser1">disponibile</div>
                         <div class="slot-pin" id="slotPin1"></div>
                     </div>
                 </div>
 
                 <div class="pool-queue">
-                    <span class="queue-label">Wait queue:</span>
+                    <span class="queue-label">Coda di attesa:</span>
                     <div class="queue-items" id="queueItems">
-                        <span class="queue-empty">empty</span>
+                        <span class="queue-empty">vuota</span>
                     </div>
                 </div>
 
                 <div class="coro-cards">
                     <div class="coro-card c1">
                         <div class="coro-card-name c1">Coroutine 1</div>
-                        <div class="coro-card-status" id="cardStatus0">ready</div>
+                        <div class="coro-card-status" id="cardStatus0">pronta</div>
                     </div>
                     <div class="coro-card c2">
                         <div class="coro-card-name c2">Coroutine 2</div>
-                        <div class="coro-card-status" id="cardStatus1">ready</div>
+                        <div class="coro-card-status" id="cardStatus1">pronta</div>
                     </div>
                     <div class="coro-card c3">
                         <div class="coro-card-name c3">Coroutine 3</div>
-                        <div class="coro-card-status" id="cardStatus2">ready</div>
+                        <div class="coro-card-status" id="cardStatus2">pronta</div>
                     </div>
                 </div>
             </div>
@@ -515,7 +515,7 @@ description: "Interactive visualization of PDO connection pooling in TrueAsync"
     <!-- Timeline -->
     <div class="timeline-panel">
         <div class="timeline-header">
-            <span class="timeline-title">Execution Timeline</span>
+            <span class="timeline-title">Timeline di esecuzione</span>
             <span class="time-display" id="timeDisplay">0 ms</span>
         </div>
 
@@ -535,11 +535,11 @@ description: "Interactive visualization of PDO connection pooling in TrueAsync"
         <div class="time-scale"><span>0</span><span>15</span><span>30</span><span>45</span><span>55ms</span></div>
 
         <div class="controls">
-            <button class="demo-btn demo-btn-primary" id="playBtn">&#9654; Play</button>
-            <button class="demo-btn demo-btn-secondary" id="stepBtn">&#9197; Step</button>
-            <button class="demo-btn demo-btn-secondary" id="resetBtn">&#8634; Reset</button>
+            <button class="demo-btn demo-btn-primary" id="playBtn">&#9654; Avvia</button>
+            <button class="demo-btn demo-btn-secondary" id="stepBtn">&#9197; Passo</button>
+            <button class="demo-btn demo-btn-secondary" id="resetBtn">&#8634; Ripristina</button>
             <div class="speed-control">
-                <label>Speed:</label>
+                <label>Velocit&agrave;:</label>
                 <select id="speedSelect">
                     <option value="800">0.5x</option>
                     <option value="400" selected>1x</option>
@@ -548,30 +548,30 @@ description: "Interactive visualization of PDO connection pooling in TrueAsync"
                 </select>
             </div>
             <div class="loop-control">
-                <label><input type="checkbox" id="loopCheckbox"> Loop</label>
+                <label><input type="checkbox" id="loopCheckbox"> Ripeti</label>
             </div>
         </div>
 
         <div class="legend">
-            <div class="legend-item"><div class="legend-color cpu"></div><span>CPU working</span></div>
-            <div class="legend-item"><div class="legend-color db"></div><span>Waiting for DB</span></div>
-            <div class="legend-item"><div class="legend-color pool-w"></div><span>Waiting for pool</span></div>
+            <div class="legend-item"><div class="legend-color cpu"></div><span>CPU attiva</span></div>
+            <div class="legend-item"><div class="legend-color db"></div><span>Attesa DB</span></div>
+            <div class="legend-item"><div class="legend-color pool-w"></div><span>Attesa pool</span></div>
         </div>
 
         <div class="stats">
-            <div class="stat-card"><div class="stat-value" id="totalTime">0 ms</div><div class="stat-label">Total time</div></div>
-            <div class="stat-card"><div class="stat-value" id="dbWaitTime">0 ms</div><div class="stat-label">DB wait</div></div>
-            <div class="stat-card"><div class="stat-value warn" id="poolWaitTime">0 ms</div><div class="stat-label">Pool wait</div></div>
-            <div class="stat-card"><div class="stat-value highlight" id="savedTime">0 ms</div><div class="stat-label">Time saved</div></div>
+            <div class="stat-card"><div class="stat-value" id="totalTime">0 ms</div><div class="stat-label">Tempo totale</div></div>
+            <div class="stat-card"><div class="stat-value" id="dbWaitTime">0 ms</div><div class="stat-label">Attesa DB</div></div>
+            <div class="stat-card"><div class="stat-value warn" id="poolWaitTime">0 ms</div><div class="stat-label">Attesa pool</div></div>
+            <div class="stat-card"><div class="stat-value highlight" id="savedTime">0 ms</div><div class="stat-label">Tempo risparmiato</div></div>
         </div>
     </div>
 
     <div class="explanation">
-        <h3 id="explanationTitle">Click "Play" to start</h3>
+        <h3 id="explanationTitle">Clicca su "Avvia" per iniziare</h3>
         <p id="explanationText">
-            This visualization shows how the <span class="highlight">PDO connection pool</span> automatically manages resources.
-            A connection is <span class="pin-highlight">pinned</span> while <code>$stmt</code> exists or a transaction is active.
-            When <code>$stmt</code> is destroyed and there's no transaction, the connection <span class="highlight">automatically</span> returns to the pool.
+            Questa visualizzazione mostra come il <span class="highlight">pool di connessioni PDO</span> gestisce automaticamente le risorse.
+            Una connessione viene <span class="pin-highlight">bloccata</span> finch&eacute; esiste <code>$stmt</code> o una transazione &egrave; attiva.
+            Quando <code>$stmt</code> viene distrutto e non c'&egrave; una transazione attiva, la connessione torna <span class="highlight">automaticamente</span> al pool.
         </p>
     </div>
 </div>
@@ -592,7 +592,7 @@ description: "Interactive visualization of PDO connection pooling in TrueAsync"
             { start: 27, duration: 2,  type: 'cpu',       label: 'fetch+process' }
         ],
         [ // C3
-            { start: 2,  duration: 21, type: 'pool-wait', label: 'pool wait' },
+            { start: 2,  duration: 21, type: 'pool-wait', label: 'attesa pool' },
             { start: 23, duration: 1,  type: 'cpu',       label: 'prepare' },
             { start: 24, duration: 20, type: 'db-wait',   label: 'execute' },
             { start: 44, duration: 2,  type: 'cpu',       label: 'fetch+process' }
@@ -602,122 +602,122 @@ description: "Interactive visualization of PDO connection pooling in TrueAsync"
     var steps = [
         {
             time: 0,
-            title: 'Start',
-            text: '<p>Created <code>PDO</code> with <code>ATTR_POOL_ENABLED => true</code> and <code>ATTR_POOL_MAX => 2</code>. Three coroutines spawned via <span class="highlight">spawn()</span>.</p>' +
-                  '<p>The pool has no actual connections yet — they are created lazily on first request.</p>',
+            title: 'Avvio',
+            text: '<p>Creato <code>PDO</code> con <code>ATTR_POOL_ENABLED => true</code> e <code>ATTR_POOL_MAX => 2</code>. Tre coroutine avviate tramite <span class="highlight">spawn()</span>.</p>' +
+                  '<p>Il pool non ha ancora connessioni reali — vengono create in modo lazy alla prima richiesta.</p>',
             line: '2', lineState: 'cpu',
             slots: ['free', 'free'], slotPins: ['', ''], queue: [],
-            cards: ['ready', 'ready', 'ready'], cardStates: ['', '', '']
+            cards: ['pronta', 'pronta', 'pronta'], cardStates: ['', '', '']
         },
         {
             time: 0.5,
             title: 'Coroutine 1: $pdo->prepare()',
-            text: '<p>Coroutine 1 calls <code>prepare()</code>. Pool allocates <span class="db-highlight">connection #1</span> and creates a statement.</p>' +
-                  '<p>The connection is <span class="pin-highlight">pinned</span> to the coroutine: <code>$stmt</code> increments <code>pool_slot_refcount</code>. While <code>$stmt</code> is alive, the connection won\'t return to pool.</p>',
+            text: '<p>La Coroutine 1 chiama <code>prepare()</code>. Il pool assegna la <span class="db-highlight">connessione #1</span> e crea uno statement.</p>' +
+                  '<p>La connessione viene <span class="pin-highlight">bloccata</span> per la coroutine: <code>$stmt</code> incrementa <code>pool_slot_refcount</code>. Finch\u00e9 <code>$stmt</code> esiste, la connessione non torna al pool.</p>',
             line: '10', lineState: 'cpu',
             slots: ['c1', 'free'], slotPins: ['$stmt (rc=1)', ''], queue: [],
-            cards: ['conn #1', 'ready', 'ready'], cardStates: ['running', '', '']
+            cards: ['conn #1', 'pronta', 'pronta'], cardStates: ['running', '', '']
         },
         {
             time: 1,
-            title: 'Coroutine 1: execute() -> waiting for DB',
-            text: '<p>Calling <code>execute()</code> sends the SELECT to the database. The coroutine <span class="db-highlight">suspends</span>.</p>' +
-                  '<p>Connection #1 remains pinned — <code>$stmt</code> is still alive (refcount=1).</p>',
+            title: 'Coroutine 1: execute() -> attesa DB',
+            text: '<p>La chiamata a <code>execute()</code> invia la SELECT al database. La coroutine si <span class="db-highlight">sospende</span>.</p>' +
+                  '<p>La connessione #1 resta bloccata — <code>$stmt</code> \u00e8 ancora attivo (refcount=1).</p>',
             line: '11', lineState: 'wait',
             slots: ['c1', 'free'], slotPins: ['$stmt (rc=1)', ''], queue: [],
-            cards: ['waiting DB', 'ready', 'ready'], cardStates: ['db-wait', '', '']
+            cards: ['attesa DB', 'pronta', 'pronta'], cardStates: ['db-wait', '', '']
         },
         {
             time: 1.5,
             title: 'Coroutine 2: $pdo->prepare()',
-            text: '<p>Coroutine 2 calls <code>prepare()</code>. Pool allocates <span class="db-highlight">connection #2</span>.</p>' +
-                  '<p>Both connections are now occupied. Each is pinned by its own <code>$stmt</code>.</p>',
+            text: '<p>La Coroutine 2 chiama <code>prepare()</code>. Il pool assegna la <span class="db-highlight">connessione #2</span>.</p>' +
+                  '<p>Entrambe le connessioni sono ora occupate. Ognuna \u00e8 bloccata dal proprio <code>$stmt</code>.</p>',
             line: '10', lineState: 'cpu',
             slots: ['c1', 'c2'], slotPins: ['$stmt (rc=1)', '$stmt (rc=1)'], queue: [],
-            cards: ['waiting DB', 'conn #2', 'ready'], cardStates: ['db-wait', 'running', '']
+            cards: ['attesa DB', 'conn #2', 'pronta'], cardStates: ['db-wait', 'running', '']
         },
         {
             time: 2,
-            title: 'Coroutine 3: prepare() — pool is empty!',
-            text: '<p>Coroutine 3 calls <code>prepare()</code>, but <span class="pool-highlight">both connections are occupied!</span></p>' +
-                  '<p>The coroutine doesn\'t block the thread — it <span class="highlight">suspends</span> and joins the wait queue. ' +
-                  'As soon as any connection is freed (when <code>$stmt</code> is destroyed and no transaction active), coroutine 3 will get it.</p>',
+            title: 'Coroutine 3: prepare() — il pool \u00e8 pieno!',
+            text: '<p>La Coroutine 3 chiama <code>prepare()</code>, ma <span class="pool-highlight">entrambe le connessioni sono occupate!</span></p>' +
+                  '<p>La coroutine non blocca il thread — si <span class="highlight">sospende</span> e si mette in coda di attesa. ' +
+                  'Appena una connessione si libera (quando <code>$stmt</code> viene distrutto e non c\'\u00e8 una transazione attiva), la Coroutine 3 la ricever\u00e0.</p>',
             line: '10', lineState: 'pool-wait',
             slots: ['c1', 'c2'], slotPins: ['$stmt (rc=1)', '$stmt (rc=1)'], queue: ['c3'],
-            cards: ['waiting DB', 'waiting DB', 'waiting pool'], cardStates: ['db-wait', 'db-wait', 'pool-wait']
+            cards: ['attesa DB', 'attesa DB', 'attesa pool'], cardStates: ['db-wait', 'db-wait', 'pool-wait']
         },
         {
             time: 12,
-            title: 'All waiting',
-            text: '<p>Three coroutines suspended simultaneously. CPU is free — the reactor waits for DB events.</p>' +
-                  '<p>Connections #1 and #2 are pinned: each has <code>pool_slot_refcount=1</code> due to a live <code>$stmt</code>. ' +
-                  'Coroutine 3 can\'t get a connection — <code>pdo_pool_maybe_release()</code> won\'t release them while refcount > 0.</p>',
+            title: 'Tutte in attesa',
+            text: '<p>Tre coroutine sospese contemporaneamente. La CPU \u00e8 libera — il reactor attende eventi dal DB.</p>' +
+                  '<p>Le connessioni #1 e #2 sono bloccate: ognuna ha <code>pool_slot_refcount=1</code> a causa di un <code>$stmt</code> attivo. ' +
+                  'La Coroutine 3 non pu\u00f2 ottenere una connessione — <code>pdo_pool_maybe_release()</code> non le rilascia finch\u00e9 refcount > 0.</p>',
             line: '11', lineState: 'wait',
             slots: ['c1', 'c2'], slotPins: ['$stmt (rc=1)', '$stmt (rc=1)'], queue: ['c3'],
-            cards: ['waiting DB', 'waiting DB', 'waiting pool'], cardStates: ['db-wait', 'db-wait', 'pool-wait']
+            cards: ['attesa DB', 'attesa DB', 'attesa pool'], cardStates: ['db-wait', 'db-wait', 'pool-wait']
         },
         {
             time: 21,
-            title: 'Coroutine 1: DB responded!',
-            text: '<p>SELECT returned data in ~20ms. Coroutine 1 calls <code>fetch()</code> and <code>processUser()</code>.</p>' +
-                  '<p>Connection #1 is still pinned — <code>$stmt</code> is still alive.</p>',
+            title: 'Coroutine 1: il DB ha risposto!',
+            text: '<p>La SELECT ha restituito i dati in ~20ms. La Coroutine 1 chiama <code>fetch()</code> e <code>processUser()</code>.</p>' +
+                  '<p>La connessione #1 \u00e8 ancora bloccata — <code>$stmt</code> \u00e8 ancora attivo.</p>',
             line: '14', lineState: 'cpu',
             slots: ['c1', 'c2'], slotPins: ['$stmt (rc=1)', '$stmt (rc=1)'], queue: ['c3'],
-            cards: ['processing', 'waiting DB', 'waiting pool'], cardStates: ['running', 'db-wait', 'pool-wait']
+            cards: ['elaborazione', 'attesa DB', 'attesa pool'], cardStates: ['running', 'db-wait', 'pool-wait']
         },
         {
             time: 23,
-            title: '$stmt destroyed -> auto-release!',
-            text: '<p>Coroutine 1 finished. <code>$stmt</code> goes out of scope — destructor fires: <code>refcount--</code> \u2192 <code>refcount=0</code>.</p>' +
-                  '<p><code>pdo_pool_maybe_release()</code> is called: no transaction, refcount=0 \u2192 <span class="highlight">connection #1 automatically returns to pool!</span></p>' +
-                  '<p>Coroutine 3 <span class="highlight">instantly receives</span> it from the queue. No manual <code>release()</code> needed — it\'s all automatic.</p>',
+            title: '$stmt distrutto -> rilascio automatico!',
+            text: '<p>La Coroutine 1 ha terminato. <code>$stmt</code> esce dallo scope — il distruttore viene eseguito: <code>refcount--</code> \u2192 <code>refcount=0</code>.</p>' +
+                  '<p><code>pdo_pool_maybe_release()</code> viene chiamato: nessuna transazione, refcount=0 \u2192 <span class="highlight">la connessione #1 torna automaticamente al pool!</span></p>' +
+                  '<p>La Coroutine 3 la <span class="highlight">riceve istantaneamente</span> dalla coda. Nessun <code>release()</code> manuale necessario — \u00e8 tutto automatico.</p>',
             line: '18', lineState: 'release',
             slots: ['c3', 'c2'], slotPins: ['$stmt (rc=1)', '$stmt (rc=1)'], queue: [],
-            cards: ['completed', 'waiting DB', 'conn #1'], cardStates: ['done', 'db-wait', 'running']
+            cards: ['completata', 'attesa DB', 'conn #1'], cardStates: ['done', 'db-wait', 'running']
         },
         {
             time: 24,
             title: 'Coroutine 3: execute()',
-            text: '<p>Coroutine 3 sends its query via connection #1. Coroutine 2 still waiting for its longer query.</p>' +
-                  '<p>Both connections occupied again, but the queue is empty.</p>',
+            text: '<p>La Coroutine 3 invia la sua query tramite la connessione #1. La Coroutine 2 attende ancora la sua query pi\u00f9 lunga.</p>' +
+                  '<p>Entrambe le connessioni sono di nuovo occupate, ma la coda \u00e8 vuota.</p>',
             line: '11', lineState: 'wait',
             slots: ['c3', 'c2'], slotPins: ['$stmt (rc=1)', '$stmt (rc=1)'], queue: [],
-            cards: ['completed', 'waiting DB', 'waiting DB'], cardStates: ['done', 'db-wait', 'db-wait']
+            cards: ['completata', 'attesa DB', 'attesa DB'], cardStates: ['done', 'db-wait', 'db-wait']
         },
         {
             time: 27,
-            title: 'Coroutine 2: DB responded!',
-            text: '<p>Coroutine 2\'s query completed in ~25ms. It processes the result.</p>',
+            title: 'Coroutine 2: il DB ha risposto!',
+            text: '<p>La query della Coroutine 2 \u00e8 stata completata in ~25ms. Elabora il risultato.</p>',
             line: '14', lineState: 'cpu',
             slots: ['c3', 'c2'], slotPins: ['$stmt (rc=1)', '$stmt (rc=1)'], queue: [],
-            cards: ['completed', 'processing', 'waiting DB'], cardStates: ['done', 'running', 'db-wait']
+            cards: ['completata', 'elaborazione', 'attesa DB'], cardStates: ['done', 'running', 'db-wait']
         },
         {
             time: 29,
-            title: 'Coroutine 2: $stmt destroyed -> auto-release',
-            text: '<p>Coroutine 2 finished, <code>$stmt</code> destroyed. <code>refcount=0</code>, no transaction \u2192 connection #2 <span class="highlight">automatically returns</span> to pool.</p>' +
-                  '<p>Queue is empty — the connection simply waits for the next consumer.</p>',
+            title: 'Coroutine 2: $stmt distrutto -> rilascio automatico',
+            text: '<p>La Coroutine 2 ha terminato, <code>$stmt</code> distrutto. <code>refcount=0</code>, nessuna transazione \u2192 la connessione #2 <span class="highlight">torna automaticamente</span> al pool.</p>' +
+                  '<p>La coda \u00e8 vuota — la connessione attende semplicemente il prossimo utilizzatore.</p>',
             line: '18', lineState: 'release',
             slots: ['c3', 'free'], slotPins: ['$stmt (rc=1)', ''], queue: [],
-            cards: ['completed', 'completed', 'waiting DB'], cardStates: ['done', 'done', 'db-wait']
+            cards: ['completata', 'completata', 'attesa DB'], cardStates: ['done', 'done', 'db-wait']
         },
         {
             time: 44,
-            title: 'Coroutine 3: DB responded!',
-            text: '<p>Final query returned data. Coroutine 3 processes the result.</p>',
+            title: 'Coroutine 3: il DB ha risposto!',
+            text: '<p>L\'ultima query ha restituito i dati. La Coroutine 3 elabora il risultato.</p>',
             line: '14', lineState: 'cpu',
             slots: ['c3', 'free'], slotPins: ['$stmt (rc=1)', ''], queue: [],
-            cards: ['completed', 'completed', 'processing'], cardStates: ['done', 'done', 'running']
+            cards: ['completata', 'completata', 'elaborazione'], cardStates: ['done', 'done', 'running']
         },
         {
             time: 46,
-            title: 'Done!',
-            text: '<p>All three coroutines completed in <span class="highlight">~46ms</span>. Sequential execution would take ~69ms. Savings of <span class="highlight">~33%</span>.</p>' +
-                  '<p>Key takeaway: developers don\'t need to manually manage connections! The PDO pool <span class="highlight">automatically</span> acquires and releases connections ' +
-                  'based on <code>$stmt</code> lifecycle and transaction state.</p>',
+            title: 'Completato!',
+            text: '<p>Tutte e tre le coroutine completate in <span class="highlight">~46ms</span>. L\'esecuzione sequenziale richiederebbe ~69ms. Risparmio di <span class="highlight">~33%</span>.</p>' +
+                  '<p>Concetto chiave: gli sviluppatori non devono gestire manualmente le connessioni! Il pool PDO <span class="highlight">automaticamente</span> acquisisce e rilascia le connessioni ' +
+                  'in base al ciclo di vita di <code>$stmt</code> e allo stato delle transazioni.</p>',
             line: '19', lineState: 'cpu',
             slots: ['free', 'free'], slotPins: ['', ''], queue: [],
-            cards: ['completed', 'completed', 'completed'], cardStates: ['done', 'done', 'done']
+            cards: ['completata', 'completata', 'completata'], cardStates: ['done', 'done', 'done']
         }
     ];
 
@@ -806,7 +806,7 @@ description: "Interactive visualization of PDO connection pooling in TrueAsync"
         var slotUserEls = [slotUser0, slotUser1];
         var slotIconEls = [slotIcon0, slotIcon1];
         var slotPinEls = [slotPin0, slotPin1];
-        var slotDisplayNames = { 'free': 'available', 'c1': 'Coroutine 1', 'c2': 'Coroutine 2', 'c3': 'Coroutine 3' };
+        var slotDisplayNames = { 'free': 'disponibile', 'c1': 'Coroutine 1', 'c2': 'Coroutine 2', 'c3': 'Coroutine 3' };
 
         step.slots.forEach(function(state, i) {
             slotEls[i].className = 'pool-slot';
@@ -829,7 +829,7 @@ description: "Interactive visualization of PDO connection pooling in TrueAsync"
         });
 
         if (step.queue.length === 0) {
-            queueItems.innerHTML = '<span class="queue-empty">empty</span>';
+            queueItems.innerHTML = '<span class="queue-empty">vuota</span>';
         } else {
             queueItems.innerHTML = '';
             step.queue.forEach(function(c) {
@@ -892,14 +892,14 @@ description: "Interactive visualization of PDO connection pooling in TrueAsync"
     function startAnimation() {
         if (currentStepIndex >= steps.length - 1 && !loopCheckbox.checked) reset();
         isPlaying = true;
-        playBtn.innerHTML = '&#9208; Pause';
+        playBtn.innerHTML = '&#9208; Pausa';
         stepBtn.disabled = true;
         animationId = setTimeout(animate, parseInt(speedSelect.value));
     }
 
     function stopAnimation() {
         isPlaying = false;
-        playBtn.innerHTML = '&#9654; Play';
+        playBtn.innerHTML = '&#9654; Avvia';
         stepBtn.disabled = false;
         if (animationId) { clearTimeout(animationId); animationId = null; }
     }

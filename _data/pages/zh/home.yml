@@ -6,6 +6,12 @@ hero:
     - label: "开始使用"
       url: "/zh/docs.html"
       style: primary
+    - label: "协程工作原理"
+      url: "/zh/interactive/coroutine-demo.html"
+      style: secondary
+    - label: "PDO 连接池工作原理"
+      url: "/zh/interactive/pdo-pool-demo.html"
+      style: secondary
     - label: "下载"
       url: "/zh/download.html"
       style: secondary

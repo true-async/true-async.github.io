@@ -446,22 +446,23 @@ description: "Интерактивная визуализация пула со�
                 <div class="code-content" id="codeBlock">
                     <div class="code-line" data-line="1"><span class="comment">// Один PDO-объект с пулом на 2 соединения</span></div>
                     <div class="code-line" data-line="2"><span class="variable">$pdo</span> = <span class="keyword">new</span> <span class="class">PDO</span>(<span class="variable">$dsn</span>, <span class="variable">$user</span>, <span class="variable">$pass</span>, [</div>
-                    <div class="code-line" data-line="3">  <span class="class">PDO</span>::<span class="variable">ATTR_POOL_MAX</span> => <span class="number">2</span></div>
-                    <div class="code-line" data-line="4">]);</div>
-                    <div class="code-line" data-line="5"></div>
-                    <div class="code-line" data-line="6"><span class="keyword">for</span> (<span class="variable">$i</span> = <span class="number">1</span>; <span class="variable">$i</span> &lt;= <span class="number">3</span>; <span class="variable">$i</span>++) {</div>
-                    <div class="code-line" data-line="7">  <span class="function">spawn</span>(<span class="keyword">function</span>() <span class="keyword">use</span> (<span class="variable">$pdo</span>, <span class="variable">$i</span>) {</div>
-                    <div class="code-line" data-line="8">    <span class="comment">// prepare() автоматически берёт conn из пула</span></div>
-                    <div class="code-line" data-line="9">    <span class="variable">$stmt</span> = <span class="variable">$pdo</span>-><span class="function">prepare</span>(<span class="string">"SELECT * FROM users WHERE id=?"</span>);</div>
-                    <div class="code-line" data-line="10">    <span class="variable">$stmt</span>-><span class="function">execute</span>([<span class="variable">$i</span>]);  <span class="comment">// ожидание ответа БД</span></div>
-                    <div class="code-line" data-line="11">    <span class="variable">$user</span> = <span class="variable">$stmt</span>-><span class="function">fetch</span>();</div>
-                    <div class="code-line" data-line="12"></div>
-                    <div class="code-line" data-line="13">    <span class="function">processUser</span>(<span class="variable">$user</span>);</div>
-                    <div class="code-line" data-line="14"></div>
-                    <div class="code-line" data-line="15">    <span class="comment">// $stmt уходит из scope -> refcount=0</span></div>
-                    <div class="code-line" data-line="16">    <span class="comment">// conn автоматически возвращается в пул!</span></div>
-                    <div class="code-line" data-line="17">  });</div>
-                    <div class="code-line" data-line="18">}</div>
+                    <div class="code-line" data-line="3">  <span class="class">PDO</span>::<span class="variable">ATTR_POOL_ENABLED</span> => <span class="keyword">true</span>,</div>
+                    <div class="code-line" data-line="4">  <span class="class">PDO</span>::<span class="variable">ATTR_POOL_MAX</span>     => <span class="number">2</span>,</div>
+                    <div class="code-line" data-line="5">]);</div>
+                    <div class="code-line" data-line="6"></div>
+                    <div class="code-line" data-line="7"><span class="keyword">for</span> (<span class="variable">$i</span> = <span class="number">1</span>; <span class="variable">$i</span> &lt;= <span class="number">3</span>; <span class="variable">$i</span>++) {</div>
+                    <div class="code-line" data-line="8">  <span class="function">spawn</span>(<span class="keyword">function</span>() <span class="keyword">use</span> (<span class="variable">$pdo</span>, <span class="variable">$i</span>) {</div>
+                    <div class="code-line" data-line="9">    <span class="comment">// prepare() автоматически берёт conn из пула</span></div>
+                    <div class="code-line" data-line="10">    <span class="variable">$stmt</span> = <span class="variable">$pdo</span>-><span class="function">prepare</span>(<span class="string">"SELECT * FROM users WHERE id=?"</span>);</div>
+                    <div class="code-line" data-line="11">    <span class="variable">$stmt</span>-><span class="function">execute</span>([<span class="variable">$i</span>]);  <span class="comment">// ожидание ответа БД</span></div>
+                    <div class="code-line" data-line="12">    <span class="variable">$user</span> = <span class="variable">$stmt</span>-><span class="function">fetch</span>();</div>
+                    <div class="code-line" data-line="13"></div>
+                    <div class="code-line" data-line="14">    <span class="function">processUser</span>(<span class="variable">$user</span>);</div>
+                    <div class="code-line" data-line="15"></div>
+                    <div class="code-line" data-line="16">    <span class="comment">// $stmt уходит из scope -> refcount=0</span></div>
+                    <div class="code-line" data-line="17">    <span class="comment">// conn автоматически возвращается в пул!</span></div>
+                    <div class="code-line" data-line="18">  });</div>
+                    <div class="code-line" data-line="19">}</div>
                 </div>
             </div>
         </div>
@@ -621,7 +622,7 @@ description: "Интерактивная визуализация пула со�
         {
             time: 0,
             title: 'Старт',
-            text: '<p>Создан <code>PDO</code> с <code>ATTR_POOL_MAX => 2</code>. Три корутины запущены через <span class="highlight">spawn()</span>.</p>' +
+            text: '<p>Создан <code>PDO</code> с <code>ATTR_POOL_ENABLED => true</code> и <code>ATTR_POOL_MAX => 2</code>. Три корутины запущены через <span class="highlight">spawn()</span>.</p>' +
                   '<p>Пул пока не содержит реальных соединений — они создаются лениво, при первом запросе.</p>',
             line: '2', lineState: 'cpu',
             slots: ['free', 'free'], slotPins: ['', ''], queue: [],
@@ -632,7 +633,7 @@ description: "Интерактивная визуализация пула со�
             title: 'Корутина 1: $pdo->prepare()',
             text: '<p>Корутина 1 вызывает <code>prepare()</code>. Пул выделяет <span class="db-highlight">соединение #1</span> и создаёт statement.</p>' +
                   '<p>Соединение <span class="pin-highlight">привязано</span> к корутине: <code>$stmt</code> увеличивает <code>pool_slot_refcount</code>. Пока <code>$stmt</code> жив — соединение не вернётся в пул.</p>',
-            line: '9', lineState: 'cpu',
+            line: '10', lineState: 'cpu',
             slots: ['c1', 'free'], slotPins: ['$stmt (rc=1)', ''], queue: [],
             cards: ['conn #1', 'готова', 'готова'], cardStates: ['running', '', '']
         },
@@ -641,7 +642,7 @@ description: "Интерактивная визуализация пула со�
             title: 'Корутина 1: execute() -> ждёт БД',
             text: '<p>Вызов <code>execute()</code> отправляет SELECT в базу. Корутина <span class="db-highlight">приостанавливается</span>.</p>' +
                   '<p>Соединение #1 остаётся привязанным — <code>$stmt</code> всё ещё жив (refcount=1).</p>',
-            line: '10', lineState: 'wait',
+            line: '11', lineState: 'wait',
             slots: ['c1', 'free'], slotPins: ['$stmt (rc=1)', ''], queue: [],
             cards: ['ждёт БД', 'готова', 'готова'], cardStates: ['db-wait', '', '']
         },
@@ -650,7 +651,7 @@ description: "Интерактивная визуализация пула со�
             title: 'Корутина 2: $pdo->prepare()',
             text: '<p>Корутина 2 вызывает <code>prepare()</code>. Пул выделяет <span class="db-highlight">соединение #2</span>.</p>' +
                   '<p>Теперь оба соединения заняты. Каждое привязано своим <code>$stmt</code>.</p>',
-            line: '9', lineState: 'cpu',
+            line: '10', lineState: 'cpu',
             slots: ['c1', 'c2'], slotPins: ['$stmt (rc=1)', '$stmt (rc=1)'], queue: [],
             cards: ['ждёт БД', 'conn #2', 'готова'], cardStates: ['db-wait', 'running', '']
         },
@@ -660,7 +661,7 @@ description: "Интерактивная визуализация пула со�
             text: '<p>Корутина 3 вызывает <code>prepare()</code>, но <span class="pool-highlight">оба соединения заняты!</span></p>' +
                   '<p>Корутина не блокирует поток — она <span class="highlight">приостанавливается</span> и встаёт в очередь. ' +
                   'Как только любое соединение освободится (когда <code>$stmt</code> будет уничтожен и нет транзакции), корутина 3 получит его.</p>',
-            line: '9', lineState: 'pool-wait',
+            line: '10', lineState: 'pool-wait',
             slots: ['c1', 'c2'], slotPins: ['$stmt (rc=1)', '$stmt (rc=1)'], queue: ['c3'],
             cards: ['ждёт БД', 'ждёт БД', 'ждёт пул'], cardStates: ['db-wait', 'db-wait', 'pool-wait']
         },
@@ -670,7 +671,7 @@ description: "Интерактивная визуализация пула со�
             text: '<p>Три корутины одновременно приостановлены. CPU свободен — реактор ждёт событий от БД.</p>' +
                   '<p>Соединения #1 и #2 привязаны: у каждого <code>pool_slot_refcount=1</code> из-за живого <code>$stmt</code>. ' +
                   'Корутина 3 не может получить соединение — <code>pdo_pool_maybe_release()</code> не отпустит их, пока refcount не станет 0.</p>',
-            line: '10', lineState: 'wait',
+            line: '11', lineState: 'wait',
             slots: ['c1', 'c2'], slotPins: ['$stmt (rc=1)', '$stmt (rc=1)'], queue: ['c3'],
             cards: ['ждёт БД', 'ждёт БД', 'ждёт пул'], cardStates: ['db-wait', 'db-wait', 'pool-wait']
         },
@@ -679,7 +680,7 @@ description: "Интерактивная визуализация пула со�
             title: 'Корутина 1: БД ответила!',
             text: '<p>SELECT вернул данные за ~20ms. Корутина 1 вызывает <code>fetch()</code> и <code>processUser()</code>.</p>' +
                   '<p>Соединение #1 всё ещё привязано — <code>$stmt</code> пока жив.</p>',
-            line: '13', lineState: 'cpu',
+            line: '14', lineState: 'cpu',
             slots: ['c1', 'c2'], slotPins: ['$stmt (rc=1)', '$stmt (rc=1)'], queue: ['c3'],
             cards: ['обработка', 'ждёт БД', 'ждёт пул'], cardStates: ['running', 'db-wait', 'pool-wait']
         },
@@ -689,7 +690,7 @@ description: "Интерактивная визуализация пула со�
             text: '<p>Корутина 1 завершилась. <code>$stmt</code> выходит из scope — вызывается деструктор: <code>refcount--</code> → <code>refcount=0</code>.</p>' +
                   '<p>Вызывается <code>pdo_pool_maybe_release()</code>: транзакции нет, refcount=0 → <span class="highlight">соединение #1 автоматически возвращается в пул!</span></p>' +
                   '<p>Корутина 3 <span class="highlight">мгновенно получает</span> его из очереди. Никакого ручного <code>release()</code> — всё автоматически.</p>',
-            line: '17', lineState: 'release',
+            line: '18', lineState: 'release',
             slots: ['c3', 'c2'], slotPins: ['$stmt (rc=1)', '$stmt (rc=1)'], queue: [],
             cards: ['завершена', 'ждёт БД', 'conn #1'], cardStates: ['done', 'db-wait', 'running']
         },
@@ -698,7 +699,7 @@ description: "Интерактивная визуализация пула со�
             title: 'Корутина 3: execute()',
             text: '<p>Корутина 3 отправляет свой запрос через соединение #1. Корутина 2 всё ещё ждёт.</p>' +
                   '<p>Оба соединения снова заняты, но очередь пуста.</p>',
-            line: '10', lineState: 'wait',
+            line: '11', lineState: 'wait',
             slots: ['c3', 'c2'], slotPins: ['$stmt (rc=1)', '$stmt (rc=1)'], queue: [],
             cards: ['завершена', 'ждёт БД', 'ждёт БД'], cardStates: ['done', 'db-wait', 'db-wait']
         },
@@ -706,7 +707,7 @@ description: "Интерактивная визуализация пула со�
             time: 27,
             title: 'Корутина 2: БД ответила!',
             text: '<p>INSERT корутины 2 завершился за ~25ms. Она обрабатывает результат.</p>',
-            line: '13', lineState: 'cpu',
+            line: '14', lineState: 'cpu',
             slots: ['c3', 'c2'], slotPins: ['$stmt (rc=1)', '$stmt (rc=1)'], queue: [],
             cards: ['завершена', 'обработка', 'ждёт БД'], cardStates: ['done', 'running', 'db-wait']
         },
@@ -715,7 +716,7 @@ description: "Интерактивная визуализация пула со�
             title: 'Корутина 2: $stmt уничтожен -> авто-release',
             text: '<p>Корутина 2 завершилась, <code>$stmt</code> уничтожен. <code>refcount=0</code>, транзакции нет → соединение #2 <span class="highlight">автоматически возвращается</span> в пул.</p>' +
                   '<p>Очередь пуста — соединение просто ждёт следующего потребителя.</p>',
-            line: '17', lineState: 'release',
+            line: '18', lineState: 'release',
             slots: ['c3', 'free'], slotPins: ['$stmt (rc=1)', ''], queue: [],
             cards: ['завершена', 'завершена', 'ждёт БД'], cardStates: ['done', 'done', 'db-wait']
         },
@@ -723,7 +724,7 @@ description: "Интерактивная визуализация пула со�
             time: 44,
             title: 'Корутина 3: БД ответила!',
             text: '<p>Последний запрос вернул данные. Корутина 3 обрабатывает результат.</p>',
-            line: '13', lineState: 'cpu',
+            line: '14', lineState: 'cpu',
             slots: ['c3', 'free'], slotPins: ['$stmt (rc=1)', ''], queue: [],
             cards: ['завершена', 'завершена', 'обработка'], cardStates: ['done', 'done', 'running']
         },
@@ -733,7 +734,7 @@ description: "Интерактивная визуализация пула со�
             text: '<p>Все три корутины завершены за <span class="highlight">~46ms</span>. Последовательное выполнение заняло бы ~69ms. Экономия <span class="highlight">~33%</span>.</p>' +
                   '<p>Главное: разработчику не нужно вручную управлять соединениями! PDO пул <span class="highlight">автоматически</span> отдаёт и забирает соединения ' +
                   'на основе жизненного цикла <code>$stmt</code> и состояния транзакций.</p>',
-            line: '18', lineState: 'cpu',
+            line: '19', lineState: 'cpu',
             slots: ['free', 'free'], slotPins: ['', ''], queue: [],
             cards: ['завершена', 'завершена', 'завершена'], cardStates: ['done', 'done', 'done']
         }

@@ -6,6 +6,12 @@ hero:
     - label: "Почати роботу"
       url: "/uk/docs.html"
       style: primary
+    - label: "Як працюють корутини"
+      url: "/uk/interactive/coroutine-demo.html"
+      style: secondary
+    - label: "Як працює PDO Pool"
+      url: "/uk/interactive/pdo-pool-demo.html"
+      style: secondary
     - label: "Завантажити"
       url: "/uk/download.html"
       style: secondary
