@@ -1,0 +1,668 @@
+---
+layout: interactive
+lang: ru
+path_key: "/interactive/learning-map.html"
+nav_active: ""
+permalink: /ru/interactive/learning-map.html
+page_title: "Карта изучения TrueAsync"
+description: "Интерактивная карта документации — концепции, функции и путь обучения"
+---
+
+<style>
+    .interactive-demo .map-controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 16px;
+    }
+    .interactive-demo .map-legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 14px;
+        justify-content: center;
+        align-items: center;
+        font-size: 0.82em;
+        color: var(--color-text-secondary);
+    }
+    .interactive-demo .legend-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+    .interactive-demo .legend-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        display: inline-block;
+        flex-shrink: 0;
+    }
+    .interactive-demo .legend-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: var(--color-primary);
+        color: #fff;
+        font-size: 0.7em;
+        font-weight: 700;
+        flex-shrink: 0;
+    }
+    .interactive-demo .map-container {
+        position: relative;
+        width: 100%;
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-xl);
+        background: var(--color-bg-subtle);
+    }
+    .interactive-demo .map-container svg {
+        display: block;
+        width: 100%;
+        min-width: 900px;
+        height: auto;
+    }
+    .interactive-demo .map-scroll-hint {
+        display: none;
+        text-align: center;
+        font-size: 0.8em;
+        color: var(--color-text-muted);
+        margin-bottom: 8px;
+    }
+    @media (max-width: 920px) {
+        .interactive-demo .map-scroll-hint { display: block; }
+    }
+
+    /* Tooltip */
+    .interactive-demo .map-tooltip {
+        position: fixed;
+        pointer-events: none;
+        background: #fff;
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-lg);
+        padding: 8px 14px;
+        font-size: 0.82em;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+        z-index: 100;
+        opacity: 0;
+        transition: opacity 0.18s;
+        max-width: 220px;
+        line-height: 1.4;
+    }
+    .interactive-demo .map-tooltip.visible { opacity: 1; }
+    .interactive-demo .tooltip-title {
+        font-weight: 600;
+        color: var(--color-text);
+        margin-bottom: 2px;
+    }
+    .interactive-demo .tooltip-cat {
+        font-size: 0.9em;
+        color: var(--color-text-muted);
+    }
+    .interactive-demo .tooltip-order {
+        font-size: 0.85em;
+        margin-top: 3px;
+        font-weight: 500;
+    }
+    .interactive-demo .tooltip-sub {
+        font-size: 0.85em;
+        margin-top: 4px;
+        color: var(--color-text-secondary);
+    }
+    .interactive-demo .tooltip-sub a {
+        display: block;
+        color: var(--color-primary);
+        text-decoration: none;
+        padding: 1px 0;
+    }
+
+    /* SVG node styles */
+    .interactive-demo .node {
+        cursor: pointer;
+        transition: opacity 0.25s ease;
+    }
+    .interactive-demo .node.dimmed { opacity: 0.15; }
+    .interactive-demo .node .node-circle {
+        transition: stroke-width 0.2s ease, filter 0.2s ease, transform 0.2s ease;
+    }
+    .interactive-demo .node.highlighted .node-circle {
+        stroke-width: 3.5;
+    }
+    .interactive-demo .edge {
+        transition: opacity 0.25s ease, stroke-width 0.2s ease;
+    }
+    .interactive-demo .edge.dimmed { opacity: 0.06 !important; }
+    .interactive-demo .edge.highlighted {
+        opacity: 0.85 !important;
+        stroke-width: 3 !important;
+    }
+
+    /* Central pulse */
+    @keyframes centralPulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.04); }
+    }
+    .interactive-demo .central-pulse {
+        animation: centralPulse 3s ease-in-out infinite;
+    }
+
+    /* Badge pop animation */
+    @keyframes badgePop {
+        0% { transform: scale(0); opacity: 0; }
+        60% { transform: scale(1.3); opacity: 1; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+    .interactive-demo .order-badge-g {
+        opacity: 0;
+        animation: badgePop 0.35s ease forwards;
+    }
+
+    /* Edge draw animation */
+    @keyframes edgeDraw {
+        from { stroke-dashoffset: 800; }
+        to { stroke-dashoffset: 0; }
+    }
+    .interactive-demo .edge-path-anim {
+        stroke-dasharray: 800;
+        animation: edgeDraw 1.2s ease forwards;
+    }
+
+    /* Explanation box */
+    .interactive-demo .map-info {
+        margin-top: 20px;
+        padding: 16px 20px;
+        background: var(--color-bg-subtle);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-lg);
+        font-size: 0.88em;
+        color: var(--color-text-secondary);
+        line-height: 1.6;
+    }
+    .interactive-demo .map-info strong {
+        color: var(--color-text);
+    }
+</style>
+
+<div class="map-controls">
+    <div class="map-legend">
+        <span class="legend-item"><span class="legend-dot" style="background:#6B58FF"></span> Концепции</span>
+        <span class="legend-item"><span class="legend-dot" style="background:#2563EB"></span> Справочник</span>
+        <span class="legend-item">
+            <svg width="28" height="10"><line x1="0" y1="5" x2="28" y2="5" stroke="#6B58FF" stroke-width="2" marker-end="url(#legendArrow)"/><defs><marker id="legendArrow" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="7" markerHeight="5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="#6B58FF"/></marker></defs></svg>
+            Зависимость
+        </span>
+        <span class="legend-item">
+            <svg width="28" height="10"><line x1="0" y1="5" x2="28" y2="5" stroke="#9CA3AF" stroke-width="1.5" stroke-dasharray="4 3"/></svg>
+            Связано
+        </span>
+        <span class="legend-item"><span class="legend-badge">3</span> Порядок изучения</span>
+    </div>
+</div>
+
+<p class="map-scroll-hint">&#8592; Прокрутите для просмотра всей карты &#8594;</p>
+
+<div class="map-container">
+    <svg id="learningMap" viewBox="0 0 1200 750" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <marker id="arrowPath" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+                <polygon points="0 0,10 3.5,0 7" fill="#6B58FF" opacity="0.7"/>
+            </marker>
+            <filter id="nodeShadow" x="-30%" y="-30%" width="160%" height="160%">
+                <feDropShadow dx="0" dy="2" stdDeviation="4" flood-opacity="0.07"/>
+            </filter>
+            <filter id="glowPurple" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="6" result="blur"/>
+                <feFlood flood-color="#6B58FF" flood-opacity="0.2" result="color"/>
+                <feComposite in="color" in2="blur" operator="in" result="glow"/>
+                <feMerge><feMergeNode in="glow"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+            <filter id="glowBlue" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="6" result="blur"/>
+                <feFlood flood-color="#2563EB" flood-opacity="0.2" result="color"/>
+                <feComposite in="color" in2="blur" operator="in" result="glow"/>
+                <feMerge><feMergeNode in="glow"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+            <radialGradient id="centralGrad" cx="45%" cy="40%">
+                <stop offset="0%" stop-color="rgba(107,88,255,0.18)"/>
+                <stop offset="100%" stop-color="rgba(107,88,255,0.04)"/>
+            </radialGradient>
+        </defs>
+        <g id="edgesGroup"></g>
+        <g id="nodesGroup"></g>
+    </svg>
+</div>
+
+<div class="map-tooltip" id="mapTooltip">
+    <div class="tooltip-title" id="tooltipTitle"></div>
+    <div class="tooltip-cat" id="tooltipCat"></div>
+    <div class="tooltip-order" id="tooltipOrder"></div>
+    <div class="tooltip-sub" id="tooltipSub"></div>
+</div>
+
+<div class="map-info">
+    <strong>Наведите</strong> на узел, чтобы подсветить его связи.
+    <strong>Нажмите</strong>, чтобы перейти к документации.
+    Нумерованные значки показывают рекомендованный порядок изучения.
+    Сплошные стрелки — зависимости между концепциями, пунктирные линии — связанные темы.
+</div>
+
+<script>
+(function() {
+    /* ===== CATEGORIES ===== */
+    var CAT = {
+        concept:   { color: '#6B58FF', bg: 'rgba(107,88,255,0.07)', border: 'rgba(107,88,255,0.35)', glow: 'url(#glowPurple)', label: 'Концепция' },
+        reference: { color: '#2563EB', bg: 'rgba(37,99,235,0.07)',  border: 'rgba(37,99,235,0.35)',  glow: 'url(#glowBlue)',   label: 'Справочник' },
+        hub:       { color: '#6B58FF', bg: 'url(#centralGrad)',     border: 'rgba(107,88,255,0.5)',  glow: 'url(#glowPurple)', label: 'Документация' }
+    };
+
+    /* ===== NODE SIZE MAP ===== */
+    var SIZE = { xl: 52, lg: 38, md: 32, sm: 26 };
+    var FONT = { xl: 15, lg: 13, md: 12, sm: 11 };
+
+    /* ===== NODES ===== */
+    var nodes = [
+        /* Central hub */
+        { id: 'docs',         label: 'Документация',   url: '/ru/docs.html',                               cat: 'hub',       size: 'xl', order: 0,    cx: 540, cy: 360 },
+
+        /* Concepts — learning path */
+        { id: 'coroutines',   label: 'Корутины',       url: '/ru/docs/concepts/coroutines.html',            cat: 'concept',   size: 'lg', order: 1,    cx: 540, cy: 150 },
+        { id: 'scope',        label: 'Scope',           url: '/ru/docs/concepts/scope.html',                cat: 'concept',   size: 'md', order: 2,    cx: 780, cy: 190 },
+        { id: 'future',       label: 'Future',          url: '/ru/docs/concepts/future.html',               cat: 'concept',   size: 'md', order: 3,    cx: 310, cy: 210 },
+        { id: 'channels',     label: 'Каналы',          url: '/ru/docs/concepts/channels.html',             cat: 'concept',   size: 'md', order: 4,    cx: 300, cy: 400 },
+        { id: 'context',      label: 'Context',         url: '/ru/docs/concepts/context.html',              cat: 'concept',   size: 'md', order: 5,    cx: 960, cy: 320 },
+        { id: 'cancellation', label: 'Отмена',          url: '/ru/docs/concepts/cancellation.html',         cat: 'concept',   size: 'md', order: 6,    cx: 820, cy: 430 },
+        { id: 'exceptions',   label: 'Исключения',     url: '/ru/docs/concepts/exceptions.html',            cat: 'concept',   size: 'md', order: 7,    cx: 1000, cy: 510 },
+        { id: 'interfaces',   label: 'Интерфейсы',     url: '/ru/docs/concepts/interfaces.html',            cat: 'concept',   size: 'sm', order: 8,    cx: 700, cy: 580 },
+        { id: 'pool',         label: 'Async\\Pool',     url: '/ru/docs/concepts/pool.html',                 cat: 'concept',   size: 'md', order: 9,    cx: 460, cy: 570 },
+        { id: 'pdo-pool',     label: 'PDO Pool',        url: '/ru/docs/concepts/pdo-pool.html',             cat: 'concept',   size: 'sm', order: 10,   cx: 340, cy: 660 },
+
+        /* Reference function groups */
+        { id: 'ref-spawn',    label: 'spawn / await',   url: '/ru/docs/reference/spawn.html',               cat: 'reference', size: 'md', order: null, cx: 180, cy: 140 },
+        { id: 'ref-batch',    label: 'await_all / any', url: '/ru/docs/reference/supported-functions.html',  cat: 'reference', size: 'sm', order: null, cx: 100, cy: 280 },
+        { id: 'ref-control',  label: 'delay / suspend', url: '/ru/docs/reference/delay.html',               cat: 'reference', size: 'sm', order: null, cx: 120, cy: 440 },
+        { id: 'ref-cancel',   label: 'protect / timeout', url: '/ru/docs/reference/protect.html',           cat: 'reference', size: 'sm', order: null, cx: 160, cy: 580 },
+        { id: 'ref-ctx',      label: 'current_context', url: '/ru/docs/reference/current-context.html',     cat: 'reference', size: 'sm', order: null, cx: 1080, cy: 190 },
+        { id: 'ref-info',     label: 'get_coroutines',  url: '/ru/docs/reference/get-coroutines.html',      cat: 'reference', size: 'sm', order: null, cx: 1100, cy: 400 },
+        { id: 'ref-shutdown', label: 'graceful_shutdown', url: '/ru/docs/reference/graceful-shutdown.html',  cat: 'reference', size: 'sm', order: null, cx: 900, cy: 650 }
+    ];
+
+    /* ===== EDGES ===== */
+    var edges = [
+        /* Hub connections */
+        { from: 'docs', to: 'coroutines',   type: 'path' },
+        { from: 'docs', to: 'channels',     type: 'related' },
+        { from: 'docs', to: 'pool',         type: 'related' },
+
+        /* Concept dependencies */
+        { from: 'coroutines', to: 'scope',         type: 'path' },
+        { from: 'coroutines', to: 'future',        type: 'path' },
+        { from: 'coroutines', to: 'channels',      type: 'path' },
+        { from: 'scope',      to: 'context',       type: 'path' },
+        { from: 'coroutines', to: 'cancellation',  type: 'path' },
+        { from: 'scope',      to: 'cancellation',  type: 'path' },
+        { from: 'cancellation', to: 'exceptions',  type: 'path' },
+        { from: 'coroutines', to: 'interfaces',    type: 'path' },
+        { from: 'scope',      to: 'pool',          type: 'path' },
+        { from: 'channels',   to: 'pool',          type: 'related' },
+        { from: 'pool',       to: 'pdo-pool',      type: 'path' },
+
+        /* Reference connections */
+        { from: 'coroutines',   to: 'ref-spawn',    type: 'related' },
+        { from: 'ref-spawn',    to: 'ref-batch',    type: 'related' },
+        { from: 'coroutines',   to: 'ref-control',  type: 'related' },
+        { from: 'cancellation', to: 'ref-cancel',   type: 'related' },
+        { from: 'context',      to: 'ref-ctx',      type: 'related' },
+        { from: 'scope',        to: 'ref-info',     type: 'related' },
+        { from: 'cancellation', to: 'ref-shutdown', type: 'related' }
+    ];
+
+    /* ===== CLUSTER SUB-PAGES ===== */
+    var clusterPages = {
+        'ref-spawn':   [
+            { label: 'spawn()',      url: '/ru/docs/reference/spawn.html' },
+            { label: 'spawn_with()', url: '/ru/docs/reference/spawn-with.html' },
+            { label: 'await()',      url: '/ru/docs/reference/await.html' }
+        ],
+        'ref-batch':   [
+            { label: 'await_all()',          url: '/ru/docs/reference/await-all.html' },
+            { label: 'await_all_or_fail()',  url: '/ru/docs/reference/await-all-or-fail.html' },
+            { label: 'await_any_or_fail()',  url: '/ru/docs/reference/await-any-or-fail.html' },
+            { label: 'await_first_success()', url: '/ru/docs/reference/await-first-success.html' },
+            { label: 'await_any_of()',       url: '/ru/docs/reference/await-any-of.html' },
+            { label: 'Все функции...',       url: '/ru/docs/reference/supported-functions.html' }
+        ],
+        'ref-control': [
+            { label: 'suspend()', url: '/ru/docs/reference/suspend.html' },
+            { label: 'delay()',   url: '/ru/docs/reference/delay.html' }
+        ],
+        'ref-cancel':  [
+            { label: 'protect()', url: '/ru/docs/reference/protect.html' },
+            { label: 'timeout()', url: '/ru/docs/reference/timeout.html' }
+        ],
+        'ref-ctx':     [
+            { label: 'current_context()',   url: '/ru/docs/reference/current-context.html' },
+            { label: 'current_coroutine()', url: '/ru/docs/reference/current-coroutine.html' },
+            { label: 'coroutine_context()', url: '/ru/docs/reference/coroutine-context.html' },
+            { label: 'root_context()',      url: '/ru/docs/reference/root-context.html' }
+        ],
+        'ref-info':    [
+            { label: 'get_coroutines()', url: '/ru/docs/reference/get-coroutines.html' }
+        ],
+        'ref-shutdown': [
+            { label: 'graceful_shutdown()', url: '/ru/docs/reference/graceful-shutdown.html' }
+        ]
+    };
+
+    /* ===== STATE ===== */
+    var NS = 'http://www.w3.org/2000/svg';
+    var svgEl = document.getElementById('learningMap');
+    var tooltipEl = document.getElementById('mapTooltip');
+    var tooltipTitle = document.getElementById('tooltipTitle');
+    var tooltipCat = document.getElementById('tooltipCat');
+    var tooltipOrder = document.getElementById('tooltipOrder');
+    var tooltipSub = document.getElementById('tooltipSub');
+    var edgesGroup = document.getElementById('edgesGroup');
+    var nodesGroup = document.getElementById('nodesGroup');
+
+    var nodeMap = {};
+    var nodeEls = {};
+    var edgeEls = [];
+    var adj = {};
+    var hoveredId = null;
+
+    /* ===== BUILD HELPERS ===== */
+    function buildNodeMap() {
+        nodes.forEach(function(n) { nodeMap[n.id] = n; adj[n.id] = new Set(); });
+    }
+    function buildAdj() {
+        edges.forEach(function(e) {
+            adj[e.from].add(e.to);
+            adj[e.to].add(e.from);
+        });
+    }
+
+    /* Quadratic bezier from edge endpoints, shortened by node radii */
+    function calcEdge(from, to) {
+        var r1 = SIZE[from.size], r2 = SIZE[to.size];
+        var dx = to.cx - from.cx, dy = to.cy - from.cy;
+        var dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 1) return null;
+        var ux = dx / dist, uy = dy / dist;
+        var sx = from.cx + ux * r1, sy = from.cy + uy * r1;
+        var ex = to.cx - ux * r2, ey = to.cy - uy * r2;
+        /* perpendicular offset for curvature */
+        var mx = (sx + ex) / 2, my = (sy + ey) / 2;
+        var off = Math.min(dist * 0.15, 35);
+        var px = -uy * off, py = ux * off;
+        return 'M' + sx + ',' + sy + ' Q' + (mx + px) + ',' + (my + py) + ' ' + ex + ',' + ey;
+    }
+
+    /* ===== RENDER EDGES ===== */
+    function renderEdges() {
+        edges.forEach(function(e, i) {
+            var from = nodeMap[e.from], to = nodeMap[e.to];
+            var d = calcEdge(from, to);
+            if (!d) return;
+            var path = document.createElementNS(NS, 'path');
+            path.setAttribute('d', d);
+            path.setAttribute('fill', 'none');
+            if (e.type === 'path') {
+                path.setAttribute('stroke', CAT[from.cat].color);
+                path.setAttribute('stroke-width', '2');
+                path.setAttribute('opacity', '0.45');
+                path.setAttribute('marker-end', 'url(#arrowPath)');
+                path.classList.add('edge', 'edge-path', 'edge-path-anim');
+                path.style.animationDelay = (i * 0.04) + 's';
+            } else {
+                path.setAttribute('stroke', '#9CA3AF');
+                path.setAttribute('stroke-width', '1.5');
+                path.setAttribute('stroke-dasharray', '5 4');
+                path.setAttribute('opacity', '0.3');
+                path.classList.add('edge', 'edge-related');
+            }
+            path.dataset.from = e.from;
+            path.dataset.to = e.to;
+            edgesGroup.appendChild(path);
+            edgeEls.push({ el: path, from: e.from, to: e.to, type: e.type });
+        });
+    }
+
+    /* ===== RENDER NODES ===== */
+    function renderNodes() {
+        nodes.forEach(function(n) {
+            var g = document.createElementNS(NS, 'g');
+            g.classList.add('node');
+            g.dataset.id = n.id;
+
+            var r = SIZE[n.size];
+            var cat = CAT[n.cat];
+            var fs = FONT[n.size];
+
+            /* Main circle */
+            var circ = document.createElementNS(NS, 'circle');
+            circ.setAttribute('cx', n.cx);
+            circ.setAttribute('cy', n.cy);
+            circ.setAttribute('r', r);
+            circ.setAttribute('fill', cat.bg);
+            circ.setAttribute('stroke', cat.border);
+            circ.setAttribute('stroke-width', n.cat === 'hub' ? '3' : '2');
+            circ.setAttribute('filter', 'url(#nodeShadow)');
+            circ.classList.add('node-circle');
+            if (n.cat === 'hub') {
+                circ.classList.add('central-pulse');
+                circ.style.transformOrigin = n.cx + 'px ' + n.cy + 'px';
+            }
+            g.appendChild(circ);
+
+            /* Label — might need multiline for long text */
+            var lines = n.label.split(' ');
+            if (lines.length > 1 && n.label.length > 10 && n.size !== 'xl') {
+                /* split into two lines */
+                var mid = Math.ceil(lines.length / 2);
+                var line1 = lines.slice(0, mid).join(' ');
+                var line2 = lines.slice(mid).join(' ');
+                var t1 = makeText(n.cx, n.cy - fs * 0.5, fs, cat.color, line1);
+                var t2 = makeText(n.cx, n.cy + fs * 0.6, fs, cat.color, line2);
+                g.appendChild(t1);
+                g.appendChild(t2);
+            } else {
+                var txt = makeText(n.cx, n.cy, fs, cat.color, n.label);
+                g.appendChild(txt);
+            }
+
+            /* Order badge */
+            if (n.order !== null && n.order > 0) {
+                var br = 11;
+                var angle = -Math.PI / 4;
+                var bx = n.cx + r * Math.cos(angle);
+                var by = n.cy + r * Math.sin(angle);
+
+                var bg = document.createElementNS(NS, 'g');
+                bg.classList.add('order-badge-g');
+                bg.style.animationDelay = (n.order * 0.08) + 's';
+                bg.style.transformOrigin = bx + 'px ' + by + 'px';
+
+                var bc = document.createElementNS(NS, 'circle');
+                bc.setAttribute('cx', bx);
+                bc.setAttribute('cy', by);
+                bc.setAttribute('r', br);
+                bc.setAttribute('fill', cat.color);
+                bg.appendChild(bc);
+
+                var bt = document.createElementNS(NS, 'text');
+                bt.setAttribute('x', bx);
+                bt.setAttribute('y', by);
+                bt.setAttribute('text-anchor', 'middle');
+                bt.setAttribute('dominant-baseline', 'central');
+                bt.setAttribute('font-size', '9');
+                bt.setAttribute('font-weight', '700');
+                bt.setAttribute('fill', '#fff');
+                bt.setAttribute('pointer-events', 'none');
+                bt.textContent = n.order;
+                bg.appendChild(bt);
+
+                g.appendChild(bg);
+            }
+
+            /* Events */
+            g.addEventListener('mouseenter', function(ev) { onEnter(n.id, ev); });
+            g.addEventListener('mouseleave', function() { onLeave(); });
+            g.addEventListener('click', function() { onClick(n.id); });
+
+            nodesGroup.appendChild(g);
+            nodeEls[n.id] = g;
+        });
+    }
+
+    function makeText(x, y, fs, fill, content) {
+        var t = document.createElementNS(NS, 'text');
+        t.setAttribute('x', x);
+        t.setAttribute('y', y);
+        t.setAttribute('text-anchor', 'middle');
+        t.setAttribute('dominant-baseline', 'central');
+        t.setAttribute('font-family', 'Fira Sans, sans-serif');
+        t.setAttribute('font-size', fs);
+        t.setAttribute('font-weight', '600');
+        t.setAttribute('fill', fill);
+        t.setAttribute('pointer-events', 'none');
+        t.textContent = content;
+        return t;
+    }
+
+    /* ===== INTERACTIONS ===== */
+    function onEnter(id, ev) {
+        hoveredId = id;
+        var neighbors = adj[id] || new Set();
+
+        Object.keys(nodeEls).forEach(function(nid) {
+            var el = nodeEls[nid];
+            if (nid === id) {
+                el.classList.remove('dimmed');
+                el.classList.add('highlighted');
+            } else if (neighbors.has(nid)) {
+                el.classList.remove('dimmed');
+                el.classList.add('highlighted');
+            } else {
+                el.classList.add('dimmed');
+                el.classList.remove('highlighted');
+            }
+        });
+
+        edgeEls.forEach(function(e) {
+            if (e.from === id || e.to === id) {
+                e.el.classList.remove('dimmed');
+                e.el.classList.add('highlighted');
+            } else {
+                e.el.classList.add('dimmed');
+                e.el.classList.remove('highlighted');
+            }
+        });
+
+        showTooltip(id, ev);
+    }
+
+    function onLeave() {
+        hoveredId = null;
+        Object.keys(nodeEls).forEach(function(nid) {
+            nodeEls[nid].classList.remove('dimmed', 'highlighted');
+        });
+        edgeEls.forEach(function(e) {
+            e.el.classList.remove('dimmed', 'highlighted');
+        });
+        hideTooltip();
+    }
+
+    function onClick(id) {
+        var n = nodeMap[id];
+        if (n && n.url) window.location.href = n.url;
+    }
+
+    /* ===== TOOLTIP ===== */
+    function showTooltip(id, ev) {
+        var n = nodeMap[id];
+        if (!n) return;
+        var cat = CAT[n.cat];
+
+        tooltipTitle.textContent = n.label;
+        tooltipCat.textContent = cat.label;
+        tooltipCat.style.color = cat.color;
+
+        if (n.order !== null && n.order > 0) {
+            tooltipOrder.textContent = 'Шаг ' + n.order + ' из 10';
+            tooltipOrder.style.color = cat.color;
+            tooltipOrder.style.display = '';
+        } else {
+            tooltipOrder.style.display = 'none';
+        }
+
+        /* Sub-pages for reference clusters */
+        if (clusterPages[id]) {
+            var html = '';
+            clusterPages[id].forEach(function(p) {
+                html += '<a href="' + p.url + '">' + p.label + '</a>';
+            });
+            tooltipSub.innerHTML = html;
+            tooltipSub.style.display = '';
+            tooltipEl.style.pointerEvents = 'auto';
+        } else {
+            tooltipSub.innerHTML = '';
+            tooltipSub.style.display = 'none';
+            tooltipEl.style.pointerEvents = 'none';
+        }
+
+        positionTooltip(ev);
+        tooltipEl.classList.add('visible');
+    }
+
+    function positionTooltip(ev) {
+        var x = ev.clientX + 14;
+        var y = ev.clientY + 14;
+        var tw = tooltipEl.offsetWidth || 180;
+        var th = tooltipEl.offsetHeight || 60;
+        if (x + tw > window.innerWidth - 8) x = ev.clientX - tw - 10;
+        if (y + th > window.innerHeight - 8) y = ev.clientY - th - 10;
+        tooltipEl.style.left = x + 'px';
+        tooltipEl.style.top = y + 'px';
+    }
+
+    function hideTooltip() {
+        tooltipEl.classList.remove('visible');
+        tooltipEl.style.pointerEvents = 'none';
+    }
+
+    /* Update tooltip position on mouse move within nodes */
+    svgEl.addEventListener('mousemove', function(ev) {
+        if (hoveredId) positionTooltip(ev);
+    });
+
+    /* ===== TOUCH SUPPORT ===== */
+    var isTouchDevice = 'ontouchstart' in window;
+    if (isTouchDevice) {
+        svgEl.addEventListener('touchstart', function(ev) {
+            var target = ev.target.closest('.node');
+            if (target) {
+                var id = target.dataset.id;
+                if (hoveredId === id) {
+                    onClick(id);
+                } else {
+                    onEnter(id, { clientX: ev.touches[0].clientX, clientY: ev.touches[0].clientY });
+                    ev.preventDefault();
+                }
+            } else {
+                onLeave();
+            }
+        }, { passive: false });
+    }
+
+    /* ===== INIT ===== */
+    buildNodeMap();
+    buildAdj();
+    renderEdges();
+    renderNodes();
+})();
+</script>
