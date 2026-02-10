@@ -651,6 +651,11 @@ pre code {
     margin: 0 auto;
 }
 
+.page-header-inner--narrow {
+    max-width: 52rem;
+    padding: 0 2.5rem;
+}
+
 .page-header h1 {
     font-size: 2rem;
     font-weight: 700;
