@@ -32,6 +32,8 @@ docs:
           label: "Contexte et annulation"
     - title: "Référence"
       items:
+        - url: "/fr/docs/reference/supported-functions.html"
+          label: "Fonctions supportées"
         - id: "api-reference"
           label: "Référence API"
         - id: "examples"

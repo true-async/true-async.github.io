@@ -32,6 +32,8 @@ docs:
           label: "上下文与取消"
     - title: "参考"
       items:
+        - url: "/zh/docs/reference/supported-functions.html"
+          label: "支持的函数"
         - id: "api-reference"
           label: "API 参考"
         - id: "examples"

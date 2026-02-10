@@ -32,6 +32,8 @@ docs:
           label: "Контекст та скасування"
     - title: "Довідник"
       items:
+        - url: "/uk/docs/reference/supported-functions.html"
+          label: "Підтримувані функції"
         - id: "api-reference"
           label: "Довідник API"
         - id: "examples"

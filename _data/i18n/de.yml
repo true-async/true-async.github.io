@@ -32,6 +32,8 @@ docs:
           label: "Kontext und Abbruch"
     - title: "Referenz"
       items:
+        - url: "/de/docs/reference/supported-functions.html"
+          label: "Unterstützte Funktionen"
         - id: "api-reference"
           label: "API-Referenz"
         - id: "examples"

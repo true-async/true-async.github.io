@@ -32,6 +32,8 @@ docs:
           label: "Contexto y cancelación"
     - title: "Referencia"
       items:
+        - url: "/es/docs/reference/supported-functions.html"
+          label: "Funciones soportadas"
         - id: "api-reference"
           label: "Referencia API"
         - id: "examples"

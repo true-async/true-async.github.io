@@ -32,6 +32,8 @@ docs:
           label: "PDO Pool"
     - title: "Справочник функций"
       items:
+        - url: "/ru/docs/reference/supported-functions.html"
+          label: "Поддерживаемые функции"
         - url: "/ru/docs/reference/spawn.html"
           label: "spawn()"
         - url: "/ru/docs/reference/await.html"
