@@ -336,57 +336,6 @@ echo "Корутина создана в: {$location['file']}:{$location['line']
 | Нужны await точки             | Могут прерваться где угодно |
 | Для I/O операций              | Для CPU-вычислений          |
 
-## Реальный пример: краулер
-
-```php
-class WebCrawler {
-    private array $visited = [];
-
-    public function crawl(string $startUrl, int $maxDepth = 3): array {
-        $taskGroup = new Async\TaskGroup(captureResults: true);
-
-        $this->crawlRecursive($startUrl, 0, $maxDepth, $taskGroup);
-
-        return await($taskGroup);
-    }
-
-    private function crawlRecursive(
-        string $url,
-        int $depth,
-        int $maxDepth,
-        Async\TaskGroup $group
-    ): void {
-        if ($depth > $maxDepth || isset($this->visited[$url])) {
-            return;
-        }
-
-        $this->visited[$url] = true;
-
-        spawn with $group function() use ($url, $depth, $maxDepth, $group) {
-            // Загружаем страницу (асинхронно!)
-            $html = file_get_contents($url);
-
-            // Парсим ссылки
-            preg_match_all('/<a href="([^"]+)"/', $html, $matches);
-
-            // Рекурсивно обходим найденные ссылки
-            foreach ($matches[1] as $link) {
-                $this->crawlRecursive($link, $depth + 1, $maxDepth, $group);
-            }
-
-            return ['url' => $url, 'size' => strlen($html)];
-        };
-    }
-}
-
-$crawler = new WebCrawler();
-$results = $crawler->crawl('https://example.com', maxDepth: 2);
-
-echo "Обошли " . count($results) . " страниц\n";
-```
-
-Все страницы загружаются конкурентно. Сотни запросов одновременно, без блокировок.
-
 ## Дальше что?
 
 - [Scope](/ru/docs/concepts/scope.html) — управление группами корутин
