@@ -29,11 +29,19 @@ layout: default
     </div>
     <div class="features-grid">
         {% for feature in p.features.items %}
+        {% if feature.url %}
+        <a href="{{ feature.url }}" class="feature-card feature-card--link">
+            {% include feature-icon.html icon=feature.icon %}
+            <h3>{{ feature.title }}</h3>
+            <p>{{ feature.text }}</p>
+        </a>
+        {% else %}
         <div class="feature-card">
             {% include feature-icon.html icon=feature.icon %}
             <h3>{{ feature.title }}</h3>
             <p>{{ feature.text }}</p>
         </div>
+        {% endif %}
         {% endfor %}
     </div>
 </section>

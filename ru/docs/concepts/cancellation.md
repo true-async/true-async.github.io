@@ -146,24 +146,51 @@ $coroutine->cancel();
 ## Каскадная отмена через Scope
 
 При отмене `Scope` отменяются все его корутины и все дочерние scope.
-Каскад идёт сверху вниз — отмена дочернего scope не затрагивает родителя.
+Каскад идёт **только сверху вниз** — отмена дочернего scope не затрагивает родителя и соседние scope.
+
+### Изоляция: отмена потомка не затрагивает остальных
 
 ```php
 $parent = new Async\Scope();
-$child = Async\Scope::inherit($parent);
+$child1 = Async\Scope::inherit($parent);
+$child2 = Async\Scope::inherit($parent);
 
-$parent->spawn(function() {
+// Отменяем только child1
+$child1->cancel();
+
+$parent->isCancelled(); // false — родитель не затронут
+$child1->isCancelled(); // true
+$child2->isCancelled(); // false — соседний scope не затронут
+```
+
+### Каскад вниз: отмена родителя отменяет всех потомков
+
+```php
+$parent = new Async\Scope();
+$child1 = Async\Scope::inherit($parent);
+$child2 = Async\Scope::inherit($parent);
+
+$parent->cancel(); // Каскад: отменяет и child1, и child2
+
+$parent->isCancelled(); // true
+$child1->isCancelled(); // true
+$child2->isCancelled(); // true
+```
+
+### Корутина может отменить свой scope
+
+Корутина может инициировать отмену scope, в котором работает. Код до ближайшей точки приостановки продолжит выполнение:
+
+```php
+$scope = new Async\Scope();
+
+$scope->spawn(function() use ($scope) {
+    echo "Начинаю\n";
+    $scope->cancel();
+    echo "Это ещё выполнится\n";
     suspend();
-    echo "Не выполнится\n";
+    echo "А это уже нет\n";
 });
-
-$child->spawn(function() {
-    suspend();
-    echo "Тоже не выполнится\n";
-});
-
-suspend();
-$parent->cancel(); // Отменяет и parent, и child
 ```
 
 После отмены scope закрывается — запустить в нём новую корутину уже нельзя.

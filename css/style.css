@@ -476,6 +476,16 @@ h1, h2, h3, h4, h5, h6 {
     background: rgba(0, 0, 0, 0.025);
 }
 
+a.feature-card--link {
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+}
+
+a.feature-card--link:hover {
+    outline-color: var(--color-primary);
+}
+
 .feature-icon {
     width: 1.75rem;
     height: 1.75rem;
