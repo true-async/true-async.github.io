@@ -1,0 +1,86 @@
+---
+layout: page
+lang: uk
+path_key: "/rfc.html"
+nav_active: rfc
+permalink: /uk/rfc.html
+page_title: "RFC"
+description: "Офіційні пропозиції щодо додавання асинхронності в ядро PHP"
+---
+
+## PHP RFC: True Async
+
+Проєкт TrueAsync просувається через офіційний процес `RFC` на wiki.php.net.
+На даний момент опубліковано два `RFC`, які описують базову модель конкурентності
+та структурну конкурентність.
+
+### RFC #1 — PHP True Async
+
+<div class="rfc-meta">
+<span>Автор: Edmond [HT]</span>
+<span>Версія: 1.7</span>
+<span>Цільова версія: PHP 8.6+</span>
+<span class="rfc-badge discussion">Under Discussion</span>
+</div>
+
+Основний RFC, що визначає модель конкурентності для PHP.
+Описує корутини, функції `spawn()` / `await()` / `suspend()`,
+об'єкт `Coroutine`, інтерфейси `Awaitable` та `Completable`,
+механізм кооперативного скасування, інтеграцію з `Fiber`,
+обробку помилок та graceful shutdown.
+
+**Ключові принципи:**
+
+- Мінімум змін у наявному коді для увімкнення конкурентності
+- Корутини зберігають ілюзію послідовного виконання
+- Автоматичне перемикання корутин при I/O операціях
+- Кооперативне скасування — «cancellable by design»
+- Стандартний C API для розширень
+
+[Читати RFC на wiki.php.net &rarr;](https://wiki.php.net/rfc/true_async){:target="_blank"}
+
+### RFC #2 — Scope та структурна конкурентність
+
+<div class="rfc-meta">
+<span>Автор: Edmond [HT]</span>
+<span>Версія: 1.0</span>
+<span class="rfc-badge draft">Draft</span>
+</div>
+
+Розширення базового RFC. Вводить клас `Scope`, що прив'язує
+час життя корутин до лексичної області видимості.
+Описує ієрархію scope'ів, поширення помилок,
+політику «зомбі»-корутин та критичні секції через `protect()`.
+
+**Що вирішує:**
+
+- Запобігання витоку корутин за межі scope
+- Автоматичне очищення ресурсів при виході зі scope
+- Ієрархічне скасування: скасування батька → скасування всіх дочірніх
+- Захист критичних секцій від скасування
+- Виявлення дедлоків та self-await
+
+[Читати RFC на wiki.php.net &rarr;](https://wiki.php.net/rfc/true_async_scope){:target="_blank"}
+
+## Як пов'язані ці RFC
+
+Перший RFC визначає **низькорівневі примітиви** — корутини,
+базові функції та C API для розширень. Другий RFC додає
+**структурну конкурентність** — механізми керування групами корутин,
+що роблять конкурентний код безпечним та передбачуваним.
+
+Разом вони формують повну модель асинхронного програмування для PHP:
+
+|               | RFC #1: True Async                | RFC #2: Scope                           |
+|---------------|-----------------------------------|-----------------------------------------|
+| **Рівень**    | Примітиви                         | Керування                               |
+| **Що дає**    | `spawn()`, `await()`, `Coroutine` | `Scope`, `TaskGroup`, `protect()`       |
+| **Аналогії**  | Go goroutines, Kotlin coroutines  | Kotlin CoroutineScope, Python TaskGroup |
+| **Мета**      | Запуск конкурентного коду         | Безпечне керування життєвим циклом      |
+
+## Участь в обговоренні
+
+RFC обговорюються в розсилці [internals@lists.php.net](mailto:internals@lists.php.net)
+та на [GitHub Discussions](https://github.com/true-async/true-async/discussions){:target="_blank"}.
+
+Також приєднуйтесь до обговорення в [Discord](https://discord.gg/yqBQPBHKp5){:target="_blank"}.
