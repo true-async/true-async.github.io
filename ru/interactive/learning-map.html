@@ -285,7 +285,7 @@ description: "Интерактивная карта документации —
        w/h = balloon size */
     var nodes = [
         /* === Primitives group === */
-        { id: 'coroutines', title: 'Корутины',  desc: 'Запускать код асинхронно',
+        { id: 'coroutines', title: 'Корутины',  desc: 'Чтобы выполнить код асинхронно',
           code: '<span class="var">$coro</span> = <span class="fn">spawn</span>(<span class="kw">function</span>() {\n  <span class="fn">echo</span> <span class="str">"async!"</span>;\n});',
           url: '/ru/docs/concepts/coroutines.html', group: 'primitives', order: 1,
           cx: 440, cy: 100, w: 150, h: 52 },
@@ -295,7 +295,7 @@ description: "Интерактивная карта документации —
           url: '/ru/docs/concepts/scope.html', group: 'primitives', order: 2,
           cx: 700, cy: 100, w: 140, h: 52 },
 
-        { id: 'future', title: 'Future', desc: 'Получить результат асинхронной операции',
+        { id: 'future', title: 'Future', desc: 'Ожидать результат Корутины или Future',
           code: '<span class="var">$future</span> = <span class="fn">spawn</span>(<span class="var">$task</span>);\n<span class="var">$result</span> = <span class="fn">await</span>(<span class="var">$future</span>);',
           url: '/ru/docs/concepts/future.html', group: 'primitives', order: 3,
           cx: 260, cy: 215, w: 140, h: 52 },
@@ -305,13 +305,13 @@ description: "Интерактивная карта документации —
           url: '/ru/docs/concepts/channels.html', group: 'primitives', order: 4,
           cx: 510, cy: 215, w: 140, h: 52 },
 
-        { id: 'context', title: 'Context', desc: 'Хранить данные в иерархии скоупов',
+        { id: 'context', title: 'Context', desc: 'Ассоциировать данные с корутинами или Scope',
           code: '<span class="fn">current_context</span>()-><span class="fn">set</span>(<span class="str">\'key\'</span>, <span class="str">\'val\'</span>);\n<span class="var">$v</span> = <span class="fn">current_context</span>()-><span class="fn">find</span>(<span class="str">\'key\'</span>);',
           url: '/ru/docs/concepts/context.html', group: 'primitives', order: 5,
           cx: 920, cy: 215, w: 140, h: 52 },
 
         /* === Control group === */
-        { id: 'cancellation', title: 'Отмена', desc: 'Прерывать корутины безопасно',
+        { id: 'cancellation', title: 'Cancellation', desc: 'Отменять корутины в любой момент',
           code: '<span class="var">$coro</span>-><span class="fn">cancel</span>();\n<span class="cm">// or with timeout:</span>\n<span class="fn">await</span>(<span class="var">$coro</span>, <span class="fn">timeout</span>(<span class="num">5000</span>));',
           url: '/ru/docs/concepts/cancellation.html', group: 'control', order: 6,
           cx: 700, cy: 370, w: 140, h: 52 },
