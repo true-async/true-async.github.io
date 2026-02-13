@@ -11,11 +11,37 @@ description: "Интерактивная карта документации —
 <style>
     .interactive-demo .map-controls {
         display: flex;
-        flex-wrap: wrap;
-        gap: 12px;
-        justify-content: center;
+        flex-direction: column;
+        gap: 10px;
         align-items: center;
         margin-bottom: 16px;
+    }
+    .interactive-demo .map-filters {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        justify-content: center;
+    }
+    .interactive-demo .filter-btn {
+        --btn-color: #64748B;
+        display: inline-flex;
+        align-items: center;
+        padding: 5px 14px;
+        border-radius: 20px;
+        border: 2px solid var(--btn-color);
+        color: var(--btn-color);
+        background: transparent;
+        font-size: 0.8em;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-family: inherit;
+        line-height: 1.3;
+    }
+    .interactive-demo .filter-btn:hover,
+    .interactive-demo .filter-btn.active {
+        background: var(--btn-color);
+        color: #fff;
     }
     .interactive-demo .map-legend {
         display: flex;
@@ -30,13 +56,6 @@ description: "Интерактивная карта документации —
         display: inline-flex;
         align-items: center;
         gap: 5px;
-    }
-    .interactive-demo .legend-dot {
-        width: 10px;
-        height: 10px;
-        border-radius: 3px;
-        display: inline-block;
-        flex-shrink: 0;
     }
     .interactive-demo .legend-badge {
         display: inline-flex;
@@ -193,7 +212,7 @@ description: "Интерактивная карта документации —
 
     /* Group background zones */
     .interactive-demo .group-zone {
-        opacity: 0.45;
+        opacity: 0.75;
         transition: opacity 0.3s ease;
     }
     .interactive-demo .group-zone.dimmed { opacity: 0.05; }
@@ -215,32 +234,46 @@ description: "Интерактивная карта документации —
 </style>
 
 <div class="map-controls">
+    <div class="map-filters" id="mapFilters">
+        <button class="filter-btn active" data-group="all" style="--btn-color:#64748B">Все</button>
+        <button class="filter-btn" data-group="primitives" style="--btn-color:#6B58FF">Базовые примитивы</button>
+        <button class="filter-btn" data-group="structural" style="--btn-color:#0891B2">Стр. конкурентность</button>
+        <button class="filter-btn" data-group="sync" style="--btn-color:#F59E0B">Синхронизация</button>
+        <button class="filter-btn" data-group="resources" style="--btn-color:#16A34A">Ресурсы и пулы</button>
+        <button class="filter-btn" data-group="exceptions" style="--btn-color:#DC2626">Исключения</button>
+        <button class="filter-btn" data-group="interfaces" style="--btn-color:#8B5CF6">Интерфейсы</button>
+    </div>
     <div class="map-legend">
-        <span class="legend-item"><span class="legend-dot" style="background:#6B58FF"></span> Асинхронные примитивы</span>
-        <span class="legend-item"><span class="legend-dot" style="background:#0891B2"></span> Управление и безопасность</span>
-        <span class="legend-item"><span class="legend-dot" style="background:#16A34A"></span> Ресурсы и пулы</span>
-        <span class="legend-item"><span class="legend-dot" style="background:#2563EB"></span> Справочник функций</span>
         <span class="legend-item">
             <svg width="28" height="10"><line x1="0" y1="5" x2="28" y2="5" stroke="#6B58FF" stroke-width="2" marker-end="url(#legendArr)"/><defs><marker id="legendArr" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="7" markerHeight="5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="#6B58FF"/></marker></defs></svg>
             Зависимость
         </span>
-        <span class="legend-item"><span class="legend-badge">2</span> Порядок</span>
+        <span class="legend-item"><span class="legend-badge">2</span> Порядок изучения</span>
     </div>
 </div>
 
 <p class="map-scroll-hint">&#8592; Прокрутите для просмотра всей карты &#8594;</p>
 
 <div class="map-container">
-    <svg id="learningMap" viewBox="0 0 1260 820" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+    <svg id="learningMap" viewBox="0 0 1260 640" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
         <defs>
-            <marker id="arrowPath" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+            <marker id="arrowPurple" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
                 <polygon points="0 0,10 3.5,0 7" fill="#6B58FF" opacity="0.65"/>
             </marker>
             <marker id="arrowTeal" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
                 <polygon points="0 0,10 3.5,0 7" fill="#0891B2" opacity="0.65"/>
             </marker>
+            <marker id="arrowAmber" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+                <polygon points="0 0,10 3.5,0 7" fill="#F59E0B" opacity="0.65"/>
+            </marker>
             <marker id="arrowGreen" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
                 <polygon points="0 0,10 3.5,0 7" fill="#16A34A" opacity="0.65"/>
+            </marker>
+            <marker id="arrowRed" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+                <polygon points="0 0,10 3.5,0 7" fill="#DC2626" opacity="0.65"/>
+            </marker>
+            <marker id="arrowViolet" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+                <polygon points="0 0,10 3.5,0 7" fill="#8B5CF6" opacity="0.65"/>
             </marker>
             <filter id="nodeShadow" x="-20%" y="-20%" width="140%" height="140%">
                 <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.06"/>
@@ -267,6 +300,7 @@ description: "Интерактивная карта документации —
 <div class="map-info">
     <strong>Наведите</strong> на узел, чтобы подсветить его связи.
     <strong>Нажмите</strong>, чтобы перейти к документации.
+    Используйте кнопки вверху для подсветки групп.
     Нумерованные значки показывают рекомендованный порядок изучения.
 </div>
 
@@ -274,158 +308,187 @@ description: "Интерактивная карта документации —
 (function() {
     /* ===== SEMANTIC GROUPS ===== */
     var GRP = {
-        primitives: { color: '#6B58FF', bg: 'rgba(107,88,255,0.06)', border: 'rgba(107,88,255,0.30)', arrow: 'url(#arrowPath)', label: 'Асинхронные примитивы' },
-        control:    { color: '#0891B2', bg: 'rgba(8,145,178,0.06)',  border: 'rgba(8,145,178,0.30)',  arrow: 'url(#arrowTeal)',  label: 'Управление и безопасность' },
-        resources:  { color: '#16A34A', bg: 'rgba(22,163,74,0.06)',  border: 'rgba(22,163,74,0.30)',  arrow: 'url(#arrowGreen)', label: 'Ресурсы и пулы' },
-        reference:  { color: '#2563EB', bg: 'rgba(37,99,235,0.06)',  border: 'rgba(37,99,235,0.30)',  arrow: 'url(#arrowPath)',  label: 'Справочник функций' }
+        primitives:  { color: '#6B58FF', bg: 'rgba(107,88,255,0.12)',  border: 'rgba(107,88,255,0.50)',  arrow: 'url(#arrowPurple)',  label: 'Базовые примитивы' },
+        structural:  { color: '#0891B2', bg: 'rgba(8,145,178,0.12)',   border: 'rgba(8,145,178,0.50)',   arrow: 'url(#arrowTeal)',    label: 'Структурная конкурентность' },
+        sync:        { color: '#F59E0B', bg: 'rgba(245,158,11,0.12)',  border: 'rgba(245,158,11,0.50)',  arrow: 'url(#arrowAmber)',   label: 'Синхронизация' },
+        resources:   { color: '#16A34A', bg: 'rgba(22,163,74,0.12)',   border: 'rgba(22,163,74,0.50)',   arrow: 'url(#arrowGreen)',   label: 'Ресурсы и пулы' },
+        exceptions:  { color: '#DC2626', bg: 'rgba(220,38,38,0.12)',   border: 'rgba(220,38,38,0.50)',   arrow: 'url(#arrowRed)',     label: 'Исключения' },
+        interfaces:  { color: '#8B5CF6', bg: 'rgba(139,92,246,0.12)',  border: 'rgba(139,92,246,0.50)',  arrow: 'url(#arrowViolet)',  label: 'Интерфейсы' }
     };
 
     /* ===== NODES =====
-       Each node: id, title (bold), desc (why), url, group, cx, cy, w, h, order
-       w/h = balloon size */
+       Each node: id, title, desc (tooltip only), code, url, group, cx, cy, w, h, order, planned */
     var nodes = [
-        /* === Primitives group === */
-        { id: 'coroutines', title: 'Корутины',  desc: 'Чтобы выполнить код асинхронно',
+        /* === Базовые примитивы === */
+        { id: 'coroutines', title: 'Корутины',
+          desc: 'Базовая единица асинхронности — запуск параллельных задач',
           code: '<span class="var">$coro</span> = <span class="fn">spawn</span>(<span class="kw">function</span>() {\n  <span class="fn">echo</span> <span class="str">"async!"</span>;\n});',
           url: '/ru/docs/concepts/coroutines.html', group: 'primitives', order: 1,
-          cx: 440, cy: 100, w: 150, h: 52 },
+          cx: 250, cy: 95, w: 130, h: 44 },
 
-        { id: 'scope', title: 'Scope', desc: 'Контролировать время жизни корутин',
-          code: '<span class="var">$scope</span> = <span class="kw">new</span> Async\\<span class="fn">Scope</span>();\n<span class="fn">spawn</span>(<span class="var">$scope</span>, <span class="var">$task</span>);',
-          url: '/ru/docs/concepts/scope.html', group: 'primitives', order: 2,
-          cx: 700, cy: 100, w: 140, h: 52 },
+        { id: 'future', title: 'Future / await',
+          desc: 'Получить результат асинхронной операции',
+          code: '<span class="var">$coro</span> = <span class="fn">spawn</span>(<span class="var">$task</span>);\n<span class="var">$result</span> = <span class="fn">await</span>(<span class="var">$coro</span>);',
+          url: '/ru/docs/concepts/future.html', group: 'primitives', order: 2,
+          cx: 510, cy: 95, w: 150, h: 44 },
 
-        { id: 'future', title: 'Future', desc: 'Ожидать результат Корутины или Future',
-          code: '<span class="var">$future</span> = <span class="fn">spawn</span>(<span class="var">$task</span>);\n<span class="var">$result</span> = <span class="fn">await</span>(<span class="var">$future</span>);',
-          url: '/ru/docs/concepts/future.html', group: 'primitives', order: 3,
-          cx: 260, cy: 215, w: 140, h: 52 },
-
-        { id: 'channels', title: 'Каналы', desc: 'Передавать данные между корутинами',
-          code: '<span class="var">$ch</span> = <span class="kw">new</span> <span class="fn">Channel</span>(<span class="num">10</span>);\n<span class="var">$ch</span>-><span class="fn">send</span>(<span class="str">"data"</span>);\n<span class="var">$val</span> = <span class="var">$ch</span>-><span class="fn">recv</span>();',
-          url: '/ru/docs/concepts/channels.html', group: 'primitives', order: 4,
-          cx: 510, cy: 215, w: 140, h: 52 },
-
-        { id: 'context', title: 'Context', desc: 'Ассоциировать данные с корутинами или Scope',
-          code: '<span class="fn">current_context</span>()-><span class="fn">set</span>(<span class="str">\'key\'</span>, <span class="str">\'val\'</span>);\n<span class="var">$v</span> = <span class="fn">current_context</span>()-><span class="fn">find</span>(<span class="str">\'key\'</span>);',
+        { id: 'context', title: 'Context',
+          desc: 'Хранить данные привязанные к корутине (напр. токен авторизации)',
+          code: '<span class="var">$ctx</span> = <span class="fn">current_context</span>();\n<span class="var">$ctx</span>-><span class="fn">set</span>(<span class="str">\'auth_token\'</span>, <span class="var">$token</span>);\n<span class="var">$v</span> = <span class="var">$ctx</span>-><span class="fn">find</span>(<span class="str">\'auth_token\'</span>);',
           url: '/ru/docs/concepts/context.html', group: 'primitives', order: 5,
-          cx: 920, cy: 215, w: 140, h: 52 },
+          cx: 830, cy: 95, w: 120, h: 44 },
 
-        /* === Control group === */
-        { id: 'cancellation', title: 'Cancellation', desc: 'Отменять корутины в любой момент',
-          code: '<span class="var">$coro</span>-><span class="fn">cancel</span>();\n<span class="cm">// or with timeout:</span>\n<span class="fn">await</span>(<span class="var">$coro</span>, <span class="fn">timeout</span>(<span class="num">5000</span>));',
-          url: '/ru/docs/concepts/cancellation.html', group: 'control', order: 6,
-          cx: 700, cy: 370, w: 140, h: 52 },
+        /* === Структурная конкурентность === */
+        { id: 'cancellation', title: 'Cancellation',
+          desc: 'Отменять корутины и управлять таймаутами',
+          code: '<span class="var">$coro</span>-><span class="fn">cancel</span>();\n<span class="cm">// или с таймаутом:</span>\n<span class="fn">await</span>(<span class="var">$coro</span>, <span class="fn">timeout</span>(<span class="num">5000</span>));',
+          url: '/ru/docs/concepts/cancellation.html', group: 'structural', order: 3,
+          cx: 210, cy: 250, w: 150, h: 44 },
 
-        { id: 'exceptions', title: 'Исключения', desc: 'Обрабатывать ошибки в асинхронном коде',
-          code: '<span class="kw">try</span> { <span class="fn">await</span>(<span class="var">$coro</span>); }\n<span class="kw">catch</span> (<span class="fn">CancellationError</span> <span class="var">$e</span>) {}',
-          url: '/ru/docs/concepts/exceptions.html', group: 'control', order: 7,
-          cx: 940, cy: 370, w: 148, h: 52 },
+        { id: 'scope', title: 'Scope',
+          desc: 'Контролировать время жизни группы корутин',
+          code: '<span class="var">$scope</span> = <span class="kw">new</span> Async\\<span class="fn">Scope</span>();\n<span class="fn">spawn_with</span>(<span class="var">$scope</span>, <span class="var">$task</span>);',
+          url: '/ru/docs/concepts/scope.html', group: 'structural', order: 4,
+          cx: 430, cy: 250, w: 110, h: 44 },
 
-        { id: 'interfaces', title: 'Интерфейсы', desc: 'Типы и контракты для расширения',
-          code: '<span class="kw">interface</span> <span class="fn">Awaitable</span> {}\n<span class="kw">interface</span> <span class="fn">Completable</span> {}',
-          url: '/ru/docs/concepts/interfaces.html', group: 'control', order: 8,
-          cx: 820, cy: 480, w: 144, h: 52 },
+        { id: 'taskgroup', title: 'TaskGroup',
+          desc: 'Группировать задачи для совместного управления (планируется)',
+          code: '<span class="cm">// Планируемая функция</span>\n<span class="var">$group</span> = <span class="kw">new</span> <span class="fn">TaskGroup</span>();\n<span class="var">$group</span>-><span class="fn">spawn</span>(<span class="var">$task</span>);',
+          url: '#', group: 'structural', order: null, planned: true,
+          cx: 210, cy: 365, w: 130, h: 44 },
 
-        /* === Resources group === */
-        { id: 'pool', title: 'Async\\Pool', desc: 'Переиспользовать дорогие ресурсы',
-          code: '<span class="var">$pool</span> = <span class="kw">new</span> <span class="fn">Pool</span>(\n  <span class="fn">factory</span>: <span class="kw">fn</span>() => <span class="kw">new</span> <span class="fn">Conn</span>(),\n  <span class="fn">max</span>: <span class="num">10</span>\n);',
-          url: '/ru/docs/concepts/pool.html', group: 'resources', order: 9,
-          cx: 490, cy: 480, w: 150, h: 52 },
+        { id: 'shutdown', title: 'Graceful Shutdown',
+          desc: 'Корректное завершение всех асинхронных операций',
+          code: '<span class="fn">graceful_shutdown</span>();',
+          url: '/ru/docs/reference/graceful-shutdown.html', group: 'structural', order: null,
+          cx: 440, cy: 365, w: 175, h: 44 },
 
-        { id: 'pdo-pool', title: 'PDO Pool', desc: 'Пул соединений с базой данных',
-          code: '<span class="var">$pdo</span> = <span class="kw">new</span> <span class="fn">PDO</span>(<span class="var">$dsn</span>, <span class="var">$user</span>, <span class="var">$pwd</span>, [\n  PDO::<span class="fn">ATTR_POOL_MAX</span> => <span class="num">10</span>\n]);',
-          url: '/ru/docs/concepts/pdo-pool.html', group: 'resources', order: 10,
-          cx: 490, cy: 590, w: 140, h: 52 },
-
-        /* === Reference functions === */
-        { id: 'ref-spawn', title: 'spawn / await', desc: 'Создание и ожидание корутин',
-          code: '<span class="var">$c</span> = <span class="fn">spawn</span>(<span class="fn">fetchUser</span>(...), <span class="num">123</span>);\n<span class="var">$user</span> = <span class="fn">await</span>(<span class="var">$c</span>);',
-          url: '/ru/docs/reference/spawn.html', group: 'reference', order: null,
-          cx: 160, cy: 100, w: 146, h: 48 },
-
-        { id: 'ref-await', title: 'Функции ожидания', desc: 'await_all, await_any, await_first_success...',
+        /* === Синхронизация === */
+        { id: 'await-funcs', title: 'await_*',
+          desc: 'Ожидать несколько корутин параллельно',
           code: '<span class="var">$results</span> = <span class="fn">await_all</span>(<span class="var">$tasks</span>);\n<span class="var">$first</span> = <span class="fn">await_first_success</span>(<span class="var">$tasks</span>);',
-          url: '/ru/docs/reference/supported-functions.html', group: 'reference', order: null,
-          cx: 100, cy: 310, w: 170, h: 48 },
+          url: '/ru/docs/reference/supported-functions.html', group: 'sync', order: null,
+          cx: 770, cy: 250, w: 110, h: 44 },
 
-        { id: 'ref-control', title: 'delay / suspend', desc: 'Пауза и передача управления',
-          code: '<span class="fn">delay</span>(<span class="num">1000</span>); <span class="cm">// 1 сек</span>\n<span class="fn">suspend</span>();  <span class="cm">// yield</span>',
-          url: '/ru/docs/reference/delay.html', group: 'reference', order: null,
-          cx: 140, cy: 430, w: 152, h: 48 },
+        { id: 'channels', title: 'Каналы',
+          desc: 'Передавать данные между корутинами',
+          code: '<span class="var">$ch</span> = <span class="kw">new</span> Async\\<span class="fn">Channel</span>(<span class="num">10</span>);\n<span class="var">$ch</span>-><span class="fn">send</span>(<span class="str">"data"</span>);\n<span class="var">$val</span> = <span class="var">$ch</span>-><span class="fn">recv</span>();',
+          url: '/ru/docs/concepts/channels.html', group: 'sync', order: null,
+          cx: 950, cy: 250, w: 110, h: 44 },
 
-        { id: 'ref-cancel', title: 'protect / timeout', desc: 'Защита от отмены и таймауты',
-          code: '<span class="fn">protect</span>(<span class="kw">function</span>() {\n  <span class="var">$db</span>-><span class="fn">commit</span>();\n});',
-          url: '/ru/docs/reference/protect.html', group: 'reference', order: null,
-          cx: 400, cy: 370, w: 160, h: 48 },
+        { id: 'iterate', title: 'iterate()',
+          desc: 'Параллельная обработка коллекций с контролем конкурентности',
+          code: '<span class="fn">iterate</span>(<span class="var">$items</span>, <span class="kw">function</span>(<span class="var">$v</span>, <span class="var">$k</span>) {\n  <span class="fn">echo</span> <span class="str">"$k: $v\\n"</span>;\n}, <span class="fn">concurrency</span>: <span class="num">4</span>);',
+          url: '/ru/docs/reference/iterate.html', group: 'sync', order: null,
+          cx: 860, cy: 365, w: 110, h: 44 },
 
-        { id: 'ref-info', title: 'Информация', desc: 'get_coroutines, graceful_shutdown...',
-          code: '<span class="var">$all</span> = <span class="fn">get_coroutines</span>();\n<span class="fn">graceful_shutdown</span>();',
-          url: '/ru/docs/reference/get-coroutines.html', group: 'reference', order: null,
-          cx: 1100, cy: 100, w: 134, h: 48 }
+        /* === Ресурсы и пулы === */
+        { id: 'pool', title: 'Async\\Pool',
+          desc: 'Переиспользовать дорогие ресурсы (соединения, воркеры)',
+          code: '<span class="var">$pool</span> = <span class="kw">new</span> <span class="fn">Pool</span>(\n  <span class="fn">factory</span>: <span class="kw">fn</span>() => <span class="kw">new</span> <span class="fn">Conn</span>(),\n  <span class="fn">max</span>: <span class="num">10</span>\n);',
+          url: '/ru/docs/concepts/pool.html', group: 'resources', order: 6,
+          cx: 200, cy: 522, w: 130, h: 44 },
+
+        { id: 'pdo-pool', title: 'PDO Pool',
+          desc: 'Пул соединений с базой данных',
+          code: '<span class="var">$pdo</span> = <span class="kw">new</span> <span class="fn">PDO</span>(<span class="var">$dsn</span>, <span class="var">$user</span>, <span class="var">$pwd</span>, [\n  PDO::<span class="fn">ATTR_POOL_MAX</span> => <span class="num">10</span>\n]);',
+          url: '/ru/docs/concepts/pdo-pool.html', group: 'resources', order: null,
+          cx: 380, cy: 522, w: 120, h: 44 },
+
+        /* === Исключения === */
+        { id: 'exceptions', title: 'Исключения',
+          desc: 'Обрабатывать ошибки в асинхронном коде',
+          code: '<span class="kw">try</span> { <span class="fn">await</span>(<span class="var">$coro</span>); }\n<span class="kw">catch</span> (<span class="fn">CancellationError</span> <span class="var">$e</span>) {}',
+          url: '/ru/docs/concepts/exceptions.html', group: 'exceptions', order: null,
+          cx: 635, cy: 522, w: 130, h: 44 },
+
+        /* === Интерфейсы === */
+        { id: 'interfaces', title: 'Интерфейсы',
+          desc: 'Типы и контракты для расширения',
+          code: '<span class="kw">interface</span> <span class="fn">Awaitable</span> {}\n<span class="kw">interface</span> <span class="fn">Completable</span> {}',
+          url: '/ru/docs/concepts/interfaces.html', group: 'interfaces', order: null,
+          cx: 920, cy: 522, w: 130, h: 44 }
     ];
 
     /* ===== EDGES ===== */
     var edges = [
-        /* Core learning path */
-        { from: 'coroutines', to: 'scope',         type: 'path' },
-        { from: 'coroutines', to: 'future',        type: 'path' },
-        { from: 'coroutines', to: 'channels',      type: 'path' },
-        { from: 'scope',      to: 'context',       type: 'path' },
-        { from: 'scope',      to: 'cancellation',  type: 'path' },
-        { from: 'coroutines', to: 'cancellation',  type: 'path' },
-        { from: 'cancellation', to: 'exceptions',  type: 'path' },
-        { from: 'cancellation', to: 'interfaces',  type: 'path' },
-        { from: 'scope',      to: 'pool',          type: 'path' },
-        { from: 'channels',   to: 'pool',          type: 'related' },
-        { from: 'pool',       to: 'pdo-pool',      type: 'path' },
+        /* Learning path */
+        { from: 'coroutines',   to: 'future',       type: 'path' },
+        { from: 'future',       to: 'cancellation',  type: 'path' },
+        { from: 'cancellation', to: 'scope',         type: 'path' },
+        { from: 'scope',        to: 'context',       type: 'path' },
+        { from: 'context',      to: 'pool',          type: 'path' },
+        { from: 'pool',         to: 'pdo-pool',      type: 'path' },
 
-        /* Reference connections */
-        { from: 'coroutines',   to: 'ref-spawn',   type: 'related' },
-        { from: 'ref-spawn',    to: 'ref-await',   type: 'related' },
-        { from: 'coroutines',   to: 'ref-control', type: 'related' },
-        { from: 'cancellation', to: 'ref-cancel',  type: 'related' },
-        { from: 'scope',        to: 'ref-info',    type: 'related' }
+        /* Structural connections */
+        { from: 'scope',        to: 'taskgroup',     type: 'path' },
+        { from: 'scope',        to: 'shutdown',      type: 'path' },
+        { from: 'cancellation', to: 'exceptions',    type: 'path' },
+
+        /* Related connections */
+        { from: 'future',       to: 'await-funcs',   type: 'related' },
+        { from: 'coroutines',   to: 'channels',      type: 'related' },
+        { from: 'channels',     to: 'iterate',       type: 'related' }
     ];
 
-    /* ===== SUB-PAGES for clusters ===== */
+    /* ===== SUB-PAGES for tooltips ===== */
     var subPages = {
-        'ref-spawn': [
-            { label: 'spawn()',      url: '/ru/docs/reference/spawn.html' },
-            { label: 'spawn_with()', url: '/ru/docs/reference/spawn-with.html' },
-            { label: 'await()',      url: '/ru/docs/reference/await.html' }
+        'coroutines': [
+            { label: 'spawn()',            url: '/ru/docs/reference/spawn.html' },
+            { label: 'spawn_with()',       url: '/ru/docs/reference/spawn-with.html' },
+            { label: 'get_coroutines()',   url: '/ru/docs/reference/get-coroutines.html' },
+            { label: 'current_coroutine()', url: '/ru/docs/reference/current-coroutine.html' }
         ],
-        'ref-await': [
-            { label: 'await_all()',           url: '/ru/docs/reference/await-all.html' },
-            { label: 'await_all_or_fail()',   url: '/ru/docs/reference/await-all-or-fail.html' },
-            { label: 'await_any_or_fail()',   url: '/ru/docs/reference/await-any-or-fail.html' },
-            { label: 'await_first_success()', url: '/ru/docs/reference/await-first-success.html' },
-            { label: 'await_any_of()',        url: '/ru/docs/reference/await-any-of.html' },
-            { label: 'Все функции...',         url: '/ru/docs/reference/supported-functions.html' }
+        'future': [
+            { label: 'await()', url: '/ru/docs/reference/await.html' }
         ],
-        'ref-control': [
-            { label: 'suspend()', url: '/ru/docs/reference/suspend.html' },
-            { label: 'delay()',   url: '/ru/docs/reference/delay.html' }
+        'context': [
+            { label: 'current_context()',   url: '/ru/docs/reference/current-context.html' },
+            { label: 'coroutine_context()', url: '/ru/docs/reference/coroutine-context.html' },
+            { label: 'root_context()',      url: '/ru/docs/reference/root-context.html' }
         ],
-        'ref-cancel': [
+        'cancellation': [
+            { label: 'cancel()',   url: '/ru/docs/concepts/cancellation.html' },
             { label: 'protect()', url: '/ru/docs/reference/protect.html' },
             { label: 'timeout()', url: '/ru/docs/reference/timeout.html' }
         ],
-        'ref-info': [
-            { label: 'get_coroutines()',    url: '/ru/docs/reference/get-coroutines.html' },
-            { label: 'current_coroutine()', url: '/ru/docs/reference/current-coroutine.html' },
-            { label: 'current_context()',   url: '/ru/docs/reference/current-context.html' },
-            { label: 'coroutine_context()', url: '/ru/docs/reference/coroutine-context.html' },
-            { label: 'root_context()',      url: '/ru/docs/reference/root-context.html' },
+        'scope': [
+            { label: 'Scope',           url: '/ru/docs/concepts/scope.html' },
+            { label: 'Scope::inherit()', url: '/ru/docs/concepts/scope.html' }
+        ],
+        'shutdown': [
             { label: 'graceful_shutdown()', url: '/ru/docs/reference/graceful-shutdown.html' }
+        ],
+        'await-funcs': [
+            { label: 'await_all()',           url: '/ru/docs/reference/await-all.html' },
+            { label: 'await_any_or_fail()',   url: '/ru/docs/reference/await-any-or-fail.html' },
+            { label: 'await_first_success()', url: '/ru/docs/reference/await-first-success.html' },
+            { label: 'await_any_of()',        url: '/ru/docs/reference/await-any-of.html' },
+            { label: 'delay()',               url: '/ru/docs/reference/delay.html' },
+            { label: 'suspend()',             url: '/ru/docs/reference/suspend.html' }
+        ],
+        'pool': [
+            { label: 'Pool::tryAcquire()', url: '/ru/docs/concepts/pool.html' }
+        ],
+        'exceptions': [
+            { label: 'CancellationError',  url: '/ru/docs/concepts/exceptions.html' },
+            { label: 'TimeoutException',   url: '/ru/docs/concepts/exceptions.html' }
+        ],
+        'interfaces': [
+            { label: 'Awaitable',     url: '/ru/docs/concepts/interfaces.html' },
+            { label: 'Completable',   url: '/ru/docs/concepts/interfaces.html' },
+            { label: 'ScopeProvider',  url: '/ru/docs/concepts/interfaces.html' }
         ]
     };
 
-    /* ===== GROUP ZONE DEFINITIONS (rounded bg areas) ===== */
+    /* ===== GROUP ZONE DEFINITIONS ===== */
     var groupZones = [
-        { group: 'primitives', label: 'Асинхронные примитивы', x: 200, y: 48, w: 890, h: 240, rx: 18 },
-        { group: 'control',    label: 'Управление и безопасность', x: 595, y: 320, w: 420, h: 235, rx: 18 },
-        { group: 'resources',  label: 'Ресурсы и пулы', x: 370, y: 430, w: 210, h: 235, rx: 18 },
-        { group: 'reference',  label: 'Справочник функций', x: 40, y: 55, w: 270, h: 445, rx: 18 }
+        { group: 'primitives',  label: 'Базовые примитивы',            x: 115, y: 38,  w: 855, h: 112, rx: 16 },
+        { group: 'structural',  label: 'Структурная конкурентность',    x: 80,  y: 182, w: 510, h: 252, rx: 16 },
+        { group: 'sync',        label: 'Синхронизация',                 x: 640, y: 182, w: 465, h: 252, rx: 16 },
+        { group: 'resources',   label: 'Ресурсы и пулы',                x: 80,  y: 468, w: 390, h: 108, rx: 16 },
+        { group: 'exceptions',  label: 'Исключения',                    x: 520, y: 468, w: 230, h: 108, rx: 16 },
+        { group: 'interfaces',  label: 'Интерфейсы',                    x: 800, y: 468, w: 240, h: 108, rx: 16 }
     ];
 
     /* ===== STATE ===== */
@@ -442,6 +505,7 @@ description: "Интерактивная карта документации —
     var zoneEls = {};
     var adj = {};
     var hoveredId = null;
+    var activeFilter = null;
 
     /* ===== BUILD ===== */
     function init() {
@@ -450,6 +514,7 @@ description: "Интерактивная карта документации —
         renderZones();
         renderEdges();
         renderNodes();
+        initFilters();
     }
 
     /* ===== RENDER GROUP ZONES ===== */
@@ -472,7 +537,6 @@ description: "Интерактивная карта документации —
             rect.setAttribute('stroke-dasharray', '6 3');
             g.appendChild(rect);
 
-            /* Zone label in top-left */
             var lbl = document.createElementNS(NS, 'text');
             lbl.setAttribute('x', z.x + 14);
             lbl.setAttribute('y', z.y + 18);
@@ -480,7 +544,7 @@ description: "Интерактивная карта документации —
             lbl.setAttribute('font-size', '11');
             lbl.setAttribute('font-weight', '600');
             lbl.setAttribute('fill', grp.color);
-            lbl.setAttribute('opacity', '0.6');
+            lbl.setAttribute('opacity', '0.7');
             lbl.textContent = z.label;
             g.appendChild(lbl);
 
@@ -491,17 +555,14 @@ description: "Интерактивная карта документации —
 
     /* ===== RENDER EDGES ===== */
     function calcPath(from, to) {
-        /* Connect from edge of balloon to edge of target balloon */
         var dx = to.cx - from.cx, dy = to.cy - from.cy;
         var dist = Math.sqrt(dx * dx + dy * dy);
         if (dist < 1) return null;
 
-        /* Find exit/entry points on rounded rects */
         var angle = Math.atan2(dy, dx);
         var s = exitPoint(from, angle);
         var e = exitPoint(to, angle + Math.PI);
 
-        /* Bezier curvature */
         var mx = (s.x + e.x) / 2, my = (s.y + e.y) / 2;
         var ux = dx / dist, uy = dy / dist;
         var off = Math.min(dist * 0.12, 30);
@@ -510,7 +571,6 @@ description: "Интерактивная карта документации —
     }
 
     function exitPoint(n, angle) {
-        /* Approximate: find intersection of ray from center with rounded rect */
         var hw = n.w / 2, hh = n.h / 2;
         var cos = Math.cos(angle), sin = Math.sin(angle);
         var tx = cos !== 0 ? hw / Math.abs(cos) : 9999;
@@ -533,12 +593,8 @@ description: "Интерактивная карта документации —
             if (e.type === 'path') {
                 path.setAttribute('stroke', grp.color);
                 path.setAttribute('stroke-width', '2');
-                path.setAttribute('opacity', '0.4');
-                /* Pick arrow color matching source group */
-                var arrowId = e.from.indexOf('ref-') === 0 ? 'arrowPath' :
-                              from.group === 'control' ? 'arrowTeal' :
-                              from.group === 'resources' ? 'arrowGreen' : 'arrowPath';
-                path.setAttribute('marker-end', 'url(#' + arrowId + ')');
+                path.setAttribute('opacity', '0.5');
+                path.setAttribute('marker-end', grp.arrow);
                 path.classList.add('edge', 'edge-path', 'edge-anim');
                 path.style.animationDelay = (i * 0.05) + 's';
             } else {
@@ -555,7 +611,7 @@ description: "Интерактивная карта документации —
         });
     }
 
-    /* ===== RENDER NODES (BALLOONS) ===== */
+    /* ===== RENDER NODES ===== */
     function renderNodes() {
         nodes.forEach(function(n) {
             var g = document.createElementNS(NS, 'g');
@@ -565,7 +621,7 @@ description: "Интерактивная карта документации —
 
             var grp = GRP[n.group];
             var hw = n.w / 2, hh = n.h / 2;
-            var rx = Math.min(hh, 16);
+            var rx = Math.min(hh, 14);
 
             /* Balloon rect */
             var rect = document.createElementNS(NS, 'rect');
@@ -579,6 +635,12 @@ description: "Интерактивная карта документации —
             rect.setAttribute('stroke-width', '1.5');
             rect.setAttribute('filter', 'url(#nodeShadow)');
             rect.classList.add('node-bg');
+
+            /* Planned node: dashed border */
+            if (n.planned) {
+                rect.setAttribute('stroke-dasharray', '6 3');
+                rect.setAttribute('opacity', '0.65');
+            }
             g.appendChild(rect);
 
             /* Left color accent bar */
@@ -589,8 +651,7 @@ description: "Интерактивная карта документации —
             bar.setAttribute('height', n.h);
             bar.setAttribute('rx', 2);
             bar.setAttribute('fill', grp.color);
-            bar.setAttribute('opacity', '0.7');
-            /* Clip to rounded corners */
+            bar.setAttribute('opacity', n.planned ? '0.4' : '0.7');
             var clip = document.createElementNS(NS, 'clipPath');
             var clipId = 'clip-' + n.id;
             clip.id = clipId;
@@ -605,16 +666,10 @@ description: "Интерактивная карта документации —
             bar.setAttribute('clip-path', 'url(#' + clipId + ')');
             g.appendChild(bar);
 
-            /* Title text */
-            var titleY = n.desc ? n.cy - 6 : n.cy;
-            var title = makeText(n.cx + 2, titleY, 12.5, grp.color, n.title, '600');
+            /* Title text only (no description in SVG) */
+            var title = makeText(n.cx + 2, n.cy, 13, grp.color, n.title, '600');
+            if (n.planned) title.setAttribute('opacity', '0.65');
             g.appendChild(title);
-
-            /* Description text */
-            if (n.desc) {
-                var desc = makeText(n.cx + 2, n.cy + 10, 10, '#6B7280', n.desc, '400');
-                g.appendChild(desc);
-            }
 
             /* Order badge */
             if (n.order !== null && n.order > 0) {
@@ -674,6 +729,75 @@ description: "Интерактивная карта документации —
         return t;
     }
 
+    /* ===== FILTER BUTTONS ===== */
+    function initFilters() {
+        document.querySelectorAll('#mapFilters .filter-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var group = this.dataset.group;
+                if (group === 'all' || activeFilter === group) {
+                    activeFilter = null;
+                } else {
+                    activeFilter = group;
+                }
+                applyFilter();
+                updateFilterButtons();
+            });
+        });
+    }
+
+    function applyFilter() {
+        if (!activeFilter) {
+            Object.keys(nodeEls).forEach(function(nid) {
+                nodeEls[nid].classList.remove('dimmed', 'highlighted');
+            });
+            edgeEls.forEach(function(e) {
+                e.el.classList.remove('dimmed', 'highlighted');
+            });
+            Object.keys(zoneEls).forEach(function(gid) {
+                zoneEls[gid].classList.remove('dimmed');
+            });
+        } else {
+            Object.keys(nodeEls).forEach(function(nid) {
+                if (nodeMap[nid].group === activeFilter) {
+                    nodeEls[nid].classList.remove('dimmed');
+                    nodeEls[nid].classList.add('highlighted');
+                } else {
+                    nodeEls[nid].classList.add('dimmed');
+                    nodeEls[nid].classList.remove('highlighted');
+                }
+            });
+            edgeEls.forEach(function(e) {
+                var fromGrp = nodeMap[e.from].group;
+                var toGrp = nodeMap[e.to].group;
+                if (fromGrp === activeFilter || toGrp === activeFilter) {
+                    e.el.classList.remove('dimmed');
+                } else {
+                    e.el.classList.add('dimmed');
+                }
+            });
+            Object.keys(zoneEls).forEach(function(gid) {
+                if (gid === activeFilter) {
+                    zoneEls[gid].classList.remove('dimmed');
+                } else {
+                    zoneEls[gid].classList.add('dimmed');
+                }
+            });
+        }
+    }
+
+    function updateFilterButtons() {
+        document.querySelectorAll('#mapFilters .filter-btn').forEach(function(btn) {
+            var g = btn.dataset.group;
+            if (!activeFilter && g === 'all') {
+                btn.classList.add('active');
+            } else if (activeFilter && g === activeFilter) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+    }
+
     /* ===== INTERACTIONS ===== */
     function onEnter(id, ev) {
         hoveredId = id;
@@ -704,7 +828,6 @@ description: "Интерактивная карта документации —
             }
         });
 
-        /* Dim non-active group zones */
         Object.keys(zoneEls).forEach(function(gid) {
             if (activeGroups.has(gid)) {
                 zoneEls[gid].classList.remove('dimmed');
@@ -718,21 +841,26 @@ description: "Интерактивная карта документации —
 
     function onLeave() {
         hoveredId = null;
-        Object.keys(nodeEls).forEach(function(nid) {
-            nodeEls[nid].classList.remove('dimmed', 'highlighted');
-        });
-        edgeEls.forEach(function(e) {
-            e.el.classList.remove('dimmed', 'highlighted');
-        });
-        Object.keys(zoneEls).forEach(function(gid) {
-            zoneEls[gid].classList.remove('dimmed');
-        });
+        /* Restore filter state or show all */
+        if (activeFilter) {
+            applyFilter();
+        } else {
+            Object.keys(nodeEls).forEach(function(nid) {
+                nodeEls[nid].classList.remove('dimmed', 'highlighted');
+            });
+            edgeEls.forEach(function(e) {
+                e.el.classList.remove('dimmed', 'highlighted');
+            });
+            Object.keys(zoneEls).forEach(function(gid) {
+                zoneEls[gid].classList.remove('dimmed');
+            });
+        }
         hideTooltip();
     }
 
     function onClick(id) {
         var n = nodeMap[id];
-        if (n && n.url) window.location.href = n.url;
+        if (n && n.url && n.url !== '#') window.location.href = n.url;
     }
 
     /* ===== TOOLTIP ===== */
@@ -750,7 +878,7 @@ description: "Интерактивная карта документации —
 
         var orderEl = document.getElementById('tooltipOrder');
         if (n.order !== null && n.order > 0) {
-            orderEl.textContent = 'Шаг ' + n.order + ' из 10';
+            orderEl.textContent = 'Шаг ' + n.order + ' из 6';
             orderEl.style.color = grp.color;
             orderEl.style.display = '';
         } else {
