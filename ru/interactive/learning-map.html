@@ -330,14 +330,14 @@ description: "Интерактивная карта документации —
         { id: 'future', title: 'Future',
           desc: 'Получить результат асинхронной операции',
           code: '<span class="var">$coro</span> = <span class="fn">spawn</span>(<span class="var">$task</span>);\n<span class="var">$result</span> = <span class="fn">await</span>(<span class="var">$coro</span>);',
-          url: '/ru/docs/concepts/future.html', group: 'primitives', order: 2,
+          url: '/ru/docs/concepts/future.html', group: 'primitives', order: null,
           cx: 570, cy: 90, w: 110, h: 44 },
 
         /* === Синхронизация === */
         { id: 'await-funcs', title: 'await, await_all',
           desc: 'Ожидание одной или нескольких корутин',
           code: '<span class="var">$results</span> = <span class="fn">await_all</span>(<span class="var">$tasks</span>);\n<span class="var">$first</span> = <span class="fn">await_first_success</span>(<span class="var">$tasks</span>);',
-          url: '/ru/docs/reference/supported-functions.html', group: 'sync', order: 3,
+          url: '/ru/docs/reference/supported-functions.html', group: 'sync', order: 2,
           cx: 195, cy: 243, w: 160, h: 44 },
 
         { id: 'channels', title: 'Каналы',
@@ -350,14 +350,14 @@ description: "Интерактивная карта документации —
         { id: 'cancellation', title: 'Cancellation',
           desc: 'Отменять корутины и управлять таймаутами',
           code: '<span class="var">$coro</span>-><span class="fn">cancel</span>();\n<span class="cm">// или с таймаутом:</span>\n<span class="fn">await</span>(<span class="var">$coro</span>, <span class="fn">timeout</span>(<span class="num">5000</span>));',
-          url: '/ru/docs/concepts/cancellation.html', group: 'cancellation', order: 4,
+          url: '/ru/docs/concepts/cancellation.html', group: 'cancellation', order: 3,
           cx: 610, cy: 243, w: 150, h: 44 },
 
         /* === Структурная конкурентность === */
         { id: 'scope', title: 'Scope',
           desc: 'Контролировать время жизни группы корутин',
           code: '<span class="var">$scope</span> = <span class="kw">new</span> Async\\<span class="fn">Scope</span>();\n<span class="fn">spawn_with</span>(<span class="var">$scope</span>, <span class="var">$task</span>);',
-          url: '/ru/docs/concepts/scope.html', group: 'structural', order: 5,
+          url: '/ru/docs/concepts/scope.html', group: 'structural', order: 4,
           cx: 870, cy: 243, w: 110, h: 44 },
 
         { id: 'taskgroup', title: 'TaskGroup',
@@ -370,7 +370,7 @@ description: "Интерактивная карта документации —
         { id: 'context', title: 'Context',
           desc: 'Хранить данные привязанные к корутине (напр. токен авторизации)',
           code: '<span class="var">$ctx</span> = <span class="fn">current_context</span>();\n<span class="var">$ctx</span>-><span class="fn">set</span>(<span class="str">\'auth_token\'</span>, <span class="var">$token</span>);\n<span class="var">$v</span> = <span class="var">$ctx</span>-><span class="fn">find</span>(<span class="str">\'auth_token\'</span>);',
-          url: '/ru/docs/concepts/context.html', group: 'context', order: 6,
+          url: '/ru/docs/concepts/context.html', group: 'context', order: 5,
           cx: 200, cy: 399, w: 120, h: 44 },
 
         /* === iterate() === */
@@ -384,7 +384,7 @@ description: "Интерактивная карта документации —
         { id: 'pool', title: 'Async\\Pool',
           desc: 'Переиспользовать дорогие ресурсы (соединения, воркеры)',
           code: '<span class="var">$pool</span> = <span class="kw">new</span> <span class="fn">Pool</span>(\n  <span class="fn">factory</span>: <span class="kw">fn</span>() => <span class="kw">new</span> <span class="fn">Conn</span>(),\n  <span class="fn">max</span>: <span class="num">10</span>\n);',
-          url: '/ru/docs/concepts/pool.html', group: 'resources', order: 7,
+          url: '/ru/docs/concepts/pool.html', group: 'resources', order: 6,
           cx: 780, cy: 399, w: 130, h: 44 },
 
         { id: 'pdo-pool', title: 'PDO Pool',
@@ -397,8 +397,7 @@ description: "Интерактивная карта документации —
     /* ===== EDGES ===== */
     var edges = [
         /* Learning path */
-        { from: 'coroutines',   to: 'future',       type: 'path' },
-        { from: 'future',       to: 'await-funcs',   type: 'path' },
+        { from: 'coroutines',   to: 'await-funcs',   type: 'path' },
         { from: 'await-funcs',  to: 'cancellation',  type: 'path' },
         { from: 'cancellation', to: 'scope',         type: 'path' },
         { from: 'scope',        to: 'context',       type: 'path' },
@@ -409,6 +408,7 @@ description: "Интерактивная карта документации —
         { from: 'scope', to: 'taskgroup', type: 'path' },
 
         /* Related */
+        { from: 'coroutines', to: 'future',   type: 'related' },
         { from: 'coroutines', to: 'channels', type: 'related' },
         { from: 'coroutines', to: 'iterate',  type: 'related' }
     ];
@@ -729,7 +729,7 @@ description: "Интерактивная карта документации —
         groupEl.textContent = grp.label; groupEl.style.color = grp.color;
         var orderEl = document.getElementById('tooltipOrder');
         if (n.order !== null && n.order > 0) {
-            orderEl.textContent = 'Шаг ' + n.order + ' из 7';
+            orderEl.textContent = 'Шаг ' + n.order + ' из 6';
             orderEl.style.color = grp.color; orderEl.style.display = '';
         } else { orderEl.style.display = 'none'; }
         var codeEl = document.getElementById('tooltipCode');
