@@ -60,6 +60,8 @@ docs:
           label: "await_any_of_or_fail()"
         - url: "/ru/docs/reference/await-any-of.html"
           label: "await_any_of()"
+        - url: "/ru/docs/reference/iterate.html"
+          label: "iterate()"
         - url: "/ru/docs/reference/suspend.html"
           label: "suspend()"
         - url: "/ru/docs/reference/delay.html"
