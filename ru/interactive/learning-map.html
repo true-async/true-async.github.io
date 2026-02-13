@@ -237,11 +237,12 @@ description: "Интерактивная карта документации —
     <div class="map-filters" id="mapFilters">
         <button class="filter-btn active" data-group="all" style="--btn-color:#64748B">Все</button>
         <button class="filter-btn" data-group="primitives" style="--btn-color:#6B58FF">Базовые примитивы</button>
+        <button class="filter-btn" data-group="sync" style="--btn-color:#2563EB">Синхронизация</button>
+        <button class="filter-btn" data-group="cancellation" style="--btn-color:#DC2626">Cancellation</button>
         <button class="filter-btn" data-group="structural" style="--btn-color:#0891B2">Стр. конкурентность</button>
-        <button class="filter-btn" data-group="sync" style="--btn-color:#F59E0B">Синхронизация</button>
+        <button class="filter-btn" data-group="context" style="--btn-color:#8B5CF6">Context</button>
+        <button class="filter-btn" data-group="iterate" style="--btn-color:#F59E0B">iterate()</button>
         <button class="filter-btn" data-group="resources" style="--btn-color:#16A34A">Ресурсы и пулы</button>
-        <button class="filter-btn" data-group="exceptions" style="--btn-color:#DC2626">Исключения</button>
-        <button class="filter-btn" data-group="interfaces" style="--btn-color:#8B5CF6">Интерфейсы</button>
     </div>
     <div class="map-legend">
         <span class="legend-item">
@@ -255,13 +256,22 @@ description: "Интерактивная карта документации —
 <p class="map-scroll-hint">&#8592; Прокрутите для просмотра всей карты &#8594;</p>
 
 <div class="map-container">
-    <svg id="learningMap" viewBox="0 0 1260 640" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+    <svg id="learningMap" viewBox="0 0 1260 520" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
         <defs>
             <marker id="arrowPurple" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
                 <polygon points="0 0,10 3.5,0 7" fill="#6B58FF" opacity="0.65"/>
             </marker>
+            <marker id="arrowBlue" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+                <polygon points="0 0,10 3.5,0 7" fill="#2563EB" opacity="0.65"/>
+            </marker>
+            <marker id="arrowRed" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+                <polygon points="0 0,10 3.5,0 7" fill="#DC2626" opacity="0.65"/>
+            </marker>
             <marker id="arrowTeal" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
                 <polygon points="0 0,10 3.5,0 7" fill="#0891B2" opacity="0.65"/>
+            </marker>
+            <marker id="arrowViolet" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+                <polygon points="0 0,10 3.5,0 7" fill="#8B5CF6" opacity="0.65"/>
             </marker>
             <marker id="arrowAmber" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
                 <polygon points="0 0,10 3.5,0 7" fill="#F59E0B" opacity="0.65"/>
@@ -269,21 +279,12 @@ description: "Интерактивная карта документации —
             <marker id="arrowGreen" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
                 <polygon points="0 0,10 3.5,0 7" fill="#16A34A" opacity="0.65"/>
             </marker>
-            <marker id="arrowRed" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
-                <polygon points="0 0,10 3.5,0 7" fill="#DC2626" opacity="0.65"/>
-            </marker>
-            <marker id="arrowViolet" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
-                <polygon points="0 0,10 3.5,0 7" fill="#8B5CF6" opacity="0.65"/>
-            </marker>
             <filter id="nodeShadow" x="-20%" y="-20%" width="140%" height="140%">
                 <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.06"/>
             </filter>
         </defs>
-        <!-- Group zone backgrounds -->
         <g id="groupZones"></g>
-        <!-- Edges -->
         <g id="edgesGroup"></g>
-        <!-- Nodes -->
         <g id="nodesGroup"></g>
     </svg>
 </div>
@@ -306,132 +307,113 @@ description: "Интерактивная карта документации —
 
 <script>
 (function() {
-    /* ===== SEMANTIC GROUPS ===== */
+    /* ===== SEMANTIC GROUPS (7) ===== */
     var GRP = {
-        primitives:  { color: '#6B58FF', bg: 'rgba(107,88,255,0.12)',  border: 'rgba(107,88,255,0.50)',  arrow: 'url(#arrowPurple)',  label: 'Базовые примитивы' },
-        structural:  { color: '#0891B2', bg: 'rgba(8,145,178,0.12)',   border: 'rgba(8,145,178,0.50)',   arrow: 'url(#arrowTeal)',    label: 'Структурная конкурентность' },
-        sync:        { color: '#F59E0B', bg: 'rgba(245,158,11,0.12)',  border: 'rgba(245,158,11,0.50)',  arrow: 'url(#arrowAmber)',   label: 'Синхронизация' },
-        resources:   { color: '#16A34A', bg: 'rgba(22,163,74,0.12)',   border: 'rgba(22,163,74,0.50)',   arrow: 'url(#arrowGreen)',   label: 'Ресурсы и пулы' },
-        exceptions:  { color: '#DC2626', bg: 'rgba(220,38,38,0.12)',   border: 'rgba(220,38,38,0.50)',   arrow: 'url(#arrowRed)',     label: 'Исключения' },
-        interfaces:  { color: '#8B5CF6', bg: 'rgba(139,92,246,0.12)',  border: 'rgba(139,92,246,0.50)',  arrow: 'url(#arrowViolet)',  label: 'Интерфейсы' }
+        primitives:    { color: '#6B58FF', bg: 'rgba(107,88,255,0.12)',  border: 'rgba(107,88,255,0.50)',  arrow: 'url(#arrowPurple)', label: 'Базовые примитивы' },
+        sync:          { color: '#2563EB', bg: 'rgba(37,99,235,0.12)',   border: 'rgba(37,99,235,0.50)',   arrow: 'url(#arrowBlue)',   label: 'Синхронизация' },
+        cancellation:  { color: '#DC2626', bg: 'rgba(220,38,38,0.12)',   border: 'rgba(220,38,38,0.50)',   arrow: 'url(#arrowRed)',    label: 'Cancellation' },
+        structural:    { color: '#0891B2', bg: 'rgba(8,145,178,0.12)',   border: 'rgba(8,145,178,0.50)',   arrow: 'url(#arrowTeal)',   label: 'Структурная конкурентность' },
+        context:       { color: '#8B5CF6', bg: 'rgba(139,92,246,0.12)',  border: 'rgba(139,92,246,0.50)',  arrow: 'url(#arrowViolet)', label: 'Context' },
+        iterate:       { color: '#F59E0B', bg: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.50)', arrow: 'url(#arrowAmber)',  label: 'iterate()' },
+        resources:     { color: '#16A34A', bg: 'rgba(22,163,74,0.12)',   border: 'rgba(22,163,74,0.50)',   arrow: 'url(#arrowGreen)',  label: 'Ресурсы и пулы' }
     };
 
-    /* ===== NODES =====
-       Each node: id, title, desc (tooltip only), code, url, group, cx, cy, w, h, order, planned */
+    /* ===== NODES (11) ===== */
     var nodes = [
         /* === Базовые примитивы === */
         { id: 'coroutines', title: 'Корутины',
           desc: 'Базовая единица асинхронности — запуск параллельных задач',
           code: '<span class="var">$coro</span> = <span class="fn">spawn</span>(<span class="kw">function</span>() {\n  <span class="fn">echo</span> <span class="str">"async!"</span>;\n});',
           url: '/ru/docs/concepts/coroutines.html', group: 'primitives', order: 1,
-          cx: 250, cy: 95, w: 130, h: 44 },
+          cx: 340, cy: 90, w: 130, h: 44 },
 
-        { id: 'future', title: 'Future / await',
+        { id: 'future', title: 'Future',
           desc: 'Получить результат асинхронной операции',
           code: '<span class="var">$coro</span> = <span class="fn">spawn</span>(<span class="var">$task</span>);\n<span class="var">$result</span> = <span class="fn">await</span>(<span class="var">$coro</span>);',
           url: '/ru/docs/concepts/future.html', group: 'primitives', order: 2,
-          cx: 510, cy: 95, w: 150, h: 44 },
-
-        { id: 'context', title: 'Context',
-          desc: 'Хранить данные привязанные к корутине (напр. токен авторизации)',
-          code: '<span class="var">$ctx</span> = <span class="fn">current_context</span>();\n<span class="var">$ctx</span>-><span class="fn">set</span>(<span class="str">\'auth_token\'</span>, <span class="var">$token</span>);\n<span class="var">$v</span> = <span class="var">$ctx</span>-><span class="fn">find</span>(<span class="str">\'auth_token\'</span>);',
-          url: '/ru/docs/concepts/context.html', group: 'primitives', order: 5,
-          cx: 830, cy: 95, w: 120, h: 44 },
-
-        /* === Структурная конкурентность === */
-        { id: 'cancellation', title: 'Cancellation',
-          desc: 'Отменять корутины и управлять таймаутами',
-          code: '<span class="var">$coro</span>-><span class="fn">cancel</span>();\n<span class="cm">// или с таймаутом:</span>\n<span class="fn">await</span>(<span class="var">$coro</span>, <span class="fn">timeout</span>(<span class="num">5000</span>));',
-          url: '/ru/docs/concepts/cancellation.html', group: 'structural', order: 3,
-          cx: 210, cy: 250, w: 150, h: 44 },
-
-        { id: 'scope', title: 'Scope',
-          desc: 'Контролировать время жизни группы корутин',
-          code: '<span class="var">$scope</span> = <span class="kw">new</span> Async\\<span class="fn">Scope</span>();\n<span class="fn">spawn_with</span>(<span class="var">$scope</span>, <span class="var">$task</span>);',
-          url: '/ru/docs/concepts/scope.html', group: 'structural', order: 4,
-          cx: 430, cy: 250, w: 110, h: 44 },
-
-        { id: 'taskgroup', title: 'TaskGroup',
-          desc: 'Группировать задачи для совместного управления (планируется)',
-          code: '<span class="cm">// Планируемая функция</span>\n<span class="var">$group</span> = <span class="kw">new</span> <span class="fn">TaskGroup</span>();\n<span class="var">$group</span>-><span class="fn">spawn</span>(<span class="var">$task</span>);',
-          url: '#', group: 'structural', order: null, planned: true,
-          cx: 210, cy: 365, w: 130, h: 44 },
-
-        { id: 'shutdown', title: 'Graceful Shutdown',
-          desc: 'Корректное завершение всех асинхронных операций',
-          code: '<span class="fn">graceful_shutdown</span>();',
-          url: '/ru/docs/reference/graceful-shutdown.html', group: 'structural', order: null,
-          cx: 440, cy: 365, w: 175, h: 44 },
+          cx: 570, cy: 90, w: 110, h: 44 },
 
         /* === Синхронизация === */
-        { id: 'await-funcs', title: 'await_*',
-          desc: 'Ожидать несколько корутин параллельно',
+        { id: 'await-funcs', title: 'await, await_all',
+          desc: 'Ожидание одной или нескольких корутин',
           code: '<span class="var">$results</span> = <span class="fn">await_all</span>(<span class="var">$tasks</span>);\n<span class="var">$first</span> = <span class="fn">await_first_success</span>(<span class="var">$tasks</span>);',
-          url: '/ru/docs/reference/supported-functions.html', group: 'sync', order: null,
-          cx: 770, cy: 250, w: 110, h: 44 },
+          url: '/ru/docs/reference/supported-functions.html', group: 'sync', order: 3,
+          cx: 195, cy: 243, w: 160, h: 44 },
 
         { id: 'channels', title: 'Каналы',
           desc: 'Передавать данные между корутинами',
           code: '<span class="var">$ch</span> = <span class="kw">new</span> Async\\<span class="fn">Channel</span>(<span class="num">10</span>);\n<span class="var">$ch</span>-><span class="fn">send</span>(<span class="str">"data"</span>);\n<span class="var">$val</span> = <span class="var">$ch</span>-><span class="fn">recv</span>();',
           url: '/ru/docs/concepts/channels.html', group: 'sync', order: null,
-          cx: 950, cy: 250, w: 110, h: 44 },
+          cx: 375, cy: 243, w: 110, h: 44 },
 
+        /* === Cancellation === */
+        { id: 'cancellation', title: 'Cancellation',
+          desc: 'Отменять корутины и управлять таймаутами',
+          code: '<span class="var">$coro</span>-><span class="fn">cancel</span>();\n<span class="cm">// или с таймаутом:</span>\n<span class="fn">await</span>(<span class="var">$coro</span>, <span class="fn">timeout</span>(<span class="num">5000</span>));',
+          url: '/ru/docs/concepts/cancellation.html', group: 'cancellation', order: 4,
+          cx: 610, cy: 243, w: 150, h: 44 },
+
+        /* === Структурная конкурентность === */
+        { id: 'scope', title: 'Scope',
+          desc: 'Контролировать время жизни группы корутин',
+          code: '<span class="var">$scope</span> = <span class="kw">new</span> Async\\<span class="fn">Scope</span>();\n<span class="fn">spawn_with</span>(<span class="var">$scope</span>, <span class="var">$task</span>);',
+          url: '/ru/docs/concepts/scope.html', group: 'structural', order: 5,
+          cx: 870, cy: 243, w: 110, h: 44 },
+
+        { id: 'taskgroup', title: 'TaskGroup',
+          desc: 'Группировать задачи для совместного управления (планируется)',
+          code: '<span class="cm">// Планируемая функция</span>\n<span class="var">$group</span> = <span class="kw">new</span> <span class="fn">TaskGroup</span>();\n<span class="var">$group</span>-><span class="fn">spawn</span>(<span class="var">$task</span>);',
+          url: '#', group: 'structural', order: null, planned: true,
+          cx: 1040, cy: 243, w: 130, h: 44 },
+
+        /* === Context === */
+        { id: 'context', title: 'Context',
+          desc: 'Хранить данные привязанные к корутине (напр. токен авторизации)',
+          code: '<span class="var">$ctx</span> = <span class="fn">current_context</span>();\n<span class="var">$ctx</span>-><span class="fn">set</span>(<span class="str">\'auth_token\'</span>, <span class="var">$token</span>);\n<span class="var">$v</span> = <span class="var">$ctx</span>-><span class="fn">find</span>(<span class="str">\'auth_token\'</span>);',
+          url: '/ru/docs/concepts/context.html', group: 'context', order: 6,
+          cx: 200, cy: 399, w: 120, h: 44 },
+
+        /* === iterate() === */
         { id: 'iterate', title: 'iterate()',
           desc: 'Параллельная обработка коллекций с контролем конкурентности',
           code: '<span class="fn">iterate</span>(<span class="var">$items</span>, <span class="kw">function</span>(<span class="var">$v</span>, <span class="var">$k</span>) {\n  <span class="fn">echo</span> <span class="str">"$k: $v\\n"</span>;\n}, <span class="fn">concurrency</span>: <span class="num">4</span>);',
-          url: '/ru/docs/reference/iterate.html', group: 'sync', order: null,
-          cx: 860, cy: 365, w: 110, h: 44 },
+          url: '/ru/docs/reference/iterate.html', group: 'iterate', order: null,
+          cx: 480, cy: 399, w: 120, h: 44 },
 
         /* === Ресурсы и пулы === */
         { id: 'pool', title: 'Async\\Pool',
           desc: 'Переиспользовать дорогие ресурсы (соединения, воркеры)',
           code: '<span class="var">$pool</span> = <span class="kw">new</span> <span class="fn">Pool</span>(\n  <span class="fn">factory</span>: <span class="kw">fn</span>() => <span class="kw">new</span> <span class="fn">Conn</span>(),\n  <span class="fn">max</span>: <span class="num">10</span>\n);',
-          url: '/ru/docs/concepts/pool.html', group: 'resources', order: 6,
-          cx: 200, cy: 522, w: 130, h: 44 },
+          url: '/ru/docs/concepts/pool.html', group: 'resources', order: 7,
+          cx: 780, cy: 399, w: 130, h: 44 },
 
         { id: 'pdo-pool', title: 'PDO Pool',
           desc: 'Пул соединений с базой данных',
           code: '<span class="var">$pdo</span> = <span class="kw">new</span> <span class="fn">PDO</span>(<span class="var">$dsn</span>, <span class="var">$user</span>, <span class="var">$pwd</span>, [\n  PDO::<span class="fn">ATTR_POOL_MAX</span> => <span class="num">10</span>\n]);',
           url: '/ru/docs/concepts/pdo-pool.html', group: 'resources', order: null,
-          cx: 380, cy: 522, w: 120, h: 44 },
-
-        /* === Исключения === */
-        { id: 'exceptions', title: 'Исключения',
-          desc: 'Обрабатывать ошибки в асинхронном коде',
-          code: '<span class="kw">try</span> { <span class="fn">await</span>(<span class="var">$coro</span>); }\n<span class="kw">catch</span> (<span class="fn">CancellationError</span> <span class="var">$e</span>) {}',
-          url: '/ru/docs/concepts/exceptions.html', group: 'exceptions', order: null,
-          cx: 635, cy: 522, w: 130, h: 44 },
-
-        /* === Интерфейсы === */
-        { id: 'interfaces', title: 'Интерфейсы',
-          desc: 'Типы и контракты для расширения',
-          code: '<span class="kw">interface</span> <span class="fn">Awaitable</span> {}\n<span class="kw">interface</span> <span class="fn">Completable</span> {}',
-          url: '/ru/docs/concepts/interfaces.html', group: 'interfaces', order: null,
-          cx: 920, cy: 522, w: 130, h: 44 }
+          cx: 960, cy: 399, w: 120, h: 44 }
     ];
 
     /* ===== EDGES ===== */
     var edges = [
         /* Learning path */
         { from: 'coroutines',   to: 'future',       type: 'path' },
-        { from: 'future',       to: 'cancellation',  type: 'path' },
+        { from: 'future',       to: 'await-funcs',   type: 'path' },
+        { from: 'await-funcs',  to: 'cancellation',  type: 'path' },
         { from: 'cancellation', to: 'scope',         type: 'path' },
         { from: 'scope',        to: 'context',       type: 'path' },
         { from: 'context',      to: 'pool',          type: 'path' },
         { from: 'pool',         to: 'pdo-pool',      type: 'path' },
 
-        /* Structural connections */
-        { from: 'scope',        to: 'taskgroup',     type: 'path' },
-        { from: 'scope',        to: 'shutdown',      type: 'path' },
-        { from: 'cancellation', to: 'exceptions',    type: 'path' },
+        /* Structural */
+        { from: 'scope', to: 'taskgroup', type: 'path' },
 
-        /* Related connections */
-        { from: 'future',       to: 'await-funcs',   type: 'related' },
-        { from: 'coroutines',   to: 'channels',      type: 'related' },
-        { from: 'channels',     to: 'iterate',       type: 'related' }
+        /* Related */
+        { from: 'coroutines', to: 'channels', type: 'related' },
+        { from: 'coroutines', to: 'iterate',  type: 'related' }
     ];
 
-    /* ===== SUB-PAGES for tooltips ===== */
+    /* ===== SUB-PAGES ===== */
     var subPages = {
         'coroutines': [
             { label: 'spawn()',            url: '/ru/docs/reference/spawn.html' },
@@ -442,23 +424,6 @@ description: "Интерактивная карта документации —
         'future': [
             { label: 'await()', url: '/ru/docs/reference/await.html' }
         ],
-        'context': [
-            { label: 'current_context()',   url: '/ru/docs/reference/current-context.html' },
-            { label: 'coroutine_context()', url: '/ru/docs/reference/coroutine-context.html' },
-            { label: 'root_context()',      url: '/ru/docs/reference/root-context.html' }
-        ],
-        'cancellation': [
-            { label: 'cancel()',   url: '/ru/docs/concepts/cancellation.html' },
-            { label: 'protect()', url: '/ru/docs/reference/protect.html' },
-            { label: 'timeout()', url: '/ru/docs/reference/timeout.html' }
-        ],
-        'scope': [
-            { label: 'Scope',           url: '/ru/docs/concepts/scope.html' },
-            { label: 'Scope::inherit()', url: '/ru/docs/concepts/scope.html' }
-        ],
-        'shutdown': [
-            { label: 'graceful_shutdown()', url: '/ru/docs/reference/graceful-shutdown.html' }
-        ],
         'await-funcs': [
             { label: 'await_all()',           url: '/ru/docs/reference/await-all.html' },
             { label: 'await_any_or_fail()',   url: '/ru/docs/reference/await-any-or-fail.html' },
@@ -467,28 +432,34 @@ description: "Интерактивная карта документации —
             { label: 'delay()',               url: '/ru/docs/reference/delay.html' },
             { label: 'suspend()',             url: '/ru/docs/reference/suspend.html' }
         ],
+        'cancellation': [
+            { label: 'cancel()',   url: '/ru/docs/concepts/cancellation.html' },
+            { label: 'protect()', url: '/ru/docs/reference/protect.html' },
+            { label: 'timeout()', url: '/ru/docs/reference/timeout.html' }
+        ],
+        'scope': [
+            { label: 'Scope',            url: '/ru/docs/concepts/scope.html' },
+            { label: 'Scope::inherit()', url: '/ru/docs/concepts/scope.html' }
+        ],
+        'context': [
+            { label: 'current_context()',   url: '/ru/docs/reference/current-context.html' },
+            { label: 'coroutine_context()', url: '/ru/docs/reference/coroutine-context.html' },
+            { label: 'root_context()',      url: '/ru/docs/reference/root-context.html' }
+        ],
         'pool': [
             { label: 'Pool::tryAcquire()', url: '/ru/docs/concepts/pool.html' }
-        ],
-        'exceptions': [
-            { label: 'CancellationError',  url: '/ru/docs/concepts/exceptions.html' },
-            { label: 'TimeoutException',   url: '/ru/docs/concepts/exceptions.html' }
-        ],
-        'interfaces': [
-            { label: 'Awaitable',     url: '/ru/docs/concepts/interfaces.html' },
-            { label: 'Completable',   url: '/ru/docs/concepts/interfaces.html' },
-            { label: 'ScopeProvider',  url: '/ru/docs/concepts/interfaces.html' }
         ]
     };
 
-    /* ===== GROUP ZONE DEFINITIONS ===== */
+    /* ===== GROUP ZONES ===== */
     var groupZones = [
-        { group: 'primitives',  label: 'Базовые примитивы',            x: 115, y: 38,  w: 855, h: 112, rx: 16 },
-        { group: 'structural',  label: 'Структурная конкурентность',    x: 80,  y: 182, w: 510, h: 252, rx: 16 },
-        { group: 'sync',        label: 'Синхронизация',                 x: 640, y: 182, w: 465, h: 252, rx: 16 },
-        { group: 'resources',   label: 'Ресурсы и пулы',                x: 80,  y: 468, w: 390, h: 108, rx: 16 },
-        { group: 'exceptions',  label: 'Исключения',                    x: 520, y: 468, w: 230, h: 108, rx: 16 },
-        { group: 'interfaces',  label: 'Интерфейсы',                    x: 800, y: 468, w: 240, h: 108, rx: 16 }
+        { group: 'primitives',   label: 'Базовые примитивы',         x: 210, y: 38,  w: 520, h: 104, rx: 16 },
+        { group: 'sync',         label: 'Синхронизация',              x: 70,  y: 188, w: 380, h: 110, rx: 16 },
+        { group: 'cancellation', label: 'Cancellation',               x: 500, y: 188, w: 210, h: 110, rx: 16 },
+        { group: 'structural',   label: 'Структурная конкурентность',  x: 750, y: 188, w: 380, h: 110, rx: 16 },
+        { group: 'context',      label: 'Context',                     x: 95,  y: 345, w: 220, h: 108, rx: 16 },
+        { group: 'iterate',      label: 'iterate()',                   x: 375, y: 345, w: 220, h: 108, rx: 16 },
+        { group: 'resources',    label: 'Ресурсы и пулы',              x: 655, y: 345, w: 405, h: 108, rx: 16 }
     ];
 
     /* ===== STATE ===== */
@@ -507,7 +478,6 @@ description: "Интерактивная карта документации —
     var hoveredId = null;
     var activeFilter = null;
 
-    /* ===== BUILD ===== */
     function init() {
         nodes.forEach(function(n) { nodeMap[n.id] = n; adj[n.id] = new Set(); });
         edges.forEach(function(e) { adj[e.from].add(e.to); adj[e.to].add(e.from); });
@@ -517,57 +487,42 @@ description: "Интерактивная карта документации —
         initFilters();
     }
 
-    /* ===== RENDER GROUP ZONES ===== */
     function renderZones() {
         groupZones.forEach(function(z) {
             var grp = GRP[z.group];
             var g = document.createElementNS(NS, 'g');
             g.classList.add('group-zone');
             g.dataset.group = z.group;
-
             var rect = document.createElementNS(NS, 'rect');
-            rect.setAttribute('x', z.x);
-            rect.setAttribute('y', z.y);
-            rect.setAttribute('width', z.w);
-            rect.setAttribute('height', z.h);
-            rect.setAttribute('rx', z.rx);
-            rect.setAttribute('fill', grp.bg);
-            rect.setAttribute('stroke', grp.border);
-            rect.setAttribute('stroke-width', '1');
+            rect.setAttribute('x', z.x); rect.setAttribute('y', z.y);
+            rect.setAttribute('width', z.w); rect.setAttribute('height', z.h);
+            rect.setAttribute('rx', z.rx); rect.setAttribute('fill', grp.bg);
+            rect.setAttribute('stroke', grp.border); rect.setAttribute('stroke-width', '1');
             rect.setAttribute('stroke-dasharray', '6 3');
             g.appendChild(rect);
-
             var lbl = document.createElementNS(NS, 'text');
-            lbl.setAttribute('x', z.x + 14);
-            lbl.setAttribute('y', z.y + 18);
+            lbl.setAttribute('x', z.x + 14); lbl.setAttribute('y', z.y + 18);
             lbl.setAttribute('font-family', 'Fira Sans, sans-serif');
-            lbl.setAttribute('font-size', '11');
-            lbl.setAttribute('font-weight', '600');
-            lbl.setAttribute('fill', grp.color);
-            lbl.setAttribute('opacity', '0.7');
+            lbl.setAttribute('font-size', '11'); lbl.setAttribute('font-weight', '600');
+            lbl.setAttribute('fill', grp.color); lbl.setAttribute('opacity', '0.7');
             lbl.textContent = z.label;
             g.appendChild(lbl);
-
             zonesGroup.appendChild(g);
             zoneEls[z.group] = g;
         });
     }
 
-    /* ===== RENDER EDGES ===== */
     function calcPath(from, to) {
         var dx = to.cx - from.cx, dy = to.cy - from.cy;
         var dist = Math.sqrt(dx * dx + dy * dy);
         if (dist < 1) return null;
-
         var angle = Math.atan2(dy, dx);
         var s = exitPoint(from, angle);
         var e = exitPoint(to, angle + Math.PI);
-
         var mx = (s.x + e.x) / 2, my = (s.y + e.y) / 2;
         var ux = dx / dist, uy = dy / dist;
         var off = Math.min(dist * 0.12, 30);
-        var px = -uy * off, py = ux * off;
-        return 'M' + s.x + ',' + s.y + ' Q' + (mx + px) + ',' + (my + py) + ' ' + e.x + ',' + e.y;
+        return 'M' + s.x + ',' + s.y + ' Q' + (mx - uy * off) + ',' + (my + ux * off) + ' ' + e.x + ',' + e.y;
     }
 
     function exitPoint(n, angle) {
@@ -584,12 +539,9 @@ description: "Интерактивная карта документации —
             var from = nodeMap[e.from], to = nodeMap[e.to];
             var d = calcPath(from, to);
             if (!d) return;
-
             var grp = GRP[from.group];
             var path = document.createElementNS(NS, 'path');
-            path.setAttribute('d', d);
-            path.setAttribute('fill', 'none');
-
+            path.setAttribute('d', d); path.setAttribute('fill', 'none');
             if (e.type === 'path') {
                 path.setAttribute('stroke', grp.color);
                 path.setAttribute('stroke-width', '2');
@@ -604,111 +556,73 @@ description: "Интерактивная карта документации —
                 path.setAttribute('opacity', '0.25');
                 path.classList.add('edge', 'edge-related');
             }
-            path.dataset.from = e.from;
-            path.dataset.to = e.to;
+            path.dataset.from = e.from; path.dataset.to = e.to;
             edgesGroup.appendChild(path);
             edgeEls.push({ el: path, from: e.from, to: e.to, type: e.type });
         });
     }
 
-    /* ===== RENDER NODES ===== */
     function renderNodes() {
         nodes.forEach(function(n) {
             var g = document.createElementNS(NS, 'g');
             g.classList.add('node');
-            g.dataset.id = n.id;
-            g.dataset.group = n.group;
-
+            g.dataset.id = n.id; g.dataset.group = n.group;
             var grp = GRP[n.group];
             var hw = n.w / 2, hh = n.h / 2;
             var rx = Math.min(hh, 14);
 
-            /* Balloon rect */
             var rect = document.createElementNS(NS, 'rect');
-            rect.setAttribute('x', n.cx - hw);
-            rect.setAttribute('y', n.cy - hh);
-            rect.setAttribute('width', n.w);
-            rect.setAttribute('height', n.h);
-            rect.setAttribute('rx', rx);
-            rect.setAttribute('fill', '#fff');
-            rect.setAttribute('stroke', grp.border);
-            rect.setAttribute('stroke-width', '1.5');
+            rect.setAttribute('x', n.cx - hw); rect.setAttribute('y', n.cy - hh);
+            rect.setAttribute('width', n.w); rect.setAttribute('height', n.h);
+            rect.setAttribute('rx', rx); rect.setAttribute('fill', '#fff');
+            rect.setAttribute('stroke', grp.border); rect.setAttribute('stroke-width', '1.5');
             rect.setAttribute('filter', 'url(#nodeShadow)');
             rect.classList.add('node-bg');
-
-            /* Planned node: dashed border */
-            if (n.planned) {
-                rect.setAttribute('stroke-dasharray', '6 3');
-                rect.setAttribute('opacity', '0.65');
-            }
+            if (n.planned) { rect.setAttribute('stroke-dasharray', '6 3'); rect.setAttribute('opacity', '0.65'); }
             g.appendChild(rect);
 
-            /* Left color accent bar */
             var bar = document.createElementNS(NS, 'rect');
-            bar.setAttribute('x', n.cx - hw);
-            bar.setAttribute('y', n.cy - hh);
-            bar.setAttribute('width', 4);
-            bar.setAttribute('height', n.h);
-            bar.setAttribute('rx', 2);
-            bar.setAttribute('fill', grp.color);
+            bar.setAttribute('x', n.cx - hw); bar.setAttribute('y', n.cy - hh);
+            bar.setAttribute('width', 4); bar.setAttribute('height', n.h);
+            bar.setAttribute('rx', 2); bar.setAttribute('fill', grp.color);
             bar.setAttribute('opacity', n.planned ? '0.4' : '0.7');
             var clip = document.createElementNS(NS, 'clipPath');
-            var clipId = 'clip-' + n.id;
-            clip.id = clipId;
+            var clipId = 'clip-' + n.id; clip.id = clipId;
             var clipRect = document.createElementNS(NS, 'rect');
-            clipRect.setAttribute('x', n.cx - hw);
-            clipRect.setAttribute('y', n.cy - hh);
-            clipRect.setAttribute('width', n.w);
-            clipRect.setAttribute('height', n.h);
+            clipRect.setAttribute('x', n.cx - hw); clipRect.setAttribute('y', n.cy - hh);
+            clipRect.setAttribute('width', n.w); clipRect.setAttribute('height', n.h);
             clipRect.setAttribute('rx', rx);
-            clip.appendChild(clipRect);
-            g.appendChild(clip);
+            clip.appendChild(clipRect); g.appendChild(clip);
             bar.setAttribute('clip-path', 'url(#' + clipId + ')');
             g.appendChild(bar);
 
-            /* Title text only (no description in SVG) */
             var title = makeText(n.cx + 2, n.cy, 13, grp.color, n.title, '600');
             if (n.planned) title.setAttribute('opacity', '0.65');
             g.appendChild(title);
 
-            /* Order badge */
             if (n.order !== null && n.order > 0) {
-                var bx = n.cx + hw - 2;
-                var by = n.cy - hh - 2;
-
+                var bx = n.cx + hw - 2, by = n.cy - hh - 2;
                 var bg = document.createElementNS(NS, 'g');
                 bg.classList.add('order-badge-g');
                 bg.style.animationDelay = (n.order * 0.08) + 's';
                 bg.style.transformOrigin = bx + 'px ' + by + 'px';
-
                 var bc = document.createElementNS(NS, 'circle');
-                bc.setAttribute('cx', bx);
-                bc.setAttribute('cy', by);
-                bc.setAttribute('r', 11);
-                bc.setAttribute('fill', grp.color);
+                bc.setAttribute('cx', bx); bc.setAttribute('cy', by);
+                bc.setAttribute('r', 11); bc.setAttribute('fill', grp.color);
                 bg.appendChild(bc);
-
                 var bt = document.createElementNS(NS, 'text');
-                bt.setAttribute('x', bx);
-                bt.setAttribute('y', by);
-                bt.setAttribute('text-anchor', 'middle');
-                bt.setAttribute('dominant-baseline', 'central');
+                bt.setAttribute('x', bx); bt.setAttribute('y', by);
+                bt.setAttribute('text-anchor', 'middle'); bt.setAttribute('dominant-baseline', 'central');
                 bt.setAttribute('font-family', 'Fira Sans, sans-serif');
-                bt.setAttribute('font-size', '9');
-                bt.setAttribute('font-weight', '700');
-                bt.setAttribute('fill', '#fff');
-                bt.setAttribute('pointer-events', 'none');
+                bt.setAttribute('font-size', '9'); bt.setAttribute('font-weight', '700');
+                bt.setAttribute('fill', '#fff'); bt.setAttribute('pointer-events', 'none');
                 bt.textContent = n.order;
-                bg.appendChild(bt);
-
-                g.appendChild(bg);
+                bg.appendChild(bt); g.appendChild(bg);
             }
 
-            /* Events */
             g.addEventListener('mouseenter', function(ev) { onEnter(n.id, ev); });
             g.addEventListener('mouseleave', function() { onLeave(); });
             g.addEventListener('click', function() { onClick(n.id); });
-
             nodesGroup.appendChild(g);
             nodeEls[n.id] = g;
         });
@@ -716,15 +630,11 @@ description: "Интерактивная карта документации —
 
     function makeText(x, y, fs, fill, content, fw) {
         var t = document.createElementNS(NS, 'text');
-        t.setAttribute('x', x);
-        t.setAttribute('y', y);
-        t.setAttribute('text-anchor', 'middle');
-        t.setAttribute('dominant-baseline', 'central');
+        t.setAttribute('x', x); t.setAttribute('y', y);
+        t.setAttribute('text-anchor', 'middle'); t.setAttribute('dominant-baseline', 'central');
         t.setAttribute('font-family', 'Fira Sans, sans-serif');
-        t.setAttribute('font-size', fs);
-        t.setAttribute('font-weight', fw || '400');
-        t.setAttribute('fill', fill);
-        t.setAttribute('pointer-events', 'none');
+        t.setAttribute('font-size', fs); t.setAttribute('font-weight', fw || '400');
+        t.setAttribute('fill', fill); t.setAttribute('pointer-events', 'none');
         t.textContent = content;
         return t;
     }
@@ -734,53 +644,30 @@ description: "Интерактивная карта документации —
         document.querySelectorAll('#mapFilters .filter-btn').forEach(function(btn) {
             btn.addEventListener('click', function() {
                 var group = this.dataset.group;
-                if (group === 'all' || activeFilter === group) {
-                    activeFilter = null;
-                } else {
-                    activeFilter = group;
-                }
-                applyFilter();
-                updateFilterButtons();
+                if (group === 'all' || activeFilter === group) { activeFilter = null; }
+                else { activeFilter = group; }
+                applyFilter(); updateFilterButtons();
             });
         });
     }
 
     function applyFilter() {
         if (!activeFilter) {
-            Object.keys(nodeEls).forEach(function(nid) {
-                nodeEls[nid].classList.remove('dimmed', 'highlighted');
-            });
-            edgeEls.forEach(function(e) {
-                e.el.classList.remove('dimmed', 'highlighted');
-            });
-            Object.keys(zoneEls).forEach(function(gid) {
-                zoneEls[gid].classList.remove('dimmed');
-            });
+            Object.keys(nodeEls).forEach(function(nid) { nodeEls[nid].classList.remove('dimmed', 'highlighted'); });
+            edgeEls.forEach(function(e) { e.el.classList.remove('dimmed', 'highlighted'); });
+            Object.keys(zoneEls).forEach(function(gid) { zoneEls[gid].classList.remove('dimmed'); });
         } else {
             Object.keys(nodeEls).forEach(function(nid) {
-                if (nodeMap[nid].group === activeFilter) {
-                    nodeEls[nid].classList.remove('dimmed');
-                    nodeEls[nid].classList.add('highlighted');
-                } else {
-                    nodeEls[nid].classList.add('dimmed');
-                    nodeEls[nid].classList.remove('highlighted');
-                }
+                if (nodeMap[nid].group === activeFilter) { nodeEls[nid].classList.remove('dimmed'); nodeEls[nid].classList.add('highlighted'); }
+                else { nodeEls[nid].classList.add('dimmed'); nodeEls[nid].classList.remove('highlighted'); }
             });
             edgeEls.forEach(function(e) {
-                var fromGrp = nodeMap[e.from].group;
-                var toGrp = nodeMap[e.to].group;
-                if (fromGrp === activeFilter || toGrp === activeFilter) {
-                    e.el.classList.remove('dimmed');
-                } else {
-                    e.el.classList.add('dimmed');
-                }
+                if (nodeMap[e.from].group === activeFilter || nodeMap[e.to].group === activeFilter) { e.el.classList.remove('dimmed'); }
+                else { e.el.classList.add('dimmed'); }
             });
             Object.keys(zoneEls).forEach(function(gid) {
-                if (gid === activeFilter) {
-                    zoneEls[gid].classList.remove('dimmed');
-                } else {
-                    zoneEls[gid].classList.add('dimmed');
-                }
+                if (gid === activeFilter) { zoneEls[gid].classList.remove('dimmed'); }
+                else { zoneEls[gid].classList.add('dimmed'); }
             });
         }
     }
@@ -788,13 +675,8 @@ description: "Интерактивная карта документации —
     function updateFilterButtons() {
         document.querySelectorAll('#mapFilters .filter-btn').forEach(function(btn) {
             var g = btn.dataset.group;
-            if (!activeFilter && g === 'all') {
-                btn.classList.add('active');
-            } else if (activeFilter && g === activeFilter) {
-                btn.classList.add('active');
-            } else {
-                btn.classList.remove('active');
-            }
+            if ((!activeFilter && g === 'all') || (activeFilter && g === activeFilter)) { btn.classList.add('active'); }
+            else { btn.classList.remove('active'); }
         });
     }
 
@@ -802,58 +684,32 @@ description: "Интерактивная карта документации —
     function onEnter(id, ev) {
         hoveredId = id;
         var neighbors = adj[id] || new Set();
-        var hoverNode = nodeMap[id];
         var activeGroups = new Set();
-        activeGroups.add(hoverNode.group);
-
+        activeGroups.add(nodeMap[id].group);
         Object.keys(nodeEls).forEach(function(nid) {
-            var el = nodeEls[nid];
             if (nid === id || neighbors.has(nid)) {
-                el.classList.remove('dimmed');
-                el.classList.add('highlighted');
+                nodeEls[nid].classList.remove('dimmed'); nodeEls[nid].classList.add('highlighted');
                 activeGroups.add(nodeMap[nid].group);
-            } else {
-                el.classList.add('dimmed');
-                el.classList.remove('highlighted');
-            }
+            } else { nodeEls[nid].classList.add('dimmed'); nodeEls[nid].classList.remove('highlighted'); }
         });
-
         edgeEls.forEach(function(e) {
-            if (e.from === id || e.to === id) {
-                e.el.classList.remove('dimmed');
-                e.el.classList.add('highlighted');
-            } else {
-                e.el.classList.add('dimmed');
-                e.el.classList.remove('highlighted');
-            }
+            if (e.from === id || e.to === id) { e.el.classList.remove('dimmed'); e.el.classList.add('highlighted'); }
+            else { e.el.classList.add('dimmed'); e.el.classList.remove('highlighted'); }
         });
-
         Object.keys(zoneEls).forEach(function(gid) {
-            if (activeGroups.has(gid)) {
-                zoneEls[gid].classList.remove('dimmed');
-            } else {
-                zoneEls[gid].classList.add('dimmed');
-            }
+            if (activeGroups.has(gid)) { zoneEls[gid].classList.remove('dimmed'); }
+            else { zoneEls[gid].classList.add('dimmed'); }
         });
-
         showTooltip(id, ev);
     }
 
     function onLeave() {
         hoveredId = null;
-        /* Restore filter state or show all */
-        if (activeFilter) {
-            applyFilter();
-        } else {
-            Object.keys(nodeEls).forEach(function(nid) {
-                nodeEls[nid].classList.remove('dimmed', 'highlighted');
-            });
-            edgeEls.forEach(function(e) {
-                e.el.classList.remove('dimmed', 'highlighted');
-            });
-            Object.keys(zoneEls).forEach(function(gid) {
-                zoneEls[gid].classList.remove('dimmed');
-            });
+        if (activeFilter) { applyFilter(); }
+        else {
+            Object.keys(nodeEls).forEach(function(nid) { nodeEls[nid].classList.remove('dimmed', 'highlighted'); });
+            edgeEls.forEach(function(e) { e.el.classList.remove('dimmed', 'highlighted'); });
+            Object.keys(zoneEls).forEach(function(gid) { zoneEls[gid].classList.remove('dimmed'); });
         }
         hideTooltip();
     }
@@ -865,92 +721,54 @@ description: "Интерактивная карта документации —
 
     /* ===== TOOLTIP ===== */
     function showTooltip(id, ev) {
-        var n = nodeMap[id];
-        if (!n) return;
+        var n = nodeMap[id]; if (!n) return;
         var grp = GRP[n.group];
-
         document.getElementById('tooltipTitle').textContent = n.title;
         document.getElementById('tooltipDesc').textContent = n.desc || '';
-
         var groupEl = document.getElementById('tooltipGroup');
-        groupEl.textContent = grp.label;
-        groupEl.style.color = grp.color;
-
+        groupEl.textContent = grp.label; groupEl.style.color = grp.color;
         var orderEl = document.getElementById('tooltipOrder');
         if (n.order !== null && n.order > 0) {
-            orderEl.textContent = 'Шаг ' + n.order + ' из 6';
-            orderEl.style.color = grp.color;
-            orderEl.style.display = '';
-        } else {
-            orderEl.style.display = 'none';
-        }
-
+            orderEl.textContent = 'Шаг ' + n.order + ' из 7';
+            orderEl.style.color = grp.color; orderEl.style.display = '';
+        } else { orderEl.style.display = 'none'; }
         var codeEl = document.getElementById('tooltipCode');
-        if (n.code) {
-            codeEl.innerHTML = n.code;
-            codeEl.style.display = '';
-        } else {
-            codeEl.style.display = 'none';
-        }
-
+        if (n.code) { codeEl.innerHTML = n.code; codeEl.style.display = ''; }
+        else { codeEl.style.display = 'none'; }
         var subEl = document.getElementById('tooltipSub');
         if (subPages[id]) {
             var html = '';
-            subPages[id].forEach(function(p) {
-                html += '<a href="' + p.url + '">' + p.label + '</a>';
-            });
-            subEl.innerHTML = html;
-            subEl.style.display = '';
+            subPages[id].forEach(function(p) { html += '<a href="' + p.url + '">' + p.label + '</a>'; });
+            subEl.innerHTML = html; subEl.style.display = '';
             tooltipEl.style.pointerEvents = 'auto';
-        } else {
-            subEl.innerHTML = '';
-            subEl.style.display = 'none';
-            tooltipEl.style.pointerEvents = 'none';
-        }
-
-        positionTooltip(ev);
-        tooltipEl.classList.add('visible');
+        } else { subEl.innerHTML = ''; subEl.style.display = 'none'; tooltipEl.style.pointerEvents = 'none'; }
+        positionTooltip(ev); tooltipEl.classList.add('visible');
     }
 
     function positionTooltip(ev) {
-        var x = ev.clientX + 16;
-        var y = ev.clientY + 16;
-        var tw = tooltipEl.offsetWidth || 200;
-        var th = tooltipEl.offsetHeight || 80;
+        var x = ev.clientX + 16, y = ev.clientY + 16;
+        var tw = tooltipEl.offsetWidth || 200, th = tooltipEl.offsetHeight || 80;
         if (x + tw > window.innerWidth - 10) x = ev.clientX - tw - 12;
         if (y + th > window.innerHeight - 10) y = ev.clientY - th - 12;
-        tooltipEl.style.left = x + 'px';
-        tooltipEl.style.top = y + 'px';
+        tooltipEl.style.left = x + 'px'; tooltipEl.style.top = y + 'px';
     }
 
-    function hideTooltip() {
-        tooltipEl.classList.remove('visible');
-        tooltipEl.style.pointerEvents = 'none';
-    }
+    function hideTooltip() { tooltipEl.classList.remove('visible'); tooltipEl.style.pointerEvents = 'none'; }
 
-    svgEl.addEventListener('mousemove', function(ev) {
-        if (hoveredId) positionTooltip(ev);
-    });
+    svgEl.addEventListener('mousemove', function(ev) { if (hoveredId) positionTooltip(ev); });
 
-    /* ===== TOUCH SUPPORT ===== */
+    /* ===== TOUCH ===== */
     if ('ontouchstart' in window) {
         svgEl.addEventListener('touchstart', function(ev) {
             var target = ev.target.closest('.node');
             if (target) {
                 var id = target.dataset.id;
-                if (hoveredId === id) {
-                    onClick(id);
-                } else {
-                    onEnter(id, { clientX: ev.touches[0].clientX, clientY: ev.touches[0].clientY });
-                    ev.preventDefault();
-                }
-            } else {
-                onLeave();
-            }
+                if (hoveredId === id) { onClick(id); }
+                else { onEnter(id, { clientX: ev.touches[0].clientX, clientY: ev.touches[0].clientY }); ev.preventDefault(); }
+            } else { onLeave(); }
         }, { passive: false });
     }
 
-    /* ===== INIT ===== */
     init();
 })();
 </script>
