@@ -97,7 +97,7 @@ description: "Интерактивная карта документации —
         .interactive-demo .map-scroll-hint { display: block; }
     }
 
-    /* Tooltip */
+    /* Tooltip (desktop) */
     .interactive-demo .map-tooltip {
         position: fixed;
         pointer-events: none;
@@ -231,6 +231,149 @@ description: "Интерактивная карта документации —
     .interactive-demo .map-info strong {
         color: var(--color-text);
     }
+
+    /* ===== Bottom Sheet (mobile) ===== */
+    .interactive-demo .map-sheet-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.3);
+        z-index: 199;
+    }
+    .interactive-demo .map-sheet-overlay.visible { display: block; }
+
+    .interactive-demo .map-sheet {
+        position: fixed;
+        left: 0; right: 0; bottom: 0;
+        background: #fff;
+        border-radius: 16px 16px 0 0;
+        box-shadow: 0 -4px 24px rgba(0,0,0,0.15);
+        z-index: 200;
+        transform: translateY(100%);
+        transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+        max-height: 70vh;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        padding: 0 20px 20px;
+    }
+    .interactive-demo .map-sheet.visible {
+        transform: translateY(0);
+    }
+    .interactive-demo .sheet-handle {
+        display: flex;
+        justify-content: center;
+        padding: 10px 0 6px;
+        position: sticky;
+        top: 0;
+        background: #fff;
+        z-index: 1;
+    }
+    .interactive-demo .sheet-handle span {
+        display: block;
+        width: 36px;
+        height: 4px;
+        border-radius: 2px;
+        background: #D1D5DB;
+    }
+    .interactive-demo .sheet-title {
+        font-weight: 700;
+        font-size: 1.15em;
+        margin-bottom: 2px;
+    }
+    .interactive-demo .sheet-desc {
+        color: var(--color-text-secondary);
+        font-size: 0.92em;
+        margin-bottom: 6px;
+    }
+    .interactive-demo .sheet-group {
+        font-size: 0.85em;
+        font-weight: 500;
+        margin-bottom: 2px;
+    }
+    .interactive-demo .sheet-order {
+        font-size: 0.85em;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+    .interactive-demo .sheet-code {
+        padding: 8px 10px;
+        background: #F3F4F6;
+        border-radius: 8px;
+        font-family: 'Fira Mono', monospace;
+        font-size: 0.82em;
+        line-height: 1.5;
+        color: #1F2937;
+        white-space: pre;
+        overflow-x: auto;
+        border: 1px solid #E5E7EB;
+        margin-bottom: 10px;
+    }
+    .interactive-demo .sheet-code .kw { color: #7C3AED; font-weight: 600; }
+    .interactive-demo .sheet-code .fn { color: #2563EB; }
+    .interactive-demo .sheet-code .str { color: #16A34A; }
+    .interactive-demo .sheet-code .var { color: #0891B2; }
+    .interactive-demo .sheet-code .cm { color: #9CA3AF; font-style: italic; }
+    .interactive-demo .sheet-code .num { color: #EA580C; }
+    .interactive-demo .sheet-links {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        font-size: 0.9em;
+        border-top: 1px solid var(--color-border);
+        padding-top: 8px;
+        margin-bottom: 10px;
+    }
+    .interactive-demo .sheet-links a {
+        color: var(--color-primary);
+        text-decoration: none;
+        padding: 4px 0;
+    }
+    .interactive-demo .sheet-btn {
+        display: block;
+        width: 100%;
+        padding: 12px;
+        background: var(--color-primary);
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        font-family: inherit;
+        font-size: 0.95em;
+        font-weight: 600;
+        cursor: pointer;
+        text-align: center;
+        text-decoration: none;
+    }
+
+    /* ===== Mobile overrides ===== */
+    @media (max-width: 768px) {
+        .interactive-demo .map-filters {
+            flex-wrap: nowrap;
+            justify-content: flex-start;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 4px;
+            scrollbar-width: none;
+        }
+        .interactive-demo .map-filters::-webkit-scrollbar { display: none; }
+        .interactive-demo .filter-btn {
+            flex-shrink: 0;
+            padding: 4px 10px;
+            font-size: 0.72em;
+        }
+        .interactive-demo .map-legend {
+            font-size: 0.75em;
+            gap: 10px;
+        }
+        .interactive-demo .map-container svg {
+            min-width: 0;
+        }
+        .interactive-demo .map-scroll-hint { display: none; }
+        .interactive-demo .map-tooltip { display: none !important; }
+        .interactive-demo .map-info {
+            font-size: 0.82em;
+            padding: 12px 14px;
+        }
+    }
 </style>
 
 <div class="map-controls">
@@ -289,6 +432,7 @@ description: "Интерактивная карта документации —
     </svg>
 </div>
 
+<!-- Desktop tooltip -->
 <div class="map-tooltip" id="mapTooltip">
     <div class="tooltip-title" id="tooltipTitle"></div>
     <div class="tooltip-desc" id="tooltipDesc"></div>
@@ -298,7 +442,20 @@ description: "Интерактивная карта документации —
     <div class="tooltip-sub" id="tooltipSub"></div>
 </div>
 
-<div class="map-info">
+<!-- Mobile bottom sheet -->
+<div class="map-sheet-overlay" id="sheetOverlay"></div>
+<div class="map-sheet" id="mapSheet">
+    <div class="sheet-handle"><span></span></div>
+    <div class="sheet-title" id="sheetTitle"></div>
+    <div class="sheet-desc" id="sheetDesc"></div>
+    <div class="sheet-group" id="sheetGroup"></div>
+    <div class="sheet-order" id="sheetOrder"></div>
+    <div class="sheet-code" id="sheetCode"></div>
+    <div class="sheet-links" id="sheetLinks"></div>
+    <a class="sheet-btn" id="sheetBtn" href="#">Открыть документацию &rarr;</a>
+</div>
+
+<div class="map-info" id="mapInfo">
     <strong>Наведите</strong> на узел, чтобы подсветить его связи.
     <strong>Нажмите</strong>, чтобы перейти к документации.
     Используйте кнопки вверху для подсветки групп.
@@ -307,6 +464,10 @@ description: "Интерактивная карта документации —
 
 <script>
 (function() {
+    /* ===== DETECT MOBILE ===== */
+    var isMobile = window.innerWidth <= 768;
+    var isTouch = 'ontouchstart' in window;
+
     /* ===== SEMANTIC GROUPS (7) ===== */
     var GRP = {
         primitives:    { color: '#6B58FF', bg: 'rgba(107,88,255,0.12)',  border: 'rgba(107,88,255,0.50)',  arrow: 'url(#arrowPurple)', label: 'Базовые примитивы' },
@@ -318,96 +479,135 @@ description: "Интерактивная карта документации —
         resources:     { color: '#16A34A', bg: 'rgba(22,163,74,0.12)',   border: 'rgba(22,163,74,0.50)',   arrow: 'url(#arrowGreen)',  label: 'Ресурсы и пулы' }
     };
 
+    /* ===== DESKTOP POSITIONS ===== */
+    var desktopPos = {
+        'coroutines':  { cx: 340, cy: 90 },
+        'future':      { cx: 570, cy: 90 },
+        'await-funcs': { cx: 195, cy: 243 },
+        'channels':    { cx: 375, cy: 243 },
+        'cancellation':{ cx: 610, cy: 243 },
+        'scope':       { cx: 870, cy: 243 },
+        'taskgroup':   { cx: 1040, cy: 243 },
+        'context':     { cx: 200, cy: 399 },
+        'iterate':     { cx: 480, cy: 399 },
+        'pool':        { cx: 780, cy: 399 },
+        'pdo-pool':    { cx: 960, cy: 399 }
+    };
+
+    /* ===== MOBILE POSITIONS (vertical 2-column layout, viewBox 0 0 380 680) ===== */
+    var mobilePos = {
+        'coroutines':  { cx: 120, cy: 60 },
+        'future':      { cx: 280, cy: 60 },
+        'await-funcs': { cx: 120, cy: 160 },
+        'channels':    { cx: 280, cy: 160 },
+        'cancellation':{ cx: 190, cy: 260 },
+        'scope':       { cx: 120, cy: 360 },
+        'taskgroup':   { cx: 280, cy: 360 },
+        'context':     { cx: 190, cy: 460 },
+        'iterate':     { cx: 100, cy: 560 },
+        'pool':        { cx: 230, cy: 560 },
+        'pdo-pool':    { cx: 330, cy: 630 }
+    };
+
+    /* ===== DESKTOP ZONES ===== */
+    var desktopZones = [
+        { group: 'primitives',   label: 'Базовые примитивы',         x: 210, y: 38,  w: 520, h: 104, rx: 16 },
+        { group: 'sync',         label: 'Синхронизация',              x: 70,  y: 188, w: 380, h: 110, rx: 16 },
+        { group: 'cancellation', label: 'Cancellation',               x: 500, y: 188, w: 210, h: 110, rx: 16 },
+        { group: 'structural',   label: 'Структурная конкурентность',  x: 750, y: 188, w: 380, h: 110, rx: 16 },
+        { group: 'context',      label: 'Context',                     x: 95,  y: 345, w: 220, h: 108, rx: 16 },
+        { group: 'iterate',      label: 'iterate()',                   x: 375, y: 345, w: 220, h: 108, rx: 16 },
+        { group: 'resources',    label: 'Ресурсы и пулы',              x: 655, y: 345, w: 405, h: 108, rx: 16 }
+    ];
+
+    /* ===== MOBILE ZONES ===== */
+    var mobileZones = [
+        { group: 'primitives',   label: 'Базовые примитивы',     x: 30,  y: 15,  w: 330, h: 85,  rx: 14 },
+        { group: 'sync',         label: 'Синхронизация',          x: 30,  y: 115, w: 330, h: 85,  rx: 14 },
+        { group: 'cancellation', label: 'Cancellation',           x: 80,  y: 215, w: 220, h: 85,  rx: 14 },
+        { group: 'structural',   label: 'Стр. конкурентность',    x: 30,  y: 315, w: 330, h: 85,  rx: 14 },
+        { group: 'context',      label: 'Context',                x: 80,  y: 415, w: 220, h: 85,  rx: 14 },
+        { group: 'iterate',      label: 'iterate()',              x: 15,  y: 515, w: 170, h: 85,  rx: 14 },
+        { group: 'resources',    label: 'Ресурсы и пулы',         x: 140, y: 515, w: 230, h: 160, rx: 14 }
+    ];
+
     /* ===== NODES (11) ===== */
     var nodes = [
-        /* === Базовые примитивы === */
         { id: 'coroutines', title: 'Корутины',
           desc: 'Базовая единица асинхронности — запуск параллельных задач',
           code: '<span class="var">$coro</span> = <span class="fn">spawn</span>(<span class="kw">function</span>() {\n  <span class="fn">echo</span> <span class="str">"async!"</span>;\n});',
-          url: '/ru/docs/concepts/coroutines.html', group: 'primitives', order: 1,
-          cx: 340, cy: 90, w: 130, h: 44 },
+          url: '/ru/docs/concepts/coroutines.html', group: 'primitives', order: 1, w: 130, h: 44 },
 
         { id: 'future', title: 'Future',
           desc: 'Получить результат асинхронной операции',
           code: '<span class="var">$coro</span> = <span class="fn">spawn</span>(<span class="var">$task</span>);\n<span class="var">$result</span> = <span class="fn">await</span>(<span class="var">$coro</span>);',
-          url: '/ru/docs/concepts/future.html', group: 'primitives', order: null,
-          cx: 570, cy: 90, w: 110, h: 44 },
+          url: '/ru/docs/concepts/future.html', group: 'primitives', order: null, w: 110, h: 44 },
 
-        /* === Синхронизация === */
         { id: 'await-funcs', title: 'await, await_all',
           desc: 'Ожидание одной или нескольких корутин',
           code: '<span class="var">$results</span> = <span class="fn">await_all</span>(<span class="var">$tasks</span>);\n<span class="var">$first</span> = <span class="fn">await_first_success</span>(<span class="var">$tasks</span>);',
-          url: '/ru/docs/reference/supported-functions.html', group: 'sync', order: 2,
-          cx: 195, cy: 243, w: 160, h: 44 },
+          url: '/ru/docs/reference/supported-functions.html', group: 'sync', order: 2, w: 160, h: 44 },
 
         { id: 'channels', title: 'Каналы',
           desc: 'Передавать данные между корутинами',
           code: '<span class="var">$ch</span> = <span class="kw">new</span> Async\\<span class="fn">Channel</span>(<span class="num">10</span>);\n<span class="var">$ch</span>-><span class="fn">send</span>(<span class="str">"data"</span>);\n<span class="var">$val</span> = <span class="var">$ch</span>-><span class="fn">recv</span>();',
-          url: '/ru/docs/concepts/channels.html', group: 'sync', order: null,
-          cx: 375, cy: 243, w: 110, h: 44 },
+          url: '/ru/docs/concepts/channels.html', group: 'sync', order: null, w: 110, h: 44 },
 
-        /* === Cancellation === */
         { id: 'cancellation', title: 'Cancellation',
           desc: 'Отменять корутины и управлять таймаутами',
           code: '<span class="var">$coro</span>-><span class="fn">cancel</span>();\n<span class="cm">// или с таймаутом:</span>\n<span class="fn">await</span>(<span class="var">$coro</span>, <span class="fn">timeout</span>(<span class="num">5000</span>));',
-          url: '/ru/docs/concepts/cancellation.html', group: 'cancellation', order: 3,
-          cx: 610, cy: 243, w: 150, h: 44 },
+          url: '/ru/docs/concepts/cancellation.html', group: 'cancellation', order: 3, w: 150, h: 44 },
 
-        /* === Структурная конкурентность === */
         { id: 'scope', title: 'Scope',
           desc: 'Контролировать время жизни группы корутин',
           code: '<span class="var">$scope</span> = <span class="kw">new</span> Async\\<span class="fn">Scope</span>();\n<span class="fn">spawn_with</span>(<span class="var">$scope</span>, <span class="var">$task</span>);',
-          url: '/ru/docs/concepts/scope.html', group: 'structural', order: 4,
-          cx: 870, cy: 243, w: 110, h: 44 },
+          url: '/ru/docs/concepts/scope.html', group: 'structural', order: 4, w: 110, h: 44 },
 
         { id: 'taskgroup', title: 'TaskGroup',
           desc: 'Группировать задачи для совместного управления (планируется)',
           code: '<span class="cm">// Планируемая функция</span>\n<span class="var">$group</span> = <span class="kw">new</span> <span class="fn">TaskGroup</span>();\n<span class="var">$group</span>-><span class="fn">spawn</span>(<span class="var">$task</span>);',
-          url: '#', group: 'structural', order: null, planned: true,
-          cx: 1040, cy: 243, w: 130, h: 44 },
+          url: '#', group: 'structural', order: null, planned: true, w: 130, h: 44 },
 
-        /* === Context === */
         { id: 'context', title: 'Context',
           desc: 'Хранить данные привязанные к корутине (напр. токен авторизации)',
           code: '<span class="var">$ctx</span> = <span class="fn">current_context</span>();\n<span class="var">$ctx</span>-><span class="fn">set</span>(<span class="str">\'auth_token\'</span>, <span class="var">$token</span>);\n<span class="var">$v</span> = <span class="var">$ctx</span>-><span class="fn">find</span>(<span class="str">\'auth_token\'</span>);',
-          url: '/ru/docs/concepts/context.html', group: 'context', order: 5,
-          cx: 200, cy: 399, w: 120, h: 44 },
+          url: '/ru/docs/concepts/context.html', group: 'context', order: 5, w: 120, h: 44 },
 
-        /* === iterate() === */
         { id: 'iterate', title: 'iterate()',
           desc: 'Параллельная обработка коллекций с контролем конкурентности',
           code: '<span class="fn">iterate</span>(<span class="var">$items</span>, <span class="kw">function</span>(<span class="var">$v</span>, <span class="var">$k</span>) {\n  <span class="fn">echo</span> <span class="str">"$k: $v\\n"</span>;\n}, <span class="fn">concurrency</span>: <span class="num">4</span>);',
-          url: '/ru/docs/reference/iterate.html', group: 'iterate', order: null,
-          cx: 480, cy: 399, w: 120, h: 44 },
+          url: '/ru/docs/reference/iterate.html', group: 'iterate', order: null, w: 120, h: 44 },
 
-        /* === Ресурсы и пулы === */
         { id: 'pool', title: 'Async\\Pool',
           desc: 'Переиспользовать дорогие ресурсы (соединения, воркеры)',
           code: '<span class="var">$pool</span> = <span class="kw">new</span> <span class="fn">Pool</span>(\n  <span class="fn">factory</span>: <span class="kw">fn</span>() => <span class="kw">new</span> <span class="fn">Conn</span>(),\n  <span class="fn">max</span>: <span class="num">10</span>\n);',
-          url: '/ru/docs/concepts/pool.html', group: 'resources', order: 6,
-          cx: 780, cy: 399, w: 130, h: 44 },
+          url: '/ru/docs/concepts/pool.html', group: 'resources', order: 6, w: 130, h: 44 },
 
         { id: 'pdo-pool', title: 'PDO Pool',
           desc: 'Пул соединений с базой данных',
           code: '<span class="var">$pdo</span> = <span class="kw">new</span> <span class="fn">PDO</span>(<span class="var">$dsn</span>, <span class="var">$user</span>, <span class="var">$pwd</span>, [\n  PDO::<span class="fn">ATTR_POOL_MAX</span> => <span class="num">10</span>\n]);',
-          url: '/ru/docs/concepts/pdo-pool.html', group: 'resources', order: null,
-          cx: 960, cy: 399, w: 120, h: 44 }
+          url: '/ru/docs/concepts/pdo-pool.html', group: 'resources', order: null, w: 120, h: 44 }
     ];
+
+    /* Apply positions based on mode */
+    var positions = isMobile ? mobilePos : desktopPos;
+    nodes.forEach(function(n) {
+        var p = positions[n.id];
+        n.cx = p.cx;
+        n.cy = p.cy;
+    });
+
+    var groupZones = isMobile ? mobileZones : desktopZones;
 
     /* ===== EDGES ===== */
     var edges = [
-        /* Learning path */
         { from: 'coroutines',   to: 'await-funcs',   type: 'path' },
         { from: 'await-funcs',  to: 'cancellation',  type: 'path' },
         { from: 'cancellation', to: 'scope',         type: 'path' },
         { from: 'scope',        to: 'context',       type: 'path' },
         { from: 'context',      to: 'pool',          type: 'path' },
         { from: 'pool',         to: 'pdo-pool',      type: 'path' },
-
-        /* Structural */
         { from: 'scope', to: 'taskgroup', type: 'path' },
-
-        /* Related */
         { from: 'coroutines', to: 'future',   type: 'related' },
         { from: 'coroutines', to: 'channels', type: 'related' },
         { from: 'coroutines', to: 'iterate',  type: 'related' }
@@ -451,17 +651,6 @@ description: "Интерактивная карта документации —
         ]
     };
 
-    /* ===== GROUP ZONES ===== */
-    var groupZones = [
-        { group: 'primitives',   label: 'Базовые примитивы',         x: 210, y: 38,  w: 520, h: 104, rx: 16 },
-        { group: 'sync',         label: 'Синхронизация',              x: 70,  y: 188, w: 380, h: 110, rx: 16 },
-        { group: 'cancellation', label: 'Cancellation',               x: 500, y: 188, w: 210, h: 110, rx: 16 },
-        { group: 'structural',   label: 'Структурная конкурентность',  x: 750, y: 188, w: 380, h: 110, rx: 16 },
-        { group: 'context',      label: 'Context',                     x: 95,  y: 345, w: 220, h: 108, rx: 16 },
-        { group: 'iterate',      label: 'iterate()',                   x: 375, y: 345, w: 220, h: 108, rx: 16 },
-        { group: 'resources',    label: 'Ресурсы и пулы',              x: 655, y: 345, w: 405, h: 108, rx: 16 }
-    ];
-
     /* ===== STATE ===== */
     var NS = 'http://www.w3.org/2000/svg';
     var svgEl = document.getElementById('learningMap');
@@ -470,6 +659,9 @@ description: "Интерактивная карта документации —
     var nodesGroup = document.getElementById('nodesGroup');
     var zonesGroup = document.getElementById('groupZones');
 
+    var sheetEl = document.getElementById('mapSheet');
+    var sheetOverlay = document.getElementById('sheetOverlay');
+
     var nodeMap = {};
     var nodeEls = {};
     var edgeEls = [];
@@ -477,6 +669,19 @@ description: "Интерактивная карта документации —
     var adj = {};
     var hoveredId = null;
     var activeFilter = null;
+    var sheetOpen = false;
+
+    /* Set viewBox based on mode */
+    if (isMobile) {
+        svgEl.setAttribute('viewBox', '0 0 380 680');
+    }
+
+    /* Update info text for mobile */
+    if (isMobile) {
+        document.getElementById('mapInfo').innerHTML =
+            '<strong>Нажмите</strong> на узел, чтобы увидеть подробности. ' +
+            'Используйте кнопки вверху для подсветки групп.';
+    }
 
     function init() {
         nodes.forEach(function(n) { nodeMap[n.id] = n; adj[n.id] = new Set(); });
@@ -485,6 +690,7 @@ description: "Интерактивная карта документации —
         renderEdges();
         renderNodes();
         initFilters();
+        initSheet();
     }
 
     function renderZones() {
@@ -503,7 +709,8 @@ description: "Интерактивная карта документации —
             var lbl = document.createElementNS(NS, 'text');
             lbl.setAttribute('x', z.x + 14); lbl.setAttribute('y', z.y + 18);
             lbl.setAttribute('font-family', 'Fira Sans, sans-serif');
-            lbl.setAttribute('font-size', '11'); lbl.setAttribute('font-weight', '600');
+            lbl.setAttribute('font-size', isMobile ? '10' : '11');
+            lbl.setAttribute('font-weight', '600');
             lbl.setAttribute('fill', grp.color); lbl.setAttribute('opacity', '0.7');
             lbl.textContent = z.label;
             g.appendChild(lbl);
@@ -596,7 +803,7 @@ description: "Интерактивная карта документации —
             bar.setAttribute('clip-path', 'url(#' + clipId + ')');
             g.appendChild(bar);
 
-            var title = makeText(n.cx + 2, n.cy, 13, grp.color, n.title, '600');
+            var title = makeText(n.cx + 2, n.cy, isMobile ? 11 : 13, grp.color, n.title, '600');
             if (n.planned) title.setAttribute('opacity', '0.65');
             g.appendChild(title);
 
@@ -608,7 +815,7 @@ description: "Интерактивная карта документации —
                 bg.style.transformOrigin = bx + 'px ' + by + 'px';
                 var bc = document.createElementNS(NS, 'circle');
                 bc.setAttribute('cx', bx); bc.setAttribute('cy', by);
-                bc.setAttribute('r', 11); bc.setAttribute('fill', grp.color);
+                bc.setAttribute('r', isMobile ? 10 : 11); bc.setAttribute('fill', grp.color);
                 bg.appendChild(bc);
                 var bt = document.createElementNS(NS, 'text');
                 bt.setAttribute('x', bx); bt.setAttribute('y', by);
@@ -620,9 +827,12 @@ description: "Интерактивная карта документации —
                 bg.appendChild(bt); g.appendChild(bg);
             }
 
-            g.addEventListener('mouseenter', function(ev) { onEnter(n.id, ev); });
-            g.addEventListener('mouseleave', function() { onLeave(); });
-            g.addEventListener('click', function() { onClick(n.id); });
+            if (!isMobile) {
+                g.addEventListener('mouseenter', function(ev) { onEnter(n.id, ev); });
+                g.addEventListener('mouseleave', function() { onLeave(); });
+                g.addEventListener('click', function() { onClick(n.id); });
+            }
+
             nodesGroup.appendChild(g);
             nodeEls[n.id] = g;
         });
@@ -680,9 +890,26 @@ description: "Интерактивная карта документации —
         });
     }
 
-    /* ===== INTERACTIONS ===== */
+    /* ===== DESKTOP INTERACTIONS ===== */
     function onEnter(id, ev) {
         hoveredId = id;
+        highlightNode(id);
+        showTooltip(id, ev);
+    }
+
+    function onLeave() {
+        hoveredId = null;
+        if (activeFilter) { applyFilter(); }
+        else { clearHighlight(); }
+        hideTooltip();
+    }
+
+    function onClick(id) {
+        var n = nodeMap[id];
+        if (n && n.url && n.url !== '#') window.location.href = n.url;
+    }
+
+    function highlightNode(id) {
         var neighbors = adj[id] || new Set();
         var activeGroups = new Set();
         activeGroups.add(nodeMap[id].group);
@@ -700,27 +927,17 @@ description: "Интерактивная карта документации —
             if (activeGroups.has(gid)) { zoneEls[gid].classList.remove('dimmed'); }
             else { zoneEls[gid].classList.add('dimmed'); }
         });
-        showTooltip(id, ev);
     }
 
-    function onLeave() {
-        hoveredId = null;
-        if (activeFilter) { applyFilter(); }
-        else {
-            Object.keys(nodeEls).forEach(function(nid) { nodeEls[nid].classList.remove('dimmed', 'highlighted'); });
-            edgeEls.forEach(function(e) { e.el.classList.remove('dimmed', 'highlighted'); });
-            Object.keys(zoneEls).forEach(function(gid) { zoneEls[gid].classList.remove('dimmed'); });
-        }
-        hideTooltip();
+    function clearHighlight() {
+        Object.keys(nodeEls).forEach(function(nid) { nodeEls[nid].classList.remove('dimmed', 'highlighted'); });
+        edgeEls.forEach(function(e) { e.el.classList.remove('dimmed', 'highlighted'); });
+        Object.keys(zoneEls).forEach(function(gid) { zoneEls[gid].classList.remove('dimmed'); });
     }
 
-    function onClick(id) {
-        var n = nodeMap[id];
-        if (n && n.url && n.url !== '#') window.location.href = n.url;
-    }
-
-    /* ===== TOOLTIP ===== */
+    /* ===== TOOLTIP (desktop only) ===== */
     function showTooltip(id, ev) {
+        if (isMobile) return;
         var n = nodeMap[id]; if (!n) return;
         var grp = GRP[n.group];
         document.getElementById('tooltipTitle').textContent = n.title;
@@ -755,10 +972,76 @@ description: "Интерактивная карта документации —
 
     function hideTooltip() { tooltipEl.classList.remove('visible'); tooltipEl.style.pointerEvents = 'none'; }
 
-    svgEl.addEventListener('mousemove', function(ev) { if (hoveredId) positionTooltip(ev); });
+    if (!isMobile) {
+        svgEl.addEventListener('mousemove', function(ev) { if (hoveredId) positionTooltip(ev); });
+    }
 
-    /* ===== TOUCH ===== */
-    if ('ontouchstart' in window) {
+    /* ===== BOTTOM SHEET (mobile) ===== */
+    function initSheet() {
+        if (!isTouch && !isMobile) return;
+
+        sheetOverlay.addEventListener('click', closeSheet);
+
+        svgEl.addEventListener('touchstart', function(ev) {
+            var target = ev.target.closest('.node');
+            if (target) {
+                ev.preventDefault();
+                var id = target.dataset.id;
+                highlightNode(id);
+                openSheet(id);
+            } else {
+                if (sheetOpen) { closeSheet(); }
+                else if (activeFilter) { applyFilter(); }
+                else { clearHighlight(); }
+            }
+        }, { passive: false });
+    }
+
+    function openSheet(id) {
+        var n = nodeMap[id]; if (!n) return;
+        var grp = GRP[n.group];
+
+        document.getElementById('sheetTitle').textContent = n.title;
+        document.getElementById('sheetTitle').style.color = grp.color;
+        document.getElementById('sheetDesc').textContent = n.desc || '';
+        var ge = document.getElementById('sheetGroup');
+        ge.textContent = grp.label; ge.style.color = grp.color;
+        var oe = document.getElementById('sheetOrder');
+        if (n.order !== null && n.order > 0) {
+            oe.textContent = 'Шаг ' + n.order + ' из 6';
+            oe.style.color = grp.color; oe.style.display = '';
+        } else { oe.style.display = 'none'; }
+        var ce = document.getElementById('sheetCode');
+        if (n.code) { ce.innerHTML = n.code; ce.style.display = ''; }
+        else { ce.style.display = 'none'; }
+        var le = document.getElementById('sheetLinks');
+        if (subPages[id]) {
+            var html = '';
+            subPages[id].forEach(function(p) { html += '<a href="' + p.url + '">' + p.label + '</a>'; });
+            le.innerHTML = html; le.style.display = '';
+        } else { le.innerHTML = ''; le.style.display = 'none'; }
+        var btn = document.getElementById('sheetBtn');
+        if (n.url && n.url !== '#') {
+            btn.href = n.url; btn.style.display = '';
+        } else { btn.style.display = 'none'; }
+
+        sheetOverlay.classList.add('visible');
+        /* Force reflow before adding visible class for transition */
+        sheetEl.offsetHeight;
+        sheetEl.classList.add('visible');
+        sheetOpen = true;
+    }
+
+    function closeSheet() {
+        sheetEl.classList.remove('visible');
+        sheetOverlay.classList.remove('visible');
+        sheetOpen = false;
+        if (activeFilter) { applyFilter(); }
+        else { clearHighlight(); }
+    }
+
+    /* ===== DESKTOP TOUCH FALLBACK ===== */
+    if (isTouch && !isMobile) {
         svgEl.addEventListener('touchstart', function(ev) {
             var target = ev.target.closest('.node');
             if (target) {

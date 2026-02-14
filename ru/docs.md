@@ -100,8 +100,60 @@ description: "Документация TrueAsync. Узнайте, как уст�
     display: block; color: var(--color-primary); text-decoration: none; padding: 1px 0;
 }
 .learning-map-wrap .lm-tooltip .tt-sub a:hover { text-decoration: underline; }
+/* Bottom sheet (mobile) */
+.learning-map-wrap .lm-sheet-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 199;
+}
+.learning-map-wrap .lm-sheet-overlay.visible { display: block; }
+.learning-map-wrap .lm-sheet {
+    position: fixed; left: 0; right: 0; bottom: 0; background: #fff;
+    border-radius: 16px 16px 0 0; box-shadow: 0 -4px 24px rgba(0,0,0,0.15);
+    z-index: 200; transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+    max-height: 70vh; overflow-y: auto; -webkit-overflow-scrolling: touch;
+    padding: 0 20px 20px;
+}
+.learning-map-wrap .lm-sheet.visible { transform: translateY(0); }
+.learning-map-wrap .lm-sheet .sh-handle {
+    display: flex; justify-content: center; padding: 10px 0 6px;
+    position: sticky; top: 0; background: #fff; z-index: 1;
+}
+.learning-map-wrap .lm-sheet .sh-handle span {
+    display: block; width: 36px; height: 4px; border-radius: 2px; background: #D1D5DB;
+}
+.learning-map-wrap .lm-sheet .sh-title { font-weight: 700; font-size: 1.15em; margin-bottom: 2px; }
+.learning-map-wrap .lm-sheet .sh-desc { color: var(--color-text-secondary); font-size: 0.92em; margin-bottom: 6px; }
+.learning-map-wrap .lm-sheet .sh-group { font-size: 0.85em; font-weight: 500; margin-bottom: 2px; }
+.learning-map-wrap .lm-sheet .sh-order { font-size: 0.85em; font-weight: 600; margin-bottom: 8px; }
+.learning-map-wrap .lm-sheet .sh-code {
+    padding: 8px 10px; background: #F3F4F6; border-radius: 8px;
+    font-family: 'Fira Mono', monospace; font-size: 0.82em; line-height: 1.5;
+    color: #1F2937; white-space: pre; overflow-x: auto; border: 1px solid #E5E7EB; margin-bottom: 10px;
+}
+.learning-map-wrap .lm-sheet .sh-code .kw { color: #7C3AED; font-weight: 600; }
+.learning-map-wrap .lm-sheet .sh-code .fn { color: #2563EB; }
+.learning-map-wrap .lm-sheet .sh-code .str { color: #16A34A; }
+.learning-map-wrap .lm-sheet .sh-code .var { color: #0891B2; }
+.learning-map-wrap .lm-sheet .sh-code .cm { color: #9CA3AF; font-style: italic; }
+.learning-map-wrap .lm-sheet .sh-code .num { color: #EA580C; }
+.learning-map-wrap .lm-sheet .sh-links {
+    display: flex; flex-direction: column; gap: 2px; font-size: 0.9em;
+    border-top: 1px solid var(--color-border); padding-top: 8px; margin-bottom: 10px;
+}
+.learning-map-wrap .lm-sheet .sh-links a {
+    color: var(--color-primary); text-decoration: none; padding: 4px 0;
+}
+.learning-map-wrap .lm-sheet .sh-btn {
+    display: block; width: 100%; padding: 12px; background: var(--color-primary);
+    color: #fff; border: none; border-radius: 10px; font-family: inherit;
+    font-size: 0.95em; font-weight: 600; cursor: pointer; text-align: center; text-decoration: none;
+}
+@media (max-width: 768px) {
+    .learning-map-wrap .lm-tooltip { display: none !important; }
+    .learning-map-wrap .lm-hint { font-size: 0.8em; }
+}
 </style>
-<p class="lm-hint">Наведите на узел для подробностей. Нажмите для перехода к документации.</p>
+<p class="lm-hint" id="lmHint">Наведите на узел для подробностей. Нажмите для перехода к документации.</p>
 <div class="lm-container">
 <svg id="lmSvg" viewBox="0 0 600 590" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
 <defs>
@@ -125,6 +177,17 @@ description: "Документация TrueAsync. Узнайте, как уст�
 <div class="tt-order" id="lmTtOrder"></div>
 <div class="tt-code" id="lmTtCode"></div>
 <div class="tt-sub" id="lmTtSub"></div>
+</div>
+<div class="lm-sheet-overlay" id="lmSheetOverlay"></div>
+<div class="lm-sheet" id="lmSheet">
+<div class="sh-handle"><span></span></div>
+<div class="sh-title" id="lmShTitle"></div>
+<div class="sh-desc" id="lmShDesc"></div>
+<div class="sh-group" id="lmShGroup"></div>
+<div class="sh-order" id="lmShOrder"></div>
+<div class="sh-code" id="lmShCode"></div>
+<div class="sh-links" id="lmShLinks"></div>
+<a class="sh-btn" id="lmShBtn" href="#">Открыть документацию &rarr;</a>
 </div>
 <a class="lm-link" href="/ru/interactive/learning-map.html">Полная интерактивная версия &rarr;</a>
 <script>
@@ -342,13 +405,72 @@ function posTip(ev){var x=ev.clientX+16,y=ev.clientY+16;
     tip.style.left=x+'px';tip.style.top=y+'px';
 }
 svg.addEventListener('mousemove',function(ev){if(hovId)posTip(ev);});
+var lmIsMobile=window.innerWidth<=768;
+var lmSheetEl=document.getElementById('lmSheet');
+var lmSheetOverlay=document.getElementById('lmSheetOverlay');
+var lmSheetOpen=false;
+if(lmIsMobile){document.getElementById('lmHint').textContent='Нажмите на узел для подробностей.';}
+function lmHlNode(id){
+    var nb=adjM[id]||new Set(),ag=new Set();ag.add(nMap[id].group);
+    Object.keys(nEls).forEach(function(nid){
+        if(nid===id||nb.has(nid)){nEls[nid].classList.remove('dimmed');nEls[nid].classList.add('highlighted');ag.add(nMap[nid].group);}
+        else{nEls[nid].classList.add('dimmed');nEls[nid].classList.remove('highlighted');}});
+    eEls.forEach(function(e){
+        if(e.from===id||e.to===id){e.el.classList.remove('dimmed');e.el.classList.add('highlighted');}
+        else{e.el.classList.add('dimmed');e.el.classList.remove('highlighted');}});
+    Object.keys(zEls).forEach(function(g){
+        if(ag.has(g))zEls[g].classList.remove('dimmed');else zEls[g].classList.add('dimmed');});
+}
+function lmClearHl(){
+    Object.keys(nEls).forEach(function(nid){nEls[nid].classList.remove('dimmed','highlighted');});
+    eEls.forEach(function(e){e.el.classList.remove('dimmed','highlighted');});
+    Object.keys(zEls).forEach(function(g){zEls[g].classList.remove('dimmed');});
+}
+function lmOpenSheet(id){
+    var n=nMap[id];if(!n)return;var g=GRP[n.group];
+    document.getElementById('lmShTitle').textContent=n.title;
+    document.getElementById('lmShTitle').style.color=g.color;
+    document.getElementById('lmShDesc').textContent=n.desc||'';
+    var ge=document.getElementById('lmShGroup');ge.textContent=g.label;ge.style.color=g.color;
+    var oe=document.getElementById('lmShOrder');
+    if(n.order){oe.textContent='Шаг '+n.order+' из 6';oe.style.color=g.color;oe.style.display='';}
+    else{oe.style.display='none';}
+    var ce=document.getElementById('lmShCode');
+    if(n.code){ce.innerHTML=n.code;ce.style.display='';}else{ce.style.display='none';}
+    var le=document.getElementById('lmShLinks');
+    if(subPages[id]){var h='';subPages[id].forEach(function(p){h+='<a href="'+p.url+'">'+p.label+'</a>';});
+        le.innerHTML=h;le.style.display='';}
+    else{le.innerHTML='';le.style.display='none';}
+    var btn=document.getElementById('lmShBtn');
+    if(n.url&&n.url!=='#'){btn.href=n.url;btn.style.display='';}
+    else{btn.style.display='none';}
+    lmSheetOverlay.classList.add('visible');
+    lmSheetEl.offsetHeight;
+    lmSheetEl.classList.add('visible');
+    lmSheetOpen=true;
+}
+function lmCloseSheet(){
+    lmSheetEl.classList.remove('visible');
+    lmSheetOverlay.classList.remove('visible');
+    lmSheetOpen=false;
+    lmClearHl();
+}
+if(lmSheetOverlay)lmSheetOverlay.addEventListener('click',lmCloseSheet);
 if('ontouchstart' in window){
-    svg.addEventListener('touchstart',function(ev){
-        var t=ev.target.closest('.node');
-        if(t){var id=t.dataset.id;
-            if(hovId===id){var n=nMap[id];if(n&&n.url&&n.url!=='#')window.location.href=n.url;}
-            else{onEnter(id,{clientX:ev.touches[0].clientX,clientY:ev.touches[0].clientY});ev.preventDefault();}
-        }else{onLeave();}},{passive:false});
+    if(lmIsMobile){
+        svg.addEventListener('touchstart',function(ev){
+            var t=ev.target.closest('.node');
+            if(t){ev.preventDefault();var id=t.dataset.id;lmHlNode(id);lmOpenSheet(id);}
+            else{if(lmSheetOpen)lmCloseSheet();else lmClearHl();}
+        },{passive:false});
+    }else{
+        svg.addEventListener('touchstart',function(ev){
+            var t=ev.target.closest('.node');
+            if(t){var id=t.dataset.id;
+                if(hovId===id){var n=nMap[id];if(n&&n.url&&n.url!=='#')window.location.href=n.url;}
+                else{onEnter(id,{clientX:ev.touches[0].clientX,clientY:ev.touches[0].clientY});ev.preventDefault();}
+            }else{onLeave();}},{passive:false});
+    }
 }
 })();
 </script>
