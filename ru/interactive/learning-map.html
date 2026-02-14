@@ -494,19 +494,19 @@ description: "Интерактивная карта документации —
         'pdo-pool':    { cx: 960, cy: 399 }
     };
 
-    /* ===== MOBILE POSITIONS (vertical 2-column layout, viewBox 0 0 380 680) ===== */
+    /* ===== MOBILE POSITIONS (vertical 2-column layout, viewBox 0 0 420 1080) ===== */
     var mobilePos = {
-        'coroutines':  { cx: 120, cy: 60 },
-        'future':      { cx: 280, cy: 60 },
-        'await-funcs': { cx: 120, cy: 160 },
-        'channels':    { cx: 280, cy: 160 },
-        'cancellation':{ cx: 190, cy: 260 },
-        'scope':       { cx: 120, cy: 360 },
-        'taskgroup':   { cx: 280, cy: 360 },
-        'context':     { cx: 190, cy: 460 },
-        'iterate':     { cx: 100, cy: 560 },
-        'pool':        { cx: 230, cy: 560 },
-        'pdo-pool':    { cx: 330, cy: 630 }
+        'coroutines':  { cx: 130, cy: 75 },
+        'future':      { cx: 310, cy: 75 },
+        'await-funcs': { cx: 130, cy: 205 },
+        'channels':    { cx: 310, cy: 205 },
+        'cancellation':{ cx: 210, cy: 340 },
+        'scope':       { cx: 130, cy: 475 },
+        'taskgroup':   { cx: 310, cy: 475 },
+        'context':     { cx: 210, cy: 610 },
+        'iterate':     { cx: 120, cy: 745 },
+        'pool':        { cx: 300, cy: 745 },
+        'pdo-pool':    { cx: 300, cy: 880 }
     };
 
     /* ===== DESKTOP ZONES ===== */
@@ -522,13 +522,13 @@ description: "Интерактивная карта документации —
 
     /* ===== MOBILE ZONES ===== */
     var mobileZones = [
-        { group: 'primitives',   label: 'Базовые примитивы',     x: 30,  y: 15,  w: 330, h: 85,  rx: 14 },
-        { group: 'sync',         label: 'Синхронизация',          x: 30,  y: 115, w: 330, h: 85,  rx: 14 },
-        { group: 'cancellation', label: 'Cancellation',           x: 80,  y: 215, w: 220, h: 85,  rx: 14 },
-        { group: 'structural',   label: 'Стр. конкурентность',    x: 30,  y: 315, w: 330, h: 85,  rx: 14 },
-        { group: 'context',      label: 'Context',                x: 80,  y: 415, w: 220, h: 85,  rx: 14 },
-        { group: 'iterate',      label: 'iterate()',              x: 15,  y: 515, w: 170, h: 85,  rx: 14 },
-        { group: 'resources',    label: 'Ресурсы и пулы',         x: 140, y: 515, w: 230, h: 160, rx: 14 }
+        { group: 'primitives',   label: 'Базовые примитивы',     x: 20,  y: 20,  w: 390, h: 110, rx: 16 },
+        { group: 'sync',         label: 'Синхронизация',          x: 20,  y: 150, w: 390, h: 110, rx: 16 },
+        { group: 'cancellation', label: 'Cancellation',           x: 70,  y: 280, w: 280, h: 115, rx: 16 },
+        { group: 'structural',   label: 'Стр. конкурентность',    x: 20,  y: 415, w: 390, h: 115, rx: 16 },
+        { group: 'context',      label: 'Context',                x: 70,  y: 550, w: 280, h: 115, rx: 16 },
+        { group: 'iterate',      label: 'iterate()',              x: 20,  y: 685, w: 190, h: 115, rx: 16 },
+        { group: 'resources',    label: 'Ресурсы и пулы',         x: 180, y: 685, w: 230, h: 245, rx: 16 }
     ];
 
     /* ===== NODES (11) ===== */
@@ -589,12 +589,16 @@ description: "Интерактивная карта документации —
           url: '/ru/docs/concepts/pdo-pool.html', group: 'resources', order: null, w: 120, h: 44 }
     ];
 
-    /* Apply positions based on mode */
+    /* Apply positions and sizes based on mode */
     var positions = isMobile ? mobilePos : desktopPos;
     nodes.forEach(function(n) {
         var p = positions[n.id];
         n.cx = p.cx;
         n.cy = p.cy;
+        if (isMobile) {
+            n.w = Math.round(n.w * 1.25);
+            n.h = 56;
+        }
     });
 
     var groupZones = isMobile ? mobileZones : desktopZones;
@@ -673,7 +677,7 @@ description: "Интерактивная карта документации —
 
     /* Set viewBox based on mode */
     if (isMobile) {
-        svgEl.setAttribute('viewBox', '0 0 380 680');
+        svgEl.setAttribute('viewBox', '0 0 420 940');
     }
 
     /* Update info text for mobile */
@@ -707,9 +711,9 @@ description: "Интерактивная карта документации —
             rect.setAttribute('stroke-dasharray', '6 3');
             g.appendChild(rect);
             var lbl = document.createElementNS(NS, 'text');
-            lbl.setAttribute('x', z.x + 14); lbl.setAttribute('y', z.y + 18);
+            lbl.setAttribute('x', z.x + 14); lbl.setAttribute('y', z.y + (isMobile ? 22 : 18));
             lbl.setAttribute('font-family', 'Fira Sans, sans-serif');
-            lbl.setAttribute('font-size', isMobile ? '10' : '11');
+            lbl.setAttribute('font-size', isMobile ? '13' : '11');
             lbl.setAttribute('font-weight', '600');
             lbl.setAttribute('fill', grp.color); lbl.setAttribute('opacity', '0.7');
             lbl.textContent = z.label;
@@ -803,7 +807,7 @@ description: "Интерактивная карта документации —
             bar.setAttribute('clip-path', 'url(#' + clipId + ')');
             g.appendChild(bar);
 
-            var title = makeText(n.cx + 2, n.cy, isMobile ? 11 : 13, grp.color, n.title, '600');
+            var title = makeText(n.cx + 2, n.cy, isMobile ? 14 : 13, grp.color, n.title, '600');
             if (n.planned) title.setAttribute('opacity', '0.65');
             g.appendChild(title);
 
@@ -815,13 +819,13 @@ description: "Интерактивная карта документации —
                 bg.style.transformOrigin = bx + 'px ' + by + 'px';
                 var bc = document.createElementNS(NS, 'circle');
                 bc.setAttribute('cx', bx); bc.setAttribute('cy', by);
-                bc.setAttribute('r', isMobile ? 10 : 11); bc.setAttribute('fill', grp.color);
+                bc.setAttribute('r', isMobile ? 13 : 11); bc.setAttribute('fill', grp.color);
                 bg.appendChild(bc);
                 var bt = document.createElementNS(NS, 'text');
                 bt.setAttribute('x', bx); bt.setAttribute('y', by);
                 bt.setAttribute('text-anchor', 'middle'); bt.setAttribute('dominant-baseline', 'central');
                 bt.setAttribute('font-family', 'Fira Sans, sans-serif');
-                bt.setAttribute('font-size', '9'); bt.setAttribute('font-weight', '700');
+                bt.setAttribute('font-size', isMobile ? '11' : '9'); bt.setAttribute('font-weight', '700');
                 bt.setAttribute('fill', '#fff'); bt.setAttribute('pointer-events', 'none');
                 bt.textContent = n.order;
                 bg.appendChild(bt); g.appendChild(bg);
