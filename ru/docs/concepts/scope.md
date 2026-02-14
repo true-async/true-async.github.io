@@ -139,7 +139,7 @@ spawn with $scope function() {
             echo "Работаю...\n";
             Async\sleep(1000);
         }
-    } catch (Async\CancellationException $e) {
+    } catch (Async\AsyncCancellation $e) {
         echo "Меня отменили!\n";
     }
 };
@@ -150,7 +150,7 @@ spawn with $scope function() {
             echo "Тоже работаю...\n";
             Async\sleep(1000);
         }
-    } catch (Async\CancellationException $e) {
+    } catch (Async\AsyncCancellation $e) {
         echo "И меня тоже!\n";
     }
 };
@@ -161,7 +161,7 @@ Async\sleep(3000);
 // Отменяем ВСЕ корутины в scope
 $scope->cancel();
 
-// Обе корутины получат CancellationException
+// Обе корутины получат AsyncCancellation
 ```
 
 ## Обработка ошибок в scope

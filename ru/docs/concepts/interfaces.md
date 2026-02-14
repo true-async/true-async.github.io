@@ -25,7 +25,7 @@ interface Async\Awaitable {}
 ```php
 interface Async\Completable extends Async\Awaitable
 {
-    public function cancel(?CancellationError $cancellation = null): void;
+    public function cancel(?AsyncCancellation $cancellation = null): void;
     public function isCompleted(): bool;
     public function isCancelled(): bool;
 }
@@ -52,7 +52,7 @@ interface Async\Completable extends Async\Awaitable
 ```php
 final class Async\Timeout implements Async\Completable
 {
-    public function cancel(?CancellationError $cancellation = null): void;
+    public function cancel(?AsyncCancellation $cancellation = null): void;
     public function isCompleted(): bool;
     public function isCancelled(): bool;
 }

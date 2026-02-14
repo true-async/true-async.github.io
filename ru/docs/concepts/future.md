@@ -289,13 +289,13 @@ $result = $future->await(Async\timeout(5000));
 
 ```php
 <?php
-use Async\CancellationError;
+use Async\AsyncCancellation;
 
 // Отмена с сообщением по умолчанию
 $future->cancel();
 
 // Отмена с кастомной ошибкой
-$future->cancel(new CancellationError('Операция больше не нужна'));
+$future->cancel(new AsyncCancellation('Операция больше не нужна'));
 ```
 
 ## Подавление предупреждений: ignore()

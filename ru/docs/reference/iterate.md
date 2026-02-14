@@ -41,7 +41,7 @@ iterate(iterable $iterable, callable $callback, int $concurrency = 0, bool $canc
 
 **`cancelPending`**
 Управляет поведением дочерних корутин, порождённых внутри callback-а (через `spawn()`), после завершения итерации.
-- `true` (по умолчанию) — все незавершённые порождённые корутины отменяются с `CancellationError`.
+- `true` (по умолчанию) — все незавершённые порождённые корутины отменяются с `AsyncCancellation`.
 - `false` — `iterate()` ожидает завершения всех порождённых корутин перед возвратом.
 
 ## Возвращаемое значение
@@ -163,7 +163,7 @@ spawn(function() {
 <?php
 use function Async\spawn;
 use function Async\iterate;
-use Async\CancellationError;
+use Async\AsyncCancellation;
 
 spawn(function() {
     iterate([1, 2, 3], function(int $value) {
@@ -174,7 +174,7 @@ spawn(function() {
                 suspend();
                 suspend();
                 echo "Фоновая задача $value завершена\n"; // Не выполнится
-            } catch (CancellationError) {
+            } catch (AsyncCancellation) {
                 echo "Фоновая задача $value отменена\n";
             }
         });

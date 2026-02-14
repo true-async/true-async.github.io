@@ -156,7 +156,7 @@ $coro = spawn(function() {
         }
 
         echo "Закончил\n";
-    } catch (Async\CancellationException $e) {
+    } catch (Async\AsyncCancellation $e) {
         echo "Меня отменили на итерации\n";
     }
 });
@@ -167,7 +167,7 @@ Async\sleep(1000);
 // Отменяем
 $coro->cancel();
 
-// Корутина получит CancellationException при следующем await/suspend
+// Корутина получит AsyncCancellation при следующем await/suspend
 ```
 
 **Важно:** Отмена работает кооперативно. Корутина должна проверять отмену (через `await`, `sleep`, или `suspend`). Нельзя убить корутину силой.

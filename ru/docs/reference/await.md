@@ -45,7 +45,7 @@ await(Async\Completable $awaitable, ?Async\Completable $cancellation = null): mi
 
 Если корутина завершилась с исключением, `await()` пробросит это исключение.
 
-Если корутина была отменена, будет выброшено `Async\CancellationException`.
+Если корутина была отменена, будет выброшено `Async\AsyncCancellation`.
 
 ## Примеры
 

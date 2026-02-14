@@ -17,7 +17,7 @@ description: "graceful_shutdown() — корректное завершение 
 ## Описание
 
 ```php
-graceful_shutdown(?Async\CancellationError $cancellationError = null): void
+graceful_shutdown(?Async\AsyncCancellation $cancellationError = null): void
 ```
 
 Запускает процедуру корректного завершения: все активные корутины отменяются, а приложение продолжает работу до их естественного завершения.
@@ -39,13 +39,13 @@ graceful_shutdown(?Async\CancellationError $cancellationError = null): void
 <?php
 use function Async\spawn;
 use function Async\graceful_shutdown;
-use Async\CancellationError;
+use Async\AsyncCancellation;
 
 // Сервер обрабатывает запросы
 spawn(function() {
     // При получении сигнала — корректно завершаемся
     pcntl_signal(SIGTERM, function() {
-        graceful_shutdown(new CancellationError('Server shutdown'));
+        graceful_shutdown(new AsyncCancellation('Server shutdown'));
     });
 
     while (true) {

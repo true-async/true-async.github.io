@@ -5,7 +5,7 @@ path_key: "/docs/concepts/exceptions.html"
 nav_active: docs
 permalink: /ru/docs/concepts/exceptions.html
 page_title: "Исключения"
-description: "Иерархия исключений TrueAsync — CancellationError, TimeoutException, DeadlockError и другие."
+description: "Иерархия исключений TrueAsync — AsyncCancellation, TimeoutException, DeadlockError и другие."
 ---
 
 # Исключения
@@ -15,33 +15,35 @@ description: "Иерархия исключений TrueAsync — CancellationEr
 TrueAsync определяет специализированную иерархию исключений для разных типов ошибок:
 
 ```
+\Cancellation                              — базовый класс отмены (наравне с \Error и \Exception)
+└── Async\AsyncCancellation                — отмена корутины
+
 \Error
-├── Async\CancellationError     — отмена корутины
-└── Async\DeadlockError         — обнаружена взаимная блокировка
+└── Async\DeadlockError                    — обнаружена взаимная блокировка
 
 \Exception
-├── Async\AsyncException        — общая ошибка async-операций
-│   └── Async\ServiceUnavailableException — сервис недоступен (circuit breaker)
-├── Async\InputOutputException  — ошибка ввода-вывода
-├── Async\DnsException          — ошибка разрешения DNS
-├── Async\TimeoutException      — таймаут операции
-├── Async\PollException         — ошибка poll-операции
-├── Async\ChannelException      — ошибка канала
-├── Async\PoolException         — ошибка пула ресурсов
-└── Async\CompositeException    — контейнер множества исключений
+├── Async\AsyncException                   — общая ошибка async-операций
+│   └── Async\ServiceUnavailableException  — сервис недоступен (circuit breaker)
+├── Async\InputOutputException             — ошибка ввода-вывода
+├── Async\DnsException                     — ошибка разрешения DNS
+├── Async\TimeoutException                 — таймаут операции
+├── Async\PollException                    — ошибка poll-операции
+├── Async\ChannelException                 — ошибка канала
+├── Async\PoolException                    — ошибка пула ресурсов
+└── Async\CompositeException               — контейнер множества исключений
 ```
 
-## CancellationError
+## AsyncCancellation
 
 ```php
-class Async\CancellationError extends \Error {}
+class Async\AsyncCancellation extends \Cancellation {}
 ```
 
-Выбрасывается при отмене корутины. Наследует `\Error`, а не `\Exception`, чтобы обычные `catch (\Exception $e)` блоки **не** перехватывали отмену случайно.
+Выбрасывается при отмене корутины. `\Cancellation` — третий корневой класс `Throwable` наравне с `\Error` и `\Exception`, поэтому обычные `catch (\Exception $e)` и `catch (\Error $e)` блоки **не** перехватывают отмену случайно.
 
 ```php
 <?php
-use Async\CancellationError;
+use Async\AsyncCancellation;
 use function Async\spawn;
 use function Async\await;
 use function Async\delay;
@@ -49,7 +51,7 @@ use function Async\delay;
 $coroutine = spawn(function() {
     try {
         delay(10000);
-    } catch (CancellationError $e) {
+    } catch (AsyncCancellation $e) {
         // Корректно завершаем работу
         echo "Отменено: " . $e->getMessage() . "\n";
     }
@@ -60,7 +62,7 @@ $coroutine->cancel();
 ?>
 ```
 
-**Важно:** Не ловите `CancellationError` через `catch (\Throwable $e)` без повторного выброса — это нарушает механизм кооперативной отмены.
+**Важно:** Не ловите `AsyncCancellation` через `catch (\Throwable $e)` без повторного выброса — это нарушает механизм кооперативной отмены.
 
 ## DeadlockError
 
@@ -241,7 +243,7 @@ $scope->dispose();
 
 ## Рекомендации
 
-### Правильная обработка CancellationError
+### Правильная обработка AsyncCancellation
 
 ```php
 <?php
@@ -249,17 +251,17 @@ $scope->dispose();
 try {
     await($coroutine);
 } catch (\Exception $e) {
-    // CancellationError НЕ будет пойман здесь — это \Error
+    // AsyncCancellation НЕ будет пойман здесь — это \Cancellation
     handleError($e);
 }
 ```
 
 ```php
 <?php
-// Если нужно поймать всё — обязательно пробрасывайте CancellationError
+// Если нужно поймать всё — обязательно пробрасывайте AsyncCancellation
 try {
     await($coroutine);
-} catch (Async\CancellationError $e) {
+} catch (Async\AsyncCancellation $e) {
     throw $e; // Пробрасываем дальше
 } catch (\Throwable $e) {
     handleError($e);
