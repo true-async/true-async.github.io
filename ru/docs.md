@@ -149,6 +149,7 @@ description: "Документация TrueAsync. Узнайте, как уст�
     font-size: 0.95em; font-weight: 600; cursor: pointer; text-align: center; text-decoration: none;
 }
 @media (max-width: 768px) {
+    .learning-map-wrap .lm-container { overflow-y: auto; }
     .learning-map-wrap .lm-tooltip { display: none !important; }
     .learning-map-wrap .lm-hint { font-size: 0.8em; }
 }
@@ -359,7 +360,7 @@ nodes.forEach(function(n){
     var tt=document.createElementNS(NS,'text');
     tt.setAttribute('x',n.cx+2);tt.setAttribute('y',n.cy);tt.setAttribute('text-anchor','middle');
     tt.setAttribute('dominant-baseline','central');tt.setAttribute('font-family','Fira Sans,sans-serif');
-    tt.setAttribute('font-size',lmMob?'14':'13');tt.setAttribute('font-weight','600');tt.setAttribute('fill',grp.color);
+    tt.setAttribute('font-size','13');tt.setAttribute('font-weight','600');tt.setAttribute('fill',grp.color);
     tt.setAttribute('pointer-events','none');tt.textContent=n.title;
     if(n.planned)tt.setAttribute('opacity','0.65');g.appendChild(tt);
     if(n.order){
@@ -367,7 +368,7 @@ nodes.forEach(function(n){
         bg.classList.add('order-badge-g');bg.style.animationDelay=(n.order*0.08)+'s';
         bg.style.transformOrigin=bx+'px '+by+'px';
         var bc=document.createElementNS(NS,'circle');
-        bc.setAttribute('cx',bx);bc.setAttribute('cy',by);bc.setAttribute('r',lmMob?13:11);
+        bc.setAttribute('cx',bx);bc.setAttribute('cy',by);bc.setAttribute('r',11);
         bc.setAttribute('fill',grp.color);bg.appendChild(bc);
         var bt=document.createElementNS(NS,'text');
         bt.setAttribute('x',bx);bt.setAttribute('y',by);bt.setAttribute('text-anchor','middle');
