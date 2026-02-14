@@ -238,10 +238,10 @@ var nodes = [
      url:'/ru/docs/concepts/pdo-pool.html',group:'resources',order:null,w:120,h:44}
 ];
 var dPos={coroutines:{cx:250,cy:55},future:{cx:470,cy:55},'await-funcs':{cx:250,cy:150},channels:{cx:470,cy:150},cancellation:{cx:300,cy:245},scope:{cx:250,cy:340},taskgroup:{cx:470,cy:340},context:{cx:300,cy:435},iterate:{cx:125,cy:532},pool:{cx:350,cy:532},'pdo-pool':{cx:510,cy:532}};
-var mPos={coroutines:{cx:130,cy:75},future:{cx:310,cy:75},'await-funcs':{cx:130,cy:205},channels:{cx:310,cy:205},cancellation:{cx:210,cy:340},scope:{cx:130,cy:475},taskgroup:{cx:310,cy:475},context:{cx:210,cy:610},iterate:{cx:120,cy:745},pool:{cx:300,cy:745},'pdo-pool':{cx:300,cy:880}};
+var mPos={coroutines:{cx:115,cy:55},future:{cx:275,cy:55},'await-funcs':{cx:115,cy:150},channels:{cx:275,cy:150},cancellation:{cx:190,cy:245},scope:{cx:115,cy:345},taskgroup:{cx:275,cy:345},context:{cx:190,cy:440},iterate:{cx:105,cy:540},pool:{cx:260,cy:540},'pdo-pool':{cx:260,cy:640}};
 var pos=lmMob?mPos:dPos;
-nodes.forEach(function(n){var p=pos[n.id];n.cx=p.cx;n.cy=p.cy;if(lmMob){n.w=Math.round(n.w*1.25);n.h=56;}});
-if(lmMob)svg.setAttribute('viewBox','0 0 420 940');
+nodes.forEach(function(n){var p=pos[n.id];n.cx=p.cx;n.cy=p.cy;if(lmMob){n.h=50;}});
+if(lmMob)svg.setAttribute('viewBox','0 0 380 700');
 var edges = [
     {from:'coroutines',to:'await-funcs',type:'path'},
     {from:'await-funcs',to:'cancellation',type:'path'},
@@ -285,13 +285,13 @@ var dZones=[
     {group:'resources',label:'Ресурсы и пулы',x:245,y:485,w:330,h:90,rx:14}
 ];
 var mZones=[
-    {group:'primitives',label:'Базовые примитивы',x:20,y:20,w:390,h:110,rx:16},
-    {group:'sync',label:'Синхронизация',x:20,y:150,w:390,h:110,rx:16},
-    {group:'cancellation',label:'Cancellation',x:70,y:280,w:280,h:115,rx:16},
-    {group:'structural',label:'Стр. конкурентность',x:20,y:415,w:390,h:115,rx:16},
-    {group:'context',label:'Context',x:70,y:550,w:280,h:115,rx:16},
-    {group:'iterate',label:'iterate()',x:20,y:685,w:190,h:115,rx:16},
-    {group:'resources',label:'Ресурсы и пулы',x:180,y:685,w:230,h:245,rx:16}
+    {group:'primitives',label:'Базовые примитивы',x:15,y:10,w:350,h:90,rx:14},
+    {group:'sync',label:'Синхронизация',x:15,y:108,w:350,h:90,rx:14},
+    {group:'cancellation',label:'Cancellation',x:65,y:205,w:250,h:85,rx:14},
+    {group:'structural',label:'Стр. конкурентность',x:15,y:300,w:350,h:90,rx:14},
+    {group:'context',label:'Context',x:65,y:398,w:250,h:85,rx:14},
+    {group:'iterate',label:'iterate()',x:15,y:495,w:175,h:90,rx:14},
+    {group:'resources',label:'Ресурсы и пулы',x:155,y:495,w:220,h:190,rx:14}
 ];
 var groupZones=lmMob?mZones:dZones;
 var NS='http://www.w3.org/2000/svg';
@@ -311,8 +311,8 @@ groupZones.forEach(function(z){
     r.setAttribute('rx',z.rx);r.setAttribute('fill',g.bg);r.setAttribute('stroke',g.border);
     r.setAttribute('stroke-width','1');r.setAttribute('stroke-dasharray','6 3');el.appendChild(r);
     var t=document.createElementNS(NS,'text');
-    t.setAttribute('x',z.x+14);t.setAttribute('y',z.y+(lmMob?22:16));
-    t.setAttribute('font-family','Fira Sans,sans-serif');t.setAttribute('font-size',lmMob?'13':'11');
+    t.setAttribute('x',z.x+14);t.setAttribute('y',z.y+16);
+    t.setAttribute('font-family','Fira Sans,sans-serif');t.setAttribute('font-size','11');
     t.setAttribute('font-weight','600');t.setAttribute('fill',g.color);t.setAttribute('opacity','0.7');
     t.textContent=z.label;el.appendChild(t);zG.appendChild(el);zEls[z.group]=el;
 });
