@@ -242,7 +242,6 @@ var dPos={coroutines:{cx:250,cy:55},future:{cx:470,cy:55},'await-funcs':{cx:250,
 var mPos={coroutines:{cx:115,cy:55},future:{cx:275,cy:55},'await-funcs':{cx:115,cy:150},channels:{cx:275,cy:150},cancellation:{cx:190,cy:245},scope:{cx:115,cy:345},taskgroup:{cx:275,cy:345},context:{cx:190,cy:440},iterate:{cx:105,cy:540},pool:{cx:260,cy:540},'pdo-pool':{cx:260,cy:640}};
 var pos=lmMob?mPos:dPos;
 nodes.forEach(function(n){var p=pos[n.id];n.cx=p.cx;n.cy=p.cy;if(lmMob){n.h=50;}});
-if(lmMob)svg.setAttribute('viewBox','0 0 380 700');
 var edges = [
     {from:'coroutines',to:'await-funcs',type:'path'},
     {from:'await-funcs',to:'cancellation',type:'path'},
@@ -297,6 +296,7 @@ var mZones=[
 var groupZones=lmMob?mZones:dZones;
 var NS='http://www.w3.org/2000/svg';
 var svg=document.getElementById('lmSvg');
+if(lmMob)svg.setAttribute('viewBox','0 0 380 700');
 var tip=document.getElementById('lmTooltip');
 var eG=document.getElementById('lmEdges');
 var nG=document.getElementById('lmNodes');
