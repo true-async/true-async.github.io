@@ -222,9 +222,9 @@ var nodes = [
     {id:'scope',title:'Scope',desc:'Контролировать время жизни группы корутин',
      code:'<span class="var">$scope</span> = <span class="kw">new</span> Async\\<span class="fn">Scope</span>();\n<span class="fn">spawn_with</span>(<span class="var">$scope</span>, <span class="var">$task</span>);',
      url:'/ru/docs/concepts/scope.html',group:'structural',order:4,w:110,h:44},
-    {id:'taskgroup',title:'TaskGroup',desc:'Группировать задачи для совместного управления (планируется)',
-     code:'<span class="cm">// Планируемая функция</span>\n<span class="var">$group</span> = <span class="kw">new</span> <span class="fn">TaskGroup</span>();\n<span class="var">$group</span>-><span class="fn">spawn</span>(<span class="var">$task</span>);',
-     url:'#',group:'structural',order:null,planned:true,w:130,h:44},
+    {id:'taskgroup',title:'TaskGroup',desc:'Structured concurrency: группировка задач с гарантией ожидания или отмены',
+     code:'<span class="var">$group</span> = <span class="kw">new</span> <span class="fn">TaskGroup</span>(<span class="num">5</span>);\n<span class="var">$group</span>-><span class="fn">spawn</span>(<span class="var">$task</span>);\n<span class="var">$results</span> = <span class="var">$group</span>-><span class="fn">all</span>();',
+     url:'/ru/docs/concepts/task-group.html',group:'structural',order:null,w:130,h:44},
     {id:'context',title:'Context',desc:'Хранить данные привязанные к корутине (напр. токен авторизации)',
      code:'<span class="var">$ctx</span> = <span class="fn">current_context</span>();\n<span class="var">$ctx</span>-><span class="fn">set</span>(<span class="str">\'auth_token\'</span>, <span class="var">$token</span>);\n<span class="var">$v</span> = <span class="var">$ctx</span>-><span class="fn">find</span>(<span class="str">\'auth_token\'</span>);',
      url:'/ru/docs/concepts/context.html',group:'context',order:5,w:120,h:44},
@@ -273,6 +273,11 @@ var subPages = {
     'context':[
         {label:'current_context()',url:'/ru/docs/reference/current-context.html'},
         {label:'coroutine_context()',url:'/ru/docs/reference/coroutine-context.html'}],
+    'taskgroup':[
+        {label:'all()',url:'/ru/docs/reference/task-group/all.html'},
+        {label:'race()',url:'/ru/docs/reference/task-group/race.html'},
+        {label:'seal()',url:'/ru/docs/reference/task-group/seal.html'},
+        {label:'cancel()',url:'/ru/docs/reference/task-group/cancel.html'}],
     'pool':[{label:'Pool::tryAcquire()',url:'/ru/docs/concepts/pool.html'}]
 };
 var dZones=[
