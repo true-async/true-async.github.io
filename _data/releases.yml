@@ -1,49 +1,27 @@
 docker_images:
-  - tag: "true-async/php:8.6-zts"
-    description: "PHP 8.6 + TrueAsync 1.0.0"
+  - tag: "trueasync/php-true-async:8.6"
+    description: "Ubuntu 24.04 — CLI + FPM"
+  - tag: "trueasync/php-true-async:8.6-alpine"
+    description: "Alpine 3.20 — CLI + FPM (lightweight)"
+  - tag: "trueasync/php-true-async:latest"
+    description: "Ubuntu 24.04 — alias for 8.6"
 
 versions:
-  - version: "1.0.0"
-    date: "2026-11-01"
-    php_requires: "PHP 8.6+"
-    changelog_url: "#"
+  - version: "0.9.0"
+    date: "2026-02-18"
+    php_requires: "PHP 8.6-dev (ZTS)"
+    changelog_url: "https://github.com/true-async/releases/releases"
     old: false
     platforms:
       - name: Windows
         files:
-          - name: "true_async-1.0.0-ts-php8.6-x64.zip"
-            url: "#"
-            sig_url: "#"
-            size: "2,345 KB"
-            sha256: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-      - name: Linux
-        files:
-          - name: "true_async-1.0.0-ts-php8.6-linux-x86_64.tar.gz"
-            url: "#"
-            sig_url: "#"
-            size: "1,890 KB"
-            sha256: "f0e1d2c3b4a59687706152433425160798a9bacbdcedfe0f102132435465768"
-      - name: macOS
-        files:
-          - name: "true_async-1.0.0-ts-php8.3-macos-arm64.tar.gz"
-            url: "#"
-            sig_url: "#"
-            size: "1,734 KB"
-            sha256: "aabbccdd11223344556677889900eeff0011223344556677889900aabbccddee"
-          - name: "true_async-1.0.0-ts-php8.3-macos-x86_64.tar.gz"
-            url: "#"
-            sig_url: "#"
-            size: "1,756 KB"
-            sha256: "11223344aabbccdd556677889900eeff0011223344556677889900aabbccddee"
-      - name: source
-        files:
-          - name: "true-async-1.0.0.tar.gz"
-            url: "#"
-            sig_url: "#"
-            size: "890 KB"
-            sha256: "00112233445566778899aabbccddeeff00112233445566778899aabbccddeeff"
-          - name: "true-async-1.0.0.tar.xz"
-            url: "#"
-            sig_url: "#"
-            size: "645 KB"
-            sha256: "ffeeddccbbaa99887766554433221100ffeeddccbbaa99887766554433221100"
+          - name: "php-8.6-trueasync-0.9.0-Win32-vs17-x64.zip"
+            label: "Release"
+            url: "https://github.com/true-async/releases/releases"
+            size: "~25 MB"
+            sha256: "see sha256sums.txt in release"
+          - name: "php-8.6-trueasync-0.9.0-Win32-vs17-x64-debug.zip"
+            label: "Debug"
+            url: "https://github.com/true-async/releases/releases"
+            size: "~30 MB"
+            sha256: "see sha256sums.txt in release"
