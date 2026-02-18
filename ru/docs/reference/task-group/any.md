@@ -5,7 +5,7 @@ path_key: "/docs/reference/task-group/any.html"
 nav_active: docs
 permalink: /ru/docs/reference/task-group/any.html
 page_title: "TaskGroup::any"
-description: "Получить результат первой успешной задачи."
+description: "Создать Future, который разрешится результатом первой успешной задачи."
 ---
 
 # TaskGroup::any
@@ -13,23 +13,26 @@ description: "Получить результат первой успешной 
 (PHP 8.6+, True Async 1.0)
 
 ```php
-public TaskGroup::any(): mixed
+public TaskGroup::any(): Async\Future
 ```
 
-Возвращает результат первой *успешно* завершившейся задачи.
+Возвращает `Future`, который разрешится результатом первой *успешно* завершившейся задачи.
 Задачи, завершившиеся с ошибкой, пропускаются.
 Остальные задачи **продолжают работать**.
 
-Если все задачи завершились с ошибкой — бросает `CompositeException`.
+Если все задачи завершились с ошибкой — `Future` реджектится с `CompositeException`.
+
+Возвращённый `Future` поддерживает токен отмены через `await(?Completable $cancellation)`.
 
 ## Возвращаемое значение
 
-Результат первой успешной задачи.
+`Async\Future` — будущий результат первой успешной задачи.
+Для получения значения вызовите `->await()`.
 
 ## Ошибки
 
 - Бросает `Async\AsyncException`, если группа пуста.
-- Бросает `Async\CompositeException`, если все задачи завершились с ошибкой.
+- `Future` реджектится с `Async\CompositeException`, если все задачи завершились с ошибкой.
 
 ## Примеры
 
@@ -47,8 +50,11 @@ spawn(function() {
     $group->spawn(fn() => throw new \RuntimeException("fail 2"));
     $group->spawn(fn() => "success!");
 
-    $result = $group->any();
+    $result = $group->any()->await();
     echo $result . "\n"; // "success!"
+
+    // Ошибки упавших задач нужно явно подавить
+    $group->suppressErrors();
 });
 ```
 
@@ -68,10 +74,36 @@ spawn(function() {
     $group->seal();
 
     try {
-        $group->any();
+        $group->any()->await();
     } catch (\Async\CompositeException $e) {
         echo count($e->getExceptions()) . " ошибок\n"; // "2 ошибок"
     }
+});
+```
+
+### Пример #3 Устойчивый поиск с таймаутом
+
+```php
+<?php
+
+use Async\TaskGroup;
+
+spawn(function() {
+    $group = new TaskGroup();
+
+    $group->spawn(fn() => searchGoogle($query));
+    $group->spawn(fn() => searchBing($query));
+    $group->spawn(fn() => searchDuckDuckGo($query));
+
+    $timeout = Async\timeout(3.0);
+
+    try {
+        $result = $group->any()->await($timeout);
+    } catch (Async\TimeoutException) {
+        echo "Ни один провайдер не ответил за 3 секунды\n";
+    }
+
+    $group->suppressErrors();
 });
 ```
 

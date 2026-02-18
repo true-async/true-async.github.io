@@ -19,14 +19,147 @@ description: "Async\\TaskGroup — высокоуровневый паттерн
 чтобы каждая корутина была ожидаема или отменена. Забытая корутина продолжает работать,
 необработанная ошибка теряется, а отмена группы задач требует ручного кода.
 
-**TaskGroup** решает эту проблему. Это высокоуровневый паттерн structured concurrency,
-который гарантирует: все задачи будут корректно ожидаемы или отменены.
-`TaskGroup` предоставляет несколько стратегий ожидания (`all`, `race`, `any`, `awaitCompletion`),
+Функции `await_all()`, `await_any()` не учитывают логические связи между разными задачами.
+Например, когда нужно сделать несколько запросов, взять первый результат и отменить остальные,
+`await_any()` требует от программиста дополнительного кода для отмены оставшихся задач. 
+Такой код может быть достаточно сложным, поэтому функции `await_all()`, `await_any()` стоит рассматривать 
+как антипатерны в этой ситуации.
+
+Использование `Scope` для этой цели не подходит, так как корутины-задачи могут создавать другие дочерние корутины,
+что требует от программиста реализовывать список корутин-задач и отдельно отслеживать их.
+
+**TaskGroup** решает все эти проблемы. Это высокоуровневый паттерн structured concurrency,
+который гарантирует: все задачи будут корректно ожидаемы или отменены. Он логические объединяет задачи, 
+и позволяет оперировать ими как единым целым.
+
+`TaskGroup` предоставляет несколько стратегий ожидания (`all`, `race`, `any`),
 контроль конкурентности, итерацию по результатам и обработку ошибок.
 
-При указании параметра `concurrency` TaskGroup также работает как пул корутин:
+- `all` возвращает `Future`, который разрешится массивом результатов всех задач, или реджектится с `CompositeException`.
+- `race` возвращает `Future`, который разрешится результатом первой завершившейся задачи.
+- `any` возвращает `Future`, который разрешится результатом первой успешно завершившейся задачи, игнорируя ошибки.
+- `awaitCompletion` ожидает полного завершения всех задач, а также других корутин в `Scope`.
+
+Поскольку `all`, `race` и `any` возвращают `Future`, для получения результата нужно вызвать `->await()`.
+Это позволяет передать токен отмены: `->await($timeout)` — для ожидания с таймаутом.
+
+При указании параметра `concurrency` `TaskGroup` также работает как пул корутин:
 задачи, превышающие лимит, ожидают в очереди и не создают корутину до появления свободного слота.
 Это позволяет экономить память и контролировать нагрузку при обработке большого числа задач.
+
+## Примеры
+
+### Параллельная загрузка данных
+
+Самый частый сценарий — загрузить данные из нескольких источников одновременно:
+
+```php
+$group = new Async\TaskGroup();
+
+$group->spawnWithKey('user',    fn() => $db->query('SELECT * FROM users WHERE id = ?', [$id]));
+$group->spawnWithKey('orders',  fn() => $db->query('SELECT * FROM orders WHERE user_id = ?', [$id]));
+$group->spawnWithKey('reviews', fn() => $api->get("/users/{$id}/reviews"));
+
+$data = $group->all()->await();
+// ['user' => ..., 'orders' => [...], 'reviews' => [...]]
+
+return new UserProfile($data['user'], $data['orders'], $data['reviews']);
+```
+
+Все три запроса выполняются параллельно. Если любой из них бросит исключение,
+`all()` вернёт `Future`, который реджектится с `CompositeException`.
+
+### Hedged requests
+
+Паттерн «hedged request» — отправить один и тот же запрос на несколько реплик
+и взять первый ответ. Это снижает задержку при медленных или перегруженных серверах:
+
+```php
+$replicas = ['db-replica-1', 'db-replica-2', 'db-replica-3'];
+
+$group = new Async\TaskGroup();
+
+foreach ($replicas as $host) {
+    $group->spawn(fn() => pg_query($host, 'SELECT * FROM products WHERE id = 42'));
+}
+
+// Первый ответ — результат, остальные задачи продолжают работать
+$product = $group->race()->await();
+```
+
+### Обработка очереди с лимитом конкурентности
+
+Обработать 10 000 задач, но не более 50 одновременно:
+
+```php
+$group = new Async\TaskGroup(concurrency: 50);
+
+foreach ($urls as $url) {
+    $group->spawn(fn() => httpClient()->get($url)->getBody());
+}
+
+$results = $group->all()->await();
+```
+
+`TaskGroup` автоматически ставит задачи в очередь. Корутина создаётся только тогда,
+когда появляется свободный слот, что экономит память при большом объёме задач.
+
+### Итерация по результатам по мере готовности
+
+Обрабатывать результаты, не дожидаясь завершения всех задач:
+
+```php
+$group = new Async\TaskGroup();
+
+foreach ($imageFiles as $file) {
+    $group->spawn(fn() => processImage($file));
+}
+
+$group->seal();
+
+foreach ($group as $key => $result) {
+    // Результаты приходят по мере готовности, а не в порядке добавления
+    saveToStorage($result);
+}
+```
+
+### Устойчивый к ошибкам поиск
+
+Запросить несколько провайдеров, взять первый успешный ответ, игнорируя ошибки:
+
+```php
+$group = new Async\TaskGroup();
+
+$group->spawn(fn() => searchGoogle($query));
+$group->spawn(fn() => searchBing($query));
+$group->spawn(fn() => searchDuckDuckGo($query));
+
+// any() игнорирует провайдеры, которые упали, и возвращает первый успешный результат
+$results = $group->any()->await();
+
+// Ошибки упавших провайдеров нужно явно обработать, иначе деструктор бросит исключение
+$group->suppressErrors();
+```
+
+Если все провайдеры упали, `any()` выбросит `CompositeException` со всеми ошибками.
+
+### Таймаут для группы задач
+
+Ограничить время ожидания результатов через токен отмены:
+
+```php
+$group = new Async\TaskGroup();
+
+$group->spawn(fn() => slowApi()->fetchReport());
+$group->spawn(fn() => anotherApi()->fetchStats());
+$group->seal();
+
+try {
+    $results = $group->all()->await(Async\timeout(5.0));
+} catch (Async\TimeoutException) {
+    echo "Не удалось получить данные за 5 секунд";
+}
+```
 
 ## Обзор класса
 
@@ -41,9 +174,9 @@ final class Async\TaskGroup implements Async\Awaitable, Countable, IteratorAggre
     public spawnWithKey(string|int $key, callable $task, mixed ...$args): void
 
     /* Ожидание результатов */
-    public all(bool $ignoreErrors = false): array
-    public race(): mixed
-    public any(): mixed
+    public all(bool $ignoreErrors = false): Async\Future
+    public race(): Async\Future
+    public any(): Async\Future
     public awaitCompletion(): void
 
     /* Жизненный цикл */
@@ -67,12 +200,14 @@ final class Async\TaskGroup implements Async\Awaitable, Countable, IteratorAggre
 }
 ```
 
+
+
 ## Аналоги в других языках
 
 | Возможность             | PHP `TaskGroup`                     | Python `asyncio.TaskGroup`      | Java `StructuredTaskScope`               | Kotlin `coroutineScope`   |
 |-------------------------|-------------------------------------|---------------------------------|------------------------------------------|---------------------------|
-| Structured concurrency  | `seal()` + `all()`                  | `async with` блок               | `try-with-resources` + `join()`          | Автоматически через scope |
-| Стратегии ожидания      | `all()`, `race()`, `any()`          | Только all (через `async with`) | `ShutdownOnSuccess`, `ShutdownOnFailure` | `async`/`await`, `select` |
+| Structured concurrency  | `seal()` + `all()->await()`         | `async with` блок               | `try-with-resources` + `join()`          | Автоматически через scope |
+| Стратегии ожидания      | `all()`, `race()`, `any()` → Future | Только all (через `async with`) | `ShutdownOnSuccess`, `ShutdownOnFailure` | `async`/`await`, `select` |
 | Лимит конкурентности    | `concurrency: N`                    | Нет (нужен `Semaphore`)         | Нет                                      | Нет (нужен `Semaphore`)   |
 | Итерация по результатам | `foreach` по мере готовности        | Нет                             | Нет                                      | `Channel`                 |
 | Обработка ошибок        | `CompositeException`, `getErrors()` | `ExceptionGroup`                | `throwIfFailed()`                        | Исключение отменяет scope |

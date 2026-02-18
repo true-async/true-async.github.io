@@ -38,6 +38,8 @@ docs:
           label: "Async\\Pool"
         - url: "/ru/docs/concepts/pdo-pool.html"
           label: "PDO Pool"
+        - url: "/ru/docs/concepts/task-group.html"
+          label: "TaskGroup"
     - title: "Справочник функций"
       items:
         - url: "/ru/docs/reference/supported-functions.html"
