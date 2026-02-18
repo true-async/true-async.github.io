@@ -18,6 +18,8 @@ docs:
           label: "Введение"
     - title: "Концепции"
       items:
+        - url: "/ru/docs/concepts/introduction.html"
+          label: "Зачем асинхронность?"
         - url: "/ru/docs/concepts/coroutines.html"
           label: "Coroutine"
         - url: "/ru/docs/concepts/scope.html"

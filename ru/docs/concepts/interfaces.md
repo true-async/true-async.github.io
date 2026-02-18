@@ -17,6 +17,7 @@ interface Async\Awaitable {}
 ```
 
 Маркерный интерфейс для всех объектов, которые можно ожидать. Не содержит методов — служит для типизации.
+Awaitable-объекты могут менять состояния много раз, то есть являются `multiple-shot` объектами.
 
 Реализуют: `Coroutine`, `Future`, `Channel`, `Timeout`.
 
@@ -31,7 +32,7 @@ interface Async\Completable extends Async\Awaitable
 }
 ```
 
-Расширяет `Awaitable` — объекты, которые можно не только ожидать, но и отменить, а также проверить их состояние.
+Расширяет `Awaitable`. `Async\Completable` объекты изменяют состояние лишь один раз (`one-shot`).
 
 Реализуют: `Coroutine`, `Future`, `Timeout`.
 
