@@ -4,11 +4,13 @@ lang: ru
 path_key: "/docs/concepts/coroutines.html"
 nav_active: docs
 permalink: /ru/docs/concepts/coroutines.html
-page_title: "Корутины"
-description: "Корутины в TrueAsync — создание, жизненный цикл, suspend, отмена, обработка ошибок и реальные примеры."
+page_title: "Async\\Coroutine"
+description: "Класс Async\\Coroutine — создание, жизненный цикл, состояния, отмена, отладка и полный справочник методов."
 ---
 
-# Корутины: легковесные задачи
+# Класс Async\Coroutine
+
+(PHP 8.6+, True Async 1.0)
 
 ## Корутины в TrueAsync
 
@@ -82,23 +84,32 @@ $result = await($coroutine);
 echo "Результат: $result\n";
 ```
 
-**Важно:** `await()` блокирует выполнение **текущей корутины**, но весь PHP процесс. Другие корутины продолжают работать.
+**Важно:** `await()` блокирует выполнение **текущей корутины**, но не весь PHP процесс. Другие корутины продолжают работать.
 
 ## Жизненный цикл корутины
 
 Корутина проходит несколько состояний:
 
-
+1. **Queued** — создана через `spawn()`, ожидает запуска планировщиком
+2. **Running** — выполняется в данный момент
+3. **Suspended** — приостановлена, ожидает I/O или `suspend()`
+4. **Completed** — завершила выполнение (с результатом или исключением)
+5. **Cancelled** — отменена через `cancel()`
 
 ### Проверка состояния
 
 ```php
 $coro = spawn(longTask(...));
 
+var_dump($coro->isQueued());     // true - ожидает запуска
+var_dump($coro->isStarted());   // false - ещё не начала
+
+suspend(); // даём корутине запуститься
+
 var_dump($coro->isStarted());    // true - корутина начала работу
 var_dump($coro->isRunning());    // false - сейчас не выполняется
-var_dump($coro->isSuspended());  // true - приостановлена, ждет чего-то
-var_dump($coro->isCompleted());  // false - еще не закончила
+var_dump($coro->isSuspended());  // true - приостановлена, ждёт чего-то
+var_dump($coro->isCompleted());  // false - ещё не закончила
 var_dump($coro->isCancelled());  // false - не отменена
 ```
 
@@ -318,11 +329,43 @@ print_r($trace);
 $coro = spawn(someFunction(...));
 
 // Где был вызван spawn()
-$location = $coro->getSpawnLocation();
-echo "Корутина создана в: {$location['file']}:{$location['line']}\n";
+echo "Корутина создана в: " . $coro->getSpawnLocation() . "\n";
+// Вывод: "Корутина создана в: /app/server.php:42"
+
+// Или как массив [filename, lineno]
+[$file, $line] = $coro->getSpawnFileAndLine();
 ```
 
-Очень полезно для отладки — сразу видно, откуда взялась корутина.
+### Узнать, где корутина приостановлена
+
+```php
+$coro = spawn(function() {
+    file_get_contents('https://api.example.com/data'); // suspend здесь
+});
+
+suspend(); // даём корутине запуститься
+
+echo "Приостановлена в: " . $coro->getSuspendLocation() . "\n";
+// Вывод: "Приостановлена в: /app/server.php:45"
+
+[$file, $line] = $coro->getSuspendFileAndLine();
+```
+
+### Информация об ожидании
+
+```php
+$coro = spawn(function() {
+    Async\delay(5000);
+});
+
+suspend();
+
+// Узнать, что корутина ожидает
+$info = $coro->getAwaitingInfo();
+print_r($info);
+```
+
+Очень полезно для отладки — сразу видно, откуда взялась корутина и где она остановилась.
 
 ## Корутины vs Потоки
 
@@ -336,8 +379,98 @@ echo "Корутина создана в: {$location['file']}:{$location['line']
 | Нужны await точки             | Могут прерваться где угодно |
 | Для I/O операций              | Для CPU-вычислений          |
 
-## Дальше что?
+## Отложенная отмена с protect()
+
+Если корутина находится внутри защищённой секции `protect()`, отмена откладывается до завершения защищённого блока:
+
+```php
+$coro = spawn(function() {
+    $result = protect(function() {
+        // Критическая операция — отмена отложена
+        $db->beginTransaction();
+        $db->execute('INSERT INTO logs ...');
+        $db->commit();
+        return "saved";
+    });
+
+    // Отмена произойдёт здесь, после выхода из protect()
+    echo "Результат: $result\n";
+});
+
+suspend();
+
+$coro->cancel(); // Отмена отложена — protect() завершится полностью
+```
+
+Флаг `isCancellationRequested()` становится `true` сразу, а `isCancelled()` — только после фактического завершения корутины.
+
+## Обзор класса
+
+```php
+final class Async\Coroutine implements Async\Completable {
+
+    /* Идентификация */
+    public getId(): int
+
+    /* Приоритет */
+    public asHiPriority(): Coroutine
+
+    /* Контекст */
+    public getContext(): Async\Context
+
+    /* Результат и ошибки */
+    public getResult(): mixed
+    public getException(): mixed
+
+    /* Состояние */
+    public isStarted(): bool
+    public isQueued(): bool
+    public isRunning(): bool
+    public isSuspended(): bool
+    public isCompleted(): bool
+    public isCancelled(): bool
+    public isCancellationRequested(): bool
+
+    /* Управление */
+    public cancel(?Async\AsyncCancellation $cancellation = null): void
+    public onFinally(\Closure $callback): void
+
+    /* Отладка */
+    public getTrace(int $options = DEBUG_BACKTRACE_PROVIDE_OBJECT, int $limit = 0): ?array
+    public getSpawnFileAndLine(): array
+    public getSpawnLocation(): string
+    public getSuspendFileAndLine(): array
+    public getSuspendLocation(): string
+    public getAwaitingInfo(): array
+}
+```
+
+## Содержание
+
+- [Coroutine::getId](/ru/docs/reference/coroutine/get-id.html) — Получить уникальный идентификатор корутины
+- [Coroutine::asHiPriority](/ru/docs/reference/coroutine/as-hi-priority.html) — Пометить корутину как высокоприоритетную
+- [Coroutine::getContext](/ru/docs/reference/coroutine/get-context.html) — Получить локальный контекст корутины
+- [Coroutine::getResult](/ru/docs/reference/coroutine/get-result.html) — Получить результат выполнения
+- [Coroutine::getException](/ru/docs/reference/coroutine/get-exception.html) — Получить исключение корутины
+- [Coroutine::isStarted](/ru/docs/reference/coroutine/is-started.html) — Проверить, запущена ли корутина
+- [Coroutine::isQueued](/ru/docs/reference/coroutine/is-queued.html) — Проверить, ожидает ли корутина в очереди
+- [Coroutine::isRunning](/ru/docs/reference/coroutine/is-running.html) — Проверить, выполняется ли корутина прямо сейчас
+- [Coroutine::isSuspended](/ru/docs/reference/coroutine/is-suspended.html) — Проверить, приостановлена ли корутина
+- [Coroutine::isCompleted](/ru/docs/reference/coroutine/is-completed.html) — Проверить, завершена ли корутина
+- [Coroutine::isCancelled](/ru/docs/reference/coroutine/is-cancelled.html) — Проверить, была ли корутина отменена
+- [Coroutine::isCancellationRequested](/ru/docs/reference/coroutine/is-cancellation-requested.html) — Проверить, запрошена ли отмена
+- [Coroutine::cancel](/ru/docs/reference/coroutine/cancel.html) — Отменить корутину
+- [Coroutine::onFinally](/ru/docs/reference/coroutine/on-finally.html) — Зарегистрировать обработчик завершения
+- [Coroutine::getTrace](/ru/docs/reference/coroutine/get-trace.html) — Получить стек вызовов приостановленной корутины
+- [Coroutine::getSpawnFileAndLine](/ru/docs/reference/coroutine/get-spawn-file-and-line.html) — Получить файл и строку создания
+- [Coroutine::getSpawnLocation](/ru/docs/reference/coroutine/get-spawn-location.html) — Получить место создания как строку
+- [Coroutine::getSuspendFileAndLine](/ru/docs/reference/coroutine/get-suspend-file-and-line.html) — Получить файл и строку приостановки
+- [Coroutine::getSuspendLocation](/ru/docs/reference/coroutine/get-suspend-location.html) — Получить место приостановки как строку
+- [Coroutine::getAwaitingInfo](/ru/docs/reference/coroutine/get-awaiting-info.html) — Получить информацию об ожидании
+
+## Дальше
 
 - [Scope](/ru/docs/concepts/scope.html) — управление группами корутин
+- [Отмена](/ru/docs/concepts/cancellation.html) — подробности об отмене и protect()
 - [spawn()](/ru/docs/reference/spawn.html) — полная документация
 - [await()](/ru/docs/reference/await.html) — полная документация
