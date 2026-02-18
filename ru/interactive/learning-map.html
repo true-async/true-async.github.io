@@ -548,8 +548,8 @@ description: "Интерактивная карта документации —
 
         { id: 'await-funcs', title: 'await, await_all',
           desc: 'Ожидание одной или нескольких корутин',
-          code: '<span class="var">$results</span> = <span class="fn">await_all</span>(<span class="var">$tasks</span>);\n<span class="var">$first</span> = <span class="fn">await_first_success</span>(<span class="var">$tasks</span>);',
-          url: '/ru/docs/reference/supported-functions.html', group: 'sync', order: 2, w: 160, h: 44 },
+          code: '<span class="var">$result</span> = <span class="fn">await</span>(<span class="var">$coro</span>);\n<span class="var">$results</span> = <span class="fn">await_all</span>(<span class="var">$tasks</span>);\n<span class="var">$first</span> = <span class="fn">await_first_success</span>(<span class="var">$tasks</span>);',
+          url: '/ru/docs/reference/await.html', group: 'sync', order: 2, w: 160, h: 44 },
 
         { id: 'channels', title: 'Каналы',
           desc: 'Передавать данные между корутинами',
@@ -567,9 +567,9 @@ description: "Интерактивная карта документации —
           url: '/ru/docs/concepts/scope.html', group: 'structural', order: 4, w: 110, h: 44 },
 
         { id: 'taskgroup', title: 'TaskGroup',
-          desc: 'Группировать задачи для совместного управления (планируется)',
-          code: '<span class="cm">// Планируемая функция</span>\n<span class="var">$group</span> = <span class="kw">new</span> <span class="fn">TaskGroup</span>();\n<span class="var">$group</span>-><span class="fn">spawn</span>(<span class="var">$task</span>);',
-          url: '#', group: 'structural', order: null, planned: true, w: 130, h: 44 },
+          desc: 'Structured concurrency — управление группой задач с разными стратегиями ожидания',
+          code: '<span class="var">$group</span> = <span class="kw">new</span> Async\\<span class="fn">TaskGroup</span>();\n<span class="var">$group</span>-><span class="fn">spawn</span>(<span class="kw">fn</span>() => <span class="fn">fetchUser</span>());\n<span class="var">$results</span> = <span class="var">$group</span>-><span class="fn">all</span>()-><span class="fn">await</span>();',
+          url: '/ru/docs/concepts/task-group.html', group: 'structural', order: null, w: 130, h: 44 },
 
         { id: 'context', title: 'Context',
           desc: 'Хранить данные привязанные к корутине (напр. токен авторизации)',
@@ -651,6 +651,12 @@ description: "Интерактивная карта документации —
             { label: 'current_context()',   url: '/ru/docs/reference/current-context.html' },
             { label: 'coroutine_context()', url: '/ru/docs/reference/coroutine-context.html' },
             { label: 'root_context()',      url: '/ru/docs/reference/root-context.html' }
+        ],
+        'taskgroup': [
+            { label: 'TaskGroup::all()',    url: '/ru/docs/reference/task-group/all.html' },
+            { label: 'TaskGroup::race()',   url: '/ru/docs/reference/task-group/race.html' },
+            { label: 'TaskGroup::any()',    url: '/ru/docs/reference/task-group/any.html' },
+            { label: 'TaskGroup::cancel()', url: '/ru/docs/reference/task-group/cancel.html' }
         ],
         'pool': [
             { label: 'Pool::tryAcquire()', url: '/ru/docs/concepts/pool.html' }
