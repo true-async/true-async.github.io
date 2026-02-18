@@ -1409,17 +1409,43 @@ pre code {
 
 /* ---- Special Card Corners (like PHP 8.5) ---- */
 
+/* 3-column grid (desktop) */
 @media (min-width: 1024px) {
-    .feature-card:nth-child(1) {
+    /* Top-left: first card */
+    .feature-card:first-child {
         border-top-left-radius: var(--radius-4xl);
     }
+    /* Top-right: 3rd card */
     .feature-card:nth-child(3) {
         border-top-right-radius: var(--radius-4xl);
     }
-    .feature-card:nth-child(4) {
+    /* Bottom-left: last card in first column of last row */
+    /* 3n+1 selects column 1; nth-last-child(-n+3) selects last 3 items */
+    .feature-card:nth-child(3n+1):nth-last-child(-n+3) {
         border-bottom-left-radius: var(--radius-4xl);
     }
-    .feature-card:nth-child(6) {
+    /* Bottom-right: last card */
+    .feature-card:last-child {
+        border-bottom-right-radius: var(--radius-4xl);
+    }
+}
+
+/* 2-column grid (tablet) */
+@media (min-width: 768px) and (max-width: 1023px) {
+    /* Top-left: first card */
+    .feature-card:first-child {
+        border-top-left-radius: var(--radius-4xl);
+    }
+    /* Top-right: 2nd card */
+    .feature-card:nth-child(2) {
+        border-top-right-radius: var(--radius-4xl);
+    }
+    /* Bottom-left: last card in first column of last row */
+    .feature-card:nth-child(2n+1):nth-last-child(-n+2) {
+        border-bottom-left-radius: var(--radius-4xl);
+    }
+    /* Bottom-right: last card */
+    .feature-card:last-child {
         border-bottom-right-radius: var(--radius-4xl);
     }
 }
