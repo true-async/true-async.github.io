@@ -1,9 +1,9 @@
 ---
 layout: docs
 lang: ru
-path_key: "/docs/concepts/exceptions.html"
+path_key: "/docs/concepts/introduction.html"
 nav_active: docs
-permalink: /ru/docs/concepts/exceptions.html
+permalink: /ru/docs/concepts/introduction.html
 page_title: "Зачем асинхронность?"
 description: "Что такое асинхронность и зачем она нужна?"
 ---
