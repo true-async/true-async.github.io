@@ -17,44 +17,17 @@ layout: default
 <div class="download-main">
 <div class="download-layout">
 
-    <!-- Windows Downloads -->
+    <!-- Release Info -->
     {% for release in releases.versions %}
     <div class="download-card" id="release-{{ release.version }}">
         <span class="version-badge{% if release.old %} version-badge--old{% endif %}">{% if release.old %}{{ t.download.old_release }}{% else %}{{ t.download.current_release }}{% endif %}</span>
         <div class="release-header">
-            <h2>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.25rem;height:1.25rem;vertical-align:middle;margin-right:0.375rem;"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-                Windows — TrueAsync {{ release.version }}
-                (<a href="{{ release.changelog_url | default: '#' }}">{{ t.download.changelog }}</a>)
-            </h2>
-            <span class="release-meta">{{ t.download.release_date }}: {{ release.date }}</span>
+            <h2>TrueAsync {{ release.version }}</h2>
+            <span class="release-meta">{{ t.download.release_date }}: {{ release.date }} &middot; {{ t.download.requires_php }} {{ release.php_requires }}</span>
         </div>
-        <p class="release-note">{{ t.download.requires_php }} {{ release.php_requires }}. {{ t.download.all_builds_zts }}</p>
-
-        {% for platform in release.platforms %}
-        {% if platform.name == "Windows" %}
-        <div class="release-platform">
-            {% for file in platform.files %}
-            <div class="release-file">
-                <div class="release-file-row">
-                    <a href="{{ file.url | default: '#' }}" class="release-file-name">{{ file.name }}</a>
-                    <span class="release-file-size">{{ file.size }}</span>
-                </div>
-                {% if file.label == "Release" %}
-                <span class="release-file-hash" style="color: var(--color-text-muted);">{{ t.download.windows_release_desc }}</span>
-                {% elsif file.label == "Debug" %}
-                <span class="release-file-hash" style="color: var(--color-text-muted);">{{ t.download.windows_debug_desc }}</span>
-                {% endif %}
-            </div>
-            {% endfor %}
-        </div>
-        {% endif %}
-        {% endfor %}
-
-        <p style="margin-top: 1rem; font-size: 0.8125rem; color: var(--color-text-muted);">{{ t.download.windows_verify_note }}</p>
-
-        <h3 style="font-size: 0.9375rem; margin-top: 1.5rem; margin-bottom: 0.75rem;">{{ t.download.windows_powershell_title }}</h3>
-        <pre><code>irm https://raw.githubusercontent.com/true-async/releases/master/installer/install.ps1 | iex</code></pre>
+        <p class="release-note">{{ t.download.all_builds_zts }}
+            <a href="{{ release.changelog_url | default: '#' }}" target="_blank" rel="noopener">{{ t.download.changelog }} &rarr;</a>
+        </p>
     </div>
     {% endfor %}
 
@@ -64,44 +37,79 @@ layout: default
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.25rem;height:1.25rem;vertical-align:middle;margin-right:0.375rem;"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
             {{ t.download.build_title }}
         </h2>
+        <p style="color: var(--color-text-secondary); margin-bottom: 1.5rem;">{{ t.download.build_subtitle }}</p>
 
         <!-- Linux -->
         <div class="release-platform">
             <h3>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><line x1="9" y1="1" x2="9" y2="4"/><line x1="15" y1="1" x2="15" y2="4"/><line x1="9" y1="20" x2="9" y2="23"/><line x1="15" y1="20" x2="15" y2="23"/><line x1="20" y1="9" x2="23" y2="9"/><line x1="20" y1="14" x2="23" y2="14"/><line x1="1" y1="9" x2="4" y2="9"/><line x1="1" y1="14" x2="4" y2="14"/></svg>
+                <svg viewBox="0 0 24 24" fill="currentColor" style="width:1.125rem;height:1.125rem;vertical-align:middle;margin-right:0.25rem;"><path d="M12.5 2c-.4 0-1.1.3-1.6 1-.4.6-.7 1.4-.7 2.2 0 .5.1 1 .3 1.4-.9.4-1.6 1.2-2.1 2-.6 1.1-.9 2.5-.9 3.8 0 1.1.2 2.1.5 3-.8.5-1.5 1.1-2 1.8-.7 1-1 2.1-.8 3.1.2 1 .8 1.8 1.6 2.3.8.5 1.7.6 2.6.4.6-.1 1.2-.4 1.7-.8.5.7 1.2 1.2 2 1.5.9.3 1.8.3 2.7 0 .8-.3 1.5-.8 2-1.5.5.4 1.1.7 1.7.8.9.2 1.8.1 2.6-.4.8-.5 1.4-1.3 1.6-2.3.2-1-.1-2.1-.8-3.1-.5-.7-1.2-1.3-2-1.8.3-.9.5-1.9.5-3 0-1.3-.3-2.7-.9-3.8-.5-.8-1.2-1.6-2.1-2 .2-.4.3-.9.3-1.4 0-.8-.3-1.6-.7-2.2-.5-.7-1.2-1-1.6-1zm0 1c.1 0 .5.2.8.7.3.5.5 1.1.5 1.7 0 .3-.1.6-.2.9-.4-.1-.8-.2-1.2-.2-.4 0-.8.1-1.2.2-.1-.3-.2-.6-.2-.9 0-.6.2-1.2.5-1.7.4-.5.7-.7 1-.7z"/></svg>
                 {{ t.download.build_linux_title }}
             </h3>
             <p>{{ t.download.build_linux_description }}</p>
-            <pre><code>curl -fsSL https://raw.githubusercontent.com/true-async/releases/master/installer/build-linux.sh | bash</code></pre>
+            <div class="code-copy-wrapper">
+                <button class="code-copy-btn" onclick="copyCode(this)" title="{{ t.download.copy_tooltip }}">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                </button>
+                <pre><code>curl -fsSL https://raw.githubusercontent.com/true-async/releases/master/installer/build-linux.sh | bash</code></pre>
+            </div>
             <p style="font-size: 0.8125rem; color: var(--color-text-muted);">{{ t.download.build_linux_distros }}</p>
 
             <h4 style="font-size: 0.8125rem; margin-top: 1.25rem; margin-bottom: 0.5rem;">{{ t.download.build_noninteractive }}</h4>
-            <pre><code>curl -fsSL https://raw.githubusercontent.com/true-async/releases/master/installer/build-linux.sh | \
-  NO_INTERACTIVE=true EXTENSIONS=all SET_DEFAULT=true bash</code></pre>
+            <div class="code-copy-wrapper">
+                <button class="code-copy-btn" onclick="copyCode(this)" title="{{ t.download.copy_tooltip }}">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                </button>
+                <pre><code>curl -fsSL https://raw.githubusercontent.com/true-async/releases/master/installer/build-linux.sh \
+  | NO_INTERACTIVE=true EXTENSIONS=all SET_DEFAULT=true bash</code></pre>
+            </div>
         </div>
 
         <!-- macOS -->
-        <div class="release-platform" style="margin-top: 1.5rem;">
+        <div class="release-platform" style="margin-top: 2rem;">
             <h3>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22A4.91 4.91 0 0 0 17 5c-2.22 0-4 1.44-5 2-1-.56-2.78-2-5-2a4.9 4.9 0 0 0-5 4.78C2 14 5 22 8 22c1.25 0 2.5-1.06 4-1.06z"/><path d="M10 2c1 .5 2 2 2 5"/></svg>
                 {{ t.download.build_macos_title }}
             </h3>
             <p>{{ t.download.build_macos_description }}</p>
-            <pre><code>curl -fsSL https://raw.githubusercontent.com/true-async/releases/master/installer/build-macos.sh | bash</code></pre>
+            <div class="code-copy-wrapper">
+                <button class="code-copy-btn" onclick="copyCode(this)" title="{{ t.download.copy_tooltip }}">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                </button>
+                <pre><code>curl -fsSL https://raw.githubusercontent.com/true-async/releases/master/installer/build-macos.sh | bash</code></pre>
+            </div>
 
             <h4 style="font-size: 0.8125rem; margin-top: 1.25rem; margin-bottom: 0.5rem;">{{ t.download.build_noninteractive }}</h4>
-            <pre><code>curl -fsSL https://raw.githubusercontent.com/true-async/releases/master/installer/build-macos.sh | \
-  NO_INTERACTIVE=true EXTENSIONS=all SET_DEFAULT=true bash</code></pre>
+            <div class="code-copy-wrapper">
+                <button class="code-copy-btn" onclick="copyCode(this)" title="{{ t.download.copy_tooltip }}">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                </button>
+                <pre><code>curl -fsSL https://raw.githubusercontent.com/true-async/releases/master/installer/build-macos.sh \
+  | NO_INTERACTIVE=true EXTENSIONS=all SET_DEFAULT=true bash</code></pre>
+            </div>
         </div>
 
         <!-- Build Options -->
-        <div style="margin-top: 1.5rem;">
+        <div style="margin-top: 2rem;">
             <h3 style="font-size: 0.9375rem; margin-bottom: 0.75rem;">{{ t.download.build_options_title }}</h3>
             <table style="width: 100%; font-size: 0.8125rem; border-collapse: collapse;">
                 {% for opt in t.download.build_options %}
                 <tr style="border-bottom: 1px solid var(--color-border);">
                     <td style="padding: 0.5rem 1rem 0.5rem 0; white-space: nowrap;">{{ opt.opt }}</td>
                     <td style="padding: 0.5rem 0; color: var(--color-text-muted);">{{ opt.desc }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+
+        <!-- Management -->
+        <div style="margin-top: 2rem;">
+            <h3 style="font-size: 0.9375rem; margin-bottom: 0.5rem;">{{ t.download.build_management_title }}</h3>
+            <p style="font-size: 0.875rem; color: var(--color-text-secondary); margin-bottom: 0.75rem;">{{ t.download.build_management_desc }}</p>
+            <table style="width: 100%; font-size: 0.8125rem; border-collapse: collapse;">
+                {% for item in t.download.build_management_commands %}
+                <tr style="border-bottom: 1px solid var(--color-border);">
+                    <td style="padding: 0.5rem 1rem 0.5rem 0; white-space: nowrap;"><code>{{ item.cmd }}</code></td>
+                    <td style="padding: 0.5rem 0; color: var(--color-text-muted);">{{ item.desc }}</td>
                 </tr>
                 {% endfor %}
             </table>
@@ -129,29 +137,85 @@ layout: default
         </div>
 
         <h3 style="font-size: 0.9375rem; margin-top: 1.5rem; margin-bottom: 0.75rem;">{{ t.download.quick_start }}</h3>
-        <pre><code>docker pull trueasync/php-true-async:8.6
+        <div class="code-copy-wrapper">
+            <button class="code-copy-btn" onclick="copyCode(this)" title="{{ t.download.copy_tooltip }}">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+            <pre><code>docker pull trueasync/php-true-async:8.6
 docker run --rm trueasync/php-true-async:8.6 php -v</code></pre>
+        </div>
 
         <p>{{ t.download.run_script }}:</p>
-        <pre><code>docker run --rm -v $(pwd):/app -w /app trueasync/php-true-async:8.6 php script.php</code></pre>
+        <div class="code-copy-wrapper">
+            <button class="code-copy-btn" onclick="copyCode(this)" title="{{ t.download.copy_tooltip }}">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+            <pre><code>docker run --rm -v $(pwd):/app -w /app trueasync/php-true-async:8.6 php script.php</code></pre>
+        </div>
 
         <h3 style="font-size: 0.9375rem; margin-top: 1.5rem; margin-bottom: 0.75rem;">{{ t.download.dockerfile_usage }}</h3>
-        <pre><code>FROM trueasync/php-true-async:8.6
+        <div class="code-copy-wrapper">
+            <button class="code-copy-btn" onclick="copyCode(this)" title="{{ t.download.copy_tooltip }}">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+            <pre><code>FROM trueasync/php-true-async:8.6
 
 COPY . /app
 WORKDIR /app
 
 CMD ["php", "server.php"]</code></pre>
+        </div>
     </div>
+
+    <!-- Windows -->
+    {% for release in releases.versions %}
+    <div class="download-card" id="windows-{{ release.version }}">
+        <h2>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.25rem;height:1.25rem;vertical-align:middle;margin-right:0.375rem;"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+            {{ t.download.windows_title }}
+        </h2>
+        <p style="color: var(--color-text-secondary);">{{ t.download.windows_subtitle }}</p>
+
+        {% for platform in release.platforms %}
+        {% if platform.name == "Windows" %}
+        <div class="release-platform">
+            {% for file in platform.files %}
+            <div class="release-file">
+                <div class="release-file-row">
+                    <a href="{{ file.url | default: '#' }}" class="release-file-name">{{ file.name }}</a>
+                    <span class="release-file-size">{{ file.size }}</span>
+                </div>
+                {% if file.label == "Release" %}
+                <span class="release-file-hash" style="color: var(--color-text-muted);">{{ t.download.windows_release_desc }}</span>
+                {% elsif file.label == "Debug" %}
+                <span class="release-file-hash" style="color: var(--color-text-muted);">{{ t.download.windows_debug_desc }}</span>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endfor %}
+
+        <p style="margin-top: 1rem; font-size: 0.8125rem; color: var(--color-text-muted);">{{ t.download.windows_verify_note }}</p>
+
+        <h3 style="font-size: 0.9375rem; margin-top: 1.5rem; margin-bottom: 0.75rem;">{{ t.download.windows_powershell_title }}</h3>
+        <div class="code-copy-wrapper">
+            <button class="code-copy-btn" onclick="copyCode(this)" title="{{ t.download.copy_tooltip }}">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+            <pre><code>irm https://raw.githubusercontent.com/true-async/releases/master/installer/install.ps1 | iex</code></pre>
+        </div>
+    </div>
+    {% endfor %}
 
     <!-- Additional Resources -->
     <div class="download-card" id="resources">
         <h2>{{ t.download.additional_resources }}</h2>
         <ul class="release-resources">
             <li><a href="https://github.com/true-async/releases/releases" target="_blank" rel="noopener">{{ t.download.all_releases }}</a></li>
-            <li><a href="https://github.com/true-async" target="_blank" rel="noopener">{{ t.download.source_on_github }}</a></li>
+            <li><a href="https://github.com/true-async/releases" target="_blank" rel="noopener">{{ t.download.source_on_github }}</a></li>
             <li><a href="https://hub.docker.com/r/trueasync/php-true-async" target="_blank" rel="noopener">{{ t.download.docker_hub }}</a></li>
-            <li><a href="/{{ page.lang }}/docs.html">{{ t.download.install_docs }}</a></li>
+            <li><a href="{{ t.download.install_docs_url | default: 'https://github.com/true-async/releases' }}" target="_blank" rel="noopener">{{ t.download.install_docs }}</a></li>
         </ul>
     </div>
 
@@ -160,16 +224,13 @@ CMD ["php", "server.php"]</code></pre>
 
 <!-- Right Sidebar -->
 <aside class="download-sidebar">
-    <div class="docs-nav-title">{{ t.download.sidebar_releases }}</div>
-    <nav class="docs-nav">
-        {% for release in releases.versions %}
-        <a href="#release-{{ release.version }}">TrueAsync {{ release.version }}</a>
-        {% endfor %}
-    </nav>
-    <div class="docs-nav-title" style="margin-top: 1.5rem;">{{ t.download.sidebar_install }}</div>
+    <div class="docs-nav-title">{{ t.download.sidebar_install }}</div>
     <nav class="docs-nav">
         <a href="#build-source">Linux / macOS</a>
         <a href="#docker">Docker</a>
+        {% for release in releases.versions %}
+        <a href="#windows-{{ release.version }}">Windows</a>
+        {% endfor %}
     </nav>
     <div class="docs-nav-title" style="margin-top: 1.5rem;">{{ t.download.sidebar_help }}</div>
     <nav class="docs-nav">
@@ -178,3 +239,21 @@ CMD ["php", "server.php"]</code></pre>
 </aside>
 
 </div>
+
+<!-- Copy to clipboard script -->
+<script>
+function copyCode(btn) {
+    const wrapper = btn.closest('.code-copy-wrapper');
+    const code = wrapper.querySelector('code');
+    const text = code.innerText;
+
+    navigator.clipboard.writeText(text).then(function() {
+        btn.classList.add('copied');
+        btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>';
+        setTimeout(function() {
+            btn.classList.remove('copied');
+            btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+        }, 2000);
+    });
+}
+</script>
