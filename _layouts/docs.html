@@ -29,7 +29,7 @@ layout: default
             </summary>
             <nav class="docs-nav">
                 {% for item in group.items %}
-                <a href="{% if item.url %}{{ item.url }}{% else %}#{{ item.id }}{% endif %}"{% if page.permalink == item.url %} class="active"{% endif %} data-search="{{ item.label }}">{% if item.icon %}<span class="nav-icon">{{ item.icon }}</span>{% endif %}{{ item.label }}</a>
+                <a href="{% if item.url %}{{ item.url }}{% else %}#{{ item.id }}{% endif %}"{% if page.permalink == item.url %} class="active"{% endif %} data-search="{{ item.label }}">{% if item.icon %}{% include nav-icon.html name=item.icon %}{% endif %}{{ item.label }}</a>
                 {% endfor %}
             </nav>
         </details>

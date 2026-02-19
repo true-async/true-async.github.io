@@ -821,11 +821,24 @@ pre code {
 /* ---- Nav Icons ---- */
 
 .nav-icon {
-    font-size: 0.95rem;
-    line-height: 1;
     flex-shrink: 0;
-    width: 1.2rem;
-    text-align: center;
+    width: 1.1rem;
+    height: 1.1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 0.15rem;
+    color: var(--color-text-muted);
+}
+
+.nav-icon svg {
+    width: 14px;
+    height: 14px;
+}
+
+.docs-nav a.active .nav-icon,
+.docs-nav a:hover .nav-icon {
+    color: var(--color-primary);
 }
 
 .docs-content {
