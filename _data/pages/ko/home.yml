@@ -1,0 +1,65 @@
+hero:
+  badge: "실험 버전"
+  title: "PHP 안에 진정한 비동기"
+  description: "익숙한 함수가 동시 I/O를 지원하는 코루틴이 있는 PHP를 상상해 보세요. 깨끗하고 읽기 쉬운 코드와 최소한의 변경으로 고성능 동시성 애플리케이션을 구축하세요!"
+  buttons:
+    - label: "시작하기"
+      url: "/ko/docs.html"
+      style: primary
+    - label: "코루틴 작동 방식"
+      url: "/ko/interactive/coroutine-demo.html"
+      style: secondary
+    - label: "다운로드"
+      url: "/ko/download.html"
+      style: secondary
+    - label: "Discord"
+      url: "https://discord.gg/yqBQPBHKp5"
+      style: secondary
+      external: true
+
+features:
+  title: "주요 기능"
+  items:
+    - title: "코루틴"
+      icon: "coroutines"
+      text: "효율적인 동시 실행을 위한 경량 코루틴. 컬러드 <code>async</code> 함수 없음. <code>spawn()</code>만 하면 됩니다!"
+    - title: "논블로킹 I/O"
+      icon: "io"
+      text: "<code>fread</code>, <code>fwrite</code>, <code>file_get_contents</code>, <code>ob_start</code>, Curl, MySQL, PostgreSQL 및 기타 API가 기본 지원됩니다. 일반 PHP 함수가 추가 노력 없이 비동기로 작동합니다."
+    - title: "비동기 웹 서버"
+      icon: "web-servers"
+      text: "여러 요청 — 하나의 PHP 프로세스 모델을 지원합니다."
+    - title: "협력적 취소"
+      icon: "cancellation"
+      text: "다양한 시나리오를 다루는 코루틴 취소를 위한 간단하고 유연한 API."
+    - title: "구조적 동시성"
+      icon: "structured-concurrency"
+      text: "<code>Scope</code> 샌드박스로 코루틴 수명을 제어하세요. <code>TaskGroup</code>으로 코루틴 그룹을 관리하세요."
+    - title: "PDO Pool"
+      icon: "pdo-pool"
+      text: "<code>PDO</code>에 내장된 연결 풀링. 최대 성능을 위한 자동 연결 관리."
+    - title: "Channel"
+      icon: "channel"
+      text: "코루틴 간의 타입 안전한 데이터 교환. 생산자/소비자 패턴을 위한 버퍼링 및 비버퍼링 채널."
+    - title: "Futures"
+      icon: "futures"
+      text: "비동기 계산을 위한 지연 결과. <code>awaitAll</code>, <code>awaitFirst</code>를 통한 조합 및 유연한 결과 관리."
+    - title: "Context"
+      icon: "context"
+      text: "전체 코루틴 트리를 통한 컨텍스트 전파. 자동 리소스 정리를 통한 타임아웃, 데드라인 및 작업 취소."
+
+cta:
+  title: "비동기 PHP 애플리케이션을 구축할 준비가 되셨나요?"
+  description: "몇 분 안에 TrueAsync를 시작하세요. Composer로 설치하고 오늘부터 동시성 코드를 작성하세요."
+  buttons:
+    - label: "문서 읽기"
+      url: "/ko/docs.html"
+      style: primary
+    - label: "GitHub에서 보기"
+      url: "https://github.com/true-async"
+      style: secondary
+      external: true
+    - label: "Discord에서 채팅"
+      url: "https://discord.gg/yqBQPBHKp5"
+      style: secondary
+      external: true
