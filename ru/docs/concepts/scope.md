@@ -112,25 +112,25 @@ Scope может содержать другие scope. Когда родите�
 ```php
 $mainScope = new Async\Scope();
 
-spawn with $mainScope function() {
+$mainScope->spawn(function() {
     echo "Главная задача\n";
 
     // Создаем дочерний scope
     $childScope = Async\Scope::inherit();
 
-    spawn with $childScope function() {
+    $childScope->spawn(function() {
         echo "Подзадача 1\n";
-    };
+    });
 
-    spawn with $childScope function() {
+    $childScope->spawn(function() {
         echo "Подзадача 2\n";
-    };
+    });
 
     // Ждем завершения подзадач
     $childScope->awaitCompletion();
 
     echo "Все подзадачи готовы\n";
-};
+});
 
 $mainScope->awaitCompletion();
 ```
@@ -142,7 +142,7 @@ $mainScope->awaitCompletion();
 ```php
 $scope = new Async\Scope();
 
-spawn with $scope function() {
+$scope->spawn(function() {
     try {
         while (true) {
             echo "Работаю...\n";
@@ -151,9 +151,9 @@ spawn with $scope function() {
     } catch (Async\AsyncCancellation $e) {
         echo "Меня отменили!\n";
     }
-};
+});
 
-spawn with $scope function() {
+$scope->spawn(function() {
     try {
         while (true) {
             echo "Тоже работаю...\n";
@@ -162,7 +162,7 @@ spawn with $scope function() {
     } catch (Async\AsyncCancellation $e) {
         echo "И меня тоже!\n";
     }
-};
+});
 
 // Работает 3 секунды
 Async\sleep(3000);
@@ -186,13 +186,13 @@ $scope->onException(function(Throwable $e) {
     // Можно залогировать, отправить в Sentry, etc
 });
 
-spawn with $scope function() {
+$scope->spawn(function() {
     throw new Exception("Что-то сломалось!");
-};
+});
 
-spawn with $scope function() {
+$scope->spawn(function() {
     echo "Я работаю нормально\n";
-};
+});
 
 $scope->awaitCompletion();
 
@@ -208,7 +208,7 @@ $scope->awaitCompletion();
 ```php
 $scope = new Async\Scope();
 
-spawn with $scope function() {
+$scope->spawn(function() {
     try {
         echo "Начинаю работу\n";
         Async\sleep(10000); // Долгая операция
@@ -218,7 +218,7 @@ spawn with $scope function() {
         echo "Очистка ресурсов\n";
         closeConnection();
     }
-};
+});
 
 Async\sleep(1000);
 $scope->cancel(); // Отменяем через секунду
@@ -235,17 +235,17 @@ $scope->cancel(); // Отменяем через секунду
 ```php
 $taskGroup = new Async\TaskGroup(captureResults: true);
 
-spawn with $taskGroup function() {
+$taskGroup->spawn(function() {
     return "Результат 1";
-};
+});
 
-spawn with $taskGroup function() {
+$taskGroup->spawn(function() {
     return "Результат 2";
-};
+});
 
-spawn with $taskGroup function() {
+$taskGroup->spawn(function() {
     return "Результат 3";
-};
+});
 
 // Получаем массив результатов
 $results = await($taskGroup);
@@ -263,9 +263,9 @@ spawn(function() {
 });
 
 // То же самое, что:
-spawn with Async\Scope::global() function() {
+Async\Scope::global()->spawn(function() {
     echo "Я в global scope\n";
-};
+});
 ```
 
 Global scope живет весь запрос. Когда PHP завершается, все корутины в global scope отменяются gracefully.
@@ -281,7 +281,7 @@ class HttpClient {
     }
 
     public function get(string $url): Async\Awaitable {
-        return spawn with $this->scope function() use ($url) {
+        return $this->scope->spawn(function() use ($url) {
             $ch = curl_init($url);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
@@ -290,7 +290,7 @@ class HttpClient {
             } finally {
                 curl_close($ch);
             }
-        };
+        });
     }
 
     public function cancelAll(): void {
