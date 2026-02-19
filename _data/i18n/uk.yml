@@ -11,6 +11,7 @@ docs:
   title: "Документація"
   subtitle: "Дізнайтеся, як використовувати TrueAsync для створення конкурентних PHP-застосунків."
   menu: "Меню"
+  search_placeholder: "Пошук..."
   sidebar:
     - title: "Початок роботи"
       items:
@@ -24,12 +25,16 @@ docs:
       items:
         - id: "coroutines"
           label: "Корутини"
+          icon: "⚡"
         - id: "async-await"
           label: "Async / Await"
+          icon: "⏳"
         - id: "channels"
           label: "Канали"
+          icon: "🔀"
         - id: "context"
           label: "Контекст та скасування"
+          icon: "🏷️"
     - title: "Довідник"
       items:
         - url: "/uk/docs/reference/supported-functions.html"

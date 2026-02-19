@@ -11,6 +11,7 @@ docs:
   title: "文档"
   subtitle: "了解如何使用 TrueAsync 构建并发 PHP 应用程序。"
   menu: "菜单"
+  search_placeholder: "搜索..."
   sidebar:
     - title: "入门"
       items:
@@ -24,12 +25,16 @@ docs:
       items:
         - id: "coroutines"
           label: "协程"
+          icon: "⚡"
         - id: "async-await"
           label: "异步/等待"
+          icon: "⏳"
         - id: "channels"
           label: "通道"
+          icon: "🔀"
         - id: "context"
           label: "上下文与取消"
+          icon: "🏷️"
     - title: "参考"
       items:
         - url: "/zh/docs/reference/supported-functions.html"

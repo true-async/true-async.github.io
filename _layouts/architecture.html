@@ -18,12 +18,17 @@ layout: default
 <div class="docs-layout">
     <aside class="docs-sidebar" id="docsSidebar">
         {% for group in t.architecture.sidebar %}
-        <div class="docs-nav-title"{% if forloop.first == false %} style="margin-top: 1.5rem;"{% endif %}>{{ group.title }}</div>
-        <nav class="docs-nav">
-            {% for item in group.items %}
-            {% if item.url %}<a href="{{ item.url }}"{% if page.permalink == item.url %} class="active"{% endif %}>{{ item.label }}</a>{% else %}<a href="#{{ item.id }}">{{ item.label }}</a>{% endif %}
-            {% endfor %}
-        </nav>
+        <details class="docs-nav-group"{% for item in group.items %}{% if item.url == page.permalink %} open{% endif %}{% endfor %}>
+            <summary class="docs-nav-title">
+                <span>{{ group.title }}</span>
+                <svg class="docs-nav-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2 4 6 8 10 4"/></svg>
+            </summary>
+            <nav class="docs-nav">
+                {% for item in group.items %}
+                <a href="{% if item.url %}{{ item.url }}{% else %}#{{ item.id }}{% endif %}"{% if page.permalink == item.url %} class="active"{% endif %} data-search="{{ item.label }}">{% if item.icon %}<span class="nav-icon">{{ item.icon }}</span>{% endif %}{{ item.label }}</a>
+                {% endfor %}
+            </nav>
+        </details>
         {% endfor %}
     </aside>
 

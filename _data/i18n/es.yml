@@ -11,6 +11,7 @@ docs:
   title: "Documentación"
   subtitle: "Aprenda a usar TrueAsync para crear aplicaciones PHP concurrentes."
   menu: "Menú"
+  search_placeholder: "Buscar..."
   sidebar:
     - title: "Primeros pasos"
       items:
@@ -24,12 +25,16 @@ docs:
       items:
         - id: "coroutines"
           label: "Corrutinas"
+          icon: "⚡"
         - id: "async-await"
           label: "Async / Await"
+          icon: "⏳"
         - id: "channels"
           label: "Canales"
+          icon: "🔀"
         - id: "context"
           label: "Contexto y cancelación"
+          icon: "🏷️"
     - title: "Referencia"
       items:
         - url: "/es/docs/reference/supported-functions.html"

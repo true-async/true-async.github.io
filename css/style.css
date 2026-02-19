@@ -676,33 +676,135 @@ pre code {
 }
 
 .docs-sidebar {
-    width: 16rem;
+    width: 17rem;
     flex-shrink: 0;
-    padding: 1.5rem 1rem;
+    padding: 1rem 0.75rem;
     border-right: 1px solid var(--color-border);
     position: sticky;
     top: 3.5rem;
     height: calc(100vh - 3.5rem);
     overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(107, 88, 255, 0.15) transparent;
+}
+
+.docs-sidebar::-webkit-scrollbar {
+    width: 5px;
+}
+
+.docs-sidebar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.docs-sidebar::-webkit-scrollbar-thumb {
+    background: rgba(107, 88, 255, 0.15);
+    border-radius: 3px;
+}
+
+.docs-sidebar::-webkit-scrollbar-thumb:hover {
+    background: rgba(107, 88, 255, 0.35);
+}
+
+/* ---- Sidebar Search ---- */
+
+.docs-search {
+    position: relative;
+    margin-bottom: 0.75rem;
+    padding: 0 0.25rem;
+}
+
+.docs-search-icon {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-text-muted);
+    pointer-events: none;
+}
+
+.docs-search-input {
+    width: 100%;
+    padding: 0.4rem 0.6rem 0.4rem 2rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-size: 0.8rem;
+    font-family: var(--font-sans);
+    color: var(--color-text);
+    background: var(--color-bg);
+    transition: border-color 0.15s, box-shadow 0.15s;
+    outline: none;
+}
+
+.docs-search-input::placeholder {
+    color: var(--color-text-muted);
+}
+
+.docs-search-input:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px rgba(107, 88, 255, 0.1);
+}
+
+/* ---- Sidebar Accordion ---- */
+
+.docs-nav-group {
+    margin-bottom: 0.25rem;
+}
+
+.docs-nav-group summary {
+    list-style: none;
+}
+
+.docs-nav-group summary::-webkit-details-marker {
+    display: none;
 }
 
 .docs-nav-title {
-    font-size: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.7rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     color: var(--color-text-muted);
     padding: 0.5rem 0.75rem;
+    cursor: pointer;
+    user-select: none;
+    border-radius: var(--radius-md);
+    transition: color 0.15s, background 0.15s;
+}
+
+.docs-nav-title:hover {
+    color: var(--color-text);
+    background: var(--color-bg-subtle);
+}
+
+.docs-nav-chevron {
+    transition: transform 0.2s ease;
+    opacity: 0.5;
+    flex-shrink: 0;
+}
+
+.docs-nav-group[open] > .docs-nav-title .docs-nav-chevron {
+    transform: rotate(180deg);
+    opacity: 0.7;
+}
+
+.docs-nav {
+    padding: 0.125rem 0 0.25rem;
 }
 
 .docs-nav a {
-    display: block;
-    padding: 0.375rem 0.75rem;
-    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.3rem 0.75rem;
+    font-size: 0.84rem;
     color: var(--color-text-secondary);
     border-radius: var(--radius-md);
     transition: all 0.1s ease;
-    margin-bottom: 0.125rem;
+    margin-bottom: 0.0625rem;
+    text-decoration: none;
 }
 
 .docs-nav a:hover {
@@ -714,6 +816,16 @@ pre code {
     color: var(--color-primary);
     background: rgba(107, 88, 255, 0.06);
     font-weight: 500;
+}
+
+/* ---- Nav Icons ---- */
+
+.nav-icon {
+    font-size: 0.95rem;
+    line-height: 1;
+    flex-shrink: 0;
+    width: 1.2rem;
+    text-align: center;
 }
 
 .docs-content {
@@ -1449,10 +1561,11 @@ pre code {
         top: 3.5rem;
         left: 0;
         bottom: 0;
-        width: 16rem;
+        width: 17rem;
         background: var(--color-bg);
         z-index: 50;
         box-shadow: 4px 0 16px rgba(0, 0, 0, 0.1);
+        padding: 1rem 0.75rem;
     }
 }
 

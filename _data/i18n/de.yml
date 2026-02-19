@@ -11,6 +11,7 @@ docs:
   title: "Dokumentation"
   subtitle: "Erfahren Sie, wie Sie TrueAsync zum Erstellen nebenläufiger PHP-Anwendungen verwenden."
   menu: "Menü"
+  search_placeholder: "Suche..."
   sidebar:
     - title: "Erste Schritte"
       items:
@@ -24,12 +25,16 @@ docs:
       items:
         - id: "coroutines"
           label: "Koroutinen"
+          icon: "⚡"
         - id: "async-await"
           label: "Async / Await"
+          icon: "⏳"
         - id: "channels"
           label: "Kanäle"
+          icon: "🔀"
         - id: "context"
           label: "Kontext und Abbruch"
+          icon: "🏷️"
     - title: "Referenz"
       items:
         - url: "/de/docs/reference/supported-functions.html"

@@ -17,13 +17,22 @@ layout: default
 <!-- Docs Layout -->
 <div class="docs-layout">
     <aside class="docs-sidebar" id="docsSidebar">
+        <div class="docs-search">
+            <svg class="docs-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="docsSearch" class="docs-search-input" placeholder="{{ t.docs.search_placeholder | default: 'Search...' }}" autocomplete="off" />
+        </div>
         {% for group in t.docs.sidebar %}
-        <div class="docs-nav-title"{% if forloop.first == false %} style="margin-top: 1.5rem;"{% endif %}>{{ group.title }}</div>
-        <nav class="docs-nav">
-            {% for item in group.items %}
-            {% if item.url %}<a href="{{ item.url }}"{% if page.permalink == item.url %} class="active"{% endif %}>{{ item.label }}</a>{% else %}<a href="#{{ item.id }}">{{ item.label }}</a>{% endif %}
-            {% endfor %}
-        </nav>
+        <details class="docs-nav-group"{% for item in group.items %}{% if item.url == page.permalink %} open{% endif %}{% endfor %}>
+            <summary class="docs-nav-title">
+                <span>{{ group.title }}</span>
+                <svg class="docs-nav-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2 4 6 8 10 4"/></svg>
+            </summary>
+            <nav class="docs-nav">
+                {% for item in group.items %}
+                <a href="{% if item.url %}{{ item.url }}{% else %}#{{ item.id }}{% endif %}"{% if page.permalink == item.url %} class="active"{% endif %} data-search="{{ item.label }}">{% if item.icon %}<span class="nav-icon">{{ item.icon }}</span>{% endif %}{{ item.label }}</a>
+                {% endfor %}
+            </nav>
+        </details>
         {% endfor %}
     </aside>
 
@@ -37,4 +46,33 @@ layout: default
 document.getElementById('sidebarToggle').addEventListener('click', function() {
     document.getElementById('docsSidebar').classList.toggle('open');
 });
+
+// Sidebar search
+var searchInput = document.getElementById('docsSearch');
+if (searchInput) {
+    searchInput.addEventListener('input', function() {
+        var q = this.value.toLowerCase().trim();
+        document.querySelectorAll('.docs-nav a').forEach(function(a) {
+            var match = !q || a.getAttribute('data-search').toLowerCase().indexOf(q) !== -1;
+            a.style.display = match ? '' : 'none';
+        });
+        document.querySelectorAll('.docs-nav-group').forEach(function(d) {
+            if (q) {
+                var hasVisible = d.querySelector('.docs-nav a:not([style*="display: none"])');
+                d.open = !!hasVisible;
+                d.style.display = hasVisible ? '' : 'none';
+            } else {
+                d.style.display = '';
+                d.open = !!d.querySelector('.docs-nav a.active');
+            }
+        });
+    });
+    searchInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            this.value = '';
+            this.dispatchEvent(new Event('input'));
+            this.blur();
+        }
+    });
+}
 </script>
