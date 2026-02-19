@@ -307,6 +307,8 @@ docs:
           label: "delay()"
         - url: "/ru/docs/reference/timeout.html"
           label: "timeout()"
+        - url: "/ru/docs/reference/watch-filesystem.html"
+          label: "watch_filesystem()"
         - url: "/ru/docs/reference/protect.html"
           label: "protect()"
         - url: "/ru/docs/reference/current-coroutine.html"
