@@ -277,6 +277,9 @@ docs:
               label: "any()"
             - url: "/ru/docs/reference/task-group/race.html"
               label: "race()"
+        - url: "/ru/docs/concepts/filesystem-watcher.html"
+          label: "FileSystemWatcher"
+          icon: "eye"
     - title: "Справочник функций"
       items:
         - url: "/ru/docs/reference/supported-functions.html"
@@ -307,8 +310,6 @@ docs:
           label: "delay()"
         - url: "/ru/docs/reference/timeout.html"
           label: "timeout()"
-        - url: "/ru/docs/reference/watch-filesystem.html"
-          label: "watch_filesystem()"
         - url: "/ru/docs/reference/protect.html"
           label: "protect()"
         - url: "/ru/docs/reference/current-coroutine.html"
