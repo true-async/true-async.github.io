@@ -86,3 +86,12 @@ footer:
   api_reference: "Довідник API"
   examples: "Приклади"
   license: "Ліцензія MIT."
+
+feedback:
+  edit_page: "Редагувати сторінку"
+  report_error: "Повідомити про помилку"
+  report_shortcut: "Ctrl+Shift+E"
+  issue_title_prefix: "Помилка в документації"
+  issue_body_page: "Сторінка"
+  issue_body_selected: "Виділений текст"
+  issue_body_description: "Опишіть помилку..."

@@ -2,6 +2,7 @@ title: TrueAsync
 description: True Asynchronous inside PHP
 url: https://true-async.github.io
 baseurl: ""
+repository: true-async/true-async.github.io
 
 markdown: kramdown
 kramdown:

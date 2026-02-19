@@ -193,3 +193,12 @@ footer:
   api_reference: "Справочник API"
   examples: "Примеры"
   license: "Лицензия MIT."
+
+feedback:
+  edit_page: "Редактировать страницу"
+  report_error: "Сообщить об ошибке"
+  report_shortcut: "Ctrl+Shift+E"
+  issue_title_prefix: "Ошибка в документации"
+  issue_body_page: "Страница"
+  issue_body_selected: "Выделенный текст"
+  issue_body_description: "Опишите ошибку..."

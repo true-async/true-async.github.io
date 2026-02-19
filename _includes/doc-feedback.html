@@ -1,0 +1,71 @@
+{% assign t = site.data.i18n[page.lang] %}
+{% assign repo_url = "https://github.com/true-async/true-async.github.io" %}
+
+<div class="doc-feedback">
+    <a href="{{ repo_url }}/edit/main/{{ page.path }}" target="_blank" rel="noopener" class="doc-feedback-link">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M11.333 2a1.886 1.886 0 0 1 2.667 2.667L5.333 13.333 2 14l.667-3.333L11.333 2z"/>
+        </svg>
+        {{ t.feedback.edit_page }}
+    </a>
+    <button type="button" class="doc-feedback-link doc-feedback-report" id="reportErrorBtn">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="8" cy="8" r="7"/>
+            <line x1="8" y1="5" x2="8" y2="8.5"/>
+            <circle cx="8" cy="11" r="0.5" fill="currentColor" stroke="none"/>
+        </svg>
+        {{ t.feedback.report_error }}
+        <kbd>{{ t.feedback.report_shortcut }}</kbd>
+    </button>
+</div>
+
+<script>
+(function() {
+    var repoUrl = '{{ repo_url }}';
+    var pageLang = '{{ page.lang }}';
+    var i18n = {
+        titlePrefix: {{ t.feedback.issue_title_prefix | jsonify }},
+        bodyPage: {{ t.feedback.issue_body_page | jsonify }},
+        bodySelected: {{ t.feedback.issue_body_selected | jsonify }},
+        bodyDescription: {{ t.feedback.issue_body_description | jsonify }}
+    };
+
+    function getSelectedText() {
+        var sel = window.getSelection();
+        return sel ? sel.toString().trim() : '';
+    }
+
+    function reportError() {
+        var selected = getSelectedText();
+        var pageUrl = window.location.href;
+        var pageTitle = document.title;
+
+        var body = '## ' + i18n.bodyPage + '\n' + pageUrl + '\n\n';
+
+        if (selected) {
+            var truncated = selected.length > 500 ? selected.substring(0, 500) + '...' : selected;
+            body += '## ' + i18n.bodySelected + '\n> ' + truncated.replace(/\n/g, '\n> ') + '\n\n';
+        }
+
+        body += '## Description\n' + i18n.bodyDescription;
+
+        var params = new URLSearchParams({
+            title: i18n.titlePrefix + ': ' + pageTitle,
+            body: body,
+            labels: 'documentation'
+        });
+
+        window.open(repoUrl + '/issues/new?' + params.toString(), '_blank');
+    }
+
+    document.getElementById('reportErrorBtn').addEventListener('click', reportError);
+
+    document.addEventListener('keydown', function(e) {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+        if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'E' || e.key === 'e' || e.key === 'У' || e.key === 'у')) {
+            e.preventDefault();
+            reportError();
+        }
+    });
+})();
+</script>

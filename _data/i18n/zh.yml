@@ -86,3 +86,12 @@ footer:
   api_reference: "API 参考"
   examples: "示例"
   license: "基于 MIT 许可证发布。"
+
+feedback:
+  edit_page: "编辑此页"
+  report_error: "报告错误"
+  report_shortcut: "Ctrl+Shift+E"
+  issue_title_prefix: "文档错误"
+  issue_body_page: "页面"
+  issue_body_selected: "选中的文本"
+  issue_body_description: "描述错误..."

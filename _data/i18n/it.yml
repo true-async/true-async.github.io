@@ -86,3 +86,12 @@ footer:
   api_reference: "Riferimento API"
   examples: "Esempi"
   license: "Rilasciato sotto licenza MIT."
+
+feedback:
+  edit_page: "Modifica pagina"
+  report_error: "Segnala errore"
+  report_shortcut: "Ctrl+Shift+E"
+  issue_title_prefix: "Errore nella documentazione"
+  issue_body_page: "Pagina"
+  issue_body_selected: "Testo selezionato"
+  issue_body_description: "Descrivi l'errore..."
