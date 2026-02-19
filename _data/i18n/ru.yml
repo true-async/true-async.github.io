@@ -32,6 +32,8 @@ docs:
           label: "Context"
         - url: "/ru/docs/concepts/cancellation.html"
           label: "Отмена"
+        - url: "/ru/docs/concepts/zombie-coroutines.html"
+          label: "Zombie-корутины"
         - url: "/ru/docs/concepts/exceptions.html"
           label: "Исключения"
         - url: "/ru/docs/concepts/interfaces.html"

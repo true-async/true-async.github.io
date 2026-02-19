@@ -352,6 +352,8 @@ unset($client);
 | `$scope->cancel()`                       | Отправляет сигнал отмены всем корутинам                       |
 | `$scope->dispose()`                      | Закрывает Scope и принудительно отменяет все корутины         |
 | `$scope->disposeSafely()`                | Закрывает Scope; корутины не отменяются, а помечаются zombie  |
+| `$scope->awaitAfterCancellation()`       | Ожидает завершения всех корутин, включая zombie               |
+| `$scope->disposeAfterTimeout(int $ms)`   | Отменяет корутины после тайм-аута                             |
 
 Эти методы позволяют реализовать три ключевых паттерна:
 
@@ -431,3 +433,4 @@ TrueAsync привносит этот подход в PHP через `Async\Scop
 
 - [Корутины](/ru/docs/concepts/coroutines.html) — как работают сами корутины
 - [Отмена](/ru/docs/concepts/cancellation.html) — паттерны отмены операций
+- [Zombie-корутины](/ru/docs/concepts/zombie-coroutines.html) — толерантность к чужому коду
