@@ -878,6 +878,7 @@ pre code {
     justify-content: center;
     width: 1.5rem;
     height: 1.5rem;
+    margin-right: 0.35rem;
     border: none;
     background: none;
     cursor: pointer;
@@ -885,11 +886,17 @@ pre code {
     border-radius: var(--radius-md);
     flex-shrink: 0;
     transition: all 0.15s ease;
+    opacity: 0.5;
 }
 
 .docs-nav-expand:hover {
     color: var(--color-text);
     background: var(--color-bg-subtle);
+    opacity: 1;
+}
+
+.docs-nav-item-parent.expanded .docs-nav-expand {
+    opacity: 0.7;
 }
 
 .docs-nav-expand svg {
