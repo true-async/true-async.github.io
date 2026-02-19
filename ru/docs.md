@@ -114,13 +114,27 @@ description: "Документация TrueAsync. Узнайте, как уст�
     padding: 0 20px 20px;
 }
 .learning-map-wrap .lm-sheet.visible { transform: translateY(0); }
+.learning-map-wrap .lm-sheet .sh-header {
+    display: flex; align-items: center; justify-content: center;
+    padding: 10px 0 6px; position: sticky; top: 0; background: #fff; z-index: 1;
+}
 .learning-map-wrap .lm-sheet .sh-handle {
-    display: flex; justify-content: center; padding: 10px 0 6px;
-    position: sticky; top: 0; background: #fff; z-index: 1;
+    flex: 1; display: flex; justify-content: center; cursor: grab;
 }
 .learning-map-wrap .lm-sheet .sh-handle span {
     display: block; width: 36px; height: 4px; border-radius: 2px; background: #D1D5DB;
 }
+.learning-map-wrap .lm-sheet .sh-close {
+    position: absolute; right: 12px; top: 8px;
+    width: 32px; height: 32px; border: none; background: var(--color-bg-subtle);
+    border-radius: 50%; cursor: pointer; display: flex; align-items: center;
+    justify-content: center; color: var(--color-text-muted); transition: all 0.15s;
+    font-size: 18px; line-height: 1;
+}
+.learning-map-wrap .lm-sheet .sh-close:hover {
+    background: var(--color-border); color: var(--color-text);
+}
+.learning-map-wrap .lm-sheet.dragging { transition: none !important; }
 .learning-map-wrap .lm-sheet .sh-title { font-weight: 700; font-size: 1.15em; margin-bottom: 2px; }
 .learning-map-wrap .lm-sheet .sh-desc { color: var(--color-text-secondary); font-size: 0.92em; margin-bottom: 6px; }
 .learning-map-wrap .lm-sheet .sh-group { font-size: 0.85em; font-weight: 500; margin-bottom: 2px; }
@@ -181,7 +195,10 @@ description: "Документация TrueAsync. Узнайте, как уст�
 </div>
 <div class="lm-sheet-overlay" id="lmSheetOverlay"></div>
 <div class="lm-sheet" id="lmSheet">
-<div class="sh-handle"><span></span></div>
+<div class="sh-header">
+<div class="sh-handle" id="lmShHandle"><span></span></div>
+<button class="sh-close" id="lmShClose" aria-label="Закрыть">&times;</button>
+</div>
 <div class="sh-title" id="lmShTitle"></div>
 <div class="sh-desc" id="lmShDesc"></div>
 <div class="sh-group" id="lmShGroup"></div>
@@ -478,6 +495,38 @@ function lmCloseSheet(){
     lmClearHl();
 }
 if(lmSheetOverlay)lmSheetOverlay.addEventListener('click',lmCloseSheet);
+var lmShClose=document.getElementById('lmShClose');
+if(lmShClose)lmShClose.addEventListener('click',lmCloseSheet);
+/* Swipe-down to close */
+(function(){
+    var startY=0,currentY=0,dragging=false;
+    var handle=document.getElementById('lmShHandle');
+    if(!handle)return;
+    function onStart(e){
+        if(!lmSheetOpen)return;
+        startY=(e.touches?e.touches[0]:e).clientY;currentY=startY;dragging=true;
+        lmSheetEl.classList.add('dragging');
+    }
+    function onMove(e){
+        if(!dragging)return;
+        currentY=(e.touches?e.touches[0]:e).clientY;
+        var dy=Math.max(0,currentY-startY);
+        lmSheetEl.style.transform='translateY('+dy+'px)';
+    }
+    function onEnd(){
+        if(!dragging)return;dragging=false;
+        lmSheetEl.classList.remove('dragging');
+        var dy=currentY-startY;
+        if(dy>60){lmCloseSheet();lmSheetEl.style.transform='';}
+        else{lmSheetEl.style.transform='';}
+    }
+    handle.addEventListener('touchstart',onStart,{passive:true});
+    document.addEventListener('touchmove',onMove,{passive:false});
+    document.addEventListener('touchend',onEnd);
+    handle.addEventListener('mousedown',onStart);
+    document.addEventListener('mousemove',onMove);
+    document.addEventListener('mouseup',onEnd);
+})();
 if('ontouchstart' in window){
     if(lmIsMobile){
         svg.addEventListener('touchstart',function(ev){

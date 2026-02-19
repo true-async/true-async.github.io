@@ -259,8 +259,9 @@ description: "Интерактивная карта документации —
     .interactive-demo .map-sheet.visible {
         transform: translateY(0);
     }
-    .interactive-demo .sheet-handle {
+    .interactive-demo .sheet-header {
         display: flex;
+        align-items: center;
         justify-content: center;
         padding: 10px 0 6px;
         position: sticky;
@@ -268,12 +269,43 @@ description: "Интерактивная карта документации —
         background: #fff;
         z-index: 1;
     }
+    .interactive-demo .sheet-handle {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        cursor: grab;
+    }
     .interactive-demo .sheet-handle span {
         display: block;
         width: 36px;
         height: 4px;
         border-radius: 2px;
         background: #D1D5DB;
+    }
+    .interactive-demo .sheet-close {
+        position: absolute;
+        right: 12px;
+        top: 8px;
+        width: 32px;
+        height: 32px;
+        border: none;
+        background: var(--color-bg-subtle);
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--color-text-muted);
+        transition: all 0.15s;
+        font-size: 18px;
+        line-height: 1;
+    }
+    .interactive-demo .sheet-close:hover {
+        background: var(--color-border);
+        color: var(--color-text);
+    }
+    .interactive-demo .map-sheet.dragging {
+        transition: none !important;
     }
     .interactive-demo .sheet-title {
         font-weight: 700;
@@ -448,7 +480,10 @@ description: "Интерактивная карта документации —
 <!-- Mobile bottom sheet -->
 <div class="map-sheet-overlay" id="sheetOverlay"></div>
 <div class="map-sheet" id="mapSheet">
-    <div class="sheet-handle"><span></span></div>
+    <div class="sheet-header">
+        <div class="sheet-handle" id="sheetHandle"><span></span></div>
+        <button class="sheet-close" id="sheetClose" aria-label="Закрыть">&times;</button>
+    </div>
     <div class="sheet-title" id="sheetTitle"></div>
     <div class="sheet-desc" id="sheetDesc"></div>
     <div class="sheet-group" id="sheetGroup"></div>
@@ -993,6 +1028,40 @@ description: "Интерактивная карта документации —
         if (!isTouch && !isMobile) return;
 
         sheetOverlay.addEventListener('click', closeSheet);
+        var sheetCloseBtn = document.getElementById('sheetClose');
+        if (sheetCloseBtn) sheetCloseBtn.addEventListener('click', closeSheet);
+
+        /* Swipe-down to close */
+        (function() {
+            var startY = 0, currentY = 0, dragging = false;
+            var handle = document.getElementById('sheetHandle');
+            if (!handle) return;
+            function onStart(e) {
+                if (!sheetOpen) return;
+                startY = (e.touches ? e.touches[0] : e).clientY;
+                currentY = startY; dragging = true;
+                sheetEl.classList.add('dragging');
+            }
+            function onMove(e) {
+                if (!dragging) return;
+                currentY = (e.touches ? e.touches[0] : e).clientY;
+                var dy = Math.max(0, currentY - startY);
+                sheetEl.style.transform = 'translateY(' + dy + 'px)';
+            }
+            function onEnd() {
+                if (!dragging) return; dragging = false;
+                sheetEl.classList.remove('dragging');
+                var dy = currentY - startY;
+                if (dy > 60) { closeSheet(); sheetEl.style.transform = ''; }
+                else { sheetEl.style.transform = ''; }
+            }
+            handle.addEventListener('touchstart', onStart, {passive: true});
+            document.addEventListener('touchmove', onMove, {passive: false});
+            document.addEventListener('touchend', onEnd);
+            handle.addEventListener('mousedown', onStart);
+            document.addEventListener('mousemove', onMove);
+            document.addEventListener('mouseup', onEnd);
+        })();
 
         svgEl.addEventListener('touchstart', function(ev) {
             var target = ev.target.closest('.node');
