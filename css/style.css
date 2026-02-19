@@ -841,6 +841,95 @@ pre code {
     color: var(--color-primary);
 }
 
+/* ---- Children (sub-navigation) ---- */
+
+.docs-nav-item-parent {
+    display: flex;
+    align-items: center;
+}
+
+.docs-nav-item-parent > a {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.3rem 0.75rem;
+    font-size: 0.84rem;
+    color: var(--color-text-secondary);
+    border-radius: var(--radius-md);
+    transition: all 0.1s ease;
+    text-decoration: none;
+}
+
+.docs-nav-item-parent > a:hover {
+    color: var(--color-text);
+    background: var(--color-bg-subtle);
+}
+
+.docs-nav-item-parent > a.active {
+    color: var(--color-primary);
+    background: rgba(107, 88, 255, 0.06);
+    font-weight: 500;
+}
+
+.docs-nav-expand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    border: none;
+    background: none;
+    cursor: pointer;
+    color: var(--color-text-muted);
+    border-radius: var(--radius-md);
+    flex-shrink: 0;
+    transition: all 0.15s ease;
+}
+
+.docs-nav-expand:hover {
+    color: var(--color-text);
+    background: var(--color-bg-subtle);
+}
+
+.docs-nav-expand svg {
+    transition: transform 0.2s ease;
+}
+
+.docs-nav-item-parent.expanded .docs-nav-expand svg {
+    transform: rotate(180deg);
+}
+
+.docs-nav-sub {
+    padding-left: 0.75rem;
+    margin-left: 1.35rem;
+    border-left: 1.5px solid var(--color-border);
+}
+
+.docs-nav-sub a {
+    display: block;
+    font-size: 0.78rem;
+    padding: 0.2rem 0.5rem;
+    color: var(--color-text-muted);
+    text-decoration: none;
+    border-radius: var(--radius-md);
+    transition: all 0.1s ease;
+    margin-bottom: 0.0625rem;
+    font-family: var(--font-mono);
+}
+
+.docs-nav-sub a:hover {
+    color: var(--color-text);
+    background: var(--color-bg-subtle);
+}
+
+.docs-nav-sub a.active {
+    color: var(--color-primary);
+    background: rgba(107, 88, 255, 0.06);
+    font-weight: 500;
+    border-left: none;
+}
+
 .docs-content {
     flex: 1;
     min-width: 0;

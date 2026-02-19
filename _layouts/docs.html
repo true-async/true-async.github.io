@@ -22,14 +22,29 @@ layout: default
             <input type="text" id="docsSearch" class="docs-search-input" placeholder="{{ t.docs.search_placeholder | default: 'Search...' }}" autocomplete="off" />
         </div>
         {% for group in t.docs.sidebar %}
-        <details class="docs-nav-group"{% for item in group.items %}{% if item.url == page.permalink %} open{% endif %}{% endfor %}>
+        <details class="docs-nav-group"{% for item in group.items %}{% if item.url == page.permalink %} open{% endif %}{% if item.children %}{% for child in item.children %}{% if child.url == page.permalink %} open{% endif %}{% endfor %}{% endif %}{% endfor %}>
             <summary class="docs-nav-title">
                 <span>{{ group.title }}</span>
                 <svg class="docs-nav-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2 4 6 8 10 4"/></svg>
             </summary>
             <nav class="docs-nav">
                 {% for item in group.items %}
+                {% if item.children %}
+                {% assign child_active = false %}{% for child in item.children %}{% if child.url == page.permalink %}{% assign child_active = true %}{% endif %}{% endfor %}
+                <div class="docs-nav-item-parent{% if page.permalink == item.url or child_active %} expanded{% endif %}">
+                    <a href="{{ item.url }}"{% if page.permalink == item.url %} class="active"{% endif %} data-search="{{ item.label }}">{% if item.icon %}{% include nav-icon.html name=item.icon %}{% endif %}{{ item.label }}</a>
+                    <button class="docs-nav-expand" aria-label="expand">
+                        <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2 4 6 8 10 4"/></svg>
+                    </button>
+                </div>
+                <div class="docs-nav-sub"{% unless page.permalink == item.url or child_active %} style="display:none"{% endunless %}>
+                    {% for child in item.children %}
+                    <a href="{{ child.url }}"{% if page.permalink == child.url %} class="active"{% endif %} data-search="{{ child.label }}">{{ child.label }}</a>
+                    {% endfor %}
+                </div>
+                {% else %}
                 <a href="{% if item.url %}{{ item.url }}{% else %}#{{ item.id }}{% endif %}"{% if page.permalink == item.url %} class="active"{% endif %} data-search="{{ item.label }}">{% if item.icon %}{% include nav-icon.html name=item.icon %}{% endif %}{{ item.label }}</a>
+                {% endif %}
                 {% endfor %}
             </nav>
         </details>
@@ -47,15 +62,54 @@ document.getElementById('sidebarToggle').addEventListener('click', function() {
     document.getElementById('docsSidebar').classList.toggle('open');
 });
 
+// Children expand/collapse
+document.querySelectorAll('.docs-nav-expand').forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        var parent = this.closest('.docs-nav-item-parent');
+        var sub = parent.nextElementSibling;
+        if (sub && sub.classList.contains('docs-nav-sub')) {
+            var isHidden = sub.style.display === 'none';
+            sub.style.display = isHidden ? '' : 'none';
+            parent.classList.toggle('expanded', isHidden);
+        }
+    });
+});
+
 // Sidebar search
 var searchInput = document.getElementById('docsSearch');
 if (searchInput) {
     searchInput.addEventListener('input', function() {
         var q = this.value.toLowerCase().trim();
+        // Filter all links (including children)
         document.querySelectorAll('.docs-nav a').forEach(function(a) {
             var match = !q || a.getAttribute('data-search').toLowerCase().indexOf(q) !== -1;
             a.style.display = match ? '' : 'none';
         });
+        // Show/hide sub-navs based on child matches
+        document.querySelectorAll('.docs-nav-sub').forEach(function(sub) {
+            var hasVisible = sub.querySelector('a:not([style*="display: none"])');
+            if (q) {
+                sub.style.display = hasVisible ? '' : 'none';
+                var parent = sub.previousElementSibling;
+                if (parent && parent.classList.contains('docs-nav-item-parent')) {
+                    parent.classList.toggle('expanded', !!hasVisible);
+                    // Also show parent link if child matches
+                    if (hasVisible) {
+                        var parentLink = parent.querySelector('a');
+                        if (parentLink) parentLink.style.display = '';
+                    }
+                }
+            } else {
+                // Restore default state
+                var parent = sub.previousElementSibling;
+                var isActive = parent && parent.classList.contains('docs-nav-item-parent') &&
+                    (parent.querySelector('a.active') || sub.querySelector('a.active'));
+                sub.style.display = isActive ? '' : 'none';
+                if (parent) parent.classList.toggle('expanded', !!isActive);
+            }
+        });
+        // Show/hide top-level groups
         document.querySelectorAll('.docs-nav-group').forEach(function(d) {
             if (q) {
                 var hasVisible = d.querySelector('.docs-nav a:not([style*="display: none"])');
