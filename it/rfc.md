@@ -5,13 +5,13 @@ path_key: "/rfc.html"
 nav_active: rfc
 permalink: /it/rfc.html
 page_title: "RFC"
-description: "Proposte ufficiali per l'aggiunta di capacità asincrone al core di PHP"
+description: "Proposte ufficiali per aggiungere l'asincronicità al core di PHP"
 ---
 
 ## PHP RFC: True Async
 
-Il progetto TrueAsync avanza attraverso il processo ufficiale di `RFC` su wiki.php.net.
-Finora sono stati pubblicati due `RFC` che descrivono il modello base di concorrenza
+Il progetto TrueAsync è stato portato avanti per circa un anno attraverso il processo ufficiale di `RFC` su wiki.php.net.
+Sono stati pubblicati due `RFC` che descrivono il modello di concorrenza di base
 e la concorrenza strutturata.
 
 ### RFC #1 — PHP True Async
@@ -20,10 +20,10 @@ e la concorrenza strutturata.
 <span>Autore: Edmond [HT]</span>
 <span>Versione: 1.7</span>
 <span>Versione target: PHP 8.6+</span>
-<span class="rfc-badge discussion">Under Discussion</span>
+<span class="rfc-badge discussion">Draft</span>
 </div>
 
-L'RFC principale che definisce il modello di concorrenza per PHP.
+L'`RFC` principale che definisce il modello di concorrenza per PHP.
 Descrive le coroutine, le funzioni `spawn()` / `await()` / `suspend()`,
 l'oggetto `Coroutine`, le interfacce `Awaitable` e `Completable`,
 il meccanismo di cancellazione cooperativa, l'integrazione con `Fiber`,
@@ -33,11 +33,11 @@ la gestione degli errori e il graceful shutdown.
 
 - Modifiche minime al codice esistente per abilitare la concorrenza
 - Le coroutine mantengono l'illusione dell'esecuzione sequenziale
-- Commutazione automatica delle coroutine durante le operazioni I/O
-- Cancellazione cooperativa — «cancellable by design»
+- Commutazione automatica delle coroutine nelle operazioni di I/O
+- Cancellazione cooperativa — "cancellable by design"
 - API C standard per le estensioni
 
-[Leggi il RFC su wiki.php.net &rarr;](https://wiki.php.net/rfc/true_async){:target="_blank"}
+[Leggi RFC su wiki.php.net &rarr;](https://wiki.php.net/rfc/true_async){:target="_blank"}
 
 ### RFC #2 — Scope e concorrenza strutturata
 
@@ -47,40 +47,49 @@ la gestione degli errori e il graceful shutdown.
 <span class="rfc-badge draft">Draft</span>
 </div>
 
-Estensione dell'RFC base. Introduce la classe `Scope`, che lega
-il tempo di vita delle coroutine all'ambito lessicale.
+Un'estensione dell'RFC base. Introduce la classe `Scope`, legando
+la durata di vita delle coroutine all'ambito lessicale.
 Descrive la gerarchia degli scope, la propagazione degli errori,
-la politica delle coroutine «zombie» e le sezioni critiche tramite `protect()`.
+la politica delle coroutine "zombie" e le sezioni critiche tramite `protect()`.
 
 **Cosa risolve:**
 
-- Prevenzione delle fughe di coroutine oltre lo scope
+- Prevenzione delle fughe di coroutine al di fuori dello scope
 - Pulizia automatica delle risorse all'uscita dallo scope
-- Cancellazione gerarchica: cancellazione del genitore → cancellazione di tutti i figli
+- Cancellazione gerarchica: cancellare il genitore → cancella tutti i figli
 - Protezione delle sezioni critiche dalla cancellazione
 - Rilevamento di deadlock e self-await
 
-[Leggi il RFC su wiki.php.net &rarr;](https://wiki.php.net/rfc/true_async_scope){:target="_blank"}
+[Leggi RFC su wiki.php.net &rarr;](https://wiki.php.net/rfc/true_async_scope){:target="_blank"}
 
-## Come sono collegati questi RFC
+## Come questi RFC sono collegati
 
-Il primo RFC definisce le **primitive di basso livello** — coroutine,
+Il primo `RFC` definisce le **primitive di basso livello** — coroutine,
 funzioni base e API C per le estensioni. Il secondo RFC aggiunge
 la **concorrenza strutturata** — meccanismi per gestire gruppi di coroutine
 che rendono il codice concorrente sicuro e prevedibile.
 
 Insieme formano un modello completo di programmazione asincrona per PHP:
 
-|               | RFC #1: True Async                | RFC #2: Scope                           |
-|---------------|-----------------------------------|-----------------------------------------|
-| **Livello**   | Primitive                         | Gestione                                |
-| **Fornisce**  | `spawn()`, `await()`, `Coroutine` | `Scope`, `TaskGroup`, `protect()`       |
-| **Analogie**  | Go goroutines, Kotlin coroutines  | Kotlin CoroutineScope, Python TaskGroup |
-| **Obiettivo** | Esecuzione di codice concorrente  | Gestione sicura del ciclo di vita       |
+|              | RFC #1: True Async                | RFC #2: Scope                           |
+|--------------|-----------------------------------|-----------------------------------------|
+| **Livello**  | Primitive                         | Gestione                                |
+| **Fornisce** | `spawn()`, `await()`, `Coroutine` | `Scope`, `TaskGroup`, `protect()`       |
+| **Analogie** | Go goroutines, Kotlin coroutines  | Kotlin CoroutineScope, Python TaskGroup |
+| **Obiettivo**| Esecuzione di codice concorrente  | Gestione sicura del ciclo di vita       |
 
-## Partecipa alla discussione
+## Stato attuale del RFC
 
-Gli RFC vengono discussi nella mailing list [internals@lists.php.net](mailto:internals@lists.php.net)
+Attualmente il progetto `TrueAsync` ha incontrato incertezza nel processo di `RFC`.
+Negli ultimi mesi, la discussione si è praticamente fermata e non c'è chiarezza sul suo futuro.
+È abbastanza ovvio che l'`RFC` non potrà superare la votazione, e non c'è modo di cambiare questo.
+
+Per queste ragioni, il processo di `RFC` è attualmente considerato congelato,
+e il progetto continuerà a svilupparsi all'interno della comunità aperta, senza uno status "ufficiale".
+
+## Partecipare alla discussione
+
+Gli RFC sono discussi nella mailing list [internals@lists.php.net](mailto:internals@lists.php.net)
 e su [GitHub Discussions](https://github.com/true-async/true-async/discussions){:target="_blank"}.
 
 Unisciti anche alla conversazione su [Discord](https://discord.gg/yqBQPBHKp5){:target="_blank"}.

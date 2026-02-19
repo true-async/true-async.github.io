@@ -10,7 +10,7 @@ description: "Official proposals for adding asynchronous capabilities to PHP cor
 
 ## PHP RFC: True Async
 
-The TrueAsync project advances through the official `RFC` process on wiki.php.net.
+The TrueAsync project has been advancing through the official `RFC` process on wiki.php.net for about a year.
 Two `RFCs` have been published describing the basic concurrency model
 and structured concurrency.
 
@@ -20,10 +20,10 @@ and structured concurrency.
 <span>Author: Edmond [HT]</span>
 <span>Version: 1.7</span>
 <span>Target version: PHP 8.6+</span>
-<span class="rfc-badge discussion">Under Discussion</span>
+<span class="rfc-badge discussion">Draft</span>
 </div>
 
-The main RFC defining the concurrency model for PHP.
+The main `RFC` defining the concurrency model for PHP.
 Describes coroutines, functions `spawn()` / `await()` / `suspend()`,
 the `Coroutine` object, `Awaitable` and `Completable` interfaces,
 cooperative cancellation mechanism, `Fiber` integration,
@@ -64,7 +64,7 @@ Describes scope hierarchy, error propagation,
 
 ## How these RFCs relate
 
-The first RFC defines **low-level primitives** — coroutines,
+The first `RFC` defines **low-level primitives** — coroutines,
 base functions and C API for extensions. The second RFC adds
 **structured concurrency** — mechanisms for managing groups of coroutines
 that make concurrent code safe and predictable.
@@ -77,6 +77,15 @@ Together they form a complete asynchronous programming model for PHP:
 | **Provides** | `spawn()`, `await()`, `Coroutine` | `Scope`, `TaskGroup`, `protect()`       |
 | **Analogies**| Go goroutines, Kotlin coroutines  | Kotlin CoroutineScope, Python TaskGroup |
 | **Goal**     | Running concurrent code           | Safe lifecycle management               |
+
+## Current RFC Status
+
+Currently the `TrueAsync` project has faced uncertainty in the `RFC` process.
+Over the past few months, the discussion has practically stopped, and there is no clarity regarding its future.
+It is quite obvious that the `RFC` will not be able to pass a vote, and there is no way to change this.
+
+For these reasons, the `RFC` process is currently considered frozen,
+and the project will continue to develop within the open community, without "official" status.
 
 ## Join the Discussion
 

@@ -5,6 +5,7 @@ nav:
   rfc: "RFC"
   motivation: "动机"
   architecture: "架构"
+  contributing: "参与贡献"
   toggle_menu: "菜单"
 
 docs:

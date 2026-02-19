@@ -5,6 +5,7 @@ nav:
   rfc: "RFC"
   motivation: "Мотивация"
   architecture: "Архитектура"
+  contributing: "Участие"
   toggle_menu: "Меню"
 
 docs:
