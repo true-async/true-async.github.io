@@ -119,13 +119,13 @@ use Async\Scope;
 
 $scope = new Scope();
 
-spawn with $scope function() {
+$scope->spawn(function() {
     echo "Корутина 1\n";
-};
+});
 
-spawn with $scope function() {
+$scope->spawn(function() {
     echo "Корутина 2\n";
-};
+});
 
 // Ожидаем завершения всех корутин в scope
 $scope->awaitCompletion();

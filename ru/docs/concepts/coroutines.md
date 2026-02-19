@@ -227,9 +227,9 @@ try {
 ```php
 $scope = new Async\Scope();
 
-spawn with $scope function() {
+$scope->spawn(function() {
     throw new Exception("Ошибка в корутине!");
-};
+});
 
 try {
     $scope->awaitCompletion();
