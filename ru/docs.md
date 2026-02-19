@@ -509,6 +509,7 @@ if(lmShClose)lmShClose.addEventListener('click',lmCloseSheet);
     }
     function onMove(e){
         if(!dragging)return;
+        if(e.cancelable)e.preventDefault();
         currentY=(e.touches?e.touches[0]:e).clientY;
         var dy=Math.max(0,currentY-startY);
         lmSheetEl.style.transform='translateY('+dy+'px)';
@@ -520,8 +521,9 @@ if(lmShClose)lmShClose.addEventListener('click',lmCloseSheet);
         if(dy>60){lmCloseSheet();lmSheetEl.style.transform='';}
         else{lmSheetEl.style.transform='';}
     }
-    handle.addEventListener('touchstart',onStart,{passive:true});
-    document.addEventListener('touchmove',onMove,{passive:false});
+    handle.addEventListener('touchstart',onStart,{passive:false});
+    handle.addEventListener('touchmove',onMove,{passive:false});
+    document.addEventListener('touchmove',function(e){if(dragging&&e.cancelable)e.preventDefault();},{passive:false});
     document.addEventListener('touchend',onEnd);
     handle.addEventListener('mousedown',onStart);
     document.addEventListener('mousemove',onMove);

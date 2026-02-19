@@ -1044,6 +1044,7 @@ description: "Интерактивная карта документации —
             }
             function onMove(e) {
                 if (!dragging) return;
+                if (e.cancelable) e.preventDefault();
                 currentY = (e.touches ? e.touches[0] : e).clientY;
                 var dy = Math.max(0, currentY - startY);
                 sheetEl.style.transform = 'translateY(' + dy + 'px)';
@@ -1055,8 +1056,9 @@ description: "Интерактивная карта документации —
                 if (dy > 60) { closeSheet(); sheetEl.style.transform = ''; }
                 else { sheetEl.style.transform = ''; }
             }
-            handle.addEventListener('touchstart', onStart, {passive: true});
-            document.addEventListener('touchmove', onMove, {passive: false});
+            handle.addEventListener('touchstart', onStart, {passive: false});
+            handle.addEventListener('touchmove', onMove, {passive: false});
+            document.addEventListener('touchmove', function(e) { if (dragging && e.cancelable) e.preventDefault(); }, {passive: false});
             document.addEventListener('touchend', onEnd);
             handle.addEventListener('mousedown', onStart);
             document.addEventListener('mousemove', onMove);
