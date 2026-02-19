@@ -331,6 +331,8 @@ docs:
           label: "root_context()"
         - url: "/ru/docs/reference/get-coroutines.html"
           label: "get_coroutines()"
+        - url: "/ru/docs/reference/signal.html"
+          label: "signal()"
         - url: "/ru/docs/reference/graceful-shutdown.html"
           label: "graceful_shutdown()"
     - title: "Исследования"
