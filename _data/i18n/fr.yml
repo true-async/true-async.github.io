@@ -82,7 +82,7 @@ download:
   resources_link: "Ressources"
 
 footer:
-  about: "De véritables primitives asynchrones pour PHP. Créé par la communauté, pour la communauté."
+  about: "De véritables primitives asynchrones pour PHP"
   project: "Projet"
   community: "Communauté"
   resources: "Ressources"

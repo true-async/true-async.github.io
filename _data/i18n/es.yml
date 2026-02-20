@@ -82,7 +82,7 @@ download:
   resources_link: "Recursos"
 
 footer:
-  about: "Primitivas verdaderamente asíncronas para PHP. Creado por la comunidad, para la comunidad."
+  about: "Primitivas verdaderamente asíncronas para PHP"
   project: "Proyecto"
   community: "Comunidad"
   resources: "Recursos"

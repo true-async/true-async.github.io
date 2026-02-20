@@ -82,7 +82,7 @@ download:
   resources_link: "资源"
 
 footer:
-  about: "PHP 的真正异步原语。由社区构建，为社区服务。"
+  about: "PHP 的真正异步原语"
   project: "项目"
   community: "社区"
   resources: "资源"

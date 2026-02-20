@@ -82,7 +82,7 @@ download:
   resources_link: "Risorse"
 
 footer:
-  about: "Primitive asincrone native per PHP. Creato dalla comunità, per la comunità."
+  about: "Primitive asincrone native per PHP"
   project: "Progetto"
   community: "Comunità"
   resources: "Risorse"

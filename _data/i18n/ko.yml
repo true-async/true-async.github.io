@@ -109,7 +109,7 @@ download:
   resources_link: "링크"
 
 footer:
-  about: "PHP를 위한 진정한 비동기 프리미티브. 커뮤니티에 의해, 커뮤니티를 위해 만들어졌습니다."
+  about: "PHP를 위한 진정한 비동기 프리미티브"
   project: "프로젝트"
   community: "커뮤니티"
   resources: "자료"
