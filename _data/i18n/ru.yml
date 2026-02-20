@@ -353,10 +353,22 @@ architecture:
   subtitle: "Внутреннее устройство компонентов TrueAsync."
   menu: "Меню"
   sidebar:
-    - title: "Компоненты"
+    - title: "Ядро"
       items:
         - url: "/ru/architecture.html"
           label: "Обзор"
+        - url: "/ru/architecture/zend-async-api.html"
+          label: "Zend Async API (C ABI)"
+        - url: "/ru/architecture/scheduler-reactor.html"
+          label: "Scheduler и Reactor"
+        - url: "/ru/architecture/events.html"
+          label: "События"
+        - url: "/ru/architecture/waker.html"
+          label: "Waker"
+        - url: "/ru/architecture/async-gc.html"
+          label: "Сборка мусора"
+    - title: "Компоненты"
+      items:
         - url: "/ru/architecture/pool.html"
           label: "Async\\Pool"
         - url: "/ru/architecture/pdo-pool.html"
