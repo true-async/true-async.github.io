@@ -279,5 +279,5 @@ TrueAsync ABI, который используется интеграцией:
 
 | Файл                                                                                                     | Описание                                          |
 |----------------------------------------------------------------------------------------------------------|---------------------------------------------------|
-| [`Zend/zend_async_API.h`](https://github.com/aspect-build/php-src/blob/true-async/Zend/zend_async_API.h) | Определение API: макросы, function pointers, типы |
-| [`Zend/zend_async_API.c`](https://github.com/aspect-build/php-src/blob/true-async/Zend/zend_async_API.c) | Инфраструктура: регистрация, stub-реализации      |
+| [`Zend/zend_async_API.h`](https://github.com/true-async/php-src/blob/true-async/Zend/zend_async_API.h) | Определение API: макросы, function pointers, типы |
+| [`Zend/zend_async_API.c`](https://github.com/true-async/php-src/blob/true-async/Zend/zend_async_API.c) | Инфраструктура: регистрация, stub-реализации      |
