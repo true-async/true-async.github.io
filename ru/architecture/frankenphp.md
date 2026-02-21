@@ -275,7 +275,7 @@ func go_async_response_write(...) {
 | [`async_notifier.go`](https://github.com/true-async/frankenphp/blob/true-async/async_notifier.go)           | `AsyncNotifier`: `eventfd` (Linux) / `pipe` (macOS)                         |
 | [`TRUE_ASYNC.README.md`](https://github.com/true-async/frankenphp/blob/true-async/TRUE_ASYNC.README.md)     | Документация по интеграции                                                  |
 
-Zend Async API, который используется интеграцией:
+TrueAsync ABI, который используется интеграцией:
 
 | Файл                                                                                                     | Описание                                          |
 |----------------------------------------------------------------------------------------------------------|---------------------------------------------------|

@@ -4,11 +4,11 @@ lang: ru
 path_key: "/architecture/zend-async-api.html"
 nav_active: architecture
 permalink: /ru/architecture/zend-async-api.html
-page_title: "Zend Async API (C ABI)"
+page_title: "TrueAsync ABI"
 description: "Архитектура асинхронного ABI ядра PHP — function pointers, регистрация расширений, глобальное состояние и макросы ZEND_ASYNC_*."
 ---
 
-# Zend Async ABI
+# TrueAsync ABI
 
 `TrueAsync` `ABI` построен на чётком разделении **определения** и **реализации**:
 

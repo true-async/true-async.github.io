@@ -18,7 +18,7 @@ description: "Внутреннее устройство компонентов T
 как работает TrueAsync «под капотом», или планируют создавать собственные
 расширения.
 
-### [Zend Async API (C ABI)](/ru/architecture/zend-async-api.html)
+### [TrueAsync ABI](/ru/architecture/zend-async-api.html)
 
 Сердце асинхронного ABI: function pointers, система регистрации расширений,
 глобальное состояние (`zend_async_globals_t`), макросы `ZEND_ASYNC_*`
