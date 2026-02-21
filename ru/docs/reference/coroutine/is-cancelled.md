@@ -81,4 +81,4 @@ var_dump($coroutine->isCancelled());             // bool(true)
 
 - [Coroutine::isCancellationRequested](/ru/docs/reference/coroutine/is-cancellation-requested.html) — Проверить запрос на отмену
 - [Coroutine::cancel](/ru/docs/reference/coroutine/cancel.html) — Отменить корутину
-- [Отмена](/ru/docs/concepts/cancellation.html) — Концепция отмены
+- [Отмена](/ru/docs/components/cancellation.html) — Концепция отмены

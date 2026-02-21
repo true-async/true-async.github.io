@@ -82,5 +82,5 @@ $watcher->close();
 
 ## См. также
 
-- [FileSystemWatcher](/ru/docs/concepts/filesystem-watcher.html) — Обзор концепции
+- [FileSystemWatcher](/ru/docs/components/filesystem-watcher.html) — Обзор концепции
 - [FileSystemWatcher::close](/ru/docs/reference/filesystem-watcher/close.html) — Остановить наблюдение

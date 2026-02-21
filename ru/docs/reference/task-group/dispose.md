@@ -21,4 +21,4 @@ public TaskGroup::dispose(): void
 ## См. также
 
 - [TaskGroup::cancel](/ru/docs/reference/task-group/cancel.html) — Отменить все задачи
-- [Scope](/ru/docs/concepts/scope.html) — Управление жизнью корутин
+- [Scope](/ru/docs/components/scope.html) — Управление жизнью корутин

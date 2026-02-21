@@ -235,4 +235,4 @@ TrueAsync адаптирует **70+ стандартных PHP функций**
 
 - [spawn()](/ru/docs/reference/spawn.html) — создание корутин
 - [await()](/ru/docs/reference/await.html) — ожидание результата
-- [Корутины](/ru/docs/concepts/coroutines.html) — концепции и примеры
+- [Корутины](/ru/docs/components/coroutines.html) — концепции и примеры

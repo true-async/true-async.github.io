@@ -47,5 +47,5 @@ $ctx = $coroutine->getContext();
 
 ## См. также
 
-- [Context](/ru/docs/concepts/context.html) — Концепция контекста
+- [Context](/ru/docs/components/context.html) — Концепция контекста
 - [current_context()](/ru/docs/reference/current-context.html) — Получить контекст текущей корутины

@@ -223,37 +223,37 @@ var lmMob=window.innerWidth<=768;
 var nodes = [
     {id:'coroutines',title:'Корутины',desc:'Базовая единица асинхронности — запуск параллельных задач',
      code:'<span class="var">$coro</span> = <span class="fn">spawn</span>(<span class="kw">function</span>() {\n  <span class="fn">echo</span> <span class="str">"async!"</span>;\n});',
-     url:'/ru/docs/concepts/coroutines.html',group:'primitives',order:1,w:130,h:44},
+     url:'/ru/docs/components/coroutines.html',group:'primitives',order:1,w:130,h:44},
     {id:'future',title:'Future',desc:'Получить результат асинхронной операции',
      code:'<span class="var">$coro</span> = <span class="fn">spawn</span>(<span class="var">$task</span>);\n<span class="var">$result</span> = <span class="fn">await</span>(<span class="var">$coro</span>);',
-     url:'/ru/docs/concepts/future.html',group:'primitives',order:null,w:110,h:44},
+     url:'/ru/docs/components/future.html',group:'primitives',order:null,w:110,h:44},
     {id:'await-funcs',title:'await, await_all',desc:'Ожидание одной или нескольких корутин или Futures',
      code:'<span class="var">$result</span> = <span class="fn">await</span>(<span class="var">$coro</span>);\n<span class="var">$results</span> = <span class="fn">await_all</span>(<span class="var">$tasks</span>);\n<span class="var">$first</span> = <span class="fn">await_first_success</span>(<span class="var">$tasks</span>);',
      url:'/ru/docs/reference/await.html',group:'sync',order:2,w:160,h:44},
     {id:'channels',title:'Каналы',desc:'Передавать данные между корутинами',
      code:'<span class="var">$ch</span> = <span class="kw">new</span> Async\\<span class="fn">Channel</span>(<span class="num">10</span>);\n<span class="var">$ch</span>-><span class="fn">send</span>(<span class="str">"data"</span>);\n<span class="var">$val</span> = <span class="var">$ch</span>-><span class="fn">recv</span>();',
-     url:'/ru/docs/concepts/channels.html',group:'sync',order:null,w:110,h:44},
+     url:'/ru/docs/components/channels.html',group:'sync',order:null,w:110,h:44},
     {id:'cancellation',title:'Cancellation',desc:'Отменять корутины',
      code:'<span class="var">$coro</span>-><span class="fn">cancel</span>();\n<span class="cm">// или с таймаутом:</span>\n<span class="fn">await</span>(<span class="var">$coro</span>, <span class="fn">timeout</span>(<span class="num">5000</span>));',
-     url:'/ru/docs/concepts/cancellation.html',group:'cancellation',order:3,w:150,h:44},
+     url:'/ru/docs/components/cancellation.html',group:'cancellation',order:3,w:150,h:44},
     {id:'scope',title:'Scope',desc:'Контролировать время жизни группы корутин',
      code:'<span class="var">$scope</span> = <span class="kw">new</span> Async\\<span class="fn">Scope</span>();\n<span class="fn">spawn_with</span>(<span class="var">$scope</span>, <span class="var">$task</span>);',
-     url:'/ru/docs/concepts/scope.html',group:'structural',order:4,w:110,h:44},
+     url:'/ru/docs/components/scope.html',group:'structural',order:4,w:110,h:44},
     {id:'taskgroup',title:'TaskGroup',desc:'Structured concurrency: группировка задач с гарантией ожидания или отмены',
      code:'<span class="var">$group</span> = <span class="kw">new</span> <span class="fn">TaskGroup</span>(<span class="num">5</span>);\n<span class="var">$group</span>-><span class="fn">spawn</span>(<span class="var">$task</span>);\n<span class="var">$results</span> = <span class="var">$group</span>-><span class="fn">all</span>();',
-     url:'/ru/docs/concepts/task-group.html',group:'structural',order:null,w:130,h:44},
+     url:'/ru/docs/components/task-group.html',group:'structural',order:null,w:130,h:44},
     {id:'context',title:'Context',desc:'Хранить данные привязанные к корутине (напр. токен авторизации)',
      code:'<span class="var">$ctx</span> = <span class="fn">current_context</span>();\n<span class="var">$ctx</span>-><span class="fn">set</span>(<span class="str">\'auth_token\'</span>, <span class="var">$token</span>);\n<span class="var">$v</span> = <span class="var">$ctx</span>-><span class="fn">find</span>(<span class="str">\'auth_token\'</span>);',
-     url:'/ru/docs/concepts/context.html',group:'context',order:5,w:120,h:44},
+     url:'/ru/docs/components/context.html',group:'context',order:5,w:120,h:44},
     {id:'iterate',title:'iterate()',desc:'Конкурентная обработка коллекций',
      code:'<span class="fn">iterate</span>(<span class="var">$items</span>, <span class="kw">function</span>(<span class="var">$v</span>, <span class="var">$k</span>) {\n  <span class="fn">echo</span> <span class="str">"$k: $v\\n"</span>;\n}, <span class="fn">concurrency</span>: <span class="num">4</span>);',
      url:'/ru/docs/reference/iterate.html',group:'iterate',order:null,w:120,h:44},
     {id:'pool',title:'Async\\Pool',desc:'Переиспользовать дорогие ресурсы (соединения, воркеры)',
      code:'<span class="var">$pool</span> = <span class="kw">new</span> <span class="fn">Pool</span>(\n  <span class="fn">factory</span>: <span class="kw">fn</span>() => <span class="kw">new</span> <span class="fn">Conn</span>(),\n  <span class="fn">max</span>: <span class="num">10</span>\n);',
-     url:'/ru/docs/concepts/pool.html',group:'resources',order:6,w:130,h:44},
+     url:'/ru/docs/components/pool.html',group:'resources',order:6,w:130,h:44},
     {id:'pdo-pool',title:'PDO Pool',desc:'PDO Пул соединений с базой данных. Используй привычные функции прозрачно',
      code:'<span class="var">$pdo</span> = <span class="kw">new</span> <span class="fn">PDO</span>(<span class="var">$dsn</span>, <span class="var">$user</span>, <span class="var">$pwd</span>, [\n  PDO::<span class="fn">ATTR_POOL_MAX</span> => <span class="num">10</span>\n]);',
-     url:'/ru/docs/concepts/pdo-pool.html',group:'resources',order:null,w:120,h:44}
+     url:'/ru/docs/components/pdo-pool.html',group:'resources',order:null,w:120,h:44}
 ];
 var dPos={coroutines:{cx:250,cy:55},future:{cx:470,cy:55},'await-funcs':{cx:250,cy:150},channels:{cx:470,cy:150},cancellation:{cx:300,cy:245},scope:{cx:250,cy:340},taskgroup:{cx:470,cy:340},context:{cx:300,cy:435},iterate:{cx:125,cy:532},pool:{cx:350,cy:532},'pdo-pool':{cx:510,cy:532}};
 var mPos={coroutines:{cx:115,cy:55},future:{cx:275,cy:55},'await-funcs':{cx:115,cy:150},channels:{cx:275,cy:150},cancellation:{cx:190,cy:245},scope:{cx:115,cy:345},taskgroup:{cx:275,cy:345},context:{cx:190,cy:440},iterate:{cx:105,cy:540},pool:{cx:260,cy:540},'pdo-pool':{cx:260,cy:640}};
@@ -281,12 +281,12 @@ var subPages = {
         {label:'delay()',url:'/ru/docs/reference/delay.html'},
         {label:'suspend()',url:'/ru/docs/reference/suspend.html'}],
     'cancellation':[
-        {label:'cancel()',url:'/ru/docs/concepts/cancellation.html'},
+        {label:'cancel()',url:'/ru/docs/components/cancellation.html'},
         {label:'protect()',url:'/ru/docs/reference/protect.html'},
         {label:'timeout()',url:'/ru/docs/reference/timeout.html'}],
     'scope':[
-        {label:'Scope',url:'/ru/docs/concepts/scope.html'},
-        {label:'Scope::inherit()',url:'/ru/docs/concepts/scope.html'}],
+        {label:'Scope',url:'/ru/docs/components/scope.html'},
+        {label:'Scope::inherit()',url:'/ru/docs/components/scope.html'}],
     'context':[
         {label:'current_context()',url:'/ru/docs/reference/current-context.html'},
         {label:'coroutine_context()',url:'/ru/docs/reference/coroutine-context.html'}],
@@ -295,7 +295,7 @@ var subPages = {
         {label:'race()',url:'/ru/docs/reference/task-group/race.html'},
         {label:'seal()',url:'/ru/docs/reference/task-group/seal.html'},
         {label:'cancel()',url:'/ru/docs/reference/task-group/cancel.html'}],
-    'pool':[{label:'Pool::tryAcquire()',url:'/ru/docs/concepts/pool.html'}]
+    'pool':[{label:'Pool::tryAcquire()',url:'/ru/docs/components/pool.html'}]
 };
 var dZones=[
     {group:'primitives',label:'Базовые примитивы',x:140,y:10,w:400,h:85,rx:14},

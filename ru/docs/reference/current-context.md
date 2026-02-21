@@ -47,4 +47,4 @@ spawn(function() {
 
 - [coroutine_context()](/ru/docs/reference/coroutine-context.html) — контекст корутины
 - [root_context()](/ru/docs/reference/root-context.html) — глобальный контекст
-- [Context](/ru/docs/concepts/context.html) — концепция контекстов
+- [Context](/ru/docs/components/context.html) — концепция контекстов

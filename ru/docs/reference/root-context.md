@@ -50,4 +50,4 @@ spawn(function() {
 
 - [current_context()](/ru/docs/reference/current-context.html) — контекст Scope
 - [coroutine_context()](/ru/docs/reference/coroutine-context.html) — контекст корутины
-- [Context](/ru/docs/concepts/context.html) — концепция контекстов
+- [Context](/ru/docs/components/context.html) — концепция контекстов

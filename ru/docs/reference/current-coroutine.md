@@ -63,4 +63,4 @@ spawn(function() {
 ## См. также
 
 - [get_coroutines()](/ru/docs/reference/get-coroutines.html) — список всех корутин
-- [Корутины](/ru/docs/concepts/coroutines.html) — концепция корутин
+- [Корутины](/ru/docs/components/coroutines.html) — концепция корутин

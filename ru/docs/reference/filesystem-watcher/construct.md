@@ -76,4 +76,4 @@ foreach ($watcher as $event) {
 ## См. также
 
 - [FileSystemWatcher::close](/ru/docs/reference/filesystem-watcher/close.html) — Остановить наблюдение
-- [FileSystemWatcher](/ru/docs/concepts/filesystem-watcher.html) — Обзор концепции
+- [FileSystemWatcher](/ru/docs/components/filesystem-watcher.html) — Обзор концепции

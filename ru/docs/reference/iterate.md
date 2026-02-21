@@ -270,5 +270,5 @@ spawn(function() {
 
 - [spawn()](/ru/docs/reference/spawn.html) - Запуск корутины
 - [await_all()](/ru/docs/reference/await-all.html) - Ожидание нескольких корутин
-- [Scope](/ru/docs/concepts/scope.html) - Концепция Scope
-- [Отмена](/ru/docs/concepts/cancellation.html) - Отмена корутин
+- [Scope](/ru/docs/components/scope.html) - Концепция Scope
+- [Отмена](/ru/docs/components/cancellation.html) - Отмена корутин

@@ -98,5 +98,5 @@ try {
 
 - [Coroutine::isCancelled](/ru/docs/reference/coroutine/is-cancelled.html) — Проверить отмену
 - [Coroutine::isCancellationRequested](/ru/docs/reference/coroutine/is-cancellation-requested.html) — Проверить запрос
-- [Отмена](/ru/docs/concepts/cancellation.html) — Концепция отмены
+- [Отмена](/ru/docs/components/cancellation.html) — Концепция отмены
 - [protect()](/ru/docs/reference/protect.html) — Защищённая секция

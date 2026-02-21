@@ -128,5 +128,5 @@ echo $coroutine->isCancelled() ? "true" : "false"; // true
 
 ## См. также
 
-- [Отмена](/ru/docs/concepts/cancellation.html) — механизм кооперативной отмены
+- [Отмена](/ru/docs/components/cancellation.html) — механизм кооперативной отмены
 - [suspend()](/ru/docs/reference/suspend.html) — приостановка корутины

@@ -235,4 +235,4 @@ Funciones planificadas para implementación o aún no adaptadas.
 
 - [spawn()](/es/docs/reference/spawn.html) — crear corrutinas
 - [await()](/es/docs/reference/await.html) — esperar resultados
-- [Corrutinas](/es/docs/concepts/coroutines.html) — conceptos y ejemplos
+- [Corrutinas](/es/docs/components/coroutines.html) — conceptos y ejemplos

@@ -158,5 +158,5 @@ $result = await($coroutine);
 ## См. также
 
 - [spawn()](/ru/docs/reference/spawn.html) — запуск корутины в текущем Scope
-- [Scope](/ru/docs/concepts/scope.html) — управление временем жизни корутин
-- [Интерфейсы](/ru/docs/concepts/interfaces.html) — ScopeProvider и SpawnStrategy
+- [Scope](/ru/docs/components/scope.html) — управление временем жизни корутин
+- [Интерфейсы](/ru/docs/components/interfaces.html) — ScopeProvider и SpawnStrategy

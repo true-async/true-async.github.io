@@ -95,4 +95,4 @@ var_dump($exception instanceof \Async\AsyncCancellation); // bool(true)
 
 - [Coroutine::getResult](/ru/docs/reference/coroutine/get-result.html) — Получить результат
 - [Coroutine::isCancelled](/ru/docs/reference/coroutine/is-cancelled.html) — Проверить отмену
-- [Исключения](/ru/docs/concepts/exceptions.html) — Обработка ошибок
+- [Исключения](/ru/docs/components/exceptions.html) — Обработка ошибок

@@ -235,4 +235,4 @@ Funktionen, die zur Implementierung geplant oder noch nicht angepasst sind.
 
 - [spawn()](/de/docs/reference/spawn.html) — Koroutinen erstellen
 - [await()](/de/docs/reference/await.html) — Auf Ergebnisse warten
-- [Koroutinen](/de/docs/concepts/coroutines.html) — Konzepte und Beispiele
+- [Koroutinen](/de/docs/components/coroutines.html) — Konzepte und Beispiele

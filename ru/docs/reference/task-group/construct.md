@@ -61,4 +61,4 @@ $group->spawn(fn() => "задача 3"); // ждёт в очереди
 ## См. также
 
 - [TaskGroup::spawn](/ru/docs/reference/task-group/spawn.html) — Добавить задачу
-- [Scope](/ru/docs/concepts/scope.html) — Управление жизнью корутин
+- [Scope](/ru/docs/components/scope.html) — Управление жизнью корутин

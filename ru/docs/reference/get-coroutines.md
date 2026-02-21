@@ -70,4 +70,4 @@ if (count($active) > 0) {
 ## См. также
 
 - [current_coroutine()](/ru/docs/reference/current-coroutine.html) — текущая корутина
-- [Корутины](/ru/docs/concepts/coroutines.html) — концепция корутин
+- [Корутины](/ru/docs/components/coroutines.html) — концепция корутин

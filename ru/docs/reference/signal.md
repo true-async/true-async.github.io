@@ -160,4 +160,4 @@ try {
 - [timeout()](/ru/docs/reference/timeout.html) — создание таймаута для ограничения ожидания
 - [await()](/ru/docs/reference/await.html) — ожидание результата Future
 - [graceful_shutdown()](/ru/docs/reference/graceful-shutdown.html) — корректное завершение планировщика
-- [Отмена](/ru/docs/concepts/cancellation.html) — механизм отмены
+- [Отмена](/ru/docs/components/cancellation.html) — механизм отмены

@@ -11,7 +11,7 @@ description: "Внутреннее устройство универсально
 # Архитектура Async\Pool
 
 > Эта статья описывает внутреннее устройство универсального пула ресурсов.
-> Если вы ищете руководство по использованию, см. [Async\Pool](/ru/docs/concepts/pool.html).
+> Если вы ищете руководство по использованию, см. [Async\Pool](/ru/docs/components/pool.html).
 > Для PDO-специфичной надстройки см. [Архитектура PDO Pool](/ru/architecture/pdo-pool.html).
 
 ## Структура данных
@@ -139,6 +139,6 @@ PHP-обёртка пула (`async_pool_obj_t`) реализует кастом
 
 ## Дальше что?
 
-- [Async\Pool: руководство](/ru/docs/concepts/pool.html) — как использовать пул
+- [Async\Pool: руководство](/ru/docs/components/pool.html) — как использовать пул
 - [Архитектура PDO Pool](/ru/architecture/pdo-pool.html) — PDO-специфичная надстройка
-- [Корутины](/ru/docs/concepts/coroutines.html) — как работают корутины
+- [Корутины](/ru/docs/components/coroutines.html) — как работают корутины

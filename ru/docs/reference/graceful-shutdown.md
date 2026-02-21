@@ -63,5 +63,5 @@ spawn(function() {
 
 ## См. также
 
-- [Отмена](/ru/docs/concepts/cancellation.html) — механизм отмены
-- [Scope](/ru/docs/concepts/scope.html) — управление жизненным циклом
+- [Отмена](/ru/docs/components/cancellation.html) — механизм отмены
+- [Scope](/ru/docs/components/scope.html) — управление жизненным циклом
