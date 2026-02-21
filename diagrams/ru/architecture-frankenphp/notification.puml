@@ -1,0 +1,38 @@
+@startuml
+title Двойная система нотификации
+
+skinparam backgroundColor #FFFFFF
+
+participant "Go\nГорутина" as Go
+participant "requestChan" as Chan
+participant "AsyncNotifier\n(eventfd/pipe)" as Notifier
+participant "Scheduler\n(heartbeat)" as Heartbeat
+participant "Reactor\n(libuv)" as Reactor
+participant "Корутина" as Coro
+
+== Fast Path: Scheduler активен ==
+
+Go -> Chan : отправить запрос
+note right: select { case chan <- req }
+
+Heartbeat -> Chan : check_requests()
+note left: Вызывается на\nкаждом тике\nScheduler
+
+Chan --> Heartbeat : request_id
+Heartbeat -> Coro : spawn корутину
+note left: Без системных\nвызовов,\nминимальная\nлатентность
+
+== Slow Path: все корутины спят ==
+
+Go -> Chan : отправить запрос
+Go -> Notifier : Notify()
+note right: write(fd, 1)
+
+Notifier -> Reactor : epoll/kqueue wakeup
+note right: Reactor\nпросыпается\nтолько при\nнотификации
+
+Reactor -> Chan : check_requests()
+Chan --> Reactor : request_id
+Reactor -> Coro : spawn корутину
+
+@enduml

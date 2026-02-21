@@ -373,6 +373,10 @@ architecture:
           label: "Async\\Pool"
         - url: "/ru/architecture/pdo-pool.html"
           label: "PDO Pool"
+    - title: "Интеграции"
+      items:
+        - url: "/ru/architecture/frankenphp.html"
+          label: "FrankenPHP"
 
 download:
   title: "Установка"

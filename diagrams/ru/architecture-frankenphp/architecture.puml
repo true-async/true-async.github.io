@@ -1,0 +1,41 @@
+@startuml
+title Общая схема: FrankenPHP + TrueAsync
+
+skinparam backgroundColor #FFFFFF
+skinparam packageStyle rectangle
+
+package "Go Runtime" #FFF3E0 {
+    [Caddy HTTP Server] as Caddy
+    [Горутина] as G1
+    [Round-Robin\nDispatcher] as RR
+}
+
+package "Межпроцессная связь" #FFF9C4 {
+    queue "requestChan\n(буферизованный)" as ReqChan
+    queue "responseChan" as RespChan
+    [AsyncNotifier\neventfd / pipe] as Notifier
+}
+
+package "PHP Runtime (TrueAsync)" #E3F2FD {
+    [Reactor (libuv)] as Reactor
+    [Scheduler] as Sched
+    [Корутина] as CR1
+}
+
+Caddy --> G1
+
+G1 --> RR
+
+RR --> ReqChan : HTTP-запрос
+RR --> Notifier : Notify()
+
+Notifier --> Reactor : fd ready
+ReqChan --> Sched : check_requests()
+
+Sched --> CR1 : spawn
+
+CR1 --> RespChan : Response::write()
+
+RespChan --> G1 : HTTP-ответ
+
+@enduml

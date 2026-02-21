@@ -1,0 +1,58 @@
+@startuml
+title Жизненный цикл запроса
+
+skinparam backgroundColor #FFFFFF
+
+|Go Runtime|
+start
+:HTTP-запрос от клиента;
+:Round-Robin: выбрать PHP-поток;
+
+if (Буфер потока полон?) then (да)
+    :Попробовать следующий поток;
+    if (Все буферы полны?) then (да)
+        :HTTP 503 Service Unavailable;
+        stop
+    else (нет)
+        :Отправить в requestChan;
+    endif
+else (нет)
+    :Отправить в requestChan;
+endif
+
+if (Канал был пуст?) then (да)
+    :AsyncNotifier.Notify();
+    note right: Пробудить\nevent loop
+else (нет)
+    note right: PHP-поток\nуже активен
+endif
+
+|PHP Runtime|
+:Scheduler обнаружил запрос;
+:Создать Scope для запроса;
+:Создать корутину;
+:ENQUEUE_COROUTINE();
+
+:Вызвать onRequest callback;
+:Request::getMethod(), getUri()...;
+note right: CGo → Go:\nчтение данных\nзапроса
+
+:Обработка бизнес-логики;
+note right: async/await,\nпараллельный I/O
+
+:Response::write(data);
+
+|Go Runtime|
+:responseChan <- data;
+:responseDispatcher → горутина;
+:ResponseWriter.Write();
+:HTTP-ответ клиенту;
+
+|PHP Runtime|
+:Response::end();
+:go_async_worker_request_done();
+:Освободить Scope и ресурсы;
+
+stop
+
+@enduml
