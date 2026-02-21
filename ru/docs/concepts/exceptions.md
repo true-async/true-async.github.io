@@ -208,7 +208,7 @@ final class Async\CompositeException extends \Exception
 }
 ```
 
-Контейнер для множества исключений. Используется, когда несколько обработчиков (например, `onFinally` в Scope) выбрасывают исключения при завершении:
+Контейнер для множества исключений. Используется, когда несколько обработчиков (например, `finally` в Scope) выбрасывают исключения при завершении:
 
 ```php
 <?php
@@ -217,11 +217,11 @@ use Async\CompositeException;
 
 $scope = new Scope();
 
-$scope->onFinally(function() {
+$scope->finally(function() {
     throw new \Exception('Ошибка очистки 1');
 });
 
-$scope->onFinally(function() {
+$scope->finally(function() {
     throw new \RuntimeException('Ошибка очистки 2');
 });
 

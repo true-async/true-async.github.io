@@ -79,4 +79,4 @@ echo "Всего ошибок: " . count($errors) . "\n"; // Всего ошиб
 ## См. также
 
 - [Scope::setChildScopeExceptionHandler](/ru/docs/reference/scope/set-child-scope-exception-handler.html) — Обработчик ошибок дочерних scope
-- [Scope::onFinally](/ru/docs/reference/scope/on-finally.html) — Колбэк при завершении scope
+- [Scope::finally](/ru/docs/reference/scope/on-finally.html) — Колбэк при завершении scope

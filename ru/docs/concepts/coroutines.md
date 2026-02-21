@@ -434,7 +434,7 @@ final class Async\Coroutine implements Async\Completable {
 
     /* Управление */
     public cancel(?Async\AsyncCancellation $cancellation = null): void
-    public onFinally(\Closure $callback): void
+    public finally(\Closure $callback): void
 
     /* Отладка */
     public getTrace(int $options = DEBUG_BACKTRACE_PROVIDE_OBJECT, int $limit = 0): ?array
@@ -461,7 +461,7 @@ final class Async\Coroutine implements Async\Completable {
 - [Coroutine::isCancelled](/ru/docs/reference/coroutine/is-cancelled.html) — Проверить, была ли корутина отменена
 - [Coroutine::isCancellationRequested](/ru/docs/reference/coroutine/is-cancellation-requested.html) — Проверить, запрошена ли отмена
 - [Coroutine::cancel](/ru/docs/reference/coroutine/cancel.html) — Отменить корутину
-- [Coroutine::onFinally](/ru/docs/reference/coroutine/on-finally.html) — Зарегистрировать обработчик завершения
+- [Coroutine::finally](/ru/docs/reference/coroutine/on-finally.html) — Зарегистрировать обработчик завершения
 - [Coroutine::getTrace](/ru/docs/reference/coroutine/get-trace.html) — Получить стек вызовов приостановленной корутины
 - [Coroutine::getSpawnFileAndLine](/ru/docs/reference/coroutine/get-spawn-file-and-line.html) — Получить файл и строку создания
 - [Coroutine::getSpawnLocation](/ru/docs/reference/coroutine/get-spawn-location.html) — Получить место создания как строку

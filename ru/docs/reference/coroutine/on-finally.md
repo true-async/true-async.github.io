@@ -4,21 +4,21 @@ lang: ru
 path_key: "/docs/reference/coroutine/on-finally.html"
 nav_active: docs
 permalink: /ru/docs/reference/coroutine/on-finally.html
-page_title: "Coroutine::onFinally"
+page_title: "Coroutine::finally"
 description: "Зарегистрировать обработчик, вызываемый при завершении корутины."
 ---
 
-# Coroutine::onFinally
+# Coroutine::finally
 
 (PHP 8.6+, True Async 1.0)
 
 ```php
-public Coroutine::onFinally(\Closure $callback): void
+public Coroutine::finally(\Closure $callback): void
 ```
 
 Регистрирует callback-функцию, которая будет вызвана при завершении корутины, независимо от результата (успех, ошибка или отмена).
 
-Если корутина уже завершилась на момент вызова `onFinally()`, callback выполнится немедленно.
+Если корутина уже завершилась на момент вызова `finally()`, callback выполнится немедленно.
 
 Можно зарегистрировать несколько обработчиков — они выполняются в порядке добавления.
 
@@ -41,7 +41,7 @@ $coroutine = spawn(function() {
     return "test result";
 });
 
-$coroutine->onFinally(function() {
+$coroutine->finally(function() {
     echo "Корутина завершилась\n";
 });
 
@@ -62,7 +62,7 @@ $coroutine = spawn(function() use ($connection) {
     return $connection->query('SELECT * FROM users');
 });
 
-$coroutine->onFinally(function() use ($connection) {
+$coroutine->finally(function() use ($connection) {
     $connection->close();
     echo "Соединение закрыто\n";
 });
@@ -80,9 +80,9 @@ use function Async\await;
 
 $coroutine = spawn(fn() => "done");
 
-$coroutine->onFinally(fn() => echo "Обработчик 1\n");
-$coroutine->onFinally(fn() => echo "Обработчик 2\n");
-$coroutine->onFinally(fn() => echo "Обработчик 3\n");
+$coroutine->finally(fn() => echo "Обработчик 1\n");
+$coroutine->finally(fn() => echo "Обработчик 2\n");
+$coroutine->finally(fn() => echo "Обработчик 3\n");
 
 await($coroutine);
 // Вывод:
@@ -103,7 +103,7 @@ $coroutine = spawn(fn() => 42);
 await($coroutine);
 
 // Корутина уже завершена — callback выполнится немедленно
-$coroutine->onFinally(function() {
+$coroutine->finally(function() {
     echo "Вызвано немедленно\n";
 });
 ```
