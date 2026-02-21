@@ -235,4 +235,4 @@ TrueAsync 将 **70 多个标准 PHP 函数**适配为协程内的非阻塞操作
 
 - [spawn()](/zh/docs/reference/spawn.html) — 创建协程
 - [await()](/zh/docs/reference/await.html) — 等待结果
-- [协程](/zh/docs/concepts/coroutines.html) — 概念和示例
+- [协程](/zh/docs/components/coroutines.html) — 概念和示例
