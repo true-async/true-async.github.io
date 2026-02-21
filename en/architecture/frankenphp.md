@@ -33,7 +33,7 @@ and the `PHP` thread learns to handle such requests asynchronously.
 
 ### General Architecture
 
-![General FrankenPHP + TrueAsync Architecture](/diagrams/ru/architecture-frankenphp/architecture.svg)
+![General FrankenPHP + TrueAsync Architecture](/diagrams/en/architecture-frankenphp/architecture.svg)
 
 The diagram shows three layers. Let's examine each one.
 
@@ -142,7 +142,7 @@ We use a `heartbeat handler`, a special callback from the `Scheduler`, to add ou
 for each `Scheduler` tick. This handler allows `FrankenPHP` to create new
 coroutines for request processing.
 
-![Dual Notification System](/diagrams/ru/architecture-frankenphp/notification.svg)
+![Dual Notification System](/diagrams/en/architecture-frankenphp/notification.svg)
 
 Now the `Scheduler` calls the `heartbeat handler` on each tick. This handler
 checks the `Go` channel via `CGo`:
@@ -186,7 +186,7 @@ while the `poll event` ensures zero `CPU` consumption during idle periods.
 
 The `frankenphp_request_coroutine_entry()` function is responsible for creating the request handling coroutine:
 
-![Request Lifecycle](/diagrams/ru/architecture-frankenphp/request-lifecycle.svg)
+![Request Lifecycle](/diagrams/en/architecture-frankenphp/request-lifecycle.svg)
 
 ```c
 void frankenphp_handle_request_async(uint64_t request_id) {

@@ -1,0 +1,43 @@
+@startuml
+title Garbage Collection in a Separate Coroutine
+
+participant "Coroutine A" as A
+participant "Scheduler" as Sched
+participant "GC Coroutine" as GC
+participant "Dtor Coroutine" as Dtor
+participant "Coroutine B" as B
+
+== GC Threshold Reached ==
+
+A -> A : gc_possible_root()\nbuffer full
+A -> Sched : start_gc_in_coroutine()
+note right: Coroutine A\nis not blocked,\ncontinues execution
+
+Sched -> GC : spawn gc_coroutine\n(gc_scope)
+activate GC
+GC -> GC : zend_gc_collect_cycles()\nmarking, collection
+
+== Calling Destructors ==
+
+GC -> Dtor : spawn dtor_coroutine\n(dtor_scope, HI_PRIORITY)
+activate Dtor
+GC -> GC : SUSPEND()\nawaits dtor_scope
+
+Dtor -> Dtor : obj->dtor_obj()\ncall destructor
+
+alt Destructor called await
+    Dtor -> Sched : SUSPEND()
+    note right: Destructor awaits I/O
+    Sched -> B : switch to another coroutine
+    B -> B : working...
+    Sched -> Dtor : microtask → spawn\nnew dtor coroutine
+    Dtor -> Dtor : continue\nfrom dtor_idx
+end
+
+Dtor -> Sched : dtor_scope completed
+deactivate Dtor
+Sched -> GC : RESUME()
+GC -> GC : freeing memory
+deactivate GC
+
+@enduml

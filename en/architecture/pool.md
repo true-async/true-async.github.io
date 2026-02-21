@@ -19,7 +19,7 @@ description: "Internal design of the universal resource pool Async\\Pool -- data
 The pool is implemented in two layers: a public ABI structure in the PHP core
 and an extended internal structure in the async extension.
 
-![Pool Data Structures](/diagrams/ru/architecture-pool/data-structures.svg)
+![Pool Data Structures](/diagrams/en/architecture-pool/data-structures.svg)
 
 ## Two Creation Paths
 
@@ -36,7 +36,7 @@ bypassing the overhead of calling a PHP callable through `zend_call_function()`.
 
 ## Acquire: Obtaining a Resource
 
-![acquire() -- Internal Algorithm](/diagrams/ru/architecture-pool/acquire.svg)
+![acquire() -- Internal Algorithm](/diagrams/en/architecture-pool/acquire.svg)
 
 ### Waiting for a Resource
 
@@ -53,14 +53,14 @@ Wake-up occurs when another coroutine calls `release()`.
 
 ## Release: Returning a Resource
 
-![release() -- Internal Algorithm](/diagrams/ru/architecture-pool/release.svg)
+![release() -- Internal Algorithm](/diagrams/en/architecture-pool/release.svg)
 
 ## Healthcheck: Background Monitoring
 
 If `healthcheckInterval > 0`, a periodic timer is started when the pool is created.
 The timer is integrated with the reactor via `ZEND_ASYNC_NEW_TIMER_EVENT`.
 
-![Healthcheck -- Periodic Check](/diagrams/ru/architecture-pool/healthcheck.svg)
+![Healthcheck -- Periodic Check](/diagrams/en/architecture-pool/healthcheck.svg)
 
 The healthcheck verifies **only** free resources. Busy resources are not affected.
 If, after removing dead resources, the total count drops below `min`, the pool creates replacements.
@@ -101,7 +101,7 @@ that have no explicit references from PHP code.
 
 The pool implements the `CircuitBreaker` interface with three states:
 
-![Circuit Breaker States](/diagrams/ru/architecture-pool/circuit-breaker.svg)
+![Circuit Breaker States](/diagrams/en/architecture-pool/circuit-breaker.svg)
 
 Transitions can be manual or automatic via `CircuitBreakerStrategy`:
 - `reportSuccess()` is called on a successful `release` (resource passed `beforeRelease`)
@@ -135,7 +135,7 @@ This ensures isolation: the PHP core does not depend on the specific pool implem
 
 ## Sequence: Full Acquire-Release Cycle
 
-![Full acquire -> use -> release Cycle](/diagrams/ru/architecture-pool/full-cycle.svg)
+![Full acquire -> use -> release Cycle](/diagrams/en/architecture-pool/full-cycle.svg)
 
 ## What's Next?
 

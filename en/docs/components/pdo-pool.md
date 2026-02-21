@@ -149,7 +149,7 @@ spawn(function() use ($pdo) {
 
 ## Connection Lifecycle
 
-![Connection lifecycle in the pool](/diagrams/ru/components-pdo-pool/connection-lifecycle.svg)
+![Connection lifecycle in the pool](/diagrams/en/components-pdo-pool/connection-lifecycle.svg)
 
 A detailed technical diagram with internal calls is in the [PDO Pool architecture](/en/architecture/pdo-pool.html).
 

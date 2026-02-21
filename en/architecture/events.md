@@ -135,7 +135,7 @@ By default `NULL` for all events. Used in `Async\Timeout`:
 
 ## Event Lifecycle
 
-![Event Lifecycle](/diagrams/ru/architecture-events/lifecycle.svg)
+![Event Lifecycle](/diagrams/en/architecture-events/lifecycle.svg)
 
 An event goes through several states:
 - **Created** -- memory allocated, `ref_count = 1`, callbacks can be subscribed
@@ -146,7 +146,7 @@ An event goes through several states:
 
 ## Interaction: Event, Callback, Coroutine
 
-![Event -> Callback -> Coroutine](/diagrams/ru/architecture-events/callback-flow.svg)
+![Event -> Callback -> Coroutine](/diagrams/en/architecture-events/callback-flow.svg)
 
 ## Dual Life: C Object and Zend Object
 

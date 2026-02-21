@@ -14,7 +14,7 @@ description: "Internal design of the coroutine scheduler and event reactor -- qu
 `Scheduler` manages the coroutine queue and context switching,
 while `Reactor` handles `I/O` events through the `Event loop`.
 
-![Scheduler and Reactor Interaction](/diagrams/ru/architecture-scheduler-reactor/architecture.svg)
+![Scheduler and Reactor Interaction](/diagrams/en/architecture-scheduler-reactor/architecture.svg)
 
 ## Scheduler
 
@@ -48,7 +48,7 @@ Switching to the `Scheduler` coroutine (via `switch_to_scheduler()`) occurs **on
 
 ### Main Loop
 
-![Scheduler Main Loop](/diagrams/ru/architecture-scheduler-reactor/scheduler-loop.svg)
+![Scheduler Main Loop](/diagrams/en/architecture-scheduler-reactor/scheduler-loop.svg)
 
 On each tick, the scheduler performs:
 
@@ -112,7 +112,7 @@ unjustified in the context of PHP applications.
 
 ### Suspend and Resume
 
-![Suspend and Resume Operations](/diagrams/ru/architecture-scheduler-reactor/suspend-resume.svg)
+![Suspend and Resume Operations](/diagrams/en/architecture-scheduler-reactor/suspend-resume.svg)
 
 `Suspend` and `Resume` operations are the core tasks of the `Scheduler`.
 

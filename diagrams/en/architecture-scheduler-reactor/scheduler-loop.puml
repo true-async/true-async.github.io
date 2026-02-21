@@ -1,0 +1,54 @@
+@startuml
+title Scheduler Main Loop
+
+start
+
+:Scheduler started;
+
+repeat
+
+    :Process **microtask** queue;
+    note right
+        FIFO order.
+        Exception interrupts processing.
+    end note
+
+    if (coroutine_queue empty?) then (yes)
+        :Call **reactor_execute**(no_wait=false);
+        note right
+            Blocks until the
+            nearest event
+        end note
+    else (no)
+        :Dequeue next coroutine from queue;
+        note right
+            Always from the head of the queue.
+            HI_PRIORITY coroutines are placed
+            at the front during enqueue.
+        end note
+
+        :zend_fiber_switch_context()\n-> transfer control to coroutine;
+
+        switch (switch_status)
+        case ( SWITCHED )
+            :Coroutine called suspend\n-> returned to scheduler;
+        case ( FINISHED )
+            :Coroutine completed\n-> return fiber context to pool;
+        case ( SHOULD_BE_EXIT )
+            :Graceful shutdown\n-> finally_shutdown();
+            stop
+        endswitch
+    endif
+
+    :Call **reactor_execute**(no_wait=true);
+    note right
+        Non-blocking tick:
+        process ready events
+    end note
+
+repeat while (shutdown?) is (no)
+
+:finally_shutdown();
+stop
+
+@enduml

@@ -207,7 +207,7 @@ The strategy is called automatically:
 
 ## Resource Lifecycle
 
-![Resource Lifecycle](/diagrams/ru/components-pool/resource-lifecycle.svg)
+![Resource Lifecycle](/diagrams/en/components-pool/resource-lifecycle.svg)
 
 ## Real-World Example: Redis Connection Pool
 

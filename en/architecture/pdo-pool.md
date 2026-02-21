@@ -29,7 +29,7 @@ for any resources, not just databases.
 
 ## Component Diagram
 
-![PDO Pool -- Components](/diagrams/ru/architecture-pdo-pool/components.svg)
+![PDO Pool -- Components](/diagrams/en/architecture-pdo-pool/components.svg)
 
 ## Template Connection
 
@@ -44,11 +44,11 @@ but does not create a TCP connection or allocate `driver_data`.
 
 ## Connection Lifecycle
 
-![Connection Lifecycle in the Pool](/diagrams/ru/architecture-pdo-pool/lifecycle.svg)
+![Connection Lifecycle in the Pool](/diagrams/en/architecture-pdo-pool/lifecycle.svg)
 
 ## Creating a Connection from the Pool (Sequence)
 
-![Creating a Connection from the Pool](/diagrams/ru/architecture-pdo-pool/connection-sequence.svg)
+![Creating a Connection from the Pool](/diagrams/en/architecture-pdo-pool/connection-sequence.svg)
 
 ## Internal API
 

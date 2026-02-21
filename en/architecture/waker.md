@@ -52,7 +52,7 @@ struct _zend_async_waker_s {
 
 At each stage of a coroutine's life, the `Waker` is in one of five states:
 
-![Waker Statuses](/diagrams/ru/architecture-waker/waker-states.svg)
+![Waker Statuses](/diagrams/en/architecture-waker/waker-states.svg)
 
 ```c
 typedef enum {

@@ -1,0 +1,29 @@
+@startuml
+
+title Connection Lifecycle in Pool
+
+start
+
+:Coroutine calls\n$pdo->query();
+
+if (Is there a connection\nfor this coroutine?) then (yes)
+    :Use it;
+else (no)
+    :Take from pool\nor create a new one;
+endif
+
+:Execute query,\nreturn $stmt;
+
+if ($stmt destroyed?) then (yes)
+    if (Active\ntransaction?) then (yes)
+        :Connection stays\nwith coroutine;
+    else (no)
+        :Return connection\nto pool;
+    endif
+else (no)
+    :Connection stays\nwith coroutine;
+endif
+
+stop
+
+@enduml

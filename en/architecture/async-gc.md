@@ -91,7 +91,7 @@ The `GC` coroutine subscribes to the completion event of `dtor_scope`. It will w
 **all** destructors in `dtor_scope` have completed.
 
 
-![Garbage Collection in a Separate Coroutine](/diagrams/ru/architecture-async-gc/gc-coroutine.svg)
+![Garbage Collection in a Separate Coroutine](/diagrams/en/architecture-async-gc/gc-coroutine.svg)
 
 ## What If a Destructor Calls await?
 
