@@ -1,0 +1,1140 @@
+---
+layout: interactive
+lang: es
+path_key: "/interactive/learning-map.html"
+nav_active: ""
+permalink: /es/interactive/learning-map.html
+page_title: "Mapa de aprendizaje de TrueAsync"
+description: "Mapa interactivo de documentación — componentes, funciones y ruta de aprendizaje"
+---
+
+<style>
+    .interactive-demo .map-controls {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 16px;
+    }
+    .interactive-demo .map-filters {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        justify-content: center;
+    }
+    .interactive-demo .filter-btn {
+        --btn-color: #64748B;
+        display: inline-flex;
+        align-items: center;
+        padding: 5px 14px;
+        border-radius: 20px;
+        border: 2px solid var(--btn-color);
+        color: var(--btn-color);
+        background: transparent;
+        font-size: 0.8em;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-family: inherit;
+        line-height: 1.3;
+    }
+    .interactive-demo .filter-btn:hover,
+    .interactive-demo .filter-btn.active {
+        background: var(--btn-color);
+        color: #fff;
+    }
+    .interactive-demo .map-legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        justify-content: center;
+        align-items: center;
+        font-size: 0.82em;
+        color: var(--color-text-secondary);
+    }
+    .interactive-demo .legend-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+    .interactive-demo .legend-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #6B58FF;
+        color: #fff;
+        font-size: 0.7em;
+        font-weight: 700;
+        flex-shrink: 0;
+    }
+    .interactive-demo .map-container {
+        position: relative;
+        width: 100%;
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-xl);
+        background: var(--color-bg-subtle);
+    }
+    .interactive-demo .map-container svg {
+        display: block;
+        width: 100%;
+        min-width: 1000px;
+        height: auto;
+    }
+    .interactive-demo .map-scroll-hint {
+        display: none;
+        text-align: center;
+        font-size: 0.8em;
+        color: var(--color-text-muted);
+        margin-bottom: 8px;
+    }
+    @media (max-width: 1020px) {
+        .interactive-demo .map-scroll-hint { display: block; }
+    }
+
+    /* Tooltip (desktop) */
+    .interactive-demo .map-tooltip {
+        position: fixed;
+        pointer-events: none;
+        background: #fff;
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-lg);
+        padding: 10px 14px;
+        font-size: 0.82em;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+        z-index: 100;
+        opacity: 0;
+        transition: opacity 0.18s;
+        max-width: 320px;
+        line-height: 1.45;
+    }
+    .interactive-demo .map-tooltip.visible { opacity: 1; }
+    .interactive-demo .tooltip-title {
+        font-weight: 700;
+        color: var(--color-text);
+        margin-bottom: 2px;
+        font-size: 1.05em;
+    }
+    .interactive-demo .tooltip-desc {
+        color: var(--color-text-secondary);
+        margin-bottom: 4px;
+    }
+    .interactive-demo .tooltip-group {
+        font-size: 0.88em;
+        font-weight: 500;
+    }
+    .interactive-demo .tooltip-order {
+        font-size: 0.85em;
+        margin-top: 3px;
+        font-weight: 600;
+    }
+    .interactive-demo .tooltip-sub {
+        font-size: 0.85em;
+        margin-top: 5px;
+        color: var(--color-text-secondary);
+        border-top: 1px solid var(--color-border);
+        padding-top: 5px;
+    }
+    .interactive-demo .tooltip-sub a {
+        display: block;
+        color: var(--color-primary);
+        text-decoration: none;
+        padding: 1px 0;
+    }
+    .interactive-demo .tooltip-sub a:hover { text-decoration: underline; }
+
+    .interactive-demo .tooltip-code {
+        margin-top: 6px;
+        padding: 6px 8px;
+        background: #F3F4F6;
+        border-radius: 6px;
+        font-family: 'Fira Mono', monospace;
+        font-size: 0.82em;
+        line-height: 1.5;
+        color: #1F2937;
+        white-space: pre;
+        overflow-x: auto;
+        border: 1px solid #E5E7EB;
+    }
+    .interactive-demo .tooltip-code .kw { color: #7C3AED; font-weight: 600; }
+    .interactive-demo .tooltip-code .fn { color: #2563EB; }
+    .interactive-demo .tooltip-code .str { color: #16A34A; }
+    .interactive-demo .tooltip-code .var { color: #0891B2; }
+    .interactive-demo .tooltip-code .cm { color: #9CA3AF; font-style: italic; }
+    .interactive-demo .tooltip-code .num { color: #EA580C; }
+
+    /* SVG node styles */
+    .interactive-demo .node {
+        cursor: pointer;
+        transition: opacity 0.25s ease;
+    }
+    .interactive-demo .node.dimmed { opacity: 0.12; }
+    .interactive-demo .node .node-bg {
+        transition: stroke-width 0.2s ease, filter 0.2s ease;
+    }
+    .interactive-demo .node.highlighted .node-bg {
+        stroke-width: 2.5;
+    }
+    .interactive-demo .edge {
+        transition: opacity 0.25s ease, stroke-width 0.2s ease;
+    }
+    .interactive-demo .edge.dimmed { opacity: 0.04 !important; }
+    .interactive-demo .edge.highlighted {
+        opacity: 0.8 !important;
+        stroke-width: 2.5 !important;
+    }
+
+    /* Badge pop animation */
+    @keyframes badgePop {
+        0% { transform: scale(0); opacity: 0; }
+        60% { transform: scale(1.3); opacity: 1; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+    .interactive-demo .order-badge-g {
+        opacity: 0;
+        animation: badgePop 0.35s ease forwards;
+    }
+
+    /* Edge draw animation */
+    @keyframes edgeDraw {
+        from { stroke-dashoffset: 800; }
+        to { stroke-dashoffset: 0; }
+    }
+    .interactive-demo .edge-anim {
+        stroke-dasharray: 800;
+        animation: edgeDraw 1.2s ease forwards;
+    }
+
+    /* Group background zones */
+    .interactive-demo .group-zone {
+        opacity: 0.75;
+        transition: opacity 0.3s ease;
+    }
+    .interactive-demo .group-zone.dimmed { opacity: 0.05; }
+
+    /* Info box */
+    .interactive-demo .map-info {
+        margin-top: 20px;
+        padding: 16px 20px;
+        background: var(--color-bg-subtle);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-lg);
+        font-size: 0.88em;
+        color: var(--color-text-secondary);
+        line-height: 1.6;
+    }
+    .interactive-demo .map-info strong {
+        color: var(--color-text);
+    }
+
+    /* ===== Bottom Sheet (mobile) ===== */
+    .interactive-demo .map-sheet-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.3);
+        z-index: 199;
+    }
+    .interactive-demo .map-sheet-overlay.visible { display: block; }
+
+    .interactive-demo .map-sheet {
+        position: fixed;
+        left: 0; right: 0; bottom: 0;
+        background: #fff;
+        border-radius: 16px 16px 0 0;
+        box-shadow: 0 -4px 24px rgba(0,0,0,0.15);
+        z-index: 200;
+        transform: translateY(100%);
+        transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+        max-height: 70vh;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        padding: 0 20px 20px;
+    }
+    .interactive-demo .map-sheet.visible {
+        transform: translateY(0);
+    }
+    .interactive-demo .sheet-header {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px 0 6px;
+        position: sticky;
+        top: 0;
+        background: #fff;
+        z-index: 1;
+    }
+    .interactive-demo .sheet-handle {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        cursor: grab;
+    }
+    .interactive-demo .sheet-handle span {
+        display: block;
+        width: 36px;
+        height: 4px;
+        border-radius: 2px;
+        background: #D1D5DB;
+    }
+    .interactive-demo .sheet-close {
+        position: absolute;
+        right: 12px;
+        top: 8px;
+        width: 32px;
+        height: 32px;
+        border: none;
+        background: var(--color-bg-subtle);
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--color-text-muted);
+        transition: all 0.15s;
+        font-size: 18px;
+        line-height: 1;
+    }
+    .interactive-demo .sheet-close:hover {
+        background: var(--color-border);
+        color: var(--color-text);
+    }
+    .interactive-demo .map-sheet.dragging {
+        transition: none !important;
+    }
+    .interactive-demo .sheet-title {
+        font-weight: 700;
+        font-size: 1.15em;
+        margin-bottom: 2px;
+    }
+    .interactive-demo .sheet-desc {
+        color: var(--color-text-secondary);
+        font-size: 0.92em;
+        margin-bottom: 6px;
+    }
+    .interactive-demo .sheet-group {
+        font-size: 0.85em;
+        font-weight: 500;
+        margin-bottom: 2px;
+    }
+    .interactive-demo .sheet-order {
+        font-size: 0.85em;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+    .interactive-demo .sheet-code {
+        padding: 8px 10px;
+        background: #F3F4F6;
+        border-radius: 8px;
+        font-family: 'Fira Mono', monospace;
+        font-size: 0.82em;
+        line-height: 1.5;
+        color: #1F2937;
+        white-space: pre;
+        overflow-x: auto;
+        border: 1px solid #E5E7EB;
+        margin-bottom: 10px;
+    }
+    .interactive-demo .sheet-code .kw { color: #7C3AED; font-weight: 600; }
+    .interactive-demo .sheet-code .fn { color: #2563EB; }
+    .interactive-demo .sheet-code .str { color: #16A34A; }
+    .interactive-demo .sheet-code .var { color: #0891B2; }
+    .interactive-demo .sheet-code .cm { color: #9CA3AF; font-style: italic; }
+    .interactive-demo .sheet-code .num { color: #EA580C; }
+    .interactive-demo .sheet-links {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        font-size: 0.9em;
+        border-top: 1px solid var(--color-border);
+        padding-top: 8px;
+        margin-bottom: 10px;
+    }
+    .interactive-demo .sheet-links a {
+        color: var(--color-primary);
+        text-decoration: none;
+        padding: 4px 0;
+    }
+    .interactive-demo .sheet-btn {
+        display: block;
+        width: 100%;
+        padding: 12px;
+        background: var(--color-primary);
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        font-family: inherit;
+        font-size: 0.95em;
+        font-weight: 600;
+        cursor: pointer;
+        text-align: center;
+        text-decoration: none;
+    }
+
+    /* ===== Mobile overrides ===== */
+    @media (max-width: 768px) {
+        .interactive-demo .map-filters {
+            flex-wrap: nowrap;
+            justify-content: flex-start;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 4px;
+            scrollbar-width: none;
+        }
+        .interactive-demo .map-filters::-webkit-scrollbar { display: none; }
+        .interactive-demo .filter-btn {
+            flex-shrink: 0;
+            padding: 4px 10px;
+            font-size: 0.72em;
+        }
+        .interactive-demo .map-legend {
+            font-size: 0.75em;
+            gap: 10px;
+        }
+        .interactive-demo .map-container {
+            overflow-y: auto;
+        }
+        .interactive-demo .map-container svg {
+            min-width: 0;
+        }
+        .interactive-demo .map-scroll-hint { display: none; }
+        .interactive-demo .map-tooltip { display: none !important; }
+        .interactive-demo .map-info {
+            font-size: 0.82em;
+            padding: 12px 14px;
+        }
+    }
+</style>
+
+<div class="map-controls">
+    <div class="map-filters" id="mapFilters">
+        <button class="filter-btn active" data-group="all" style="--btn-color:#64748B">Todos</button>
+        <button class="filter-btn" data-group="primitives" style="--btn-color:#6B58FF">Primitivas básicas</button>
+        <button class="filter-btn" data-group="sync" style="--btn-color:#2563EB">Sincronización</button>
+        <button class="filter-btn" data-group="cancellation" style="--btn-color:#DC2626">Cancelación</button>
+        <button class="filter-btn" data-group="structural" style="--btn-color:#0891B2">Concurrencia estr.</button>
+        <button class="filter-btn" data-group="context" style="--btn-color:#8B5CF6">Contexto</button>
+        <button class="filter-btn" data-group="iterate" style="--btn-color:#F59E0B">iterate()</button>
+        <button class="filter-btn" data-group="resources" style="--btn-color:#16A34A">Recursos y pools</button>
+    </div>
+    <div class="map-legend">
+        <span class="legend-item">
+            <svg width="28" height="10"><line x1="0" y1="5" x2="28" y2="5" stroke="#6B58FF" stroke-width="2" marker-end="url(#legendArr)"/><defs><marker id="legendArr" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="7" markerHeight="5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="#6B58FF"/></marker></defs></svg>
+            Dependencia
+        </span>
+        <span class="legend-item"><span class="legend-badge">2</span> Orden de aprendizaje</span>
+    </div>
+</div>
+
+<p class="map-scroll-hint">&#8592; Desplaza para ver el mapa completo &#8594;</p>
+
+<div class="map-container">
+    <svg id="learningMap" viewBox="0 0 1260 520" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+            <marker id="arrowPurple" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+                <polygon points="0 0,10 3.5,0 7" fill="#6B58FF" opacity="0.65"/>
+            </marker>
+            <marker id="arrowBlue" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+                <polygon points="0 0,10 3.5,0 7" fill="#2563EB" opacity="0.65"/>
+            </marker>
+            <marker id="arrowRed" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+                <polygon points="0 0,10 3.5,0 7" fill="#DC2626" opacity="0.65"/>
+            </marker>
+            <marker id="arrowTeal" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+                <polygon points="0 0,10 3.5,0 7" fill="#0891B2" opacity="0.65"/>
+            </marker>
+            <marker id="arrowViolet" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+                <polygon points="0 0,10 3.5,0 7" fill="#8B5CF6" opacity="0.65"/>
+            </marker>
+            <marker id="arrowAmber" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+                <polygon points="0 0,10 3.5,0 7" fill="#F59E0B" opacity="0.65"/>
+            </marker>
+            <marker id="arrowGreen" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+                <polygon points="0 0,10 3.5,0 7" fill="#16A34A" opacity="0.65"/>
+            </marker>
+            <filter id="nodeShadow" x="-20%" y="-20%" width="140%" height="140%">
+                <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.06"/>
+            </filter>
+        </defs>
+        <g id="groupZones"></g>
+        <g id="edgesGroup"></g>
+        <g id="nodesGroup"></g>
+    </svg>
+</div>
+
+<!-- Desktop tooltip -->
+<div class="map-tooltip" id="mapTooltip">
+    <div class="tooltip-title" id="tooltipTitle"></div>
+    <div class="tooltip-desc" id="tooltipDesc"></div>
+    <div class="tooltip-group" id="tooltipGroup"></div>
+    <div class="tooltip-order" id="tooltipOrder"></div>
+    <div class="tooltip-code" id="tooltipCode"></div>
+    <div class="tooltip-sub" id="tooltipSub"></div>
+</div>
+
+<!-- Mobile bottom sheet -->
+<div class="map-sheet-overlay" id="sheetOverlay"></div>
+<div class="map-sheet" id="mapSheet">
+    <div class="sheet-header">
+        <div class="sheet-handle" id="sheetHandle"><span></span></div>
+        <button class="sheet-close" id="sheetClose" aria-label="Cerrar">&times;</button>
+    </div>
+    <div class="sheet-title" id="sheetTitle"></div>
+    <div class="sheet-desc" id="sheetDesc"></div>
+    <div class="sheet-group" id="sheetGroup"></div>
+    <div class="sheet-order" id="sheetOrder"></div>
+    <div class="sheet-code" id="sheetCode"></div>
+    <div class="sheet-links" id="sheetLinks"></div>
+    <a class="sheet-btn" id="sheetBtn" href="#">Abrir documentación &rarr;</a>
+</div>
+
+<div class="map-info" id="mapInfo">
+    <strong>Pasa el cursor</strong> sobre un nodo para resaltar sus conexiones.
+    <strong>Haz clic</strong> para ir a la documentación.
+    Usa los botones de arriba para resaltar grupos.
+    Las insignias numeradas muestran el orden de aprendizaje recomendado.
+</div>
+
+<script>
+(function() {
+    /* ===== DETECT MOBILE ===== */
+    var isMobile = window.innerWidth <= 768;
+    var isTouch = 'ontouchstart' in window;
+
+    /* ===== SEMANTIC GROUPS (7) ===== */
+    var GRP = {
+        primitives:    { color: '#6B58FF', bg: 'rgba(107,88,255,0.12)',  border: 'rgba(107,88,255,0.50)',  arrow: 'url(#arrowPurple)', label: 'Primitivas básicas' },
+        sync:          { color: '#2563EB', bg: 'rgba(37,99,235,0.12)',   border: 'rgba(37,99,235,0.50)',   arrow: 'url(#arrowBlue)',   label: 'Sincronización' },
+        cancellation:  { color: '#DC2626', bg: 'rgba(220,38,38,0.12)',   border: 'rgba(220,38,38,0.50)',   arrow: 'url(#arrowRed)',    label: 'Cancelación' },
+        structural:    { color: '#0891B2', bg: 'rgba(8,145,178,0.12)',   border: 'rgba(8,145,178,0.50)',   arrow: 'url(#arrowTeal)',   label: 'Concurrencia estructural' },
+        context:       { color: '#8B5CF6', bg: 'rgba(139,92,246,0.12)',  border: 'rgba(139,92,246,0.50)',  arrow: 'url(#arrowViolet)', label: 'Contexto' },
+        iterate:       { color: '#F59E0B', bg: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.50)', arrow: 'url(#arrowAmber)',  label: 'iterate()' },
+        resources:     { color: '#16A34A', bg: 'rgba(22,163,74,0.12)',   border: 'rgba(22,163,74,0.50)',   arrow: 'url(#arrowGreen)',  label: 'Recursos y pools' }
+    };
+
+    /* ===== DESKTOP POSITIONS ===== */
+    var desktopPos = {
+        'coroutines':  { cx: 340, cy: 90 },
+        'future':      { cx: 570, cy: 90 },
+        'await-funcs': { cx: 195, cy: 243 },
+        'channels':    { cx: 375, cy: 243 },
+        'cancellation':{ cx: 610, cy: 243 },
+        'scope':       { cx: 870, cy: 243 },
+        'taskgroup':   { cx: 1040, cy: 243 },
+        'context':     { cx: 200, cy: 399 },
+        'iterate':     { cx: 480, cy: 399 },
+        'pool':        { cx: 780, cy: 399 },
+        'pdo-pool':    { cx: 960, cy: 399 }
+    };
+
+    /* ===== MOBILE POSITIONS (vertical 2-column layout, viewBox 0 0 380 720) ===== */
+    var mobilePos = {
+        'coroutines':  { cx: 115, cy: 55 },
+        'future':      { cx: 275, cy: 55 },
+        'await-funcs': { cx: 115, cy: 150 },
+        'channels':    { cx: 275, cy: 150 },
+        'cancellation':{ cx: 190, cy: 245 },
+        'scope':       { cx: 115, cy: 345 },
+        'taskgroup':   { cx: 275, cy: 345 },
+        'context':     { cx: 190, cy: 440 },
+        'iterate':     { cx: 105, cy: 540 },
+        'pool':        { cx: 260, cy: 540 },
+        'pdo-pool':    { cx: 260, cy: 640 }
+    };
+
+    /* ===== DESKTOP ZONES ===== */
+    var desktopZones = [
+        { group: 'primitives',   label: 'Primitivas básicas',         x: 210, y: 38,  w: 520, h: 104, rx: 16 },
+        { group: 'sync',         label: 'Sincronización',              x: 70,  y: 188, w: 380, h: 110, rx: 16 },
+        { group: 'cancellation', label: 'Cancelación',               x: 500, y: 188, w: 210, h: 110, rx: 16 },
+        { group: 'structural',   label: 'Concurrencia estructural',  x: 750, y: 188, w: 380, h: 110, rx: 16 },
+        { group: 'context',      label: 'Contexto',                     x: 95,  y: 345, w: 220, h: 108, rx: 16 },
+        { group: 'iterate',      label: 'iterate()',                   x: 375, y: 345, w: 220, h: 108, rx: 16 },
+        { group: 'resources',    label: 'Recursos y pools',              x: 655, y: 345, w: 405, h: 108, rx: 16 }
+    ];
+
+    /* ===== MOBILE ZONES ===== */
+    var mobileZones = [
+        { group: 'primitives',   label: 'Primitivas básicas',     x: 15,  y: 10,  w: 350, h: 90,  rx: 14 },
+        { group: 'sync',         label: 'Sincronización',          x: 15,  y: 108, w: 350, h: 90,  rx: 14 },
+        { group: 'cancellation', label: 'Cancelación',           x: 65,  y: 205, w: 250, h: 85,  rx: 14 },
+        { group: 'structural',   label: 'Conc. estructural',    x: 15,  y: 300, w: 350, h: 90,  rx: 14 },
+        { group: 'context',      label: 'Contexto',                x: 65,  y: 398, w: 250, h: 85,  rx: 14 },
+        { group: 'iterate',      label: 'iterate()',              x: 15,  y: 495, w: 175, h: 90,  rx: 14 },
+        { group: 'resources',    label: 'Recursos y pools',         x: 155, y: 495, w: 220, h: 190, rx: 14 }
+    ];
+
+    /* ===== NODES (11) ===== */
+    var nodes = [
+        { id: 'coroutines', title: 'Corrutinas',
+          desc: 'Unidad básica de asincronía — lanzamiento de tareas concurrentes',
+          code: '<span class="var">$coro</span> = <span class="fn">spawn</span>(<span class="kw">function</span>() {\n  <span class="fn">echo</span> <span class="str">"async!"</span>;\n});',
+          url: '/es/docs/components/coroutines.html', group: 'primitives', order: 1, w: 130, h: 44 },
+
+        { id: 'future', title: 'Future',
+          desc: 'Obtener el resultado de una operación asíncrona',
+          code: '<span class="var">$coro</span> = <span class="fn">spawn</span>(<span class="var">$task</span>);\n<span class="var">$result</span> = <span class="fn">await</span>(<span class="var">$coro</span>);',
+          url: '/es/docs/components/future.html', group: 'primitives', order: null, w: 110, h: 44 },
+
+        { id: 'await-funcs', title: 'await, await_all',
+          desc: 'Espera de una o más corrutinas',
+          code: '<span class="var">$result</span> = <span class="fn">await</span>(<span class="var">$coro</span>);\n<span class="var">$results</span> = <span class="fn">await_all</span>(<span class="var">$tasks</span>);\n<span class="var">$first</span> = <span class="fn">await_first_success</span>(<span class="var">$tasks</span>);',
+          url: '/es/docs/reference/await.html', group: 'sync', order: 2, w: 160, h: 44 },
+
+        { id: 'channels', title: 'Canales',
+          desc: 'Pasar datos entre corrutinas',
+          code: '<span class="var">$ch</span> = <span class="kw">new</span> Async\\<span class="fn">Channel</span>(<span class="num">10</span>);\n<span class="var">$ch</span>-><span class="fn">send</span>(<span class="str">"data"</span>);\n<span class="var">$val</span> = <span class="var">$ch</span>-><span class="fn">recv</span>();',
+          url: '/es/docs/components/channels.html', group: 'sync', order: null, w: 110, h: 44 },
+
+        { id: 'cancellation', title: 'Cancelación',
+          desc: 'Cancelar corrutinas y gestionar tiempos de espera',
+          code: '<span class="var">$coro</span>-><span class="fn">cancel</span>();\n<span class="cm">// o con timeout:</span>\n<span class="fn">await</span>(<span class="var">$coro</span>, <span class="fn">timeout</span>(<span class="num">5000</span>));',
+          url: '/es/docs/components/cancellation.html', group: 'cancellation', order: 3, w: 150, h: 44 },
+
+        { id: 'scope', title: 'Scope',
+          desc: 'Controlar el tiempo de vida de un grupo de corrutinas',
+          code: '<span class="var">$scope</span> = <span class="kw">new</span> Async\\<span class="fn">Scope</span>();\n<span class="fn">spawn_with</span>(<span class="var">$scope</span>, <span class="var">$task</span>);',
+          url: '/es/docs/components/scope.html', group: 'structural', order: 4, w: 110, h: 44 },
+
+        { id: 'taskgroup', title: 'TaskGroup',
+          desc: 'Concurrencia estructural — gestionar un grupo de tareas con diferentes estrategias de espera',
+          code: '<span class="var">$group</span> = <span class="kw">new</span> Async\\<span class="fn">TaskGroup</span>();\n<span class="var">$group</span>-><span class="fn">spawn</span>(<span class="kw">fn</span>() => <span class="fn">fetchUser</span>());\n<span class="var">$results</span> = <span class="var">$group</span>-><span class="fn">all</span>()-><span class="fn">await</span>();',
+          url: '/es/docs/components/task-group.html', group: 'structural', order: null, w: 130, h: 44 },
+
+        { id: 'context', title: 'Contexto',
+          desc: 'Almacenar datos vinculados a una corrutina (ej. token de autenticación)',
+          code: '<span class="var">$ctx</span> = <span class="fn">current_context</span>();\n<span class="var">$ctx</span>-><span class="fn">set</span>(<span class="str">\'auth_token\'</span>, <span class="var">$token</span>);\n<span class="var">$v</span> = <span class="var">$ctx</span>-><span class="fn">find</span>(<span class="str">\'auth_token\'</span>);',
+          url: '/es/docs/components/context.html', group: 'context', order: 5, w: 120, h: 44 },
+
+        { id: 'iterate', title: 'iterate()',
+          desc: 'Procesamiento concurrente de colecciones con control de concurrencia',
+          code: '<span class="fn">iterate</span>(<span class="var">$items</span>, <span class="kw">function</span>(<span class="var">$v</span>, <span class="var">$k</span>) {\n  <span class="fn">echo</span> <span class="str">"$k: $v\\n"</span>;\n}, <span class="fn">concurrency</span>: <span class="num">4</span>);',
+          url: '/es/docs/reference/iterate.html', group: 'iterate', order: null, w: 120, h: 44 },
+
+        { id: 'pool', title: 'Async\\Pool',
+          desc: 'Reutilizar recursos costosos (conexiones, workers)',
+          code: '<span class="var">$pool</span> = <span class="kw">new</span> <span class="fn">Pool</span>(\n  <span class="fn">factory</span>: <span class="kw">fn</span>() => <span class="kw">new</span> <span class="fn">Conn</span>(),\n  <span class="fn">max</span>: <span class="num">10</span>\n);',
+          url: '/es/docs/components/pool.html', group: 'resources', order: 6, w: 130, h: 44 },
+
+        { id: 'pdo-pool', title: 'PDO Pool',
+          desc: 'Pool de conexiones a base de datos',
+          code: '<span class="var">$pdo</span> = <span class="kw">new</span> <span class="fn">PDO</span>(<span class="var">$dsn</span>, <span class="var">$user</span>, <span class="var">$pwd</span>, [\n  PDO::<span class="fn">ATTR_POOL_MAX</span> => <span class="num">10</span>\n]);',
+          url: '/es/docs/components/pdo-pool.html', group: 'resources', order: null, w: 120, h: 44 }
+    ];
+
+    /* Apply positions and sizes based on mode */
+    var positions = isMobile ? mobilePos : desktopPos;
+    nodes.forEach(function(n) {
+        var p = positions[n.id];
+        n.cx = p.cx;
+        n.cy = p.cy;
+        if (isMobile) {
+            n.h = 50;
+        }
+    });
+
+    var groupZones = isMobile ? mobileZones : desktopZones;
+
+    /* ===== EDGES ===== */
+    var edges = [
+        { from: 'coroutines',   to: 'await-funcs',   type: 'path' },
+        { from: 'await-funcs',  to: 'cancellation',  type: 'path' },
+        { from: 'cancellation', to: 'scope',         type: 'path' },
+        { from: 'scope',        to: 'context',       type: 'path' },
+        { from: 'context',      to: 'pool',          type: 'path' },
+        { from: 'pool',         to: 'pdo-pool',      type: 'path' },
+        { from: 'scope', to: 'taskgroup', type: 'path' },
+        { from: 'coroutines', to: 'future',   type: 'related' },
+        { from: 'coroutines', to: 'channels', type: 'related' },
+        { from: 'coroutines', to: 'iterate',  type: 'related' }
+    ];
+
+    /* ===== SUB-PAGES ===== */
+    var subPages = {
+        'coroutines': [
+            { label: 'spawn()',            url: '/es/docs/reference/spawn.html' },
+            { label: 'spawn_with()',       url: '/es/docs/reference/spawn-with.html' },
+            { label: 'get_coroutines()',   url: '/es/docs/reference/get-coroutines.html' },
+            { label: 'current_coroutine()', url: '/es/docs/reference/current-coroutine.html' }
+        ],
+        'future': [
+            { label: 'await()', url: '/es/docs/reference/await.html' }
+        ],
+        'await-funcs': [
+            { label: 'await_all()',           url: '/es/docs/reference/await-all.html' },
+            { label: 'await_any_or_fail()',   url: '/es/docs/reference/await-any-or-fail.html' },
+            { label: 'await_first_success()', url: '/es/docs/reference/await-first-success.html' },
+            { label: 'await_any_of()',        url: '/es/docs/reference/await-any-of.html' },
+            { label: 'delay()',               url: '/es/docs/reference/delay.html' },
+            { label: 'suspend()',             url: '/es/docs/reference/suspend.html' }
+        ],
+        'cancellation': [
+            { label: 'cancel()',   url: '/es/docs/components/cancellation.html' },
+            { label: 'protect()', url: '/es/docs/reference/protect.html' },
+            { label: 'timeout()', url: '/es/docs/reference/timeout.html' }
+        ],
+        'scope': [
+            { label: 'Scope',            url: '/es/docs/components/scope.html' },
+            { label: 'Scope::inherit()', url: '/es/docs/components/scope.html' }
+        ],
+        'context': [
+            { label: 'current_context()',   url: '/es/docs/reference/current-context.html' },
+            { label: 'coroutine_context()', url: '/es/docs/reference/coroutine-context.html' },
+            { label: 'root_context()',      url: '/es/docs/reference/root-context.html' }
+        ],
+        'taskgroup': [
+            { label: 'TaskGroup::all()',    url: '/es/docs/reference/task-group/all.html' },
+            { label: 'TaskGroup::race()',   url: '/es/docs/reference/task-group/race.html' },
+            { label: 'TaskGroup::any()',    url: '/es/docs/reference/task-group/any.html' },
+            { label: 'TaskGroup::cancel()', url: '/es/docs/reference/task-group/cancel.html' }
+        ],
+        'pool': [
+            { label: 'Pool::tryAcquire()', url: '/es/docs/components/pool.html' }
+        ]
+    };
+
+    /* ===== STATE ===== */
+    var NS = 'http://www.w3.org/2000/svg';
+    var svgEl = document.getElementById('learningMap');
+    var tooltipEl = document.getElementById('mapTooltip');
+    var edgesGroup = document.getElementById('edgesGroup');
+    var nodesGroup = document.getElementById('nodesGroup');
+    var zonesGroup = document.getElementById('groupZones');
+
+    var sheetEl = document.getElementById('mapSheet');
+    var sheetOverlay = document.getElementById('sheetOverlay');
+
+    var nodeMap = {};
+    var nodeEls = {};
+    var edgeEls = [];
+    var zoneEls = {};
+    var adj = {};
+    var hoveredId = null;
+    var activeFilter = null;
+    var sheetOpen = false;
+
+    /* Set viewBox based on mode */
+    if (isMobile) {
+        svgEl.setAttribute('viewBox', '0 0 380 700');
+    }
+
+    /* Update info text for mobile */
+    if (isMobile) {
+        document.getElementById('mapInfo').innerHTML =
+            '<strong>Toca</strong> un nodo para ver los detalles. ' +
+            'Usa los botones de arriba para resaltar grupos.';
+    }
+
+    function init() {
+        nodes.forEach(function(n) { nodeMap[n.id] = n; adj[n.id] = new Set(); });
+        edges.forEach(function(e) { adj[e.from].add(e.to); adj[e.to].add(e.from); });
+        renderZones();
+        renderEdges();
+        renderNodes();
+        initFilters();
+        initSheet();
+    }
+
+    function renderZones() {
+        groupZones.forEach(function(z) {
+            var grp = GRP[z.group];
+            var g = document.createElementNS(NS, 'g');
+            g.classList.add('group-zone');
+            g.dataset.group = z.group;
+            var rect = document.createElementNS(NS, 'rect');
+            rect.setAttribute('x', z.x); rect.setAttribute('y', z.y);
+            rect.setAttribute('width', z.w); rect.setAttribute('height', z.h);
+            rect.setAttribute('rx', z.rx); rect.setAttribute('fill', grp.bg);
+            rect.setAttribute('stroke', grp.border); rect.setAttribute('stroke-width', '1');
+            rect.setAttribute('stroke-dasharray', '6 3');
+            g.appendChild(rect);
+            var lbl = document.createElementNS(NS, 'text');
+            lbl.setAttribute('x', z.x + 14); lbl.setAttribute('y', z.y + 18);
+            lbl.setAttribute('font-family', 'Fira Sans, sans-serif');
+            lbl.setAttribute('font-size', '11');
+            lbl.setAttribute('font-weight', '600');
+            lbl.setAttribute('fill', grp.color); lbl.setAttribute('opacity', '0.7');
+            lbl.textContent = z.label;
+            g.appendChild(lbl);
+            zonesGroup.appendChild(g);
+            zoneEls[z.group] = g;
+        });
+    }
+
+    function calcPath(from, to) {
+        var dx = to.cx - from.cx, dy = to.cy - from.cy;
+        var dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 1) return null;
+        var angle = Math.atan2(dy, dx);
+        var s = exitPoint(from, angle);
+        var e = exitPoint(to, angle + Math.PI);
+        var mx = (s.x + e.x) / 2, my = (s.y + e.y) / 2;
+        var ux = dx / dist, uy = dy / dist;
+        var off = Math.min(dist * 0.12, 30);
+        return 'M' + s.x + ',' + s.y + ' Q' + (mx - uy * off) + ',' + (my + ux * off) + ' ' + e.x + ',' + e.y;
+    }
+
+    function exitPoint(n, angle) {
+        var hw = n.w / 2, hh = n.h / 2;
+        var cos = Math.cos(angle), sin = Math.sin(angle);
+        var tx = cos !== 0 ? hw / Math.abs(cos) : 9999;
+        var ty = sin !== 0 ? hh / Math.abs(sin) : 9999;
+        var t = Math.min(tx, ty);
+        return { x: n.cx + cos * t, y: n.cy + sin * t };
+    }
+
+    function renderEdges() {
+        edges.forEach(function(e, i) {
+            var from = nodeMap[e.from], to = nodeMap[e.to];
+            var d = calcPath(from, to);
+            if (!d) return;
+            var grp = GRP[from.group];
+            var path = document.createElementNS(NS, 'path');
+            path.setAttribute('d', d); path.setAttribute('fill', 'none');
+            if (e.type === 'path') {
+                path.setAttribute('stroke', grp.color);
+                path.setAttribute('stroke-width', '2');
+                path.setAttribute('opacity', '0.5');
+                path.setAttribute('marker-end', grp.arrow);
+                path.classList.add('edge', 'edge-path', 'edge-anim');
+                path.style.animationDelay = (i * 0.05) + 's';
+            } else {
+                path.setAttribute('stroke', '#94A3B8');
+                path.setAttribute('stroke-width', '1.5');
+                path.setAttribute('stroke-dasharray', '5 4');
+                path.setAttribute('opacity', '0.25');
+                path.classList.add('edge', 'edge-related');
+            }
+            path.dataset.from = e.from; path.dataset.to = e.to;
+            edgesGroup.appendChild(path);
+            edgeEls.push({ el: path, from: e.from, to: e.to, type: e.type });
+        });
+    }
+
+    function renderNodes() {
+        nodes.forEach(function(n) {
+            var g = document.createElementNS(NS, 'g');
+            g.classList.add('node');
+            g.dataset.id = n.id; g.dataset.group = n.group;
+            var grp = GRP[n.group];
+            var hw = n.w / 2, hh = n.h / 2;
+            var rx = Math.min(hh, 14);
+
+            var rect = document.createElementNS(NS, 'rect');
+            rect.setAttribute('x', n.cx - hw); rect.setAttribute('y', n.cy - hh);
+            rect.setAttribute('width', n.w); rect.setAttribute('height', n.h);
+            rect.setAttribute('rx', rx); rect.setAttribute('fill', '#fff');
+            rect.setAttribute('stroke', grp.border); rect.setAttribute('stroke-width', '1.5');
+            rect.setAttribute('filter', 'url(#nodeShadow)');
+            rect.classList.add('node-bg');
+            if (n.planned) { rect.setAttribute('stroke-dasharray', '6 3'); rect.setAttribute('opacity', '0.65'); }
+            g.appendChild(rect);
+
+            var bar = document.createElementNS(NS, 'rect');
+            bar.setAttribute('x', n.cx - hw); bar.setAttribute('y', n.cy - hh);
+            bar.setAttribute('width', 4); bar.setAttribute('height', n.h);
+            bar.setAttribute('rx', 2); bar.setAttribute('fill', grp.color);
+            bar.setAttribute('opacity', n.planned ? '0.4' : '0.7');
+            var clip = document.createElementNS(NS, 'clipPath');
+            var clipId = 'clip-' + n.id; clip.id = clipId;
+            var clipRect = document.createElementNS(NS, 'rect');
+            clipRect.setAttribute('x', n.cx - hw); clipRect.setAttribute('y', n.cy - hh);
+            clipRect.setAttribute('width', n.w); clipRect.setAttribute('height', n.h);
+            clipRect.setAttribute('rx', rx);
+            clip.appendChild(clipRect); g.appendChild(clip);
+            bar.setAttribute('clip-path', 'url(#' + clipId + ')');
+            g.appendChild(bar);
+
+            var title = makeText(n.cx + 2, n.cy, 13, grp.color, n.title, '600');
+            if (n.planned) title.setAttribute('opacity', '0.65');
+            g.appendChild(title);
+
+            if (n.order !== null && n.order > 0) {
+                var bx = n.cx + hw - 2, by = n.cy - hh - 2;
+                var bg = document.createElementNS(NS, 'g');
+                bg.classList.add('order-badge-g');
+                bg.style.animationDelay = (n.order * 0.08) + 's';
+                bg.style.transformOrigin = bx + 'px ' + by + 'px';
+                var bc = document.createElementNS(NS, 'circle');
+                bc.setAttribute('cx', bx); bc.setAttribute('cy', by);
+                bc.setAttribute('r', 11); bc.setAttribute('fill', grp.color);
+                bg.appendChild(bc);
+                var bt = document.createElementNS(NS, 'text');
+                bt.setAttribute('x', bx); bt.setAttribute('y', by);
+                bt.setAttribute('text-anchor', 'middle'); bt.setAttribute('dominant-baseline', 'central');
+                bt.setAttribute('font-family', 'Fira Sans, sans-serif');
+                bt.setAttribute('font-size', '9'); bt.setAttribute('font-weight', '700');
+                bt.setAttribute('fill', '#fff'); bt.setAttribute('pointer-events', 'none');
+                bt.textContent = n.order;
+                bg.appendChild(bt); g.appendChild(bg);
+            }
+
+            if (!isMobile) {
+                g.addEventListener('mouseenter', function(ev) { onEnter(n.id, ev); });
+                g.addEventListener('mouseleave', function() { onLeave(); });
+                g.addEventListener('click', function() { onClick(n.id); });
+            }
+
+            nodesGroup.appendChild(g);
+            nodeEls[n.id] = g;
+        });
+    }
+
+    function makeText(x, y, fs, fill, content, fw) {
+        var t = document.createElementNS(NS, 'text');
+        t.setAttribute('x', x); t.setAttribute('y', y);
+        t.setAttribute('text-anchor', 'middle'); t.setAttribute('dominant-baseline', 'central');
+        t.setAttribute('font-family', 'Fira Sans, sans-serif');
+        t.setAttribute('font-size', fs); t.setAttribute('font-weight', fw || '400');
+        t.setAttribute('fill', fill); t.setAttribute('pointer-events', 'none');
+        t.textContent = content;
+        return t;
+    }
+
+    /* ===== FILTER BUTTONS ===== */
+    function initFilters() {
+        document.querySelectorAll('#mapFilters .filter-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var group = this.dataset.group;
+                if (group === 'all' || activeFilter === group) { activeFilter = null; }
+                else { activeFilter = group; }
+                applyFilter(); updateFilterButtons();
+            });
+        });
+    }
+
+    function applyFilter() {
+        if (!activeFilter) {
+            Object.keys(nodeEls).forEach(function(nid) { nodeEls[nid].classList.remove('dimmed', 'highlighted'); });
+            edgeEls.forEach(function(e) { e.el.classList.remove('dimmed', 'highlighted'); });
+            Object.keys(zoneEls).forEach(function(gid) { zoneEls[gid].classList.remove('dimmed'); });
+        } else {
+            Object.keys(nodeEls).forEach(function(nid) {
+                if (nodeMap[nid].group === activeFilter) { nodeEls[nid].classList.remove('dimmed'); nodeEls[nid].classList.add('highlighted'); }
+                else { nodeEls[nid].classList.add('dimmed'); nodeEls[nid].classList.remove('highlighted'); }
+            });
+            edgeEls.forEach(function(e) {
+                if (nodeMap[e.from].group === activeFilter || nodeMap[e.to].group === activeFilter) { e.el.classList.remove('dimmed'); }
+                else { e.el.classList.add('dimmed'); }
+            });
+            Object.keys(zoneEls).forEach(function(gid) {
+                if (gid === activeFilter) { zoneEls[gid].classList.remove('dimmed'); }
+                else { zoneEls[gid].classList.add('dimmed'); }
+            });
+        }
+    }
+
+    function updateFilterButtons() {
+        document.querySelectorAll('#mapFilters .filter-btn').forEach(function(btn) {
+            var g = btn.dataset.group;
+            if ((!activeFilter && g === 'all') || (activeFilter && g === activeFilter)) { btn.classList.add('active'); }
+            else { btn.classList.remove('active'); }
+        });
+    }
+
+    /* ===== DESKTOP INTERACTIONS ===== */
+    function onEnter(id, ev) {
+        hoveredId = id;
+        highlightNode(id);
+        showTooltip(id, ev);
+    }
+
+    function onLeave() {
+        hoveredId = null;
+        if (activeFilter) { applyFilter(); }
+        else { clearHighlight(); }
+        hideTooltip();
+    }
+
+    function onClick(id) {
+        var n = nodeMap[id];
+        if (n && n.url && n.url !== '#') window.location.href = n.url;
+    }
+
+    function highlightNode(id) {
+        var neighbors = adj[id] || new Set();
+        var activeGroups = new Set();
+        activeGroups.add(nodeMap[id].group);
+        Object.keys(nodeEls).forEach(function(nid) {
+            if (nid === id || neighbors.has(nid)) {
+                nodeEls[nid].classList.remove('dimmed'); nodeEls[nid].classList.add('highlighted');
+                activeGroups.add(nodeMap[nid].group);
+            } else { nodeEls[nid].classList.add('dimmed'); nodeEls[nid].classList.remove('highlighted'); }
+        });
+        edgeEls.forEach(function(e) {
+            if (e.from === id || e.to === id) { e.el.classList.remove('dimmed'); e.el.classList.add('highlighted'); }
+            else { e.el.classList.add('dimmed'); e.el.classList.remove('highlighted'); }
+        });
+        Object.keys(zoneEls).forEach(function(gid) {
+            if (activeGroups.has(gid)) { zoneEls[gid].classList.remove('dimmed'); }
+            else { zoneEls[gid].classList.add('dimmed'); }
+        });
+    }
+
+    function clearHighlight() {
+        Object.keys(nodeEls).forEach(function(nid) { nodeEls[nid].classList.remove('dimmed', 'highlighted'); });
+        edgeEls.forEach(function(e) { e.el.classList.remove('dimmed', 'highlighted'); });
+        Object.keys(zoneEls).forEach(function(gid) { zoneEls[gid].classList.remove('dimmed'); });
+    }
+
+    /* ===== TOOLTIP (desktop only) ===== */
+    function showTooltip(id, ev) {
+        if (isMobile) return;
+        var n = nodeMap[id]; if (!n) return;
+        var grp = GRP[n.group];
+        document.getElementById('tooltipTitle').textContent = n.title;
+        document.getElementById('tooltipDesc').textContent = n.desc || '';
+        var groupEl = document.getElementById('tooltipGroup');
+        groupEl.textContent = grp.label; groupEl.style.color = grp.color;
+        var orderEl = document.getElementById('tooltipOrder');
+        if (n.order !== null && n.order > 0) {
+            orderEl.textContent = 'Paso ' + n.order + ' de 6';
+            orderEl.style.color = grp.color; orderEl.style.display = '';
+        } else { orderEl.style.display = 'none'; }
+        var codeEl = document.getElementById('tooltipCode');
+        if (n.code) { codeEl.innerHTML = n.code; codeEl.style.display = ''; }
+        else { codeEl.style.display = 'none'; }
+        var subEl = document.getElementById('tooltipSub');
+        if (subPages[id]) {
+            var html = '';
+            subPages[id].forEach(function(p) { html += '<a href="' + p.url + '">' + p.label + '</a>'; });
+            subEl.innerHTML = html; subEl.style.display = '';
+            tooltipEl.style.pointerEvents = 'auto';
+        } else { subEl.innerHTML = ''; subEl.style.display = 'none'; tooltipEl.style.pointerEvents = 'none'; }
+        positionTooltip(ev); tooltipEl.classList.add('visible');
+    }
+
+    function positionTooltip(ev) {
+        var x = ev.clientX + 16, y = ev.clientY + 16;
+        var tw = tooltipEl.offsetWidth || 200, th = tooltipEl.offsetHeight || 80;
+        if (x + tw > window.innerWidth - 10) x = ev.clientX - tw - 12;
+        if (y + th > window.innerHeight - 10) y = ev.clientY - th - 12;
+        tooltipEl.style.left = x + 'px'; tooltipEl.style.top = y + 'px';
+    }
+
+    function hideTooltip() { tooltipEl.classList.remove('visible'); tooltipEl.style.pointerEvents = 'none'; }
+
+    if (!isMobile) {
+        svgEl.addEventListener('mousemove', function(ev) { if (hoveredId) positionTooltip(ev); });
+    }
+
+    /* ===== BOTTOM SHEET (mobile) ===== */
+    function initSheet() {
+        if (!isTouch && !isMobile) return;
+
+        sheetOverlay.addEventListener('click', closeSheet);
+        var sheetCloseBtn = document.getElementById('sheetClose');
+        if (sheetCloseBtn) sheetCloseBtn.addEventListener('click', closeSheet);
+
+        /* Swipe-down to close */
+        (function() {
+            var startY = 0, currentY = 0, dragging = false;
+            var handle = document.getElementById('sheetHandle');
+            if (!handle) return;
+            function onStart(e) {
+                if (!sheetOpen) return;
+                startY = (e.touches ? e.touches[0] : e).clientY;
+                currentY = startY; dragging = true;
+                sheetEl.classList.add('dragging');
+            }
+            function onMove(e) {
+                if (!dragging) return;
+                if (e.cancelable) e.preventDefault();
+                currentY = (e.touches ? e.touches[0] : e).clientY;
+                var dy = Math.max(0, currentY - startY);
+                sheetEl.style.transform = 'translateY(' + dy + 'px)';
+            }
+            function onEnd() {
+                if (!dragging) return; dragging = false;
+                sheetEl.classList.remove('dragging');
+                var dy = currentY - startY;
+                if (dy > 60) { closeSheet(); sheetEl.style.transform = ''; }
+                else { sheetEl.style.transform = ''; }
+            }
+            handle.addEventListener('touchstart', onStart, {passive: false});
+            handle.addEventListener('touchmove', onMove, {passive: false});
+            document.addEventListener('touchmove', function(e) { if (dragging && e.cancelable) e.preventDefault(); }, {passive: false});
+            document.addEventListener('touchend', onEnd);
+            handle.addEventListener('mousedown', onStart);
+            document.addEventListener('mousemove', onMove);
+            document.addEventListener('mouseup', onEnd);
+        })();
+
+        svgEl.addEventListener('touchstart', function(ev) {
+            var target = ev.target.closest('.node');
+            if (target) {
+                ev.preventDefault();
+                var id = target.dataset.id;
+                highlightNode(id);
+                openSheet(id);
+            } else {
+                if (sheetOpen) { closeSheet(); }
+                else if (activeFilter) { applyFilter(); }
+                else { clearHighlight(); }
+            }
+        }, { passive: false });
+    }
+
+    function openSheet(id) {
+        var n = nodeMap[id]; if (!n) return;
+        var grp = GRP[n.group];
+
+        document.getElementById('sheetTitle').textContent = n.title;
+        document.getElementById('sheetTitle').style.color = grp.color;
+        document.getElementById('sheetDesc').textContent = n.desc || '';
+        var ge = document.getElementById('sheetGroup');
+        ge.textContent = grp.label; ge.style.color = grp.color;
+        var oe = document.getElementById('sheetOrder');
+        if (n.order !== null && n.order > 0) {
+            oe.textContent = 'Paso ' + n.order + ' de 6';
+            oe.style.color = grp.color; oe.style.display = '';
+        } else { oe.style.display = 'none'; }
+        var ce = document.getElementById('sheetCode');
+        if (n.code) { ce.innerHTML = n.code; ce.style.display = ''; }
+        else { ce.style.display = 'none'; }
+        var le = document.getElementById('sheetLinks');
+        if (subPages[id]) {
+            var html = '';
+            subPages[id].forEach(function(p) { html += '<a href="' + p.url + '">' + p.label + '</a>'; });
+            le.innerHTML = html; le.style.display = '';
+        } else { le.innerHTML = ''; le.style.display = 'none'; }
+        var btn = document.getElementById('sheetBtn');
+        if (n.url && n.url !== '#') {
+            btn.href = n.url; btn.style.display = '';
+        } else { btn.style.display = 'none'; }
+
+        sheetOverlay.classList.add('visible');
+        /* Force reflow before adding visible class for transition */
+        sheetEl.offsetHeight;
+        sheetEl.classList.add('visible');
+        sheetOpen = true;
+    }
+
+    function closeSheet() {
+        sheetEl.classList.remove('visible');
+        sheetOverlay.classList.remove('visible');
+        sheetOpen = false;
+        if (activeFilter) { applyFilter(); }
+        else { clearHighlight(); }
+    }
+
+    /* ===== DESKTOP TOUCH FALLBACK ===== */
+    if (isTouch && !isMobile) {
+        svgEl.addEventListener('touchstart', function(ev) {
+            var target = ev.target.closest('.node');
+            if (target) {
+                var id = target.dataset.id;
+                if (hoveredId === id) { onClick(id); }
+                else { onEnter(id, { clientX: ev.touches[0].clientX, clientY: ev.touches[0].clientY }); ev.preventDefault(); }
+            } else { onLeave(); }
+        }, { passive: false });
+    }
+
+    init();
+})();
+</script>
