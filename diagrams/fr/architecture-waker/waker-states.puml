@@ -1,0 +1,28 @@
+@startuml
+title Waker States
+
+[*] --> NO_STATUS : waker_new()
+NO_STATUS : Waker is not active
+NO_STATUS : Coroutine is executing
+
+NO_STATUS --> WAITING : SUSPEND()
+WAITING : Coroutine awaits events
+WAITING : events — list of subscriptions
+
+WAITING --> QUEUED : event triggered
+QUEUED : Coroutine is in Scheduler queue
+QUEUED : result / error populated
+
+WAITING --> IGNORED : repeated trigger
+IGNORED : Coroutine is already in queue
+IGNORED : result discarded
+
+QUEUED --> RESULT : Scheduler switched context
+RESULT : Result applied to coroutine
+RESULT : waker->result available
+
+RESULT --> NO_STATUS : waker_clean()
+
+IGNORED --> NO_STATUS : waker_clean()
+
+@enduml

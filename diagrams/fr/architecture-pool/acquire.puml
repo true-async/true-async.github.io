@@ -1,0 +1,66 @@
+@startuml
+
+title acquire() — Internal Algorithm
+
+start
+
+:zend_async_pool_acquire(pool, result, timeout);
+
+if (Pool closed?) then (yes)
+    :throw PoolException;
+    stop
+endif
+
+if (CircuitBreaker\nINACTIVE?) then (yes)
+    :throw ServiceUnavailableException;
+    stop
+endif
+
+label retry
+
+if (idle buffer\nnot empty?) then (yes)
+    :Extract resource\nfrom circular buffer;
+
+    if (beforeAcquire?) then (set)
+        if (beforeAcquire\nreturned true?) then (yes)
+        else (no)
+            :Destroy resource\n(destructor);
+            goto retry
+        endif
+    endif
+
+    :active_count++;
+    :return resource;
+    stop
+
+elseif (idle + active\n< max_size?) then (yes)
+    :Call factory;
+
+    if (Factory\nsucceeded?) then (yes)
+        :active_count++;
+        :return resource;
+        stop
+    else (no)
+        note right
+            Factory error —
+            not fatal.
+            Proceeding to wait.
+        end note
+    endif
+endif
+
+:pool_wait_for_resource();
+
+note right
+    1. Create waiter
+    2. Add to FIFO queue
+    3. Register timeout (if > 0)
+    4. ZEND_ASYNC_SUSPEND()
+    5. Coroutine is suspended
+end note
+
+:Coroutine resumed;
+
+goto retry
+
+@enduml

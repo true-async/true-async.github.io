@@ -1,0 +1,19 @@
+@startuml
+title Circuit Breaker States
+
+[*] --> ACTIVE
+
+ACTIVE --> INACTIVE : deactivate()
+ACTIVE : acquire() — allowed
+ACTIVE : All requests pass through
+
+INACTIVE --> RECOVERING : recover()
+INACTIVE : acquire() — throw Exception
+INACTIVE : All requests rejected
+
+RECOVERING --> ACTIVE : activate()
+RECOVERING --> INACTIVE : deactivate()
+RECOVERING : acquire() — allowed
+RECOVERING : Test mode
+
+@enduml

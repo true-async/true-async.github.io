@@ -1,0 +1,77 @@
+@startuml
+skinparam backgroundColor #FAFAFA
+skinparam activityBorderColor #333333
+skinparam activityBackgroundColor #FFFFFF
+skinparam activityDiamondBackgroundColor #FFF9C4
+skinparam activityDiamondBorderColor #333333
+skinparam arrowColor #555555
+skinparam noteBackgroundColor #FFFFEE
+skinparam noteBorderColor #AAAAAA
+
+title Connection Lifecycle in the Pool
+
+start
+
+:Coroutine calls
+$pdo->query() / exec() / prepare();
+
+if (Connection exists for this coroutine?) then (yes)
+    :Use existing connection;
+else (no)
+    :Request from pool (pool acquire);
+
+    if (Free connection available?) then (yes)
+        :Return free connection;
+    elseif (Current count < max?) then (yes)
+        :Create new connection;
+
+        note right
+            pdo_pool_factory():
+            1. ecalloc(pdo_dbh_t)
+            2. estrdup(DSN, user, pass)
+            3. driver->db_handle_factory()
+            4. efree(credential copies)
+        end note
+    else (no)
+        :Wait for release;
+
+        note right
+            Coroutine is suspended.
+            Other coroutines
+            continue running.
+        end note
+    endif
+
+    :Bind connection\nto coroutine ID;
+
+    :Register cleanup\non coroutine completion;
+endif
+
+:Execute query via conn->methods;
+
+if (Active transaction or statement?) then (yes)
+    :Connection is **pinned** to the coroutine;
+
+    note right
+        Pinning: connection
+        will not return to the pool
+        until all transactions and
+        statements are completed.
+    end note
+
+    stop
+else (no)
+    :Connection returns to the pool;
+
+    note right
+        before_release():
+        if in_txn == true,
+        performs ROLLBACK
+    end note
+
+    :Available for other coroutines;
+
+    stop
+endif
+
+@enduml
