@@ -1,0 +1,38 @@
+@startuml
+title Dual Notification System
+
+skinparam backgroundColor #FFFFFF
+
+participant "Go\nGoroutine" as Go
+participant "requestChan" as Chan
+participant "AsyncNotifier\n(eventfd/pipe)" as Notifier
+participant "Scheduler\n(heartbeat)" as Heartbeat
+participant "Reactor\n(libuv)" as Reactor
+participant "Coroutine" as Coro
+
+== Fast Path: Scheduler is Active ==
+
+Go -> Chan : send request
+note right: select { case chan <- req }
+
+Heartbeat -> Chan : check_requests()
+note left: Called on\neach Scheduler\ntick
+
+Chan --> Heartbeat : request_id
+Heartbeat -> Coro : spawn coroutine
+note left: No system\ncalls,\nminimal\nlatency
+
+== Slow Path: All Coroutines are Sleeping ==
+
+Go -> Chan : send request
+Go -> Notifier : Notify()
+note right: write(fd, 1)
+
+Notifier -> Reactor : epoll/kqueue wakeup
+note right: Reactor\nwakes up\nonly on\nnotification
+
+Reactor -> Chan : check_requests()
+Chan --> Reactor : request_id
+Reactor -> Coro : spawn coroutine
+
+@enduml

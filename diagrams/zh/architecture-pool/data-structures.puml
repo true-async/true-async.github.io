@@ -1,0 +1,59 @@
+@startuml
+
+title Pool Data Structures
+
+package "Zend Engine (zend_async_API.h)" #E3F2FD {
+    class "zend_async_pool_t" as BasePool {
+        event : zend_async_event_t
+        handler_flags : uint8_t
+        circuit_state : CircuitBreakerState
+        min_size : uint32_t
+        max_size : uint32_t
+        wrapper : zend_object*
+        user_data : void*
+        --
+        factory : union { fcall | internal }
+        destructor : union { fcall | internal }
+        healthcheck : union { fcall | internal }
+        before_acquire : union { fcall | internal }
+        before_release : union { fcall | internal }
+        strategy : union { object | internal }
+    }
+}
+
+package "ext/async (pool.h)" #FFF3E0 {
+    class "async_pool_t" as InternalPool {
+        base : zend_async_pool_t
+        --
+        idle : circular_buffer_t
+        active_count : uint32_t
+        waiters : callbacks_vector_t
+        healthcheck_timer : timer_event_t*
+        healthcheck_interval_ms : uint32_t
+    }
+
+    class "async_pool_obj_t" as PoolObj {
+        pool : async_pool_t*
+        std : zend_object
+    }
+}
+
+InternalPool *-- BasePool : "base (first field)"
+PoolObj --> InternalPool : pool
+
+note right of BasePool
+    handler_flags determines
+    whether callbacks are
+    PHP callable or C function.
+    Allows PDO to use
+    C API without overhead.
+end note
+
+note right of InternalPool
+    idle — circular buffer for
+    free resources.
+    waiters — FIFO queue of
+    waiting coroutines.
+end note
+
+@enduml

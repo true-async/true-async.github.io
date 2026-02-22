@@ -1,0 +1,37 @@
+@startuml
+
+title Creating a Connection from the Pool
+
+participant "Coroutine" as Coro
+participant "pdo_pool.c" as Pool
+participant "zend_async_pool_t" as AsyncPool
+participant "pdo_pool_factory" as Factory
+participant "MySQL Driver" as Driver
+
+Coro -> Pool : query("SELECT 1")
+Pool -> Pool : Look up connection\nfor current coroutine
+
+alt Connection not found
+    Pool -> AsyncPool : acquire()
+
+    alt No free connections, but < max
+        AsyncPool -> Factory : create new
+        Factory -> Factory : conn = ecalloc(pdo_dbh_t)
+        Factory -> Factory : Copy DSN,\nlogin, password\nfrom template (estrdup)
+        Factory -> Driver : db_handle_factory(conn)
+        Driver -> Driver : Parse DSN,\nTCP connection
+        Driver --> Factory : OK
+        Factory -> Factory : Free credential\ncopies (efree)
+        Factory --> AsyncPool : conn
+    end
+
+    AsyncPool --> Pool : conn
+    Pool -> Pool : Bind conn\nto coroutine ID
+    Pool -> Pool : Register cleanup\non coroutine completion
+end
+
+Pool -> Driver : Execute query\nvia conn->methods
+Driver --> Pool : Result
+Pool --> Coro : PDOStatement
+
+@enduml

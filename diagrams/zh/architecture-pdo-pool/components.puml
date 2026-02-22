@@ -1,0 +1,99 @@
+@startuml
+
+title PDO Pool — Components
+
+package "User Code" #E8F5E9 {
+    class "PDO Object" as UserPDO {
+        query()
+        exec()
+        prepare()
+        beginTransaction()
+        commit()
+        rollBack()
+        getPool()
+    }
+}
+
+package "PDO Core (php-src)" #E3F2FD {
+    class "pdo_dbh_t\n(template)" as Template {
+        driver : pdo_driver_t*
+        data_source : char*
+        username : char*
+        password : char*
+        --
+        pool : zend_async_pool_t*
+        pool_connections : HashTable*
+    }
+
+    class "pdo_pool.c" as PoolLogic {
+        pdo_pool_create()
+        pdo_pool_acquire_conn()
+        pdo_pool_maybe_release()
+        pdo_pool_peek_conn()
+        pdo_pool_destroy()
+        --
+        pdo_pool_factory()
+        pdo_pool_destructor()
+        pdo_pool_healthcheck()
+        pdo_pool_before_release()
+    }
+}
+
+package "Async Extension" #FFF3E0 {
+    class "zend_async_pool_t" as AsyncPool {
+        min_size : uint32_t
+        max_size : uint32_t
+        user_data : void*
+        --
+        acquire()
+        release()
+        close()
+    }
+}
+
+package "Connection Pool" #FCE4EC {
+    class "pdo_dbh_t\n(conn #1)" as Conn1 {
+        driver_data : void*
+        methods : pdo_dbh_methods*
+        in_txn : bool
+    }
+    class "pdo_dbh_t\n(conn #2)" as Conn2 {
+        driver_data : void*
+        methods : pdo_dbh_methods*
+        in_txn : bool
+    }
+    class "pdo_dbh_t\n(conn #N)" as ConnN {
+        driver_data : void*
+        methods : pdo_dbh_methods*
+        in_txn : bool
+    }
+}
+
+package "Coroutines" #F3E5F5 {
+    class "Coroutine A" as CoroA
+    class "Coroutine B" as CoroB
+}
+
+UserPDO --> Template : inner
+Template --> AsyncPool : pool
+Template --> PoolLogic : manages
+AsyncPool --> Conn1 : stores
+AsyncPool --> Conn2 : stores
+AsyncPool --> ConnN : stores
+PoolLogic --> AsyncPool : acquire / release
+
+CoroA ..> Conn1 : "bound"
+CoroB ..> Conn2 : "bound"
+
+note right of Template
+    Template does NOT connect to the DB.
+    It stores credentials and settings
+    for creating real connections.
+end note
+
+note bottom of PoolLogic
+    pool_connections: HashTable
+    key = coroutine ID
+    value = pdo_dbh_t*
+end note
+@enduml

@@ -1,0 +1,58 @@
+@startuml
+title Request Lifecycle
+
+skinparam backgroundColor #FFFFFF
+
+|Go Runtime|
+start
+:HTTP request from client;
+:Round-Robin: select PHP thread;
+
+if (Thread buffer full?) then (yes)
+    :Try next thread;
+    if (All buffers full?) then (yes)
+        :HTTP 503 Service Unavailable;
+        stop
+    else (no)
+        :Send to requestChan;
+    endif
+else (no)
+    :Send to requestChan;
+endif
+
+if (Channel was empty?) then (yes)
+    :AsyncNotifier.Notify();
+    note right: Wake up\nevent loop
+else (no)
+    note right: PHP thread\nalready active
+endif
+
+|PHP Runtime|
+:Scheduler detected request;
+:Create Scope for request;
+:Create coroutine;
+:ENQUEUE_COROUTINE();
+
+:Call onRequest callback;
+:Request::getMethod(), getUri()...;
+note right: CGo → Go:\nread request\ndata
+
+:Process business logic;
+note right: async/await,\nparallel I/O
+
+:Response::write(data);
+
+|Go Runtime|
+:responseChan <- data;
+:responseDispatcher → goroutine;
+:ResponseWriter.Write();
+:HTTP response to client;
+
+|PHP Runtime|
+:Response::end();
+:go_async_worker_request_done();
+:Release Scope and resources;
+
+stop
+
+@enduml
