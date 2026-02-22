@@ -1,7 +1,3 @@
-<p align="center">
-  <img src="assets/logo-header.png" alt="TrueAsync" width="360">
-</p>
-
 <h1 align="center">TrueAsync Documentation</h1>
 
 <p align="center">
