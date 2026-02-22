@@ -1,0 +1,35 @@
+@startuml
+title Coroutine Suspend and Resume
+
+participant "Coroutine A\n(executing)" as CoroA
+participant "Scheduler\n(in context of A)" as Sched
+participant "Reactor\n(libuv)" as Reactor
+participant "Coroutine B\n(waiting)" as CoroB
+
+== Suspend coroutine A ==
+
+CoroA -> Sched : ZEND_ASYNC_SUSPEND()
+note left: No context switch!\nScheduler runs\nin coroutine A's context
+
+Sched -> Sched : Process microtasks
+Sched -> Reactor : reactor_execute(no_wait=true)
+note right: Non-blocking tick:\ncollect ready events
+Reactor --> Sched : Timer fired -> enqueue(B)
+
+== Resume coroutine B ==
+
+Sched -> Sched : coroutine_queue -> Coroutine B
+Sched -> CoroB : zend_fiber_switch_context()
+note right: Actual switching of\nstack and registers
+
+CoroB -> CoroB : Continue execution\nfrom suspend point
+
+== Suspend coroutine B ==
+
+CoroB -> Sched : ZEND_ASYNC_SUSPEND()
+note left: Scheduler is now\nin context of B
+
+Sched -> Reactor : reactor_execute(no_wait=false)
+note right: Queue is empty ->\nblock until\nnext event
+
+@enduml

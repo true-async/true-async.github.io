@@ -1,0 +1,32 @@
+@startuml
+title Event Lifecycle
+
+[*] --> Created : new event
+Created : ref_count = 1
+Created : flags = 0
+
+Created --> Active : start()
+Created --> Created : add_callback()
+
+Active : loop_ref_count > 0
+Active : active_event_count++
+Active --> Active : add_callback()
+Active --> Active : del_callback()
+
+Active --> Triggered : libuv callback
+Triggered : triggered_events updated
+
+Triggered --> Active : NOTIFY\n(periodic timer, poll)
+Triggered --> Closed : NOTIFY_AND_CLOSE\n(DNS, exec, Future)
+
+Active --> Stopped : stop()
+Stopped : loop_ref_count = 0
+Stopped --> Active : start()
+
+Stopped --> Closed : dispose()
+Closed : flags |= F_CLOSED
+Closed : subscription not possible
+
+Closed --> [*] : ref_count = 0\ndispose()
+
+@enduml
