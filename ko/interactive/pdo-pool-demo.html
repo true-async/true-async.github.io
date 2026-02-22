@@ -1,0 +1,916 @@
+---
+layout: interactive
+lang: ko
+path_key: "/interactive/pdo-pool-demo.html"
+nav_active: ""
+permalink: /ko/interactive/pdo-pool-demo.html
+page_title: "PDO 커넥션 풀 작동 원리"
+description: "TrueAsync의 PDO 커넥션 풀링 인터랙티브 시각화"
+---
+
+<style>
+    .interactive-demo .container { max-width: 1400px; margin: 0 auto; }
+
+    .interactive-demo .subtitle {
+        text-align: center;
+        color: var(--color-text-muted);
+        margin-bottom: 16px;
+        font-size: 0.95em;
+    }
+
+    .interactive-demo .main-layout {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+    @media (max-width: 1000px) {
+        .interactive-demo .main-layout { grid-template-columns: 1fr; }
+    }
+
+    /* Code panel */
+    .interactive-demo .code-panel {
+        background: var(--color-code-bg);
+        border-radius: var(--radius-xl);
+        overflow: hidden;
+        border: 2px solid var(--color-border);
+        transition: border-color 0.3s;
+    }
+    .interactive-demo .code-panel.active-c1 { border-color: rgba(37, 99, 235, 0.5); }
+    .interactive-demo .code-panel.active-c2 { border-color: rgba(139, 92, 246, 0.5); }
+    .interactive-demo .code-panel.active-c3 { border-color: rgba(234, 88, 12, 0.5); }
+
+    .interactive-demo .code-header {
+        background: var(--color-bg-subtle);
+        padding: 8px 14px;
+        font-size: 0.8em;
+        font-weight: 600;
+        color: var(--color-text-secondary);
+        border-bottom: 1px solid var(--color-border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .interactive-demo .code-content {
+        padding: 10px 14px;
+        font-family: var(--font-mono);
+        font-size: 0.78em;
+        line-height: 1.5;
+        overflow-x: auto;
+    }
+    .interactive-demo .code-line {
+        padding: 2px 8px;
+        border-radius: var(--radius-md);
+        transition: background 0.2s;
+        white-space: pre;
+        color: var(--color-text);
+    }
+    .interactive-demo .code-line.active-cpu {
+        background: rgba(22, 163, 74, 0.12);
+        border-left: 3px solid #16A34A;
+    }
+    .interactive-demo .code-line.active-wait {
+        background: rgba(107, 114, 128, 0.1);
+        border-left: 3px solid #9CA3AF;
+    }
+    .interactive-demo .code-line.active-pool-wait {
+        background: rgba(234, 88, 12, 0.1);
+        border-left: 3px solid #EA580C;
+    }
+    .interactive-demo .code-line.active-release {
+        background: rgba(22, 163, 74, 0.08);
+        border-left: 3px solid #16A34A;
+    }
+
+    /* Syntax highlighting */
+    .interactive-demo .keyword { color: #8250DF; font-weight: 500; }
+    .interactive-demo .function { color: #6639BA; }
+    .interactive-demo .string { color: #0A3069; }
+    .interactive-demo .variable { color: #0550AE; }
+    .interactive-demo .comment { color: #6B7280; font-style: italic; }
+    .interactive-demo .class { color: #6639BA; font-weight: 600; }
+    .interactive-demo .number { color: #0550AE; }
+
+    /* Pool visualisation */
+    .interactive-demo .pool-panel {
+        background: var(--color-bg-subtle);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-xl);
+        padding: 16px 18px;
+    }
+    .interactive-demo .pool-title {
+        font-size: 0.9em;
+        font-weight: 700;
+        color: var(--color-text-secondary);
+        margin-bottom: 12px;
+        text-align: center;
+    }
+
+    /* Connection slots */
+    .interactive-demo .pool-slots {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        margin-bottom: 16px;
+    }
+    .interactive-demo .pool-slot {
+        width: 150px;
+        background: var(--color-code-bg);
+        border: 2px solid var(--color-border);
+        border-radius: var(--radius-lg);
+        padding: 10px;
+        text-align: center;
+        transition: all 0.3s;
+        position: relative;
+    }
+    .interactive-demo .pool-slot.in-use-c1 { border-color: #2563EB; background: rgba(37, 99, 235, 0.06); }
+    .interactive-demo .pool-slot.in-use-c2 { border-color: #8B5CF6; background: rgba(139, 92, 246, 0.06); }
+    .interactive-demo .pool-slot.in-use-c3 { border-color: #EA580C; background: rgba(234, 88, 12, 0.06); }
+    .interactive-demo .pool-slot.free { border-color: #16A34A; border-style: dashed; }
+
+    .interactive-demo .slot-icon {
+        font-size: 1.5em;
+        margin-bottom: 2px;
+    }
+    .interactive-demo .slot-label {
+        font-size: 0.72em;
+        font-weight: 600;
+        color: var(--color-text-secondary);
+    }
+    .interactive-demo .slot-user {
+        font-size: 0.68em;
+        margin-top: 4px;
+        padding: 2px 8px;
+        border-radius: var(--radius-full);
+        display: inline-block;
+    }
+    .interactive-demo .slot-user.c1 { background: rgba(37, 99, 235, 0.12); color: #2563EB; }
+    .interactive-demo .slot-user.c2 { background: rgba(139, 92, 246, 0.12); color: #8B5CF6; }
+    .interactive-demo .slot-user.c3 { background: rgba(234, 88, 12, 0.12); color: #EA580C; }
+    .interactive-demo .slot-user.free { background: rgba(22, 163, 74, 0.12); color: #16A34A; }
+
+    .interactive-demo .slot-pin {
+        font-size: 0.62em;
+        margin-top: 3px;
+        color: var(--color-text-muted);
+        font-style: italic;
+    }
+    .interactive-demo .slot-pin.stmt { color: #6B58FF; }
+    .interactive-demo .slot-pin.txn { color: #DC2626; }
+
+    /* Queue */
+    .interactive-demo .pool-queue {
+        background: var(--color-code-bg);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-lg);
+        padding: 10px 14px;
+        margin-bottom: 14px;
+        min-height: 42px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .interactive-demo .queue-label {
+        font-size: 0.75em;
+        font-weight: 600;
+        color: var(--color-text-muted);
+        white-space: nowrap;
+    }
+    .interactive-demo .queue-items {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+    }
+    .interactive-demo .queue-item {
+        font-size: 0.72em;
+        font-weight: 600;
+        padding: 3px 10px;
+        border-radius: var(--radius-full);
+        animation: queuePulse 1.5s infinite;
+    }
+    .interactive-demo .queue-item.c3 { background: rgba(234, 88, 12, 0.12); color: #EA580C; }
+    .interactive-demo .queue-empty {
+        font-size: 0.75em;
+        color: var(--color-text-muted);
+        font-style: italic;
+    }
+
+    @keyframes queuePulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+
+    /* Coroutine cards */
+    .interactive-demo .coro-cards {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        margin-bottom: 0;
+    }
+    @media (max-width: 500px) {
+        .interactive-demo .coro-cards { grid-template-columns: 1fr; }
+    }
+    .interactive-demo .coro-card {
+        background: var(--color-code-bg);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-lg);
+        padding: 10px;
+        text-align: center;
+        transition: all 0.3s;
+    }
+    .interactive-demo .coro-card.c1 { border-left: 3px solid #2563EB; }
+    .interactive-demo .coro-card.c2 { border-left: 3px solid #8B5CF6; }
+    .interactive-demo .coro-card.c3 { border-left: 3px solid #EA580C; }
+    .interactive-demo .coro-card-name {
+        font-size: 0.78em;
+        font-weight: 700;
+    }
+    .interactive-demo .coro-card-name.c1 { color: #2563EB; }
+    .interactive-demo .coro-card-name.c2 { color: #8B5CF6; }
+    .interactive-demo .coro-card-name.c3 { color: #EA580C; }
+    .interactive-demo .coro-card-status {
+        font-size: 0.7em;
+        margin-top: 3px;
+        padding: 2px 8px;
+        border-radius: var(--radius-full);
+        display: inline-block;
+        background: var(--color-bg-subtle);
+        color: var(--color-text-muted);
+    }
+    .interactive-demo .coro-card-status.running { background: rgba(22, 163, 74, 0.12); color: #16A34A; }
+    .interactive-demo .coro-card-status.db-wait { background: rgba(107, 88, 255, 0.12); color: #6B58FF; }
+    .interactive-demo .coro-card-status.pool-wait { background: rgba(234, 88, 12, 0.12); color: #EA580C; }
+    .interactive-demo .coro-card-status.done { background: rgba(22, 163, 74, 0.12); color: #16A34A; }
+
+    /* Timeline panel */
+    .interactive-demo .timeline-panel {
+        background: var(--color-bg-subtle);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-xl);
+        padding: 16px 18px;
+    }
+    .interactive-demo .timeline-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+    .interactive-demo .timeline-title {
+        font-size: 1em;
+        font-weight: 600;
+        color: var(--color-text-secondary);
+    }
+    .interactive-demo .time-display {
+        font-family: var(--font-mono);
+        color: var(--color-primary);
+        font-size: 1.2em;
+        font-weight: 600;
+        min-width: 80px;
+        text-align: right;
+    }
+
+    /* Tracks */
+    .interactive-demo .timeline-track { margin-bottom: 8px; }
+    .interactive-demo .track-label {
+        display: flex;
+        align-items: center;
+        margin-bottom: 4px;
+        gap: 8px;
+    }
+    .interactive-demo .track-name { font-weight: 600; font-size: 0.8em; min-width: 80px; }
+    .interactive-demo .track-name.c1 { color: #2563EB; }
+    .interactive-demo .track-name.c2 { color: #8B5CF6; }
+    .interactive-demo .track-name.c3 { color: #EA580C; }
+    .interactive-demo .track-bar {
+        height: 34px;
+        background: var(--color-code-bg);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-lg);
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* Segments */
+    .interactive-demo .segment {
+        position: absolute; top: 3px; bottom: 3px;
+        border-radius: var(--radius-md);
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        font-size: 0.55em; font-weight: 600;
+        transition: opacity 0.3s;
+        overflow: hidden;
+    }
+    .interactive-demo .segment-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; padding: 0 2px; }
+    .interactive-demo .segment-time { font-size: 0.9em; opacity: 0.7; }
+    .interactive-demo .segment.cpu {
+        background: linear-gradient(135deg, #16A34A, #22C55E);
+        color: white;
+    }
+    .interactive-demo .segment.db-wait {
+        background: rgba(107, 88, 255, 0.15);
+        color: var(--color-primary);
+        border: 1px solid rgba(107, 88, 255, 0.3);
+    }
+    .interactive-demo .segment.pool-wait {
+        background: repeating-linear-gradient(
+            -45deg,
+            rgba(234, 88, 12, 0.08),
+            rgba(234, 88, 12, 0.08) 4px,
+            rgba(234, 88, 12, 0.16) 4px,
+            rgba(234, 88, 12, 0.16) 8px
+        );
+        color: #EA580C;
+        border: 1px solid rgba(234, 88, 12, 0.3);
+    }
+    .interactive-demo .segment.future { opacity: 0.25; }
+
+    /* Playhead */
+    .interactive-demo .playhead {
+        position: absolute; top: 0; bottom: 0; width: 3px;
+        background: #DC2626; z-index: 10;
+        box-shadow: 0 0 6px rgba(220, 38, 38, 0.4);
+    }
+    .interactive-demo .playhead::after {
+        content: ''; position: absolute; top: -5px; left: -5px;
+        width: 13px; height: 13px;
+        background: #DC2626; border-radius: 50%;
+        box-shadow: 0 0 4px rgba(220, 38, 38, 0.6);
+    }
+
+    .interactive-demo .time-scale {
+        display: flex; justify-content: space-between;
+        padding: 4px 0 0; font-size: 0.7em;
+        color: var(--color-text-muted);
+    }
+
+    /* Controls */
+    .interactive-demo .controls {
+        display: flex; justify-content: center; gap: 8px;
+        margin-top: 14px; flex-wrap: wrap;
+    }
+    .interactive-demo .demo-btn {
+        padding: 8px 16px; border: none; border-radius: var(--radius-full);
+        cursor: pointer; font-size: 0.85em; font-weight: 600;
+        font-family: var(--font-sans); transition: all 0.15s;
+    }
+    .interactive-demo .demo-btn-primary { background: var(--color-primary); color: white; }
+    .interactive-demo .demo-btn-primary:hover { background: var(--color-primary-dark); }
+    .interactive-demo .demo-btn-secondary {
+        background: white; color: var(--color-text);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.06), inset 0 0 0 1px rgba(0,0,0,0.08);
+    }
+    .interactive-demo .demo-btn-secondary:hover { background: var(--color-bg-subtle); }
+    .interactive-demo .demo-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .interactive-demo .speed-control {
+        display: flex; align-items: center; gap: 5px;
+        background: white; padding: 4px 12px; border-radius: var(--radius-full);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.06), inset 0 0 0 1px rgba(0,0,0,0.08);
+    }
+    .interactive-demo .speed-control label { font-size: 0.8em; color: var(--color-text-muted); font-weight: 500; }
+    .interactive-demo .speed-control select {
+        background: var(--color-bg-subtle); color: var(--color-text);
+        border: 1px solid var(--color-border); padding: 4px 8px;
+        border-radius: var(--radius-md); cursor: pointer; font-size: 0.85em;
+        font-family: var(--font-sans);
+    }
+    .interactive-demo .loop-control {
+        display: flex; align-items: center;
+        background: white; padding: 4px 12px; border-radius: var(--radius-full);
+        box-shadow: 0 1px 3px rgba(0,0,0,0.06), inset 0 0 0 1px rgba(0,0,0,0.08);
+    }
+    .interactive-demo .loop-control label {
+        font-size: 0.8em; color: var(--color-text-muted); font-weight: 500;
+        cursor: pointer; display: flex; align-items: center; gap: 4px;
+    }
+
+    /* Legend */
+    .interactive-demo .legend {
+        display: flex; justify-content: center; gap: 16px;
+        margin-top: 12px; flex-wrap: wrap;
+    }
+    .interactive-demo .legend-item { display: flex; align-items: center; gap: 6px; font-size: 0.8em; color: var(--color-text-secondary); }
+    .interactive-demo .legend-color { width: 14px; height: 14px; border-radius: 3px; }
+    .interactive-demo .legend-color.cpu { background: linear-gradient(135deg, #16A34A, #22C55E); }
+    .interactive-demo .legend-color.db { background: rgba(107, 88, 255, 0.2); border: 1px solid rgba(107, 88, 255, 0.4); }
+    .interactive-demo .legend-color.pool-w {
+        background: repeating-linear-gradient(-45deg, rgba(234, 88, 12, 0.1), rgba(234, 88, 12, 0.1) 3px, rgba(234, 88, 12, 0.25) 3px, rgba(234, 88, 12, 0.25) 6px);
+        border: 1px solid rgba(234, 88, 12, 0.4);
+    }
+
+    /* Stats */
+    .interactive-demo .stats {
+        display: grid; grid-template-columns: repeat(4, 1fr);
+        gap: 8px; margin-top: 12px;
+    }
+    @media (max-width: 600px) {
+        .interactive-demo .stats { grid-template-columns: repeat(2, 1fr); }
+    }
+    .interactive-demo .stat-card {
+        background: white; border: 1px solid var(--color-border);
+        padding: 10px; border-radius: var(--radius-lg); text-align: center;
+    }
+    .interactive-demo .stat-value { font-size: 1.1em; font-weight: 700; color: var(--color-primary); }
+    .interactive-demo .stat-value.highlight { color: #16A34A; }
+    .interactive-demo .stat-value.warn { color: #EA580C; }
+    .interactive-demo .stat-label { font-size: 0.75em; color: var(--color-text-muted); margin-top: 2px; }
+
+    /* Explanation */
+    .interactive-demo .explanation {
+        background: var(--color-bg-subtle); border: 1px solid var(--color-border);
+        border-radius: var(--radius-lg); padding: 14px 18px;
+        margin-top: 16px; border-left: 3px solid var(--color-primary);
+    }
+    .interactive-demo .explanation h3 { color: var(--color-primary); margin-bottom: 6px; font-size: 0.95em; }
+    .interactive-demo .explanation p { color: var(--color-text-secondary); font-size: 0.875em; line-height: 1.6; margin: 0; }
+    .interactive-demo .explanation p + p { margin-top: 6px; }
+    .interactive-demo .explanation .highlight { color: #16A34A; font-weight: 600; }
+    .interactive-demo .explanation .db-highlight { color: var(--color-primary); font-weight: 500; }
+    .interactive-demo .explanation .pool-highlight { color: #EA580C; font-weight: 600; }
+    .interactive-demo .explanation .pin-highlight { color: #DC2626; font-weight: 500; }
+    .interactive-demo .explanation code {
+        background: var(--color-code-bg); padding: 1px 5px; border-radius: 3px;
+        font-size: 0.9em; font-family: var(--font-mono);
+    }
+</style>
+
+<div class="container">
+    <p class="subtitle">3개의 코루틴, 2개의 풀 커넥션 -- $stmt와 트랜잭션을 통한 자동 관리</p>
+
+    <div class="main-layout">
+        <!-- Left: Code -->
+        <div>
+            <div class="code-panel" id="codePanel">
+                <div class="code-header">
+                    <span>코드 -- 풀을 사용하는 하나의 PDO, 3개의 코루틴</span>
+                </div>
+                <div class="code-content" id="codeBlock">
+                    <div class="code-line" data-line="1"><span class="comment">// 2개의 커넥션 풀을 가진 단일 PDO 객체</span></div>
+                    <div class="code-line" data-line="2"><span class="variable">$pdo</span> = <span class="keyword">new</span> <span class="class">PDO</span>(<span class="variable">$dsn</span>, <span class="variable">$user</span>, <span class="variable">$pass</span>, [</div>
+                    <div class="code-line" data-line="3">  <span class="class">PDO</span>::<span class="variable">ATTR_POOL_ENABLED</span> => <span class="keyword">true</span>,</div>
+                    <div class="code-line" data-line="4">  <span class="class">PDO</span>::<span class="variable">ATTR_POOL_MAX</span>     => <span class="number">2</span>,</div>
+                    <div class="code-line" data-line="5">]);</div>
+                    <div class="code-line" data-line="6"></div>
+                    <div class="code-line" data-line="7"><span class="keyword">for</span> (<span class="variable">$i</span> = <span class="number">1</span>; <span class="variable">$i</span> &lt;= <span class="number">3</span>; <span class="variable">$i</span>++) {</div>
+                    <div class="code-line" data-line="8">  <span class="function">spawn</span>(<span class="keyword">function</span>() <span class="keyword">use</span> (<span class="variable">$pdo</span>, <span class="variable">$i</span>) {</div>
+                    <div class="code-line" data-line="9">    <span class="comment">// prepare()가 풀에서 커넥션을 자동 획득</span></div>
+                    <div class="code-line" data-line="10">    <span class="variable">$stmt</span> = <span class="variable">$pdo</span>-><span class="function">prepare</span>(<span class="string">"SELECT * FROM users WHERE id=?"</span>);</div>
+                    <div class="code-line" data-line="11">    <span class="variable">$stmt</span>-><span class="function">execute</span>([<span class="variable">$i</span>]);  <span class="comment">// DB 응답 대기</span></div>
+                    <div class="code-line" data-line="12">    <span class="variable">$user</span> = <span class="variable">$stmt</span>-><span class="function">fetch</span>();</div>
+                    <div class="code-line" data-line="13"></div>
+                    <div class="code-line" data-line="14">    <span class="function">processUser</span>(<span class="variable">$user</span>);</div>
+                    <div class="code-line" data-line="15"></div>
+                    <div class="code-line" data-line="16">    <span class="comment">// $stmt가 스코프를 벗어남 -> refcount=0</span></div>
+                    <div class="code-line" data-line="17">    <span class="comment">// 커넥션이 자동으로 풀에 반환!</span></div>
+                    <div class="code-line" data-line="18">  });</div>
+                    <div class="code-line" data-line="19">}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Pool visualisation -->
+        <div>
+            <div class="pool-panel">
+                <div class="pool-title">PDO 풀 (ATTR_POOL_MAX: 2)</div>
+
+                <div class="pool-slots">
+                    <div class="pool-slot free" id="slot0">
+                        <div class="slot-icon" id="slotIcon0">🔌</div>
+                        <div class="slot-label">커넥션 #1</div>
+                        <div class="slot-user free" id="slotUser0">사용 가능</div>
+                        <div class="slot-pin" id="slotPin0"></div>
+                    </div>
+                    <div class="pool-slot free" id="slot1">
+                        <div class="slot-icon" id="slotIcon1">🔌</div>
+                        <div class="slot-label">커넥션 #2</div>
+                        <div class="slot-user free" id="slotUser1">사용 가능</div>
+                        <div class="slot-pin" id="slotPin1"></div>
+                    </div>
+                </div>
+
+                <div class="pool-queue">
+                    <span class="queue-label">대기열:</span>
+                    <div class="queue-items" id="queueItems">
+                        <span class="queue-empty">비어 있음</span>
+                    </div>
+                </div>
+
+                <div class="coro-cards">
+                    <div class="coro-card c1">
+                        <div class="coro-card-name c1">코루틴 1</div>
+                        <div class="coro-card-status" id="cardStatus0">준비</div>
+                    </div>
+                    <div class="coro-card c2">
+                        <div class="coro-card-name c2">코루틴 2</div>
+                        <div class="coro-card-status" id="cardStatus1">준비</div>
+                    </div>
+                    <div class="coro-card c3">
+                        <div class="coro-card-name c3">코루틴 3</div>
+                        <div class="coro-card-status" id="cardStatus2">준비</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Timeline -->
+    <div class="timeline-panel">
+        <div class="timeline-header">
+            <span class="timeline-title">실행 타임라인</span>
+            <span class="time-display" id="timeDisplay">0 ms</span>
+        </div>
+
+        <div class="timeline-track">
+            <div class="track-label"><span class="track-name c1">코루틴 1</span></div>
+            <div class="track-bar" id="track0"></div>
+        </div>
+        <div class="timeline-track">
+            <div class="track-label"><span class="track-name c2">코루틴 2</span></div>
+            <div class="track-bar" id="track1"></div>
+        </div>
+        <div class="timeline-track">
+            <div class="track-label"><span class="track-name c3">코루틴 3</span></div>
+            <div class="track-bar" id="track2"></div>
+        </div>
+
+        <div class="time-scale"><span>0</span><span>15</span><span>30</span><span>45</span><span>55ms</span></div>
+
+        <div class="controls">
+            <button class="demo-btn demo-btn-primary" id="playBtn">&#9654; 재생</button>
+            <button class="demo-btn demo-btn-secondary" id="stepBtn">&#9197; 단계</button>
+            <button class="demo-btn demo-btn-secondary" id="resetBtn">&#8634; 초기화</button>
+            <div class="speed-control">
+                <label>속도:</label>
+                <select id="speedSelect">
+                    <option value="800">0.5x</option>
+                    <option value="400" selected>1x</option>
+                    <option value="200">2x</option>
+                    <option value="100">4x</option>
+                </select>
+            </div>
+            <div class="loop-control">
+                <label><input type="checkbox" id="loopCheckbox"> 반복</label>
+            </div>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item"><div class="legend-color cpu"></div><span>CPU 작업 중</span></div>
+            <div class="legend-item"><div class="legend-color db"></div><span>DB 대기 중</span></div>
+            <div class="legend-item"><div class="legend-color pool-w"></div><span>풀 대기 중</span></div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card"><div class="stat-value" id="totalTime">0 ms</div><div class="stat-label">총 시간</div></div>
+            <div class="stat-card"><div class="stat-value" id="dbWaitTime">0 ms</div><div class="stat-label">DB 대기</div></div>
+            <div class="stat-card"><div class="stat-value warn" id="poolWaitTime">0 ms</div><div class="stat-label">풀 대기</div></div>
+            <div class="stat-card"><div class="stat-value highlight" id="savedTime">0 ms</div><div class="stat-label">절약 시간</div></div>
+        </div>
+    </div>
+
+    <div class="explanation">
+        <h3 id="explanationTitle">"재생"을 클릭하여 시작하세요</h3>
+        <p id="explanationText">
+            이 시각화는 <span class="highlight">PDO 커넥션 풀</span>이 리소스를 자동으로 관리하는 방법을 보여줍니다.
+            <code>$stmt</code>가 존재하거나 트랜잭션이 활성 상태인 동안 커넥션은 <span class="pin-highlight">고정</span>됩니다.
+            <code>$stmt</code>가 소멸되고 트랜잭션이 없으면 커넥션은 <span class="highlight">자동으로</span> 풀에 반환됩니다.
+        </p>
+    </div>
+</div>
+
+<script>
+(function() {
+    var TOTAL_DURATION = 55;
+
+    var timelines = [
+        [ // C1
+            { start: 0,  duration: 1,  type: 'cpu',       label: 'prepare' },
+            { start: 1,  duration: 20, type: 'db-wait',   label: 'execute' },
+            { start: 21, duration: 2,  type: 'cpu',       label: 'fetch+처리' }
+        ],
+        [ // C2
+            { start: 1,  duration: 1,  type: 'cpu',       label: 'prepare' },
+            { start: 2,  duration: 25, type: 'db-wait',   label: 'execute' },
+            { start: 27, duration: 2,  type: 'cpu',       label: 'fetch+처리' }
+        ],
+        [ // C3
+            { start: 2,  duration: 21, type: 'pool-wait', label: '풀 대기' },
+            { start: 23, duration: 1,  type: 'cpu',       label: 'prepare' },
+            { start: 24, duration: 20, type: 'db-wait',   label: 'execute' },
+            { start: 44, duration: 2,  type: 'cpu',       label: 'fetch+처리' }
+        ]
+    ];
+
+    var steps = [
+        {
+            time: 0,
+            title: '시작',
+            text: '<p><code>ATTR_POOL_ENABLED => true</code> 및 <code>ATTR_POOL_MAX => 2</code>로 <code>PDO</code>를 생성했습니다. <span class="highlight">spawn()</span>으로 3개의 코루틴이 생성되었습니다.</p>' +
+                  '<p>풀에는 아직 실제 커넥션이 없습니다 -- 첫 번째 요청 시 지연 생성됩니다.</p>',
+            line: '2', lineState: 'cpu',
+            slots: ['free', 'free'], slotPins: ['', ''], queue: [],
+            cards: ['준비', '준비', '준비'], cardStates: ['', '', '']
+        },
+        {
+            time: 0.5,
+            title: '코루틴 1: $pdo->prepare()',
+            text: '<p>코루틴 1이 <code>prepare()</code>를 호출합니다. 풀이 <span class="db-highlight">커넥션 #1</span>을 할당하고 구문을 생성합니다.</p>' +
+                  '<p>커넥션이 코루틴에 <span class="pin-highlight">고정</span>됩니다: <code>$stmt</code>가 <code>pool_slot_refcount</code>를 증가시킵니다. <code>$stmt</code>가 살아있는 동안 커넥션은 풀에 반환되지 않습니다.</p>',
+            line: '10', lineState: 'cpu',
+            slots: ['c1', 'free'], slotPins: ['$stmt (rc=1)', ''], queue: [],
+            cards: ['커넥션 #1', '준비', '준비'], cardStates: ['running', '', '']
+        },
+        {
+            time: 1,
+            title: '코루틴 1: execute() -> DB 대기',
+            text: '<p><code>execute()</code>를 호출하면 SELECT가 데이터베이스로 전송됩니다. 코루틴이 <span class="db-highlight">일시 중단</span>됩니다.</p>' +
+                  '<p>커넥션 #1은 여전히 고정 상태 -- <code>$stmt</code>가 아직 살아있습니다 (refcount=1).</p>',
+            line: '11', lineState: 'wait',
+            slots: ['c1', 'free'], slotPins: ['$stmt (rc=1)', ''], queue: [],
+            cards: ['DB 대기', '준비', '준비'], cardStates: ['db-wait', '', '']
+        },
+        {
+            time: 1.5,
+            title: '코루틴 2: $pdo->prepare()',
+            text: '<p>코루틴 2가 <code>prepare()</code>를 호출합니다. 풀이 <span class="db-highlight">커넥션 #2</span>를 할당합니다.</p>' +
+                  '<p>이제 두 커넥션 모두 사용 중입니다. 각각 자신의 <code>$stmt</code>에 의해 고정되어 있습니다.</p>',
+            line: '10', lineState: 'cpu',
+            slots: ['c1', 'c2'], slotPins: ['$stmt (rc=1)', '$stmt (rc=1)'], queue: [],
+            cards: ['DB 대기', '커넥션 #2', '준비'], cardStates: ['db-wait', 'running', '']
+        },
+        {
+            time: 2,
+            title: '코루틴 3: prepare() -- 풀이 비었습니다!',
+            text: '<p>코루틴 3이 <code>prepare()</code>를 호출하지만 <span class="pool-highlight">두 커넥션 모두 사용 중입니다!</span></p>' +
+                  '<p>코루틴은 스레드를 차단하지 않습니다 -- <span class="highlight">일시 중단</span>되어 대기열에 합류합니다. ' +
+                  '커넥션이 해제되면 (<code>$stmt</code>가 소멸되고 활성 트랜잭션이 없을 때) 코루틴 3이 즉시 받게 됩니다.</p>',
+            line: '10', lineState: 'pool-wait',
+            slots: ['c1', 'c2'], slotPins: ['$stmt (rc=1)', '$stmt (rc=1)'], queue: ['c3'],
+            cards: ['DB 대기', 'DB 대기', '풀 대기'], cardStates: ['db-wait', 'db-wait', 'pool-wait']
+        },
+        {
+            time: 12,
+            title: '모두 대기 중',
+            text: '<p>3개의 코루틴이 동시에 일시 중단되었습니다. CPU는 유휴 상태 -- 리액터가 DB 이벤트를 기다립니다.</p>' +
+                  '<p>커넥션 #1과 #2가 고정 상태: 각각 살아있는 <code>$stmt</code>로 인해 <code>pool_slot_refcount=1</code>입니다. ' +
+                  '코루틴 3은 커넥션을 얻을 수 없습니다 -- refcount > 0인 동안 <code>pdo_pool_maybe_release()</code>가 해제하지 않습니다.</p>',
+            line: '11', lineState: 'wait',
+            slots: ['c1', 'c2'], slotPins: ['$stmt (rc=1)', '$stmt (rc=1)'], queue: ['c3'],
+            cards: ['DB 대기', 'DB 대기', '풀 대기'], cardStates: ['db-wait', 'db-wait', 'pool-wait']
+        },
+        {
+            time: 21,
+            title: '코루틴 1: DB 응답 완료!',
+            text: '<p>SELECT가 ~20ms 만에 데이터를 반환했습니다. 코루틴 1이 <code>fetch()</code>와 <code>processUser()</code>를 호출합니다.</p>' +
+                  '<p>커넥션 #1은 여전히 고정 상태 -- <code>$stmt</code>가 아직 살아있습니다.</p>',
+            line: '14', lineState: 'cpu',
+            slots: ['c1', 'c2'], slotPins: ['$stmt (rc=1)', '$stmt (rc=1)'], queue: ['c3'],
+            cards: ['처리 중', 'DB 대기', '풀 대기'], cardStates: ['running', 'db-wait', 'pool-wait']
+        },
+        {
+            time: 23,
+            title: '$stmt 소멸 -> 자동 반환!',
+            text: '<p>코루틴 1이 완료되었습니다. <code>$stmt</code>가 스코프를 벗어남 -- 소멸자 실행: <code>refcount--</code> \u2192 <code>refcount=0</code>.</p>' +
+                  '<p><code>pdo_pool_maybe_release()</code> 호출: 트랜잭션 없음, refcount=0 \u2192 <span class="highlight">커넥션 #1이 자동으로 풀에 반환!</span></p>' +
+                  '<p>코루틴 3이 대기열에서 <span class="highlight">즉시 수신</span>합니다. 수동 <code>release()</code>가 필요 없습니다 -- 모두 자동입니다.</p>',
+            line: '18', lineState: 'release',
+            slots: ['c3', 'c2'], slotPins: ['$stmt (rc=1)', '$stmt (rc=1)'], queue: [],
+            cards: ['완료', 'DB 대기', '커넥션 #1'], cardStates: ['done', 'db-wait', 'running']
+        },
+        {
+            time: 24,
+            title: '코루틴 3: execute()',
+            text: '<p>코루틴 3이 커넥션 #1을 통해 쿼리를 전송합니다. 코루틴 2는 여전히 더 긴 쿼리를 기다리고 있습니다.</p>' +
+                  '<p>두 커넥션 모두 다시 사용 중이지만 대기열은 비어있습니다.</p>',
+            line: '11', lineState: 'wait',
+            slots: ['c3', 'c2'], slotPins: ['$stmt (rc=1)', '$stmt (rc=1)'], queue: [],
+            cards: ['완료', 'DB 대기', 'DB 대기'], cardStates: ['done', 'db-wait', 'db-wait']
+        },
+        {
+            time: 27,
+            title: '코루틴 2: DB 응답 완료!',
+            text: '<p>코루틴 2의 쿼리가 ~25ms 만에 완료되었습니다. 결과를 처리합니다.</p>',
+            line: '14', lineState: 'cpu',
+            slots: ['c3', 'c2'], slotPins: ['$stmt (rc=1)', '$stmt (rc=1)'], queue: [],
+            cards: ['완료', '처리 중', 'DB 대기'], cardStates: ['done', 'running', 'db-wait']
+        },
+        {
+            time: 29,
+            title: '코루틴 2: $stmt 소멸 -> 자동 반환',
+            text: '<p>코루틴 2가 완료되고 <code>$stmt</code>가 소멸되었습니다. <code>refcount=0</code>, 트랜잭션 없음 \u2192 커넥션 #2가 <span class="highlight">자동으로 풀에 반환</span>됩니다.</p>' +
+                  '<p>대기열이 비어있으므로 커넥션은 다음 소비자를 기다립니다.</p>',
+            line: '18', lineState: 'release',
+            slots: ['c3', 'free'], slotPins: ['$stmt (rc=1)', ''], queue: [],
+            cards: ['완료', '완료', 'DB 대기'], cardStates: ['done', 'done', 'db-wait']
+        },
+        {
+            time: 44,
+            title: '코루틴 3: DB 응답 완료!',
+            text: '<p>마지막 쿼리가 데이터를 반환했습니다. 코루틴 3이 결과를 처리합니다.</p>',
+            line: '14', lineState: 'cpu',
+            slots: ['c3', 'free'], slotPins: ['$stmt (rc=1)', ''], queue: [],
+            cards: ['완료', '완료', '처리 중'], cardStates: ['done', 'done', 'running']
+        },
+        {
+            time: 46,
+            title: '완료!',
+            text: '<p>3개의 코루틴 모두 <span class="highlight">~46ms</span>에 완료되었습니다. 순차 실행은 ~69ms가 걸립니다. <span class="highlight">~33%</span> 절약.</p>' +
+                  '<p>핵심 요점: 개발자가 수동으로 커넥션을 관리할 필요가 없습니다! PDO 풀이 <code>$stmt</code> 생명주기와 트랜잭션 상태에 따라 커넥션을 <span class="highlight">자동으로</span> 획득하고 반환합니다.</p>',
+            line: '19', lineState: 'cpu',
+            slots: ['free', 'free'], slotPins: ['', ''], queue: [],
+            cards: ['완료', '완료', '완료'], cardStates: ['done', 'done', 'done']
+        }
+    ];
+
+    var trackEls = [document.getElementById('track0'), document.getElementById('track1'), document.getElementById('track2')];
+    var timeDisplay = document.getElementById('timeDisplay');
+    var playBtn = document.getElementById('playBtn'), stepBtn = document.getElementById('stepBtn'), resetBtn = document.getElementById('resetBtn');
+    var speedSelect = document.getElementById('speedSelect'), loopCheckbox = document.getElementById('loopCheckbox');
+    var totalTimeEl = document.getElementById('totalTime'), dbWaitTimeEl = document.getElementById('dbWaitTime');
+    var poolWaitTimeEl = document.getElementById('poolWaitTime'), savedTimeEl = document.getElementById('savedTime');
+    var explanationTitle = document.getElementById('explanationTitle'), explanationText = document.getElementById('explanationText');
+    var codeBlock = document.getElementById('codeBlock'), codePanel = document.getElementById('codePanel');
+    var slot0 = document.getElementById('slot0'), slot1 = document.getElementById('slot1');
+    var slotUser0 = document.getElementById('slotUser0'), slotUser1 = document.getElementById('slotUser1');
+    var slotIcon0 = document.getElementById('slotIcon0'), slotIcon1 = document.getElementById('slotIcon1');
+    var slotPin0 = document.getElementById('slotPin0'), slotPin1 = document.getElementById('slotPin1');
+    var queueItems = document.getElementById('queueItems');
+    var cardStatus = [document.getElementById('cardStatus0'), document.getElementById('cardStatus1'), document.getElementById('cardStatus2')];
+
+    var isPlaying = false, currentStepIndex = 0, animationId = null;
+    var playheads = [];
+
+    var coroNames = ['코루틴 1', '코루틴 2', '코루틴 3'];
+    var coroClasses = ['c1', 'c2', 'c3'];
+
+    function createSegments() {
+        trackEls.forEach(function(t) { t.innerHTML = ''; });
+        timelines.forEach(function(tl, ti) {
+            tl.forEach(function(s) { trackEls[ti].appendChild(createSegmentElement(s)); });
+            var ph = document.createElement('div');
+            ph.className = 'playhead';
+            ph.style.left = '0%';
+            trackEls[ti].appendChild(ph);
+            playheads[ti] = ph;
+        });
+    }
+
+    function createSegmentElement(seg) {
+        var el = document.createElement('div');
+        el.className = 'segment ' + seg.type + ' future';
+        el.style.left = (seg.start / TOTAL_DURATION) * 100 + '%';
+        el.style.width = (seg.duration / TOTAL_DURATION) * 100 + '%';
+        var l = document.createElement('div'); l.className = 'segment-label'; l.textContent = seg.label;
+        var t = document.createElement('div'); t.className = 'segment-time'; t.textContent = seg.duration + 'ms';
+        el.appendChild(l); el.appendChild(t);
+        el.dataset.start = seg.start; el.dataset.end = seg.start + seg.duration;
+        return el;
+    }
+
+    function updateTimeline(time) {
+        var pct = (time / TOTAL_DURATION) * 100;
+        trackEls.forEach(function(track, ti) {
+            track.querySelectorAll('.segment').forEach(function(s) {
+                parseFloat(s.dataset.start) <= time ? s.classList.remove('future') : s.classList.add('future');
+            });
+            var phPct = 0;
+            timelines[ti].forEach(function(seg) {
+                if (seg.start <= time && seg.start + seg.duration >= time) phPct = pct;
+                else if (seg.start + seg.duration <= time) {
+                    var segEnd = ((seg.start + seg.duration) / TOTAL_DURATION) * 100;
+                    if (segEnd > phPct) phPct = segEnd;
+                }
+            });
+            playheads[ti].style.left = phPct + '%';
+        });
+        timeDisplay.textContent = Math.round(time) + ' ms';
+    }
+
+    function updateCodeHighlight(step) {
+        codeBlock.querySelectorAll('.code-line').forEach(function(l) {
+            l.classList.remove('active-cpu', 'active-wait', 'active-pool-wait', 'active-release');
+        });
+        codePanel.classList.remove('active-c1', 'active-c2', 'active-c3');
+        if (step.line) {
+            var el = codeBlock.querySelector('[data-line="' + step.line + '"]');
+            if (el) {
+                if (step.lineState === 'cpu') el.classList.add('active-cpu');
+                else if (step.lineState === 'wait') el.classList.add('active-wait');
+                else if (step.lineState === 'pool-wait') el.classList.add('active-pool-wait');
+                else if (step.lineState === 'release') el.classList.add('active-release');
+            }
+        }
+    }
+
+    function updatePool(step) {
+        var slotEls = [slot0, slot1];
+        var slotUserEls = [slotUser0, slotUser1];
+        var slotIconEls = [slotIcon0, slotIcon1];
+        var slotPinEls = [slotPin0, slotPin1];
+        var slotDisplayNames = { 'free': '사용 가능', 'c1': '코루틴 1', 'c2': '코루틴 2', 'c3': '코루틴 3' };
+
+        step.slots.forEach(function(state, i) {
+            slotEls[i].className = 'pool-slot';
+            slotUserEls[i].className = 'slot-user';
+            if (state === 'free') {
+                slotEls[i].classList.add('free');
+                slotUserEls[i].classList.add('free');
+                slotIconEls[i].textContent = '🔌';
+            } else {
+                slotEls[i].classList.add('in-use-' + state);
+                slotUserEls[i].classList.add(state);
+                slotIconEls[i].textContent = '🔗';
+            }
+            slotUserEls[i].textContent = slotDisplayNames[state];
+
+            slotPinEls[i].textContent = step.slotPins[i] || '';
+            slotPinEls[i].className = 'slot-pin';
+            if (step.slotPins[i] && step.slotPins[i].indexOf('$stmt') >= 0) slotPinEls[i].classList.add('stmt');
+            else if (step.slotPins[i] && step.slotPins[i].indexOf('txn') >= 0) slotPinEls[i].classList.add('txn');
+        });
+
+        if (step.queue.length === 0) {
+            queueItems.innerHTML = '<span class="queue-empty">비어 있음</span>';
+        } else {
+            queueItems.innerHTML = '';
+            step.queue.forEach(function(c) {
+                var item = document.createElement('span');
+                item.className = 'queue-item ' + c;
+                item.textContent = coroNames[coroClasses.indexOf(c)];
+                queueItems.appendChild(item);
+            });
+        }
+
+        step.cards.forEach(function(label, i) {
+            cardStatus[i].textContent = label;
+            cardStatus[i].className = 'coro-card-status';
+            if (step.cardStates[i]) cardStatus[i].classList.add(step.cardStates[i]);
+        });
+    }
+
+    function updateStats(time) {
+        totalTimeEl.textContent = Math.round(time) + ' ms';
+        var dbW = 0, poolW = 0;
+        timelines.forEach(function(tl) {
+            tl.forEach(function(s) {
+                if (s.start < time) {
+                    var d = Math.min(s.start + s.duration, time) - s.start;
+                    if (s.type === 'db-wait') dbW += d;
+                    else if (s.type === 'pool-wait') poolW += d;
+                }
+            });
+        });
+        dbWaitTimeEl.textContent = Math.round(dbW) + ' ms';
+        poolWaitTimeEl.textContent = Math.round(poolW) + ' ms';
+        savedTimeEl.textContent = Math.round(Math.max(0, 69 - time)) + ' ms';
+    }
+
+    function goToStep(i) {
+        if (i < 0 || i >= steps.length) return;
+        currentStepIndex = i;
+        var s = steps[i];
+        updateTimeline(s.time);
+        updateCodeHighlight(s);
+        updatePool(s);
+        updateStats(s.time);
+        explanationTitle.textContent = s.title;
+        explanationText.innerHTML = s.text;
+    }
+
+    function nextStep() {
+        if (currentStepIndex < steps.length - 1) goToStep(currentStepIndex + 1);
+        else if (loopCheckbox.checked && isPlaying) goToStep(0);
+        else stopAnimation();
+    }
+
+    function animate() {
+        if (!isPlaying) return;
+        nextStep();
+        if (currentStepIndex < steps.length - 1 || loopCheckbox.checked)
+            animationId = setTimeout(animate, parseInt(speedSelect.value));
+    }
+
+    function startAnimation() {
+        if (currentStepIndex >= steps.length - 1 && !loopCheckbox.checked) reset();
+        isPlaying = true;
+        playBtn.innerHTML = '&#9208; 일시정지';
+        stepBtn.disabled = true;
+        animationId = setTimeout(animate, parseInt(speedSelect.value));
+    }
+
+    function stopAnimation() {
+        isPlaying = false;
+        playBtn.innerHTML = '&#9654; 재생';
+        stepBtn.disabled = false;
+        if (animationId) { clearTimeout(animationId); animationId = null; }
+    }
+
+    function reset() { stopAnimation(); goToStep(0); }
+
+    playBtn.addEventListener('click', function() { isPlaying ? stopAnimation() : startAnimation(); });
+    stepBtn.addEventListener('click', nextStep);
+    resetBtn.addEventListener('click', reset);
+    speedSelect.addEventListener('change', function() { if (isPlaying) { stopAnimation(); startAnimation(); } });
+
+    createSegments();
+    goToStep(0);
+})();
+</script>
