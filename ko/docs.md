@@ -242,9 +242,9 @@ var nodes = [
     {id:'taskgroup',title:'TaskGroup',desc:'구조적 동시성: 보장된 대기 또는 취소로 작업 그룹화',
      code:'<span class="var">$group</span> = <span class="kw">new</span> <span class="fn">TaskGroup</span>(<span class="num">5</span>);\n<span class="var">$group</span>-><span class="fn">spawn</span>(<span class="var">$task</span>);\n<span class="var">$results</span> = <span class="var">$group</span>-><span class="fn">all</span>();',
      url:'/ko/docs/components/task-group.html',group:'structural',order:null,w:130,h:44},
-{id:'taskset',title:'TaskSet',desc:'결과 전달 후 자동 정리되는 동적 태스크 세트',code:'<span class="var">$set</span> = <span class="kw">new</span> <span class="fn">TaskSet</span>(<span class="num">10</span>);
-<span class="var">$set</span>-><span class="fn">spawn</span>(<span class="var">$task</span>);
-<span class="var">$r</span> = <span class="var">$set</span>-><span class="fn">joinNext</span>();',url:'/ko/docs/components/task-set.html',group:'structural',order:null,w:120,h:44},
+    {id:'taskset',title:'TaskSet',desc:'결과 전달 후 자동 정리되는 동적 태스크 세트',
+     code:'<span class="var">$set</span> = <span class="kw">new</span> <span class="fn">TaskSet</span>(<span class="num">10</span>);\n<span class="var">$set</span>-><span class="fn">spawn</span>(<span class="var">$task</span>);\n<span class="var">$r</span> = <span class="var">$set</span>-><span class="fn">joinNext</span>();',
+     url:'/ko/docs/components/task-set.html',group:'structural',order:null,w:120,h:44},
     {id:'context',title:'컨텍스트',desc:'코루틴에 바인딩된 데이터 저장 (예: 인증 토큰)',
      code:'<span class="var">$ctx</span> = <span class="fn">current_context</span>();\n<span class="var">$ctx</span>-><span class="fn">set</span>(<span class="str">\'auth_token\'</span>, <span class="var">$token</span>);\n<span class="var">$v</span> = <span class="var">$ctx</span>-><span class="fn">find</span>(<span class="str">\'auth_token\'</span>);',
      url:'/ko/docs/components/context.html',group:'context',order:5,w:120,h:44},
@@ -269,7 +269,7 @@ var edges = [
     {from:'scope',to:'context',type:'path'},
     {from:'context',to:'pool',type:'path'},
     {from:'scope',to:'taskgroup',type:'path'},
-{from:'taskgroup',to:'taskset',type:'related'},
+    {from:'taskgroup',to:'taskset',type:'related'},
     {from:'pool',to:'pdo-pool',type:'path'},
     {from:'coroutines',to:'future',type:'related'},
     {from:'coroutines',to:'channels',type:'related'}
@@ -299,7 +299,7 @@ var subPages = {
         {label:'race()',url:'/ko/docs/reference/task-group/race.html'},
         {label:'seal()',url:'/ko/docs/reference/task-group/seal.html'},
         {label:'cancel()',url:'/ko/docs/reference/task-group/cancel.html'}],
-'taskset':[
+    'taskset':[
         {label:'joinNext()',url:'/ko/docs/reference/task-set/join-next.html'},
         {label:'joinAny()',url:'/ko/docs/reference/task-set/join-any.html'},
         {label:'joinAll()',url:'/ko/docs/reference/task-set/join-all.html'},

@@ -242,9 +242,9 @@ var nodes = [
     {id:'taskgroup',title:'TaskGroup',desc:'Concurrence structur\u00e9e : regrouper des t\u00e2ches avec attente ou annulation garantie',
      code:'<span class="var">$group</span> = <span class="kw">new</span> <span class="fn">TaskGroup</span>(<span class="num">5</span>);\n<span class="var">$group</span>-><span class="fn">spawn</span>(<span class="var">$task</span>);\n<span class="var">$results</span> = <span class="var">$group</span>-><span class="fn">all</span>();',
      url:'/fr/docs/components/task-group.html',group:'structural',order:null,w:130,h:44},
-{id:'taskset',title:'TaskSet',desc:'Ensemble dynamique de tâches avec nettoyage automatique après livraison',code:'<span class="var">$set</span> = <span class="kw">new</span> <span class="fn">TaskSet</span>(<span class="num">10</span>);
-<span class="var">$set</span>-><span class="fn">spawn</span>(<span class="var">$task</span>);
-<span class="var">$r</span> = <span class="var">$set</span>-><span class="fn">joinNext</span>();',url:'/fr/docs/components/task-set.html',group:'structural',order:null,w:120,h:44},
+    {id:'taskset',title:'TaskSet',desc:'Ensemble dynamique de tâches avec nettoyage automatique après livraison',
+     code:'<span class="var">$set</span> = <span class="kw">new</span> <span class="fn">TaskSet</span>(<span class="num">10</span>);\n<span class="var">$set</span>-><span class="fn">spawn</span>(<span class="var">$task</span>);\n<span class="var">$r</span> = <span class="var">$set</span>-><span class="fn">joinNext</span>();',
+     url:'/fr/docs/components/task-set.html',group:'structural',order:null,w:120,h:44},
     {id:'context',title:'Contexte',desc:'Stocker des donn\u00e9es li\u00e9es \u00e0 une coroutine (ex. jeton d\u2019authentification)',
      code:'<span class="var">$ctx</span> = <span class="fn">current_context</span>();\n<span class="var">$ctx</span>-><span class="fn">set</span>(<span class="str">\'auth_token\'</span>, <span class="var">$token</span>);\n<span class="var">$v</span> = <span class="var">$ctx</span>-><span class="fn">find</span>(<span class="str">\'auth_token\'</span>);',
      url:'/fr/docs/components/context.html',group:'context',order:5,w:120,h:44},
@@ -269,7 +269,7 @@ var edges = [
     {from:'scope',to:'context',type:'path'},
     {from:'context',to:'pool',type:'path'},
     {from:'scope',to:'taskgroup',type:'path'},
-{from:'taskgroup',to:'taskset',type:'related'},
+    {from:'taskgroup',to:'taskset',type:'related'},
     {from:'pool',to:'pdo-pool',type:'path'},
     {from:'coroutines',to:'future',type:'related'},
     {from:'coroutines',to:'channels',type:'related'}
@@ -299,7 +299,7 @@ var subPages = {
         {label:'race()',url:'/fr/docs/reference/task-group/race.html'},
         {label:'seal()',url:'/fr/docs/reference/task-group/seal.html'},
         {label:'cancel()',url:'/fr/docs/reference/task-group/cancel.html'}],
-'taskset':[
+    'taskset':[
         {label:'joinNext()',url:'/fr/docs/reference/task-set/join-next.html'},
         {label:'joinAny()',url:'/fr/docs/reference/task-set/join-any.html'},
         {label:'joinAll()',url:'/fr/docs/reference/task-set/join-all.html'},
