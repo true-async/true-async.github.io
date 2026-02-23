@@ -1,7 +1,7 @@
 milestones:
   - version: "0.1"
     title: "Foundation"
-    date: "Q1 2026"
+    date: "2024"
     status: done
     features:
       - name: "Coroutines (Fiber-based)"
@@ -11,28 +11,44 @@ milestones:
       - name: "spawn() / delay() / timeout()"
         status: done
 
-  - version: "0.2"
-    title: "Synchronization primitives"
-    date: "Q2 2026"
+  - version: "0.6"
+    title: "Core Async API"
+    date: "Q1 2026"
     status: active
     features:
       - name: "Channels (buffered/unbuffered)"
         status: done
       - name: "Futures & Promises"
-        status: in-progress
+        status: done
       - name: "Mutex / Semaphore"
+        status: done
+      - name: "Structured concurrency"
+        status: in-progress
+
+  - version: "0.7"
+    title: "ThreadPool & Stabilization"
+    date: "Summer 2026"
+    status: planned
+    features:
+      - name: "ThreadPool"
+        status: planned
+      - name: "Test suite"
+        status: planned
+      - name: "API stabilization"
+        status: planned
+      - name: "Telemetry"
         status: planned
 
-  - version: "0.3"
-    title: "I/O & Networking"
+  - version: "0.8"
+    title: "Framework Adapters"
     date: "Q3 2026"
     status: planned
     features:
-      - name: "Async streams"
+      - name: "Framework integration layer"
         status: planned
-      - name: "TCP / UDP sockets"
+      - name: "Laravel / Symfony adapters"
         status: planned
-      - name: "Async file I/O"
+      - name: "Migration guides"
         status: planned
 
   - version: "1.0-RC"
@@ -43,9 +59,9 @@ milestones:
     features:
       - name: "Feature freeze"
         status: planned
-      - name: "API stabilization"
-        status: planned
       - name: "Community testing"
+        status: planned
+      - name: "Performance benchmarks"
         status: planned
 
   - version: "1.0"
@@ -56,7 +72,7 @@ milestones:
     features:
       - name: "Stable API"
         status: planned
-      - name: "Performance benchmarks"
+      - name: "Production ready"
         status: planned
       - name: "PHP RFC submission"
         status: planned
