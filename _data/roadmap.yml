@@ -1,7 +1,7 @@
 milestones:
   - version: "0.1"
     title: "Foundation"
-    date: "Q1 2025"
+    date: "Q1 2026"
     status: done
     features:
       - name: "Coroutines (Fiber-based)"
@@ -13,7 +13,7 @@ milestones:
 
   - version: "0.2"
     title: "Synchronization primitives"
-    date: "Q2 2025"
+    date: "Q2 2026"
     status: active
     features:
       - name: "Channels (buffered/unbuffered)"
@@ -25,7 +25,7 @@ milestones:
 
   - version: "0.3"
     title: "I/O & Networking"
-    date: "Q3 2025"
+    date: "Q3 2026"
     status: planned
     features:
       - name: "Async streams"
@@ -37,7 +37,7 @@ milestones:
 
   - version: "1.0-RC"
     title: "Release Candidate"
-    date: "August 2025"
+    date: "August 2026"
     tag: "RC"
     status: planned
     features:
@@ -50,7 +50,7 @@ milestones:
 
   - version: "1.0"
     title: "Stable Release"
-    date: "November 2025"
+    date: "November 2026"
     tag: "Target: PHP 8.6"
     status: planned
     features:
