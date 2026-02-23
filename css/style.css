@@ -1826,7 +1826,16 @@ pre code {
 .roadmap-milestone--active .roadmap-marker {
     background: var(--color-primary);
     border-color: var(--color-primary);
-    box-shadow: 0 0 0 4px rgba(107, 88, 255, 0.2);
+    animation: roadmap-pulse 3s ease-in-out infinite;
+}
+
+@keyframes roadmap-pulse {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(107, 88, 255, 0.15);
+    }
+    50% {
+        box-shadow: 0 0 0 6px rgba(107, 88, 255, 0), 0 0 0 12px rgba(107, 88, 255, 0);
+    }
 }
 
 .roadmap-milestone--planned .roadmap-marker {
@@ -2036,7 +2045,7 @@ pre code {
 .home-roadmap-item--active .home-roadmap-dot {
     background: var(--color-primary);
     border-color: var(--color-primary);
-    box-shadow: 0 0 0 4px rgba(107, 88, 255, 0.2);
+    animation: roadmap-pulse 3s ease-in-out infinite;
 }
 
 .home-roadmap-item--planned .home-roadmap-dot {
