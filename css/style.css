@@ -1882,13 +1882,13 @@ pre code {
 .roadmap-tag {
     display: inline-block;
     font-size: 0.7rem;
-    font-weight: 700;
+    font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     padding: 0.2em 0.6em;
     border-radius: 9999px;
-    background: #FEF3C7;
-    color: #92400E;
+    background: #F3F4F6;
+    color: #6B7280;
 }
 
 .roadmap-card-meta {
@@ -2085,8 +2085,8 @@ pre code {
     letter-spacing: 0.05em;
     padding: 0.15em 0.5em;
     border-radius: 9999px;
-    background: #FEF3C7;
-    color: #92400E;
+    background: #F3F4F6;
+    color: #6B7280;
     margin-top: 0.15rem;
 }
 
