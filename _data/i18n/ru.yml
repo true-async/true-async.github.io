@@ -279,7 +279,7 @@ docs:
               label: "race()"
         - url: "/ru/docs/components/task-set.html"
           label: "TaskSet"
-          icon: "layers"
+          icon: "list-checks"
           children:
             - url: "/ru/docs/reference/task-set/construct.html"
               label: "__construct()"
