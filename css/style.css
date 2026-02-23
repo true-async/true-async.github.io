@@ -1831,10 +1831,10 @@ pre code {
 
 @keyframes roadmap-pulse {
     0%, 100% {
-        box-shadow: 0 0 0 0 rgba(107, 88, 255, 0.15);
+        box-shadow: 0 0 0 0 rgba(107, 88, 255, 0.35), 0 0 0 0 rgba(107, 88, 255, 0.15);
     }
     50% {
-        box-shadow: 0 0 0 6px rgba(107, 88, 255, 0), 0 0 0 12px rgba(107, 88, 255, 0);
+        box-shadow: 0 0 0 8px rgba(107, 88, 255, 0), 0 0 0 16px rgba(107, 88, 255, 0);
     }
 }
 
