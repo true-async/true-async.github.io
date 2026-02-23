@@ -72,7 +72,7 @@ layout: default
                     <span class="home-roadmap-version">v{{ milestone.version }}</span>
                     <span class="home-roadmap-title">{{ milestone.title }}</span>
                     {% if milestone.date %}<span class="home-roadmap-date">{{ milestone.date }}</span>{% endif %}
-                    {% if milestone.tag %}<span class="home-roadmap-tag home-roadmap-tag--{{ milestone.status }}">{{ milestone.tag }}</span>{% endif %}
+                    {% if milestone.tag %}<span class="home-roadmap-tag{% if milestone.tag_style %} home-roadmap-tag--{{ milestone.tag_style }}{% endif %}">{{ milestone.tag }}</span>{% endif %}
                 </div>
             </div>
             {% endfor %}

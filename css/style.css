@@ -1891,6 +1891,11 @@ pre code {
     color: #6B7280;
 }
 
+.roadmap-tag--highlight {
+    background: #EDE9FE;
+    color: #5B21B6;
+}
+
 .roadmap-card-meta {
     display: flex;
     align-items: center;
@@ -2088,6 +2093,11 @@ pre code {
     background: #F3F4F6;
     color: #6B7280;
     margin-top: 0.15rem;
+}
+
+.home-roadmap-tag--highlight {
+    background: #EDE9FE;
+    color: #5B21B6;
 }
 
 .home-roadmap-link {

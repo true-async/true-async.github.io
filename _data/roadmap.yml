@@ -68,6 +68,7 @@ milestones:
     title: "Stable Release"
     date: "November 2026"
     tag: "Target: PHP 8.6"
+    tag_style: highlight
     status: planned
     features:
       - name: "Stable API"

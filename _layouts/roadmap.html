@@ -20,7 +20,7 @@ layout: default
                 <div class="roadmap-card-header">
                     <div class="roadmap-card-title-row">
                         <h3>v{{ milestone.version }} &mdash; {{ milestone.title }}</h3>
-                        {% if milestone.tag %}<span class="roadmap-tag">{{ milestone.tag }}</span>{% endif %}
+                        {% if milestone.tag %}<span class="roadmap-tag{% if milestone.tag_style %} roadmap-tag--{{ milestone.tag_style }}{% endif %}">{{ milestone.tag }}</span>{% endif %}
                     </div>
                     <div class="roadmap-card-meta">
                         {% if milestone.date %}<span class="roadmap-date">{{ milestone.date }}</span>{% endif %}
