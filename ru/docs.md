@@ -242,6 +242,9 @@ var nodes = [
     {id:'taskgroup',title:'TaskGroup',desc:'Structured concurrency: группировка задач с гарантией ожидания или отмены',
      code:'<span class="var">$group</span> = <span class="kw">new</span> <span class="fn">TaskGroup</span>(<span class="num">5</span>);\n<span class="var">$group</span>-><span class="fn">spawn</span>(<span class="var">$task</span>);\n<span class="var">$results</span> = <span class="var">$group</span>-><span class="fn">all</span>();',
      url:'/ru/docs/components/task-group.html',group:'structural',order:null,w:130,h:44},
+    {id:'taskset',title:'TaskSet',desc:'Динамический набор задач с автоочисткой результатов после доставки',
+     code:'<span class="var">$set</span> = <span class="kw">new</span> <span class="fn">TaskSet</span>(<span class="num">10</span>);\n<span class="var">$set</span>-><span class="fn">spawn</span>(<span class="var">$task</span>);\n<span class="var">$r</span> = <span class="var">$set</span>-><span class="fn">joinNext</span>();',
+     url:'/ru/docs/components/task-set.html',group:'structural',order:null,w:120,h:44},
     {id:'context',title:'Context',desc:'Хранить данные привязанные к корутине (напр. токен авторизации)',
      code:'<span class="var">$ctx</span> = <span class="fn">current_context</span>();\n<span class="var">$ctx</span>-><span class="fn">set</span>(<span class="str">\'auth_token\'</span>, <span class="var">$token</span>);\n<span class="var">$v</span> = <span class="var">$ctx</span>-><span class="fn">find</span>(<span class="str">\'auth_token\'</span>);',
      url:'/ru/docs/components/context.html',group:'context',order:5,w:120,h:44},
@@ -255,8 +258,8 @@ var nodes = [
      code:'<span class="var">$pdo</span> = <span class="kw">new</span> <span class="fn">PDO</span>(<span class="var">$dsn</span>, <span class="var">$user</span>, <span class="var">$pwd</span>, [\n  PDO::<span class="fn">ATTR_POOL_MAX</span> => <span class="num">10</span>\n]);',
      url:'/ru/docs/components/pdo-pool.html',group:'resources',order:null,w:120,h:44}
 ];
-var dPos={coroutines:{cx:250,cy:55},future:{cx:470,cy:55},'await-funcs':{cx:250,cy:150},channels:{cx:470,cy:150},cancellation:{cx:300,cy:245},scope:{cx:250,cy:340},taskgroup:{cx:470,cy:340},context:{cx:300,cy:435},iterate:{cx:125,cy:532},pool:{cx:350,cy:532},'pdo-pool':{cx:510,cy:532}};
-var mPos={coroutines:{cx:115,cy:55},future:{cx:275,cy:55},'await-funcs':{cx:115,cy:150},channels:{cx:275,cy:150},cancellation:{cx:190,cy:245},scope:{cx:115,cy:345},taskgroup:{cx:275,cy:345},context:{cx:190,cy:440},iterate:{cx:105,cy:540},pool:{cx:260,cy:540},'pdo-pool':{cx:260,cy:640}};
+var dPos={coroutines:{cx:250,cy:55},future:{cx:470,cy:55},'await-funcs':{cx:250,cy:150},channels:{cx:470,cy:150},cancellation:{cx:300,cy:245},scope:{cx:250,cy:340},taskgroup:{cx:400,cy:340},taskset:{cx:540,cy:340},context:{cx:300,cy:435},iterate:{cx:125,cy:532},pool:{cx:350,cy:532},'pdo-pool':{cx:510,cy:532}};
+var mPos={coroutines:{cx:115,cy:55},future:{cx:275,cy:55},'await-funcs':{cx:115,cy:150},channels:{cx:275,cy:150},cancellation:{cx:190,cy:245},scope:{cx:115,cy:345},taskgroup:{cx:275,cy:345},taskset:{cx:275,cy:445},context:{cx:190,cy:540},iterate:{cx:105,cy:640},pool:{cx:260,cy:640},'pdo-pool':{cx:260,cy:740}};
 var pos=lmMob?mPos:dPos;
 nodes.forEach(function(n){var p=pos[n.id];n.cx=p.cx;n.cy=p.cy;if(lmMob){n.h=50;}});
 var edges = [
@@ -266,6 +269,7 @@ var edges = [
     {from:'scope',to:'context',type:'path'},
     {from:'context',to:'pool',type:'path'},
     {from:'scope',to:'taskgroup',type:'path'},
+    {from:'taskgroup',to:'taskset',type:'related'},
     {from:'pool',to:'pdo-pool',type:'path'},
     {from:'coroutines',to:'future',type:'related'},
     {from:'coroutines',to:'channels',type:'related'}
@@ -295,13 +299,18 @@ var subPages = {
         {label:'race()',url:'/ru/docs/reference/task-group/race.html'},
         {label:'seal()',url:'/ru/docs/reference/task-group/seal.html'},
         {label:'cancel()',url:'/ru/docs/reference/task-group/cancel.html'}],
+    'taskset':[
+        {label:'joinNext()',url:'/ru/docs/reference/task-set/join-next.html'},
+        {label:'joinAny()',url:'/ru/docs/reference/task-set/join-any.html'},
+        {label:'joinAll()',url:'/ru/docs/reference/task-set/join-all.html'},
+        {label:'seal()',url:'/ru/docs/reference/task-set/seal.html'}],
     'pool':[{label:'Pool::tryAcquire()',url:'/ru/docs/components/pool.html'}]
 };
 var dZones=[
     {group:'primitives',label:'Базовые примитивы',x:140,y:10,w:400,h:85,rx:14},
     {group:'sync',label:'Синхронизация',x:100,y:105,w:440,h:85,rx:14},
     {group:'cancellation',label:'Cancellation',x:170,y:200,w:260,h:85,rx:14},
-    {group:'structural',label:'Стр. конкурентность',x:140,y:295,w:400,h:85,rx:14},
+    {group:'structural',label:'Стр. конкурентность',x:140,y:295,w:470,h:85,rx:14},
     {group:'context',label:'Context',x:185,y:390,w:230,h:85,rx:14},
     {group:'iterate',label:'iterate()',x:30,y:485,w:190,h:90,rx:14},
     {group:'resources',label:'Ресурсы и пулы',x:245,y:485,w:330,h:90,rx:14}
@@ -310,15 +319,15 @@ var mZones=[
     {group:'primitives',label:'Базовые примитивы',x:15,y:10,w:350,h:90,rx:14},
     {group:'sync',label:'Синхронизация',x:15,y:108,w:350,h:90,rx:14},
     {group:'cancellation',label:'Cancellation',x:65,y:205,w:250,h:85,rx:14},
-    {group:'structural',label:'Стр. конкурентность',x:15,y:300,w:350,h:90,rx:14},
-    {group:'context',label:'Context',x:65,y:398,w:250,h:85,rx:14},
-    {group:'iterate',label:'iterate()',x:15,y:495,w:175,h:90,rx:14},
-    {group:'resources',label:'Ресурсы и пулы',x:155,y:495,w:220,h:190,rx:14}
+    {group:'structural',label:'Стр. конкурентность',x:15,y:300,w:350,h:190,rx:14},
+    {group:'context',label:'Context',x:65,y:498,w:250,h:85,rx:14},
+    {group:'iterate',label:'iterate()',x:15,y:595,w:175,h:90,rx:14},
+    {group:'resources',label:'Ресурсы и пулы',x:155,y:595,w:220,h:190,rx:14}
 ];
 var groupZones=lmMob?mZones:dZones;
 var NS='http://www.w3.org/2000/svg';
 var svg=document.getElementById('lmSvg');
-if(lmMob)svg.setAttribute('viewBox','0 0 380 700');
+if(lmMob)svg.setAttribute('viewBox','0 0 380 800');
 var tip=document.getElementById('lmTooltip');
 var eG=document.getElementById('lmEdges');
 var nG=document.getElementById('lmNodes');
