@@ -73,29 +73,39 @@ spawn(function() use ($ch) {
 });
 ```
 
-## Timeout sulle Operazioni
+## Cancellazione delle operazioni
 
-I metodi `recv()` e `send()` accettano un parametro opzionale di timeout in millisecondi. Quando il tempo scade, viene lanciata una `TimeoutException`:
+I metodi `recv()` e `send()` accettano un token di cancellazione opzionale (`Completable`) che consente di interrompere l'attesa in base a una condizione arbitraria. Questo approccio è più flessibile di un timeout fisso: è possibile cancellare un'operazione da un'altra coroutine, in risposta a un segnale, a un evento o al trascorrere del tempo:
 
 ```php
 use Async\Channel;
-use Async\TimeoutException;
+use Async\CancelledException;
 
 $ch = new Channel(0);
 
+// Cancellazione per timeout
 spawn(function() use ($ch) {
     try {
-        $ch->recv(50); // Attendi non più di 50 ms
-    } catch (TimeoutException $e) {
+        $ch->recv(Async\timeout(50)); // Attendi non più di 50 ms
+    } catch (CancelledException $e) {
         echo "Nessuno ha inviato dati entro 50 ms\n";
     }
 });
 
+// Cancellazione per condizione arbitraria
 spawn(function() use ($ch) {
+    $cancel = new \Async\Future();
+
+    spawn(function() use ($cancel) {
+        // Cancelliamo dopo 50 ms
+        Async\delay(50);
+        $cancel->complete(null);
+    });
+
     try {
-        $ch->send("data", 50); // Attendi un ricevitore non più di 50 ms
-    } catch (TimeoutException $e) {
-        echo "Nessuno ha ricevuto i dati entro 50 ms\n";
+        $ch->send("data", $cancel);
+    } catch (CancelledException $e) {
+        echo "Nessuno ha ricevuto i dati — operazione cancellata\n";
     }
 });
 ```

@@ -73,29 +73,39 @@ spawn(function() use ($ch) {
 });
 ```
 
-## Тайм-аути на операціях
+## Скасування операцій
 
-Методи `recv()` та `send()` приймають необов'язковий параметр тайм-ауту в мілісекундах. Коли час спливає, кидається `TimeoutException`:
+Методи `recv()` та `send()` приймають необов'язковий токен скасування (`Completable`), що дає змогу перервати очікування за довільною умовою. Це гнучкіше за фіксований тайм-аут — можна скасувати операцію з іншої корутини, за сигналом, за подією або за часом:
 
 ```php
 use Async\Channel;
-use Async\TimeoutException;
+use Async\CancelledException;
 
 $ch = new Channel(0);
 
+// Скасування за тайм-аутом
 spawn(function() use ($ch) {
     try {
-        $ch->recv(50); // Чекаємо не довше 50 мс
-    } catch (TimeoutException $e) {
-        echo "Nobody sent data within 50 ms\n";
+        $ch->recv(Async\timeout(50)); // Чекаємо не довше 50 мс
+    } catch (CancelledException $e) {
+        echo "Ніхто не відправив дані протягом 50 мс\n";
     }
 });
 
+// Скасування за довільною умовою
 spawn(function() use ($ch) {
+    $cancel = new \Async\Future();
+
+    spawn(function() use ($cancel) {
+        // Скасовуємо через 50 мс
+        Async\delay(50);
+        $cancel->complete(null);
+    });
+
     try {
-        $ch->send("data", 50); // Чекаємо отримувача не довше 50 мс
-    } catch (TimeoutException $e) {
-        echo "Nobody received the data within 50 ms\n";
+        $ch->send("data", $cancel);
+    } catch (CancelledException $e) {
+        echo "Ніхто не прийняв дані — операцію скасовано\n";
     }
 });
 ```

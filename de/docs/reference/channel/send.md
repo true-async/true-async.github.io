@@ -13,7 +13,7 @@ description: "Einen Wert an den Channel senden (blockierende Operation)."
 (PHP 8.6+, True Async 1.0)
 
 ```php
-public Channel::send(mixed $value, int $timeoutMs = 0): void
+public Channel::send(mixed $value, ?Completable $cancellationToken = null): void
 ```
 
 Sendet einen Wert an den Channel. Dies ist eine blockierende Operation — die aktuelle Coroutine wird suspendiert,
@@ -27,15 +27,16 @@ Bei einem **gepufferten Channel** wartet der Sender nur, wenn der Puffer voll is
 **value**
 : Der zu sendende Wert. Kann von beliebigem Typ sein.
 
-**timeoutMs**
-: Maximale Wartezeit in Millisekunden.
-  `0` — unbegrenzt warten (Standard).
-  Bei Überschreitung des Timeouts wird eine `TimeoutException` ausgelöst.
+**cancellationToken**
+: Abbruch-Token (`Completable`), das den Abbruch des Wartens nach beliebigen Bedingungen ermöglicht.
+  `null` — unbegrenzt warten (Standard).
+  Wenn das Token abgeschlossen wird, wird die Operation abgebrochen und eine `CancelledException` ausgelöst.
+  Für zeitbasierte Begrenzungen kann `Async\timeout()` verwendet werden.
 
 ## Fehler
 
 - Löst `Async\ChannelException` aus, wenn der Channel geschlossen ist.
-- Löst `Async\TimeoutException` aus, wenn das Timeout abgelaufen ist.
+- Löst `Async\CancelledException` aus, wenn das Abbruch-Token abgeschlossen wurde.
 
 ## Beispiele
 
@@ -71,10 +72,36 @@ $channel = new Channel(0); // Rendezvous
 
 spawn(function() use ($channel) {
     try {
-        $channel->send('data', timeoutMs: 1000);
-    } catch (\Async\TimeoutException $e) {
+        $channel->send('data', Async\timeout(1000));
+    } catch (\Async\CancelledException $e) {
         echo "Timeout: Niemand hat den Wert innerhalb von 1 Sekunde angenommen\n";
     }
+});
+```
+
+### Beispiel #3 Senden mit benutzerdefiniertem Abbruch-Token
+
+```php
+<?php
+
+use Async\Channel;
+use Async\Future;
+
+$channel = new Channel(0);
+$cancel = new Future();
+
+spawn(function() use ($channel, $cancel) {
+    try {
+        $channel->send('data', $cancel);
+    } catch (\Async\CancelledException $e) {
+        echo "Senden abgebrochen\n";
+    }
+});
+
+// Operation aus einer anderen Coroutine abbrechen
+spawn(function() use ($cancel) {
+    Async\delay(500);
+    $cancel->complete(null);
 });
 ```
 

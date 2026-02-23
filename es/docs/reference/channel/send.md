@@ -13,7 +13,7 @@ description: "Enviar un valor al canal (operación bloqueante)."
 (PHP 8.6+, True Async 1.0)
 
 ```php
-public Channel::send(mixed $value, int $timeoutMs = 0): void
+public Channel::send(mixed $value, ?Completable $cancellationToken = null): void
 ```
 
 Envía un valor al canal. Esta es una operación bloqueante — la corrutina actual se suspende
@@ -27,15 +27,16 @@ Para un **canal con búfer**, el emisor espera solo cuando el búfer está lleno
 **value**
 : El valor a enviar. Puede ser de cualquier tipo.
 
-**timeoutMs**
-: Tiempo máximo de espera en milisegundos.
-  `0` — esperar indefinidamente (por defecto).
-  Si se excede el tiempo de espera, se lanza una `TimeoutException`.
+**cancellationToken**
+: Token de cancelación (`Completable`) que permite interrumpir la espera según una condición arbitraria.
+  `null` — espera sin límite (por defecto).
+  Cuando el token se completa, la operación se interrumpe y se lanza una `CancelledException`.
+  Para limitar el tiempo de espera se puede utilizar `Async\timeout()`.
 
 ## Errores
 
 - Lanza `Async\ChannelException` si el canal está cerrado.
-- Lanza `Async\TimeoutException` si el tiempo de espera ha expirado.
+- Lanza `Async\CancelledException` si el token de cancelación fue completado.
 
 ## Ejemplos
 
@@ -71,10 +72,36 @@ $channel = new Channel(0); // rendezvous
 
 spawn(function() use ($channel) {
     try {
-        $channel->send('data', timeoutMs: 1000);
-    } catch (\Async\TimeoutException $e) {
+        $channel->send('data', Async\timeout(1000));
+    } catch (\Async\CancelledException $e) {
         echo "Tiempo agotado: nadie aceptó el valor en 1 segundo\n";
     }
+});
+```
+
+### Ejemplo #3 Envío con token de cancelación personalizado
+
+```php
+<?php
+
+use Async\Channel;
+use Async\Future;
+
+$channel = new Channel(0);
+$cancel = new Future();
+
+spawn(function() use ($channel, $cancel) {
+    try {
+        $channel->send('data', $cancel);
+    } catch (\Async\CancelledException $e) {
+        echo "Envío cancelado\n";
+    }
+});
+
+// Cancelar la operación desde otra corrutina
+spawn(function() use ($cancel) {
+    Async\delay(500);
+    $cancel->complete(null);
 });
 ```
 

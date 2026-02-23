@@ -73,29 +73,39 @@ spawn(function() use ($ch) {
 });
 ```
 
-## Timeouts bei Operationen
+## Abbruch von Operationen
 
-Die Methoden `recv()` und `send()` akzeptieren einen optionalen Timeout-Parameter in Millisekunden. Wenn die Zeit abläuft, wird eine `TimeoutException` geworfen:
+Die Methoden `recv()` und `send()` akzeptieren ein optionales Abbruch-Token (`Completable`), das den Abbruch des Wartens nach beliebigen Bedingungen ermöglicht. Dies ist flexibler als ein fester Timeout — die Operation kann aus einer anderen Coroutine, durch ein Signal, ein Ereignis oder nach einer bestimmten Zeit abgebrochen werden:
 
 ```php
 use Async\Channel;
-use Async\TimeoutException;
+use Async\CancelledException;
 
 $ch = new Channel(0);
 
+// Abbruch nach Timeout
 spawn(function() use ($ch) {
     try {
-        $ch->recv(50); // Maximal 50 ms warten
-    } catch (TimeoutException $e) {
-        echo "Nobody sent data within 50 ms\n";
+        $ch->recv(Async\timeout(50)); // Maximal 50 ms warten
+    } catch (CancelledException $e) {
+        echo "Niemand hat Daten innerhalb von 50 ms gesendet\n";
     }
 });
 
+// Abbruch nach benutzerdefinierter Bedingung
 spawn(function() use ($ch) {
+    $cancel = new \Async\Future();
+
+    spawn(function() use ($cancel) {
+        // Nach 50 ms abbrechen
+        Async\delay(50);
+        $cancel->complete(null);
+    });
+
     try {
-        $ch->send("data", 50); // Maximal 50 ms auf Empfänger warten
-    } catch (TimeoutException $e) {
-        echo "Nobody received the data within 50 ms\n";
+        $ch->send("data", $cancel);
+    } catch (CancelledException $e) {
+        echo "Niemand hat die Daten empfangen — Operation abgebrochen\n";
     }
 });
 ```

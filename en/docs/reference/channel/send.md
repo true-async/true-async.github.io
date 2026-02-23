@@ -13,7 +13,7 @@ description: "Send a value to the channel (blocking operation)."
 (PHP 8.6+, True Async 1.0)
 
 ```php
-public Channel::send(mixed $value, int $timeoutMs = 0): void
+public Channel::send(mixed $value, ?Completable $cancellationToken = null): void
 ```
 
 Sends a value to the channel. This is a blocking operation — the current coroutine is suspended
@@ -27,15 +27,16 @@ For a **buffered channel**, the sender waits only when the buffer is full.
 **value**
 : The value to send. Can be of any type.
 
-**timeoutMs**
-: Maximum wait time in milliseconds.
-  `0` — wait indefinitely (default).
-  If the timeout is exceeded, a `TimeoutException` is thrown.
+**cancellationToken**
+: A cancellation token (`Completable`) that allows cancelling the wait on any condition.
+  `null` — wait indefinitely (default).
+  When the token completes, the operation is cancelled and a `CancelledException` is thrown.
+  To limit by time, you can use `Async\timeout()`.
 
 ## Errors
 
 - Throws `Async\ChannelException` if the channel is closed.
-- Throws `Async\TimeoutException` if the timeout has expired.
+- Throws `Async\CancelledException` if the cancellation token has been completed.
 
 ## Examples
 
@@ -71,10 +72,36 @@ $channel = new Channel(0); // rendezvous
 
 spawn(function() use ($channel) {
     try {
-        $channel->send('data', timeoutMs: 1000);
-    } catch (\Async\TimeoutException $e) {
+        $channel->send('data', Async\timeout(1000));
+    } catch (\Async\CancelledException $e) {
         echo "Timeout: no one accepted the value within 1 second\n";
     }
+});
+```
+
+### Example #3 Sending with a custom cancellation token
+
+```php
+<?php
+
+use Async\Channel;
+use Async\Future;
+
+$channel = new Channel(0);
+$cancel = new Future();
+
+spawn(function() use ($channel, $cancel) {
+    try {
+        $channel->send('data', $cancel);
+    } catch (\Async\CancelledException $e) {
+        echo "Send cancelled\n";
+    }
+});
+
+// Cancel the operation from another coroutine
+spawn(function() use ($cancel) {
+    Async\delay(500);
+    $cancel->complete(null);
 });
 ```
 

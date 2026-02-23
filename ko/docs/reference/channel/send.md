@@ -13,7 +13,7 @@ description: "채널에 값을 전송합니다 (블로킹 연산)."
 (PHP 8.6+, True Async 1.0)
 
 ```php
-public Channel::send(mixed $value, int $timeoutMs = 0): void
+public Channel::send(mixed $value, ?Completable $cancellationToken = null): void
 ```
 
 채널에 값을 전송합니다. 이것은 블로킹 연산입니다 — 채널이 즉시 값을 받을 수 없으면
@@ -27,15 +27,16 @@ public Channel::send(mixed $value, int $timeoutMs = 0): void
 **value**
 : 전송할 값. 모든 타입이 가능합니다.
 
-**timeoutMs**
-: 최대 대기 시간 (밀리초).
-  `0` — 무한 대기 (기본값).
-  타임아웃이 초과되면 `TimeoutException`이 발생합니다.
+**cancellationToken**
+: 취소 토큰(`Completable`)으로, 임의의 조건에 따라 대기를 중단할 수 있습니다.
+  `null` — 무한 대기 (기본값).
+  토큰이 완료되면 연산이 중단되고 `CancelledException`이 발생합니다.
+  시간 제한이 필요한 경우 `Async\timeout()`을 사용할 수 있습니다.
 
 ## 오류
 
 - 채널이 닫혀 있으면 `Async\ChannelException`을 발생시킵니다.
-- 타임아웃이 만료되면 `Async\TimeoutException`을 발생시킵니다.
+- 취소 토큰이 완료되면 `Async\CancelledException`을 발생시킵니다.
 
 ## 예제
 
@@ -49,14 +50,14 @@ use Async\Channel;
 $channel = new Channel(1);
 
 spawn(function() use ($channel) {
-    $channel->send('first');  // placed in the buffer
-    $channel->send('second'); // waits for space to free up
+    $channel->send('첫 번째');  // 버퍼에 저장됨
+    $channel->send('두 번째'); // 공간이 확보될 때까지 대기
     $channel->close();
 });
 
 spawn(function() use ($channel) {
-    echo $channel->recv() . "\n"; // "first"
-    echo $channel->recv() . "\n"; // "second"
+    echo $channel->recv() . "\n"; // "첫 번째"
+    echo $channel->recv() . "\n"; // "두 번째"
 });
 ```
 
@@ -67,14 +68,40 @@ spawn(function() use ($channel) {
 
 use Async\Channel;
 
-$channel = new Channel(0); // rendezvous
+$channel = new Channel(0); // 랑데부
 
 spawn(function() use ($channel) {
     try {
-        $channel->send('data', timeoutMs: 1000);
-    } catch (\Async\TimeoutException $e) {
-        echo "Timeout: no one accepted the value within 1 second\n";
+        $channel->send('데이터', Async\timeout(1000));
+    } catch (\Async\CancelledException $e) {
+        echo "타임아웃: 1초 내에 아무도 값을 수신하지 않았습니다\n";
     }
+});
+```
+
+### 예제 #3 사용자 정의 취소 토큰을 사용한 전송
+
+```php
+<?php
+
+use Async\Channel;
+use Async\Future;
+
+$channel = new Channel(0);
+$cancel = new Future();
+
+spawn(function() use ($channel, $cancel) {
+    try {
+        $channel->send('데이터', $cancel);
+    } catch (\Async\CancelledException $e) {
+        echo "전송이 취소되었습니다\n";
+    }
+});
+
+// 다른 코루틴에서 연산 취소
+spawn(function() use ($cancel) {
+    Async\delay(500);
+    $cancel->complete(null);
 });
 ```
 

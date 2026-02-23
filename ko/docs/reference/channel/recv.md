@@ -13,7 +13,7 @@ description: "채널에서 값을 수신합니다 (블로킹 연산)."
 (PHP 8.6+, True Async 1.0)
 
 ```php
-public Channel::recv(int $timeoutMs = 0): mixed
+public Channel::recv(?Completable $cancellationToken = null): mixed
 ```
 
 채널에서 다음 값을 수신합니다. 이것은 블로킹 연산입니다 — 채널에 사용 가능한 값이
@@ -24,10 +24,11 @@ public Channel::recv(int $timeoutMs = 0): mixed
 
 ## 매개변수
 
-**timeoutMs**
-: 최대 대기 시간 (밀리초).
-  `0` — 무한 대기 (기본값).
-  타임아웃이 초과되면 `TimeoutException`이 발생합니다.
+**cancellationToken**
+: 취소 토큰(`Completable`)으로, 임의의 조건에 따라 대기를 중단할 수 있습니다.
+  `null` — 무한 대기 (기본값).
+  토큰이 완료되면 연산이 중단되고 `CancelledException`이 발생합니다.
+  시간 제한이 필요한 경우 `Async\timeout()`을 사용할 수 있습니다.
 
 ## 반환값
 
@@ -36,7 +37,7 @@ public Channel::recv(int $timeoutMs = 0): mixed
 ## 오류
 
 - 채널이 닫혀 있고 버퍼가 비어있으면 `Async\ChannelException`을 발생시킵니다.
-- 타임아웃이 만료되면 `Async\TimeoutException`을 발생시킵니다.
+- 취소 토큰이 완료되면 `Async\CancelledException`을 발생시킵니다.
 
 ## 예제
 
@@ -60,10 +61,10 @@ spawn(function() use ($channel) {
     try {
         while (true) {
             $value = $channel->recv();
-            echo "Received: $value\n";
+            echo "수신됨: $value\n";
         }
     } catch (\Async\ChannelException) {
-        echo "Channel closed and empty\n";
+        echo "채널이 닫혔고 비어있습니다\n";
     }
 });
 ```
@@ -79,11 +80,38 @@ $channel = new Channel();
 
 spawn(function() use ($channel) {
     try {
-        $value = $channel->recv(timeoutMs: 2000);
-        echo "Received: $value\n";
-    } catch (\Async\TimeoutException) {
-        echo "No data received within 2 seconds\n";
+        $value = $channel->recv(Async\timeout(2000));
+        echo "수신됨: $value\n";
+    } catch (\Async\CancelledException) {
+        echo "2초 내에 데이터가 도착하지 않았습니다\n";
     }
+});
+```
+
+### 예제 #3 사용자 정의 취소 토큰을 사용한 수신
+
+```php
+<?php
+
+use Async\Channel;
+use Async\Future;
+
+$channel = new Channel();
+$cancel = new Future();
+
+spawn(function() use ($channel, $cancel) {
+    try {
+        $value = $channel->recv($cancel);
+        echo "수신됨: $value\n";
+    } catch (\Async\CancelledException) {
+        echo "수신이 취소되었습니다\n";
+    }
+});
+
+// 다른 코루틴에서 취소
+spawn(function() use ($cancel) {
+    Async\delay(500);
+    $cancel->complete(null);
 });
 ```
 

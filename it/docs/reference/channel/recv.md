@@ -13,7 +13,7 @@ description: "Riceve un valore dal canale (operazione bloccante)."
 (PHP 8.6+, True Async 1.0)
 
 ```php
-public Channel::recv(int $timeoutMs = 0): mixed
+public Channel::recv(?Completable $cancellationToken = null): mixed
 ```
 
 Riceve il prossimo valore dal canale. Questa e' un'operazione bloccante — la coroutine
@@ -24,10 +24,11 @@ Se il canale e' chiuso ma ci sono ancora valori nel buffer, questi verranno rest
 
 ## Parametri
 
-**timeoutMs**
-: Tempo massimo di attesa in millisecondi.
-  `0` — attesa indefinita (predefinito).
-  Se il timeout viene superato, viene lanciata una `TimeoutException`.
+**cancellationToken**
+: Token di cancellazione (`Completable`) che consente di interrompere l'attesa in base a una condizione arbitraria.
+  `null` — attesa senza limiti (predefinito).
+  Quando il token viene completato, l'operazione viene interrotta e viene lanciata una `CancelledException`.
+  Per limitare il tempo di attesa si puo' utilizzare `Async\timeout()`.
 
 ## Valori di ritorno
 
@@ -36,7 +37,7 @@ Il prossimo valore dal canale (`mixed`).
 ## Errori
 
 - Lancia `Async\ChannelException` se il canale e' chiuso e il buffer e' vuoto.
-- Lancia `Async\TimeoutException` se il timeout e' scaduto.
+- Lancia `Async\CancelledException` se il token di cancellazione e' stato completato.
 
 ## Esempi
 
@@ -79,11 +80,38 @@ $channel = new Channel();
 
 spawn(function() use ($channel) {
     try {
-        $value = $channel->recv(timeoutMs: 2000);
+        $value = $channel->recv(Async\timeout(2000));
         echo "Ricevuto: $value\n";
-    } catch (\Async\TimeoutException) {
+    } catch (\Async\CancelledException) {
         echo "Nessun dato ricevuto entro 2 secondi\n";
     }
+});
+```
+
+### Esempio #3 Ricezione con token di cancellazione personalizzato
+
+```php
+<?php
+
+use Async\Channel;
+use Async\Future;
+
+$channel = new Channel();
+$cancel = new Future();
+
+spawn(function() use ($channel, $cancel) {
+    try {
+        $value = $channel->recv($cancel);
+        echo "Ricevuto: $value\n";
+    } catch (\Async\CancelledException) {
+        echo "Ricezione cancellata\n";
+    }
+});
+
+// Cancelliamo da un'altra coroutine
+spawn(function() use ($cancel) {
+    Async\delay(500);
+    $cancel->complete(null);
 });
 ```
 

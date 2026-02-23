@@ -13,7 +13,7 @@ description: "Receive a value from the channel (blocking operation)."
 (PHP 8.6+, True Async 1.0)
 
 ```php
-public Channel::recv(int $timeoutMs = 0): mixed
+public Channel::recv(?Completable $cancellationToken = null): mixed
 ```
 
 Receives the next value from the channel. This is a blocking operation — the current
@@ -24,10 +24,11 @@ If the channel is closed but values remain in the buffer, they will be returned.
 
 ## Parameters
 
-**timeoutMs**
-: Maximum wait time in milliseconds.
-  `0` — wait indefinitely (default).
-  If the timeout is exceeded, a `TimeoutException` is thrown.
+**cancellationToken**
+: A cancellation token (`Completable`) that allows cancelling the wait on any condition.
+  `null` — wait indefinitely (default).
+  When the token completes, the operation is cancelled and a `CancelledException` is thrown.
+  To limit by time, you can use `Async\timeout()`.
 
 ## Return values
 
@@ -36,7 +37,7 @@ The next value from the channel (`mixed`).
 ## Errors
 
 - Throws `Async\ChannelException` if the channel is closed and the buffer is empty.
-- Throws `Async\TimeoutException` if the timeout has expired.
+- Throws `Async\CancelledException` if the cancellation token has been completed.
 
 ## Examples
 
@@ -79,11 +80,38 @@ $channel = new Channel();
 
 spawn(function() use ($channel) {
     try {
-        $value = $channel->recv(timeoutMs: 2000);
+        $value = $channel->recv(Async\timeout(2000));
         echo "Received: $value\n";
-    } catch (\Async\TimeoutException) {
+    } catch (\Async\CancelledException) {
         echo "No data received within 2 seconds\n";
     }
+});
+```
+
+### Example #3 Receiving with a custom cancellation token
+
+```php
+<?php
+
+use Async\Channel;
+use Async\Future;
+
+$channel = new Channel();
+$cancel = new Future();
+
+spawn(function() use ($channel, $cancel) {
+    try {
+        $value = $channel->recv($cancel);
+        echo "Received: $value\n";
+    } catch (\Async\CancelledException) {
+        echo "Receive cancelled\n";
+    }
+});
+
+// Cancel from another coroutine
+spawn(function() use ($cancel) {
+    Async\delay(500);
+    $cancel->complete(null);
 });
 ```
 

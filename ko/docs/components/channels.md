@@ -61,41 +61,51 @@ use Async\Channel;
 $ch = new Channel(0); // 랑데부 채널
 
 spawn(function() use ($ch) {
-    echo "Sender: before send\n";
+    echo "송신자: send 전\n";
     $ch->send("hello");
-    echo "Sender: send completed\n"; // recv() 이후에만
+    echo "송신자: send 완료\n"; // recv() 이후에만
 });
 
 spawn(function() use ($ch) {
-    echo "Receiver: before recv\n";
+    echo "수신자: recv 전\n";
     $value = $ch->recv();
-    echo "Receiver: got $value\n";
+    echo "수신자: $value 수신됨\n";
 });
 ```
 
-## 작업 타임아웃
+## 작업 취소
 
-`recv()` 및 `send()` 메서드는 밀리초 단위의 선택적 타임아웃 매개변수를 받습니다. 시간이 만료되면 `TimeoutException`이 발생합니다:
+`recv()` 및 `send()` 메서드는 선택적 취소 토큰(`Completable`)을 받아 임의의 조건에 따라 대기를 중단할 수 있습니다. 이는 고정된 타임아웃보다 유연합니다 — 다른 코루틴에서, 시그널로, 이벤트로, 또는 시간으로 연산을 취소할 수 있습니다:
 
 ```php
 use Async\Channel;
-use Async\TimeoutException;
+use Async\CancelledException;
 
 $ch = new Channel(0);
 
+// 타임아웃으로 취소
 spawn(function() use ($ch) {
     try {
-        $ch->recv(50); // 최대 50ms 대기
-    } catch (TimeoutException $e) {
-        echo "Nobody sent data within 50 ms\n";
+        $ch->recv(Async\timeout(50)); // 최대 50ms 대기
+    } catch (CancelledException $e) {
+        echo "50ms 내에 아무도 데이터를 보내지 않았습니다\n";
     }
 });
 
+// 임의의 조건으로 취소
 spawn(function() use ($ch) {
+    $cancel = new \Async\Future();
+
+    spawn(function() use ($cancel) {
+        // 50ms 후에 취소
+        Async\delay(50);
+        $cancel->complete(null);
+    });
+
     try {
-        $ch->send("data", 50); // 수신자를 최대 50ms 대기
-    } catch (TimeoutException $e) {
-        echo "Nobody received the data within 50 ms\n";
+        $ch->send("data", $cancel);
+    } catch (CancelledException $e) {
+        echo "아무도 데이터를 수신하지 않았습니다 — 연산이 취소되었습니다\n";
     }
 });
 ```
@@ -122,7 +132,7 @@ spawn(function() use ($ch) {
     try {
         while (true) {
             $v = $ch->recv();
-            echo "A received: $v\n";
+            echo "A 수신: $v\n";
         }
     } catch (\Async\ChannelException) {}
 });
@@ -132,7 +142,7 @@ spawn(function() use ($ch) {
     try {
         while (true) {
             $v = $ch->recv();
-            echo "B received: $v\n";
+            echo "B 수신: $v\n";
         }
     } catch (\Async\ChannelException) {}
 });

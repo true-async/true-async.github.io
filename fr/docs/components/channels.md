@@ -73,29 +73,39 @@ spawn(function() use ($ch) {
 });
 ```
 
-## Timeouts sur les operations
+## Annulation d'operations
 
-Les methodes `recv()` et `send()` acceptent un parametre de timeout optionnel en millisecondes. Lorsque le temps expire, une `TimeoutException` est lancee :
+Les methodes `recv()` et `send()` acceptent un jeton d'annulation optionnel (`Completable`) qui permet d'interrompre l'attente selon une condition arbitraire. C'est plus flexible qu'un delai fixe -- on peut annuler une operation depuis une autre coroutine, sur un signal, un evenement ou un delai :
 
 ```php
 use Async\Channel;
-use Async\TimeoutException;
+use Async\CancelledException;
 
 $ch = new Channel(0);
 
+// Annulation par delai
 spawn(function() use ($ch) {
     try {
-        $ch->recv(50); // Attendre au maximum 50 ms
-    } catch (TimeoutException $e) {
+        $ch->recv(Async\timeout(50)); // Attendre au maximum 50 ms
+    } catch (CancelledException $e) {
         echo "Personne n'a envoye de donnees dans les 50 ms\n";
     }
 });
 
+// Annulation par condition arbitraire
 spawn(function() use ($ch) {
+    $cancel = new \Async\Future();
+
+    spawn(function() use ($cancel) {
+        // Annuler apres 50 ms
+        Async\delay(50);
+        $cancel->complete(null);
+    });
+
     try {
-        $ch->send("data", 50); // Attendre un recepteur au maximum 50 ms
-    } catch (TimeoutException $e) {
-        echo "Personne n'a recu les donnees dans les 50 ms\n";
+        $ch->send("data", $cancel);
+    } catch (CancelledException $e) {
+        echo "Personne n'a accepte les donnees -- operation annulee\n";
     }
 });
 ```

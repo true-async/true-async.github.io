@@ -59,41 +59,51 @@ use Async\Channel;
 $ch = new Channel(0); // 会合通道
 
 spawn(function() use ($ch) {
-    echo "Sender: before send\n";
+    echo "发送方: send 之前\n";
     $ch->send("hello");
-    echo "Sender: send completed\n"; // 仅在 recv() 之后
+    echo "发送方: send 完成\n"; // 仅在 recv() 之后
 });
 
 spawn(function() use ($ch) {
-    echo "Receiver: before recv\n";
+    echo "接收方: recv 之前\n";
     $value = $ch->recv();
-    echo "Receiver: got $value\n";
+    echo "接收方: 收到 $value\n";
 });
 ```
 
-## 操作超时
+## 取消操作
 
-`recv()` 和 `send()` 方法接受一个可选的超时参数（毫秒）。当时间到期时，抛出 `TimeoutException`：
+`recv()` 和 `send()` 方法接受一个可选的取消令牌（`Completable`），允许根据任意条件中断等待。这比固定超时更加灵活——可以从另一个协程、通过信号、通过事件或按时间取消操作：
 
 ```php
 use Async\Channel;
-use Async\TimeoutException;
+use Async\CancelledException;
 
 $ch = new Channel(0);
 
+// 按超时取消
 spawn(function() use ($ch) {
     try {
-        $ch->recv(50); // 最多等待 50 毫秒
-    } catch (TimeoutException $e) {
-        echo "Nobody sent data within 50 ms\n";
+        $ch->recv(Async\timeout(50)); // 最多等待 50 毫秒
+    } catch (CancelledException $e) {
+        echo "50 毫秒内没有人发送数据\n";
     }
 });
 
+// 按自定义条件取消
 spawn(function() use ($ch) {
+    $cancel = new \Async\Future();
+
+    spawn(function() use ($cancel) {
+        // 50 毫秒后取消
+        Async\delay(50);
+        $cancel->complete(null);
+    });
+
     try {
-        $ch->send("data", 50); // 最多等待接收者 50 毫秒
-    } catch (TimeoutException $e) {
-        echo "Nobody received the data within 50 ms\n";
+        $ch->send("data", $cancel);
+    } catch (CancelledException $e) {
+        echo "没有人接收数据——操作已取消\n";
     }
 });
 ```
@@ -120,7 +130,7 @@ spawn(function() use ($ch) {
     try {
         while (true) {
             $v = $ch->recv();
-            echo "A received: $v\n";
+            echo "A 接收到: $v\n";
         }
     } catch (\Async\ChannelException) {}
 });
@@ -130,7 +140,7 @@ spawn(function() use ($ch) {
     try {
         while (true) {
             $v = $ch->recv();
-            echo "B received: $v\n";
+            echo "B 接收到: $v\n";
         }
     } catch (\Async\ChannelException) {}
 });

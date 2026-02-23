@@ -13,7 +13,7 @@ description: "向通道发送值（阻塞操作）。"
 (PHP 8.6+, True Async 1.0)
 
 ```php
-public Channel::send(mixed $value, int $timeoutMs = 0): void
+public Channel::send(mixed $value, ?Completable $cancellationToken = null): void
 ```
 
 向通道发送一个值。这是一个阻塞操作——如果通道无法立即接受该值，
@@ -27,15 +27,16 @@ public Channel::send(mixed $value, int $timeoutMs = 0): void
 **value**
 : 要发送的值。可以是任意类型。
 
-**timeoutMs**
-: 最大等待时间（毫秒）。
-  `0` — 无限等待（默认）。
-  如果超过超时时间，将抛出 `TimeoutException`。
+**cancellationToken**
+: 取消令牌（`Completable`），允许根据任意条件中断等待。
+  `null` — 无限等待（默认）。
+  当令牌完成时，操作将被中断并抛出 `CancelledException`。
+  如需按时间限制，可使用 `Async\timeout()`。
 
 ## 错误
 
 - 如果通道已关闭，抛出 `Async\ChannelException`。
-- 如果超时时间已过，抛出 `Async\TimeoutException`。
+- 如果取消令牌已完成，抛出 `Async\CancelledException`。
 
 ## 示例
 
@@ -71,10 +72,36 @@ $channel = new Channel(0); // 会合
 
 spawn(function() use ($channel) {
     try {
-        $channel->send('data', timeoutMs: 1000);
-    } catch (\Async\TimeoutException $e) {
-        echo "Timeout: no one accepted the value within 1 second\n";
+        $channel->send('data', Async\timeout(1000));
+    } catch (\Async\CancelledException $e) {
+        echo "超时：1 秒内没有人接受该值\n";
     }
+});
+```
+
+### 示例 #3 使用自定义取消令牌发送
+
+```php
+<?php
+
+use Async\Channel;
+use Async\Future;
+
+$channel = new Channel(0);
+$cancel = new Future();
+
+spawn(function() use ($channel, $cancel) {
+    try {
+        $channel->send('data', $cancel);
+    } catch (\Async\CancelledException $e) {
+        echo "发送已取消\n";
+    }
+});
+
+// 从另一个协程取消操作
+spawn(function() use ($cancel) {
+    Async\delay(500);
+    $cancel->complete(null);
 });
 ```
 

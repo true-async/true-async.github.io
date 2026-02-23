@@ -13,7 +13,7 @@ description: "Envoyer une valeur dans le canal (opération bloquante)."
 (PHP 8.6+, True Async 1.0)
 
 ```php
-public Channel::send(mixed $value, int $timeoutMs = 0): void
+public Channel::send(mixed $value, ?Completable $cancellationToken = null): void
 ```
 
 Envoie une valeur dans le canal. C'est une opération bloquante — la coroutine courante est suspendue
@@ -27,15 +27,16 @@ Pour un **canal avec tampon**, l'expéditeur attend uniquement lorsque le tampon
 **value**
 : La valeur à envoyer. Peut être de n'importe quel type.
 
-**timeoutMs**
-: Temps d'attente maximum en millisecondes.
-  `0` — attente indéfinie (par défaut).
-  Si le délai est dépassé, une `TimeoutException` est levée.
+**cancellationToken**
+: Jeton d'annulation (`Completable`) permettant d'interrompre l'attente selon une condition arbitraire.
+  `null` — attente sans limite (par défaut).
+  Lorsque le jeton est complété, l'opération est interrompue et une `CancelledException` est levée.
+  Pour limiter l'attente dans le temps, vous pouvez utiliser `Async\timeout()`.
 
 ## Erreurs
 
 - Lève `Async\ChannelException` si le canal est fermé.
-- Lève `Async\TimeoutException` si le délai d'attente a expiré.
+- Lève `Async\CancelledException` si le jeton d'annulation a été complété.
 
 ## Exemples
 
@@ -71,10 +72,36 @@ $channel = new Channel(0); // rendez-vous
 
 spawn(function() use ($channel) {
     try {
-        $channel->send('data', timeoutMs: 1000);
-    } catch (\Async\TimeoutException $e) {
+        $channel->send('data', Async\timeout(1000));
+    } catch (\Async\CancelledException $e) {
         echo "Délai dépassé : personne n'a accepté la valeur en 1 seconde\n";
     }
+});
+```
+
+### Exemple #3 Envoi avec un jeton d'annulation personnalisé
+
+```php
+<?php
+
+use Async\Channel;
+use Async\Future;
+
+$channel = new Channel(0);
+$cancel = new Future();
+
+spawn(function() use ($channel, $cancel) {
+    try {
+        $channel->send('data', $cancel);
+    } catch (\Async\CancelledException $e) {
+        echo "Envoi annulé\n";
+    }
+});
+
+// Annuler l'opération depuis une autre coroutine
+spawn(function() use ($cancel) {
+    Async\delay(500);
+    $cancel->complete(null);
 });
 ```
 

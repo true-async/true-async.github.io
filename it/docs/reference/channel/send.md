@@ -13,7 +13,7 @@ description: "Invia un valore al canale (operazione bloccante)."
 (PHP 8.6+, True Async 1.0)
 
 ```php
-public Channel::send(mixed $value, int $timeoutMs = 0): void
+public Channel::send(mixed $value, ?Completable $cancellationToken = null): void
 ```
 
 Invia un valore al canale. Questa e' un'operazione bloccante — la coroutine corrente viene sospesa
@@ -27,15 +27,16 @@ Per un **canale bufferizzato**, il mittente attende solo quando il buffer e' pie
 **value**
 : Il valore da inviare. Puo' essere di qualsiasi tipo.
 
-**timeoutMs**
-: Tempo massimo di attesa in millisecondi.
-  `0` — attesa indefinita (predefinito).
-  Se il timeout viene superato, viene lanciata una `TimeoutException`.
+**cancellationToken**
+: Token di cancellazione (`Completable`) che consente di interrompere l'attesa in base a una condizione arbitraria.
+  `null` — attesa senza limiti (predefinito).
+  Quando il token viene completato, l'operazione viene interrotta e viene lanciata una `CancelledException`.
+  Per limitare il tempo di attesa si puo' utilizzare `Async\timeout()`.
 
 ## Errori
 
 - Lancia `Async\ChannelException` se il canale e' chiuso.
-- Lancia `Async\TimeoutException` se il timeout e' scaduto.
+- Lancia `Async\CancelledException` se il token di cancellazione e' stato completato.
 
 ## Esempi
 
@@ -71,10 +72,36 @@ $channel = new Channel(0); // rendezvous
 
 spawn(function() use ($channel) {
     try {
-        $channel->send('data', timeoutMs: 1000);
-    } catch (\Async\TimeoutException $e) {
+        $channel->send('data', Async\timeout(1000));
+    } catch (\Async\CancelledException $e) {
         echo "Timeout: nessuno ha accettato il valore entro 1 secondo\n";
     }
+});
+```
+
+### Esempio #3 Invio con token di cancellazione personalizzato
+
+```php
+<?php
+
+use Async\Channel;
+use Async\Future;
+
+$channel = new Channel(0);
+$cancel = new Future();
+
+spawn(function() use ($channel, $cancel) {
+    try {
+        $channel->send('data', $cancel);
+    } catch (\Async\CancelledException $e) {
+        echo "Invio cancellato\n";
+    }
+});
+
+// Cancelliamo l'operazione da un'altra coroutine
+spawn(function() use ($cancel) {
+    Async\delay(500);
+    $cancel->complete(null);
 });
 ```
 

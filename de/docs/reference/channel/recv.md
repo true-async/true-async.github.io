@@ -13,7 +13,7 @@ description: "Einen Wert vom Channel empfangen (blockierende Operation)."
 (PHP 8.6+, True Async 1.0)
 
 ```php
-public Channel::recv(int $timeoutMs = 0): mixed
+public Channel::recv(?Completable $cancellationToken = null): mixed
 ```
 
 Empfängt den nächsten Wert vom Channel. Dies ist eine blockierende Operation — die aktuelle
@@ -24,10 +24,11 @@ Wenn der Channel geschlossen ist, aber noch Werte im Puffer sind, werden diese z
 
 ## Parameter
 
-**timeoutMs**
-: Maximale Wartezeit in Millisekunden.
-  `0` — unbegrenzt warten (Standard).
-  Bei Überschreitung des Timeouts wird eine `TimeoutException` ausgelöst.
+**cancellationToken**
+: Abbruch-Token (`Completable`), das den Abbruch des Wartens nach beliebigen Bedingungen ermöglicht.
+  `null` — unbegrenzt warten (Standard).
+  Wenn das Token abgeschlossen wird, wird die Operation abgebrochen und eine `CancelledException` ausgelöst.
+  Für zeitbasierte Begrenzungen kann `Async\timeout()` verwendet werden.
 
 ## Rückgabewerte
 
@@ -36,7 +37,7 @@ Der nächste Wert aus dem Channel (`mixed`).
 ## Fehler
 
 - Löst `Async\ChannelException` aus, wenn der Channel geschlossen und der Puffer leer ist.
-- Löst `Async\TimeoutException` aus, wenn das Timeout abgelaufen ist.
+- Löst `Async\CancelledException` aus, wenn das Abbruch-Token abgeschlossen wurde.
 
 ## Beispiele
 
@@ -79,11 +80,38 @@ $channel = new Channel();
 
 spawn(function() use ($channel) {
     try {
-        $value = $channel->recv(timeoutMs: 2000);
+        $value = $channel->recv(Async\timeout(2000));
         echo "Empfangen: $value\n";
-    } catch (\Async\TimeoutException) {
+    } catch (\Async\CancelledException) {
         echo "Keine Daten innerhalb von 2 Sekunden empfangen\n";
     }
+});
+```
+
+### Beispiel #3 Empfangen mit benutzerdefiniertem Abbruch-Token
+
+```php
+<?php
+
+use Async\Channel;
+use Async\Future;
+
+$channel = new Channel();
+$cancel = new Future();
+
+spawn(function() use ($channel, $cancel) {
+    try {
+        $value = $channel->recv($cancel);
+        echo "Empfangen: $value\n";
+    } catch (\Async\CancelledException) {
+        echo "Empfang abgebrochen\n";
+    }
+});
+
+// Aus einer anderen Coroutine abbrechen
+spawn(function() use ($cancel) {
+    Async\delay(500);
+    $cancel->complete(null);
 });
 ```
 

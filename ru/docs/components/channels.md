@@ -73,29 +73,39 @@ spawn(function() use ($ch) {
 });
 ```
 
-## Таймауты на операциях
+## Отмена операций
 
-Методы `recv()` и `send()` принимают опциональный параметр таймаута в миллисекундах. При истечении времени выбрасывается `TimeoutException`:
+Методы `recv()` и `send()` принимают опциональный токен отмены (`Completable`), позволяющий прервать ожидание по произвольному условию. Это гибче, чем фиксированный таймаут — можно отменить операцию из другой корутины, по сигналу, по событию или по времени:
 
 ```php
 use Async\Channel;
-use Async\TimeoutException;
+use Async\CancelledException;
 
 $ch = new Channel(0);
 
+// Отмена по таймауту
 spawn(function() use ($ch) {
     try {
-        $ch->recv(50); // Ждём не более 50 мс
-    } catch (TimeoutException $e) {
+        $ch->recv(Async\timeout(50)); // Ждём не более 50 мс
+    } catch (CancelledException $e) {
         echo "Никто не отправил данные за 50 мс\n";
     }
 });
 
+// Отмена по произвольному условию
 spawn(function() use ($ch) {
+    $cancel = new \Async\Future();
+
+    spawn(function() use ($cancel) {
+        // Отменяем через 50 мс
+        Async\delay(50);
+        $cancel->complete(null);
+    });
+
     try {
-        $ch->send("data", 50); // Ждём получателя не более 50 мс
-    } catch (TimeoutException $e) {
-        echo "Никто не принял данные за 50 мс\n";
+        $ch->send("data", $cancel);
+    } catch (CancelledException $e) {
+        echo "Никто не принял данные — операция отменена\n";
     }
 });
 ```

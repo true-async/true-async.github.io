@@ -13,7 +13,7 @@ description: "从通道接收值（阻塞操作）。"
 (PHP 8.6+, True Async 1.0)
 
 ```php
-public Channel::recv(int $timeoutMs = 0): mixed
+public Channel::recv(?Completable $cancellationToken = null): mixed
 ```
 
 从通道接收下一个值。这是一个阻塞操作——如果通道中没有可用的值，
@@ -24,10 +24,11 @@ public Channel::recv(int $timeoutMs = 0): mixed
 
 ## 参数
 
-**timeoutMs**
-: 最大等待时间（毫秒）。
-  `0` — 无限等待（默认）。
-  如果超过超时时间，将抛出 `TimeoutException`。
+**cancellationToken**
+: 取消令牌（`Completable`），允许根据任意条件中断等待。
+  `null` — 无限等待（默认）。
+  当令牌完成时，操作将被中断并抛出 `CancelledException`。
+  如需按时间限制，可使用 `Async\timeout()`。
 
 ## 返回值
 
@@ -36,7 +37,7 @@ public Channel::recv(int $timeoutMs = 0): mixed
 ## 错误
 
 - 如果通道已关闭且缓冲区为空，抛出 `Async\ChannelException`。
-- 如果超时时间已过，抛出 `Async\TimeoutException`。
+- 如果取消令牌已完成，抛出 `Async\CancelledException`。
 
 ## 示例
 
@@ -60,10 +61,10 @@ spawn(function() use ($channel) {
     try {
         while (true) {
             $value = $channel->recv();
-            echo "Received: $value\n";
+            echo "接收到: $value\n";
         }
     } catch (\Async\ChannelException) {
-        echo "Channel closed and empty\n";
+        echo "通道已关闭且为空\n";
     }
 });
 ```
@@ -79,11 +80,38 @@ $channel = new Channel();
 
 spawn(function() use ($channel) {
     try {
-        $value = $channel->recv(timeoutMs: 2000);
-        echo "Received: $value\n";
-    } catch (\Async\TimeoutException) {
-        echo "No data received within 2 seconds\n";
+        $value = $channel->recv(Async\timeout(2000));
+        echo "接收到: $value\n";
+    } catch (\Async\CancelledException) {
+        echo "2 秒内未收到数据\n";
     }
+});
+```
+
+### 示例 #3 使用自定义取消令牌接收
+
+```php
+<?php
+
+use Async\Channel;
+use Async\Future;
+
+$channel = new Channel();
+$cancel = new Future();
+
+spawn(function() use ($channel, $cancel) {
+    try {
+        $value = $channel->recv($cancel);
+        echo "接收到: $value\n";
+    } catch (\Async\CancelledException) {
+        echo "接收已取消\n";
+    }
+});
+
+// 从另一个协程取消操作
+spawn(function() use ($cancel) {
+    Async\delay(500);
+    $cancel->complete(null);
 });
 ```
 

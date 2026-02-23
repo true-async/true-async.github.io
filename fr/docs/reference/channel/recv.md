@@ -13,7 +13,7 @@ description: "Recevoir une valeur du canal (opération bloquante)."
 (PHP 8.6+, True Async 1.0)
 
 ```php
-public Channel::recv(int $timeoutMs = 0): mixed
+public Channel::recv(?Completable $cancellationToken = null): mixed
 ```
 
 Reçoit la prochaine valeur du canal. C'est une opération bloquante — la coroutine
@@ -24,10 +24,11 @@ Si le canal est fermé mais que des valeurs restent dans le tampon, elles seront
 
 ## Paramètres
 
-**timeoutMs**
-: Temps d'attente maximum en millisecondes.
-  `0` — attente indéfinie (par défaut).
-  Si le délai est dépassé, une `TimeoutException` est levée.
+**cancellationToken**
+: Jeton d'annulation (`Completable`) permettant d'interrompre l'attente selon une condition arbitraire.
+  `null` — attente sans limite (par défaut).
+  Lorsque le jeton est complété, l'opération est interrompue et une `CancelledException` est levée.
+  Pour limiter l'attente dans le temps, vous pouvez utiliser `Async\timeout()`.
 
 ## Valeurs de retour
 
@@ -36,7 +37,7 @@ La prochaine valeur du canal (`mixed`).
 ## Erreurs
 
 - Lève `Async\ChannelException` si le canal est fermé et que le tampon est vide.
-- Lève `Async\TimeoutException` si le délai d'attente a expiré.
+- Lève `Async\CancelledException` si le jeton d'annulation a été complété.
 
 ## Exemples
 
@@ -79,11 +80,38 @@ $channel = new Channel();
 
 spawn(function() use ($channel) {
     try {
-        $value = $channel->recv(timeoutMs: 2000);
+        $value = $channel->recv(Async\timeout(2000));
         echo "Reçu : $value\n";
-    } catch (\Async\TimeoutException) {
+    } catch (\Async\CancelledException) {
         echo "Aucune donnée reçue dans les 2 secondes\n";
     }
+});
+```
+
+### Exemple #3 Réception avec un jeton d'annulation personnalisé
+
+```php
+<?php
+
+use Async\Channel;
+use Async\Future;
+
+$channel = new Channel();
+$cancel = new Future();
+
+spawn(function() use ($channel, $cancel) {
+    try {
+        $value = $channel->recv($cancel);
+        echo "Reçu : $value\n";
+    } catch (\Async\CancelledException) {
+        echo "Réception annulée\n";
+    }
+});
+
+// Annuler depuis une autre coroutine
+spawn(function() use ($cancel) {
+    Async\delay(500);
+    $cancel->complete(null);
 });
 ```
 
