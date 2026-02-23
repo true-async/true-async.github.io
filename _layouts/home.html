@@ -59,3 +59,24 @@ layout: default
         </div>
     </div>
 </section>
+
+<!-- Roadmap -->
+<section class="home-roadmap">
+    <div class="home-roadmap-inner">
+        <h2>Roadmap</h2>
+        <div class="home-roadmap-timeline">
+            {% for milestone in site.data.roadmap.milestones %}
+            <div class="home-roadmap-item home-roadmap-item--{{ milestone.status }}">
+                <div class="home-roadmap-dot"></div>
+                <div class="home-roadmap-content">
+                    <span class="home-roadmap-version">v{{ milestone.version }}</span>
+                    <span class="home-roadmap-title">{{ milestone.title }}</span>
+                    {% if milestone.date %}<span class="home-roadmap-date">{{ milestone.date }}</span>{% endif %}
+                    {% if milestone.tag %}<span class="home-roadmap-tag home-roadmap-tag--{{ milestone.status }}">{{ milestone.tag }}</span>{% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <a href="/{{ page.lang }}/roadmap.html" class="home-roadmap-link">View full roadmap &rarr;</a>
+    </div>
+</section>

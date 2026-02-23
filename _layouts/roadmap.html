@@ -18,13 +18,19 @@ layout: default
             <div class="roadmap-marker"></div>
             <div class="roadmap-card">
                 <div class="roadmap-card-header">
-                    <h3>v{{ milestone.version }} &mdash; {{ milestone.title }}</h3>
-                    <span class="roadmap-badge roadmap-badge--{{ milestone.status }}">
-                        {% if milestone.status == 'done' %}Completed
-                        {% elsif milestone.status == 'active' %}In Progress
-                        {% else %}Planned
-                        {% endif %}
-                    </span>
+                    <div class="roadmap-card-title-row">
+                        <h3>v{{ milestone.version }} &mdash; {{ milestone.title }}</h3>
+                        {% if milestone.tag %}<span class="roadmap-tag">{{ milestone.tag }}</span>{% endif %}
+                    </div>
+                    <div class="roadmap-card-meta">
+                        {% if milestone.date %}<span class="roadmap-date">{{ milestone.date }}</span>{% endif %}
+                        <span class="roadmap-badge roadmap-badge--{{ milestone.status }}">
+                            {% if milestone.status == 'done' %}Completed
+                            {% elsif milestone.status == 'active' %}In Progress
+                            {% else %}Planned
+                            {% endif %}
+                        </span>
+                    </div>
                 </div>
                 <ul class="roadmap-features">
                     {% for feature in milestone.features %}

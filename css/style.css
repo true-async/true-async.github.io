@@ -1854,17 +1854,44 @@ pre code {
 }
 
 .roadmap-card-header {
+    margin-bottom: 0.75rem;
+}
+
+.roadmap-card-title-row {
     display: flex;
     align-items: center;
     gap: 0.75rem;
     flex-wrap: wrap;
-    margin-bottom: 0.75rem;
 }
 
 .roadmap-card-header h3 {
     margin: 0;
     font-size: 1.1rem;
     color: var(--color-text);
+}
+
+.roadmap-tag {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.2em 0.6em;
+    border-radius: 9999px;
+    background: #FEF3C7;
+    color: #92400E;
+}
+
+.roadmap-card-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.4rem;
+}
+
+.roadmap-date {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
 }
 
 .roadmap-badge {
@@ -1935,9 +1962,163 @@ pre code {
         padding: 2rem 1rem 3rem;
     }
 
-    .roadmap-card-header {
+    .roadmap-card-title-row {
         flex-direction: column;
         align-items: flex-start;
         gap: 0.4rem;
+    }
+}
+
+/* ========================================
+   Home — Roadmap section
+   ======================================== */
+
+.home-roadmap {
+    padding: 3rem 1.5rem 4rem;
+    background: var(--color-bg-subtle);
+}
+
+.home-roadmap-inner {
+    max-width: 720px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.home-roadmap-inner h2 {
+    font-size: 1.6rem;
+    margin-bottom: 2rem;
+    color: var(--color-text);
+}
+
+.home-roadmap-timeline {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 0;
+    position: relative;
+    padding: 0 1rem;
+}
+
+.home-roadmap-timeline::before {
+    content: '';
+    position: absolute;
+    top: 9px;
+    left: 1rem;
+    right: 1rem;
+    height: 2px;
+    background: var(--color-border);
+}
+
+.home-roadmap-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    min-width: 0;
+}
+
+.home-roadmap-dot {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 3px solid var(--color-border);
+    background: var(--color-bg);
+    z-index: 1;
+    flex-shrink: 0;
+}
+
+.home-roadmap-item--done .home-roadmap-dot {
+    background: #10B981;
+    border-color: #10B981;
+}
+
+.home-roadmap-item--active .home-roadmap-dot {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 4px rgba(107, 88, 255, 0.2);
+}
+
+.home-roadmap-item--planned .home-roadmap-dot {
+    background: var(--color-bg);
+    border-color: #9CA3AF;
+}
+
+.home-roadmap-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.15rem;
+    margin-top: 0.6rem;
+}
+
+.home-roadmap-version {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--color-text);
+}
+
+.home-roadmap-title {
+    font-size: 0.8rem;
+    color: var(--color-text-secondary);
+}
+
+.home-roadmap-date {
+    font-size: 0.7rem;
+    color: var(--color-text-muted);
+}
+
+.home-roadmap-tag {
+    display: inline-block;
+    font-size: 0.6rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.15em 0.5em;
+    border-radius: 9999px;
+    background: #FEF3C7;
+    color: #92400E;
+    margin-top: 0.15rem;
+}
+
+.home-roadmap-link {
+    display: inline-block;
+    margin-top: 2rem;
+    font-size: 0.95rem;
+    color: var(--color-primary);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.home-roadmap-link:hover {
+    text-decoration: underline;
+}
+
+@media (max-width: 640px) {
+    .home-roadmap-timeline {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 0;
+        gap: 1.5rem;
+    }
+
+    .home-roadmap-timeline::before {
+        top: 0;
+        bottom: 0;
+        left: 8px;
+        right: auto;
+        width: 2px;
+        height: auto;
+    }
+
+    .home-roadmap-item {
+        flex-direction: row;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .home-roadmap-content {
+        align-items: flex-start;
+        margin-top: 0;
     }
 }
