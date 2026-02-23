@@ -5,6 +5,7 @@ nav:
   rfc: "RFC"
   motivation: "동기"
   architecture: "아키텍처"
+  roadmap: "Roadmap"
   contributing: "기여하기"
   toggle_menu: "메뉴"
 

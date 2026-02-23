@@ -1,0 +1,44 @@
+milestones:
+  - version: "0.1"
+    title: "Foundation"
+    status: done
+    features:
+      - name: "Coroutines (Fiber-based)"
+        status: done
+      - name: "Scheduler / Reactor (libuv)"
+        status: done
+      - name: "spawn() / delay() / timeout()"
+        status: done
+
+  - version: "0.2"
+    title: "Synchronization primitives"
+    status: active
+    features:
+      - name: "Channels (buffered/unbuffered)"
+        status: done
+      - name: "Futures & Promises"
+        status: in-progress
+      - name: "Mutex / Semaphore"
+        status: planned
+
+  - version: "0.3"
+    title: "I/O & Networking"
+    status: planned
+    features:
+      - name: "Async streams"
+        status: planned
+      - name: "TCP / UDP sockets"
+        status: planned
+      - name: "Async file I/O"
+        status: planned
+
+  - version: "1.0"
+    title: "Production Ready"
+    status: planned
+    features:
+      - name: "Stable API"
+        status: planned
+      - name: "Performance benchmarks"
+        status: planned
+      - name: "PHP RFC submission"
+        status: planned
