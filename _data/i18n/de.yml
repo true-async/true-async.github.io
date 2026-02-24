@@ -21,6 +21,10 @@ docs:
           label: "Einführung"
         - url: "/de/docs/components/introduction.html"
           label: "Warum Asynchronität?"
+    - title: "Konfiguration"
+      items:
+        - url: "/de/docs/reference/ini-settings.html"
+          label: "INI-Einstellungen"
     - title: "Komponenten"
       items:
         - url: "/de/docs/components/coroutines.html"

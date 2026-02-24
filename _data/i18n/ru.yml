@@ -21,6 +21,10 @@ docs:
           label: "Введение"
         - url: "/ru/docs/components/introduction.html"
           label: "Зачем асинхронность?"
+    - title: "Конфигурация"
+      items:
+        - url: "/ru/docs/reference/ini-settings.html"
+          label: "INI-настройки"
     - title: "Компоненты"
       items:
         - url: "/ru/docs/components/coroutines.html"

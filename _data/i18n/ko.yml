@@ -21,6 +21,10 @@ docs:
           label: "소개"
         - url: "/ko/docs/components/introduction.html"
           label: "왜 비동기인가?"
+    - title: "구성"
+      items:
+        - url: "/ko/docs/reference/ini-settings.html"
+          label: "INI 설정"
     - title: "컴포넌트"
       items:
         - url: "/ko/docs/components/coroutines.html"

@@ -21,6 +21,10 @@ docs:
           label: "Introducción"
         - url: "/es/docs/components/introduction.html"
           label: "¿Por qué asincronía?"
+    - title: "Configuración"
+      items:
+        - url: "/es/docs/reference/ini-settings.html"
+          label: "Configuración INI"
     - title: "Componentes"
       items:
         - url: "/es/docs/components/coroutines.html"

@@ -21,6 +21,10 @@ docs:
           label: "简介"
         - url: "/zh/docs/components/introduction.html"
           label: "为什么需要异步？"
+    - title: "配置"
+      items:
+        - url: "/zh/docs/reference/ini-settings.html"
+          label: "INI 设置"
     - title: "组件"
       items:
         - url: "/zh/docs/components/coroutines.html"

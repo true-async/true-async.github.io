@@ -21,6 +21,10 @@ docs:
           label: "Вступ"
         - url: "/uk/docs/components/introduction.html"
           label: "Навіщо асинхронність?"
+    - title: "Конфігурація"
+      items:
+        - url: "/uk/docs/reference/ini-settings.html"
+          label: "INI-налаштування"
     - title: "Компоненти"
       items:
         - url: "/uk/docs/components/coroutines.html"
