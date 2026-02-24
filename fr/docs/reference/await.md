@@ -47,6 +47,8 @@ Si la coroutine s'est terminée avec une exception, `await()` relancera cette ex
 
 Si la coroutine a été annulée, `Async\AsyncCancellation` sera levée.
 
+Si le jeton d'annulation (`$cancellation`) se déclenche, `Async\OperationCanceledException` sera levée. L'exception originale du jeton est disponible via `$e->getPrevious()`. Cela permet de distinguer le déclenchement du jeton d'une exception levée par l'objet awaitable lui-même.
+
 ## Exemples
 
 ### Exemple #1 Utilisation basique de await()

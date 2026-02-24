@@ -41,8 +41,7 @@ signal(Async\Signal $signal, ?Async\Completable $cancellation = null): Async\Fut
 
 ## 오류/예외
 
-- `Async\TimeoutException` — 시그널이 수신되기 전에 타임아웃이 트리거된 경우.
-- `Async\AsyncCancellation` — 다른 이유로 취소가 발생한 경우.
+- `Async\OperationCanceledException` — 취소 토큰이 트리거된 경우(타임아웃 포함). 토큰의 원래 예외는 `$e->getPrevious()`를 통해 접근할 수 있습니다(예: `timeout()` 사용 시 `TimeoutException`).
 
 ## 예제
 
@@ -58,7 +57,7 @@ use function Async\await;
 try {
     $result = await(signal(Signal::SIGINT, timeout(5000)));
     echo "시그널 수신: " . $result->name . "\n";
-} catch (Async\TimeoutException $e) {
+} catch (Async\OperationCanceledException $e) {
     echo "5초 안에 시그널이 수신되지 않았습니다\n";
 }
 ?>
@@ -120,8 +119,9 @@ $future = signal(Signal::SIGINT, $t);
 
 try {
     await($future);
-} catch (\Throwable $e) {
-    echo get_class($e) . "\n"; // Async\TimeoutException
+} catch (Async\OperationCanceledException $e) {
+    echo get_class($e) . "\n"; // Async\OperationCanceledException
+    echo get_class($e->getPrevious()) . "\n"; // Async\TimeoutException
 }
 ?>
 ```

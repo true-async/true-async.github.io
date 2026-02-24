@@ -47,6 +47,8 @@ Si la corrutina terminó con una excepción, `await()` relanzará esa excepción
 
 Si la corrutina fue cancelada, se lanzará `Async\AsyncCancellation`.
 
+Si se activa el token de cancelación (`$cancellation`), se lanzará `Async\OperationCanceledException`. La excepción original del token está disponible a través de `$e->getPrevious()`. Esto permite distinguir la activación del token de una excepción lanzada por el propio objeto awaitable.
+
 ## Ejemplos
 
 ### Ejemplo #1 Uso básico de await()

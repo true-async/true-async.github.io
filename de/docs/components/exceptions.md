@@ -16,7 +16,8 @@ TrueAsync definiert eine spezialisierte Exception-Hierarchie für verschiedene F
 
 ```
 \Cancellation                              -- Basis-Abbruchklasse (gleichrangig mit \Error und \Exception)
-+-- Async\AsyncCancellation                -- Coroutine-Abbruch
++-- Async\AsyncCancellation                -- Koroutinen-Abbruch
+    +-- Async\OperationCanceledException   -- Operation durch Abbruch-Token unterbrochen
 
 \Error
 +-- Async\DeadlockError                    -- Deadlock erkannt
@@ -63,6 +64,42 @@ $coroutine->cancel();
 ```
 
 **Wichtig:** Fangen Sie `AsyncCancellation` nicht über `catch (\Throwable $e)` ab, ohne sie erneut zu werfen -- dies verletzt den kooperativen Abbruchmechanismus.
+
+## OperationCanceledException
+
+```php
+class Async\OperationCanceledException extends Async\AsyncCancellation {}
+```
+
+Wird ausgelöst, wenn eine erwartete Operation durch einen **Abbruch-Token** (Cancellation Token) unterbrochen wird. Die ursprüngliche Ausnahme des Tokens ist über `$previous` verfügbar. So lässt sich unterscheiden, ob der Token ausgelöst wurde oder das Awaitable-Objekt selbst eine Ausnahme geworfen hat.
+
+Betrifft alle Operationen mit Abbruch-Token: `await()`, `await_*()`, `Future::await()`, `Channel::send()`/`recv()`, `Scope::awaitCompletion()`.
+
+```php
+<?php
+use Async\OperationCanceledException;
+use function Async\spawn;
+use function Async\await;
+use function Async\timeout;
+use function Async\delay;
+
+$coroutine = spawn(function() {
+    delay(10000);
+    return "result";
+});
+
+try {
+    await($coroutine, timeout(1000));
+} catch (OperationCanceledException $e) {
+    // Abbruch-Token ausgelöst
+    echo "Operation durch Token unterbrochen\n";
+    echo "Grund: " . $e->getPrevious()?->getMessage() . "\n";
+} catch (\Exception $e) {
+    // Fehler der Koroutine selbst
+    echo "Fehler: " . $e->getMessage() . "\n";
+}
+?>
+```
 
 ## DeadlockError
 
@@ -117,11 +154,11 @@ Basis-Exception für allgemeine Fehler bei asynchronen Operationen. Wird für Fe
 class Async\TimeoutException extends \Exception {}
 ```
 
-Wird geworfen, wenn eine Zeitüberschreitung überschritten wird. Wird automatisch erstellt, wenn `timeout()` auslöst:
+Wird bei Zeitüberschreitung innerhalb einer Koroutine ausgelöst. Wenn `timeout()` als **Abbruch-Token** in `await()` verwendet wird, wird `OperationCanceledException` mit `TimeoutException` in `$previous` ausgelöst:
 
 ```php
 <?php
-use Async\TimeoutException;
+use Async\OperationCanceledException;
 use function Async\spawn;
 use function Async\await;
 use function Async\timeout;
@@ -132,7 +169,8 @@ try {
         delay(10000); // Lange Operation
     });
     await($coroutine, timeout(1000)); // 1 Sekunde Zeitlimit
-} catch (TimeoutException $e) {
+} catch (OperationCanceledException $e) {
+    // $e->getPrevious() enthält TimeoutException
     echo "Operation wurde nicht rechtzeitig abgeschlossen\n";
 }
 ?>

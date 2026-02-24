@@ -17,6 +17,7 @@ TrueAsync definisce una gerarchia specializzata di eccezioni per diversi tipi di
 ```
 \Cancellation                              -- classe base di cancellazione (alla pari con \Error e \Exception)
 +-- Async\AsyncCancellation                -- cancellazione della coroutine
+    +-- Async\OperationCanceledException   -- operazione interrotta dal token di cancellazione
 
 \Error
 +-- Async\DeadlockError                    -- deadlock rilevato
@@ -63,6 +64,42 @@ $coroutine->cancel();
 ```
 
 **Importante:** Non catturare `AsyncCancellation` tramite `catch (\Throwable $e)` senza rilanciarla -- questo viola il meccanismo di cancellazione cooperativa.
+
+## OperationCanceledException
+
+```php
+class Async\OperationCanceledException extends Async\AsyncCancellation {}
+```
+
+Lanciata quando un'operazione in attesa viene interrotta da un **token di cancellazione** (cancellation token). L'eccezione originale del token è disponibile tramite `$previous`. Questo permette di distinguere l'attivazione del token da un'eccezione lanciata dall'oggetto awaitable stesso.
+
+Riguarda tutte le operazioni con token di cancellazione: `await()`, `await_*()`, `Future::await()`, `Channel::send()`/`recv()`, `Scope::awaitCompletion()`.
+
+```php
+<?php
+use Async\OperationCanceledException;
+use function Async\spawn;
+use function Async\await;
+use function Async\timeout;
+use function Async\delay;
+
+$coroutine = spawn(function() {
+    delay(10000);
+    return "result";
+});
+
+try {
+    await($coroutine, timeout(1000));
+} catch (OperationCanceledException $e) {
+    // Token di cancellazione attivato
+    echo "Operazione interrotta dal token\n";
+    echo "Motivo: " . $e->getPrevious()?->getMessage() . "\n";
+} catch (\Exception $e) {
+    // Errore della coroutine stessa
+    echo "Errore: " . $e->getMessage() . "\n";
+}
+?>
+```
 
 ## DeadlockError
 
@@ -117,11 +154,11 @@ Eccezione base per errori generici delle operazioni asincrone. Usata per errori 
 class Async\TimeoutException extends \Exception {}
 ```
 
-Lanciata quando un timeout viene superato. Creata automaticamente quando `timeout()` scatta:
+Lanciata quando un timeout viene superato all'interno di una coroutine. Quando `timeout()` viene usato come **token di cancellazione** in `await()`, viene lanciata `OperationCanceledException` con `TimeoutException` in `$previous`:
 
 ```php
 <?php
-use Async\TimeoutException;
+use Async\OperationCanceledException;
 use function Async\spawn;
 use function Async\await;
 use function Async\timeout;
@@ -132,7 +169,8 @@ try {
         delay(10000); // Operazione lunga
     });
     await($coroutine, timeout(1000)); // Timeout di 1 secondo
-} catch (TimeoutException $e) {
+} catch (OperationCanceledException $e) {
+    // Token di cancellazione attivato. $e->getPrevious() — TimeoutException.
     echo "L'operazione non è stata completata in tempo\n";
 }
 ?>

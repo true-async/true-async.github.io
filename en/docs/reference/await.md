@@ -47,6 +47,8 @@ If the coroutine finished with an exception, `await()` will rethrow that excepti
 
 If the coroutine was cancelled, `Async\AsyncCancellation` will be thrown.
 
+If the cancellation token (`$cancellation`) triggered, `Async\OperationCanceledException` will be thrown. The original exception from the token is available via `$e->getPrevious()`. This allows you to distinguish a token trigger from an exception thrown by the awaitable object itself.
+
 ## Examples
 
 ### Example #1 Basic usage of await()

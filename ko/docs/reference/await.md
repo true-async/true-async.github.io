@@ -47,6 +47,8 @@ await(Async\Completable $awaitable, ?Async\Completable $cancellation = null): mi
 
 코루틴이 취소된 경우, `Async\AsyncCancellation`이 던져집니다.
 
+취소 토큰(`$cancellation`)이 트리거된 경우, `Async\OperationCanceledException`이 던져집니다. 토큰의 원래 예외는 `$e->getPrevious()`를 통해 접근할 수 있습니다. 이를 통해 토큰 트리거와 awaitable 객체 자체의 예외를 구분할 수 있습니다.
+
 ## 예제
 
 ### 예제 #1 await()의 기본 사용법

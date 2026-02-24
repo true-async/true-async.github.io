@@ -202,13 +202,13 @@ $coroutine = spawn(function() {
 
 try {
     $result = await($coroutine, timeout(5000));
-} catch (Async\TimeoutException $e) {
+} catch (Async\OperationCanceledException $e) {
+    // $e->getPrevious() contient TimeoutException
     echo "L'API n'a pas repondu dans les 5 secondes\n";
 }
 ```
 
-`TimeoutException` est un sous-type de `Cancellation`,
-donc la coroutine se termine selon les memes regles.
+Lorsqu'un jeton d'annulation se declenche (y compris un timeout), `OperationCanceledException` est levee. L'exception originale du jeton est disponible via `$e->getPrevious()`. Cela permet de distinguer le declenchement du jeton d'une erreur de l'objet awaitable lui-meme.
 
 ## Verification de l'etat
 

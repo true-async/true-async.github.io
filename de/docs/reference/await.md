@@ -47,6 +47,8 @@ Wenn die Coroutine mit einer Ausnahme beendet wurde, wirft `await()` diese Ausna
 
 Wenn die Coroutine abgebrochen wurde, wird `Async\AsyncCancellation` geworfen.
 
+Wenn der Abbruch-Token (`$cancellation`) ausgelöst wird, wird `Async\OperationCanceledException` ausgelöst. Die ursprüngliche Ausnahme des Tokens ist über `$e->getPrevious()` verfügbar. So lässt sich unterscheiden, ob der Token ausgelöst wurde oder das Awaitable-Objekt selbst eine Ausnahme geworfen hat.
+
 ## Beispiele
 
 ### Beispiel #1 Grundlegende Verwendung von await()

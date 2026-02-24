@@ -17,6 +17,7 @@ TrueAsync 定义了针对不同类型错误的专门异常层级：
 ```
 \Cancellation                              -- 基础取消类（与 \Error 和 \Exception 平级）
 +-- Async\AsyncCancellation                -- 协程取消
+    +-- Async\OperationCanceledException   -- 操作被取消令牌中断
 
 \Error
 +-- Async\DeadlockError                    -- 检测到死锁
@@ -63,6 +64,42 @@ $coroutine->cancel();
 ```
 
 **重要：** 不要通过 `catch (\Throwable $e)` 捕获 `AsyncCancellation` 而不重新抛出 -- 这违反了协作式取消机制。
+
+## OperationCanceledException
+
+```php
+class Async\OperationCanceledException extends Async\AsyncCancellation {}
+```
+
+当等待的操作被**取消令牌**（cancellation token）中断时抛出。令牌的原始异常可通过 `$previous` 获取。这使得可以区分令牌触发和 awaitable 对象本身抛出的异常。
+
+影响所有带取消令牌的操作：`await()`、`await_*()`、`Future::await()`、`Channel::send()`/`recv()`、`Scope::awaitCompletion()`。
+
+```php
+<?php
+use Async\OperationCanceledException;
+use function Async\spawn;
+use function Async\await;
+use function Async\timeout;
+use function Async\delay;
+
+$coroutine = spawn(function() {
+    delay(10000);
+    return "result";
+});
+
+try {
+    await($coroutine, timeout(1000));
+} catch (OperationCanceledException $e) {
+    // 取消令牌已触发
+    echo "操作被令牌中断\n";
+    echo "原因：" . $e->getPrevious()?->getMessage() . "\n";
+} catch (\Exception $e) {
+    // 协程本身的错误
+    echo "错误：" . $e->getMessage() . "\n";
+}
+?>
+```
 
 ## DeadlockError
 
@@ -117,11 +154,11 @@ class Async\AsyncException extends \Exception {}
 class Async\TimeoutException extends \Exception {}
 ```
 
-当超时时间超出时抛出。在 `timeout()` 触发时自动创建：
+当协程内部超时时间超出时抛出。当 `timeout()` 用作 `await()` 中的**取消令牌**时，会抛出 `OperationCanceledException`，其中 `$previous` 为 `TimeoutException`：
 
 ```php
 <?php
-use Async\TimeoutException;
+use Async\OperationCanceledException;
 use function Async\spawn;
 use function Async\await;
 use function Async\timeout;
@@ -132,8 +169,9 @@ try {
         delay(10000); // 长时间操作
     });
     await($coroutine, timeout(1000)); // 1 秒超时
-} catch (TimeoutException $e) {
-    echo "Operation didn't complete in time\n";
+} catch (OperationCanceledException $e) {
+    // 取消令牌触发。$e->getPrevious() — TimeoutException。
+    echo "操作未在规定时间内完成\n";
 }
 ?>
 ```

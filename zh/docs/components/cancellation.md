@@ -199,13 +199,13 @@ $coroutine = spawn(function() {
 
 try {
     $result = await($coroutine, timeout(5000));
-} catch (Async\TimeoutException $e) {
+} catch (Async\OperationCanceledException $e) {
+    // $e->getPrevious() 包含 TimeoutException
     echo "API didn't respond within 5 seconds\n";
 }
 ```
 
-`TimeoutException` 是 `Cancellation` 的子类型，
-因此协程按照相同的规则终止。
+当取消令牌触发时（包括超时），会抛出 `OperationCanceledException`。令牌的原始异常可通过 `$e->getPrevious()` 获取。这使得可以区分令牌触发和 awaitable 对象本身的错误。
 
 ## 检查状态
 

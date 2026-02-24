@@ -202,13 +202,13 @@ $coroutine = spawn(function() {
 
 try {
     $result = await($coroutine, timeout(5000));
-} catch (Async\TimeoutException $e) {
+} catch (Async\OperationCanceledException $e) {
+    // $e->getPrevious() містить TimeoutException
     echo "API didn't respond within 5 seconds\n";
 }
 ```
 
-`TimeoutException` -- це підтип `Cancellation`,
-тому корутина завершується за тими самими правилами.
+При спрацюванні токена скасування (включно з таймаутом) викидається `OperationCanceledException`. Оригінальний виняток із токена доступний через `$e->getPrevious()`. Це дозволяє відрізнити спрацювання токена від помилки самого awaitable-об'єкта.
 
 ## Перевірка стану
 

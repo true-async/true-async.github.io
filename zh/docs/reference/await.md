@@ -47,6 +47,8 @@ await(Async\Completable $awaitable, ?Async\Completable $cancellation = null): mi
 
 如果协程被取消，将抛出 `Async\AsyncCancellation`。
 
+如果取消令牌（`$cancellation`）触发，将抛出 `Async\OperationCanceledException`。令牌的原始异常可通过 `$e->getPrevious()` 获取。这使得可以区分令牌触发和 awaitable 对象本身抛出的异常。
+
 ## 示例
 
 ### 示例 #1 await() 的基本用法

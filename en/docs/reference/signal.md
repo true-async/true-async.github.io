@@ -41,8 +41,7 @@ Returns `Async\Future<Async\Signal>`. When the signal is received, the `Future` 
 
 ## Errors/Exceptions
 
-- `Async\TimeoutException` — if the timeout triggered before the signal was received.
-- `Async\AsyncCancellation` — if cancellation occurred for another reason.
+- `Async\OperationCanceledException` — if the cancellation token triggered (including timeout). The original exception from the token is available via `$e->getPrevious()` (e.g., `TimeoutException` when using `timeout()`).
 
 ## Examples
 
@@ -58,7 +57,7 @@ use function Async\await;
 try {
     $result = await(signal(Signal::SIGINT, timeout(5000)));
     echo "Signal received: " . $result->name . "\n";
-} catch (Async\TimeoutException $e) {
+} catch (Async\OperationCanceledException $e) {
     echo "Signal not received within 5 seconds\n";
 }
 ?>
@@ -120,8 +119,9 @@ $future = signal(Signal::SIGINT, $t);
 
 try {
     await($future);
-} catch (\Throwable $e) {
-    echo get_class($e) . "\n"; // Async\TimeoutException
+} catch (Async\OperationCanceledException $e) {
+    echo get_class($e) . "\n"; // Async\OperationCanceledException
+    echo get_class($e->getPrevious()) . "\n"; // Async\TimeoutException
 }
 ?>
 ```

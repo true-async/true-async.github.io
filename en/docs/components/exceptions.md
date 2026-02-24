@@ -17,6 +17,7 @@ TrueAsync defines a specialized exception hierarchy for different types of error
 ```
 \Cancellation                              -- base cancellation class (on par with \Error and \Exception)
 +-- Async\AsyncCancellation                -- coroutine cancellation
+    +-- Async\OperationCanceledException   -- operation interrupted by cancellation token
 
 \Error
 +-- Async\DeadlockError                    -- deadlock detected
@@ -63,6 +64,42 @@ $coroutine->cancel();
 ```
 
 **Important:** Do not catch `AsyncCancellation` via `catch (\Throwable $e)` without re-throwing -- this violates the cooperative cancellation mechanism.
+
+## OperationCanceledException
+
+```php
+class Async\OperationCanceledException extends Async\AsyncCancellation {}
+```
+
+Thrown when an awaited operation is interrupted by a **cancellation token**. The original exception from the token is available via `$previous`. This allows you to distinguish a token trigger from an exception thrown by the awaitable object itself.
+
+Affects all operations with a cancellation token: `await()`, `await_*()`, `Future::await()`, `Channel::send()`/`recv()`, `Scope::awaitCompletion()`.
+
+```php
+<?php
+use Async\OperationCanceledException;
+use function Async\spawn;
+use function Async\await;
+use function Async\timeout;
+use function Async\delay;
+
+$coroutine = spawn(function() {
+    delay(10000);
+    return "result";
+});
+
+try {
+    await($coroutine, timeout(1000));
+} catch (OperationCanceledException $e) {
+    // Cancellation token triggered
+    echo "Operation interrupted by token\n";
+    echo "Reason: " . $e->getPrevious()?->getMessage() . "\n";
+} catch (\Exception $e) {
+    // Error from the coroutine itself
+    echo "Error: " . $e->getMessage() . "\n";
+}
+?>
+```
 
 ## DeadlockError
 
@@ -117,11 +154,11 @@ Base exception for general async operation errors. Used for errors that don't fa
 class Async\TimeoutException extends \Exception {}
 ```
 
-Thrown when a timeout is exceeded. Created automatically when `timeout()` triggers:
+Thrown when a timeout is exceeded inside a coroutine. When `timeout()` is used as a **cancellation token** in `await()`, `OperationCanceledException` is thrown with `TimeoutException` in `$previous`:
 
 ```php
 <?php
-use Async\TimeoutException;
+use Async\OperationCanceledException;
 use function Async\spawn;
 use function Async\await;
 use function Async\timeout;
@@ -132,7 +169,8 @@ try {
         delay(10000); // Long operation
     });
     await($coroutine, timeout(1000)); // 1 second timeout
-} catch (TimeoutException $e) {
+} catch (OperationCanceledException $e) {
+    // Cancellation token triggered. $e->getPrevious() is TimeoutException.
     echo "Operation didn't complete in time\n";
 }
 ?>

@@ -47,6 +47,8 @@ Se la coroutine è terminata con un'eccezione, `await()` rilancerà quella eccez
 
 Se la coroutine è stata annullata, verrà lanciata `Async\AsyncCancellation`.
 
+Se il token di cancellazione (`$cancellation`) si attiva, verrà lanciata `Async\OperationCanceledException`. L'eccezione originale del token è disponibile tramite `$e->getPrevious()`. Questo permette di distinguere l'attivazione del token da un'eccezione lanciata dall'oggetto awaitable stesso.
+
 ## Esempi
 
 ### Esempio #1 Uso base di await()

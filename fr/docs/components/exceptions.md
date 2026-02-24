@@ -17,6 +17,7 @@ TrueAsync definit une hierarchie d'exceptions specialisee pour differents types 
 ```
 \Cancellation                              -- classe de base d'annulation (au meme rang que \Error et \Exception)
 +-- Async\AsyncCancellation                -- annulation de coroutine
+    +-- Async\OperationCanceledException   -- opération interrompue par un jeton d'annulation
 
 \Error
 +-- Async\DeadlockError                    -- interblocage detecte
@@ -63,6 +64,42 @@ $coroutine->cancel();
 ```
 
 **Important :** N'interceptez pas `AsyncCancellation` via `catch (\Throwable $e)` sans la relancer -- cela viole le mecanisme d'annulation cooperative.
+
+## OperationCanceledException
+
+```php
+class Async\OperationCanceledException extends Async\AsyncCancellation {}
+```
+
+Levée lorsqu'une opération en attente est interrompue par un **jeton d'annulation** (cancellation token). L'exception originale du jeton est disponible via `$previous`. Cela permet de distinguer le déclenchement du jeton d'une exception levée par l'objet awaitable lui-même.
+
+Concerne toutes les opérations avec jeton d'annulation : `await()`, `await_*()`, `Future::await()`, `Channel::send()`/`recv()`, `Scope::awaitCompletion()`.
+
+```php
+<?php
+use Async\OperationCanceledException;
+use function Async\spawn;
+use function Async\await;
+use function Async\timeout;
+use function Async\delay;
+
+$coroutine = spawn(function() {
+    delay(10000);
+    return "result";
+});
+
+try {
+    await($coroutine, timeout(1000));
+} catch (OperationCanceledException $e) {
+    // Jeton d'annulation déclenché
+    echo "Opération interrompue par le jeton\n";
+    echo "Raison : " . $e->getPrevious()?->getMessage() . "\n";
+} catch (\Exception $e) {
+    // Erreur de la coroutine elle-même
+    echo "Erreur : " . $e->getMessage() . "\n";
+}
+?>
+```
 
 ## DeadlockError
 
@@ -117,11 +154,11 @@ Exception de base pour les erreurs generales d'operations asynchrones. Utilisee 
 class Async\TimeoutException extends \Exception {}
 ```
 
-Lancee lorsqu'un timeout est depasse. Creee automatiquement lorsque `timeout()` se declenche :
+Lancee lorsqu'un timeout est depasse a l'interieur d'une coroutine. Lorsque `timeout()` est utilise comme **jeton d'annulation** dans `await()`, `OperationCanceledException` est levee avec `TimeoutException` dans `$previous` :
 
 ```php
 <?php
-use Async\TimeoutException;
+use Async\OperationCanceledException;
 use function Async\spawn;
 use function Async\await;
 use function Async\timeout;
@@ -132,7 +169,8 @@ try {
         delay(10000); // Operation longue
     });
     await($coroutine, timeout(1000)); // Timeout de 1 seconde
-} catch (TimeoutException $e) {
+} catch (OperationCanceledException $e) {
+    // Jeton d'annulation declenche. $e->getPrevious() — TimeoutException.
     echo "L'operation ne s'est pas terminee a temps\n";
 }
 ?>

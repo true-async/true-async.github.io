@@ -17,6 +17,7 @@ TrueAsync определяет специализированную иерарх
 ```
 \Cancellation                              — базовый класс отмены (наравне с \Error и \Exception)
 └── Async\AsyncCancellation                — отмена корутины
+    └── Async\OperationCanceledException   — операция прервана токеном отмены
 
 \Error
 └── Async\DeadlockError                    — обнаружена взаимная блокировка
@@ -63,6 +64,42 @@ $coroutine->cancel();
 ```
 
 **Важно:** Не ловите `AsyncCancellation` через `catch (\Throwable $e)` без повторного выброса — это нарушает механизм кооперативной отмены.
+
+## OperationCanceledException
+
+```php
+class Async\OperationCanceledException extends Async\AsyncCancellation {}
+```
+
+Выбрасывается, когда ожидаемая операция прерывается **токеном отмены** (cancellation token). Оригинальное исключение из токена доступно через `$previous`. Это позволяет отличить срабатывание токена от исключения, выброшенного самим awaitable-объектом.
+
+Затрагивает все операции с токеном отмены: `await()`, `await_*()`, `Future::await()`, `Channel::send()`/`recv()`, `Scope::awaitCompletion()`.
+
+```php
+<?php
+use Async\OperationCanceledException;
+use function Async\spawn;
+use function Async\await;
+use function Async\timeout;
+use function Async\delay;
+
+$coroutine = spawn(function() {
+    delay(10000);
+    return "result";
+});
+
+try {
+    await($coroutine, timeout(1000));
+} catch (OperationCanceledException $e) {
+    // Токен отмены сработал
+    echo "Операция прервана токеном\n";
+    echo "Причина: " . $e->getPrevious()?->getMessage() . "\n";
+} catch (\Exception $e) {
+    // Ошибка самой корутины
+    echo "Ошибка: " . $e->getMessage() . "\n";
+}
+?>
+```
 
 ## DeadlockError
 
@@ -117,11 +154,11 @@ class Async\AsyncException extends \Exception {}
 class Async\TimeoutException extends \Exception {}
 ```
 
-Выбрасывается при превышении таймаута. Создаётся автоматически при срабатывании `timeout()`:
+Выбрасывается при превышении таймаута внутри корутины. Когда `timeout()` используется как **токен отмены** в `await()`, бросается `OperationCanceledException` с `TimeoutException` в `$previous`:
 
 ```php
 <?php
-use Async\TimeoutException;
+use Async\OperationCanceledException;
 use function Async\spawn;
 use function Async\await;
 use function Async\timeout;
@@ -132,7 +169,8 @@ try {
         delay(10000); // Долгая операция
     });
     await($coroutine, timeout(1000)); // Таймаут 1 секунда
-} catch (TimeoutException $e) {
+} catch (OperationCanceledException $e) {
+    // Токен отмены сработал. $e->getPrevious() — TimeoutException.
     echo "Операция не завершилась вовремя\n";
 }
 ?>

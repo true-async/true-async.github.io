@@ -47,6 +47,8 @@ await(Async\Completable $awaitable, ?Async\Completable $cancellation = null): mi
 
 Якщо корутину було скасовано, буде викинуто `Async\AsyncCancellation`.
 
+Якщо спрацював токен скасування (`$cancellation`), буде викинуто `Async\OperationCanceledException`. Оригінальний виняток із токена доступний через `$e->getPrevious()`. Це дозволяє відрізнити спрацювання токена від винятку самого awaitable-об'єкта.
+
 ## Приклади
 
 ### Приклад #1 Базове використання await()

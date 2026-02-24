@@ -47,6 +47,8 @@ await(Async\Completable $awaitable, ?Async\Completable $cancellation = null): mi
 
 Если корутина была отменена, будет выброшено `Async\AsyncCancellation`.
 
+Если сработал токен отмены (`$cancellation`), будет выброшено `Async\OperationCanceledException`. Оригинальное исключение из токена доступно через `$e->getPrevious()`. Это позволяет отличить срабатывание токена от исключения самого awaitable-объекта.
+
 ## Примеры
 
 ### Пример #1 Базовое использование await()

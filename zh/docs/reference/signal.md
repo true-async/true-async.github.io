@@ -41,8 +41,7 @@ signal(Async\Signal $signal, ?Async\Completable $cancellation = null): Async\Fut
 
 ## 错误/异常
 
-- `Async\TimeoutException` — 如果在信号接收之前超时触发。
-- `Async\AsyncCancellation` — 如果因其他原因发生取消。
+- `Async\OperationCanceledException` — 如果取消令牌触发（包括超时）。令牌的原始异常可通过 `$e->getPrevious()` 获取（例如使用 `timeout()` 时的 `TimeoutException`）。
 
 ## 示例
 
@@ -58,7 +57,7 @@ use function Async\await;
 try {
     $result = await(signal(Signal::SIGINT, timeout(5000)));
     echo "Signal received: " . $result->name . "\n";
-} catch (Async\TimeoutException $e) {
+} catch (Async\OperationCanceledException $e) {
     echo "Signal not received within 5 seconds\n";
 }
 ?>
@@ -120,8 +119,9 @@ $future = signal(Signal::SIGINT, $t);
 
 try {
     await($future);
-} catch (\Throwable $e) {
-    echo get_class($e) . "\n"; // Async\TimeoutException
+} catch (Async\OperationCanceledException $e) {
+    echo get_class($e) . "\n"; // Async\OperationCanceledException
+    echo get_class($e->getPrevious()) . "\n"; // Async\TimeoutException
 }
 ?>
 ```

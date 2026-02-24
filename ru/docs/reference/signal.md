@@ -41,8 +41,7 @@ signal(Async\Signal $signal, ?Async\Completable $cancellation = null): Async\Fut
 
 ## Ошибки/Исключения
 
-- `Async\TimeoutException` — если сработал таймаут до получения сигнала.
-- `Async\AsyncCancellation` — если отмена произошла по другой причине.
+- `Async\OperationCanceledException` — если сработал токен отмены (включая таймаут). Оригинальное исключение из токена доступно через `$e->getPrevious()` (например, `TimeoutException` при использовании `timeout()`).
 
 ## Примеры
 
@@ -58,7 +57,7 @@ use function Async\await;
 try {
     $result = await(signal(Signal::SIGINT, timeout(5000)));
     echo "Получен сигнал: " . $result->name . "\n";
-} catch (Async\TimeoutException $e) {
+} catch (Async\OperationCanceledException $e) {
     echo "Сигнал не получен за 5 секунд\n";
 }
 ?>
@@ -120,8 +119,9 @@ $future = signal(Signal::SIGINT, $t);
 
 try {
     await($future);
-} catch (\Throwable $e) {
-    echo get_class($e) . "\n"; // Async\TimeoutException
+} catch (Async\OperationCanceledException $e) {
+    echo get_class($e) . "\n"; // Async\OperationCanceledException
+    echo get_class($e->getPrevious()) . "\n"; // Async\TimeoutException
 }
 ?>
 ```

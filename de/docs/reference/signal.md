@@ -41,8 +41,7 @@ Gibt `Async\Future<Async\Signal>` zurueck. Wenn das Signal empfangen wird, wird 
 
 ## Fehler/Ausnahmen
 
-- `Async\TimeoutException` — wenn der Timeout vor dem Empfang des Signals ausgeloest wurde.
-- `Async\AsyncCancellation` — wenn der Abbruch aus einem anderen Grund erfolgte.
+- `Async\OperationCanceledException` — wenn der Abbruch-Token ausgelöst wird (einschließlich Timeout). Die ursprüngliche Ausnahme des Tokens ist über `$e->getPrevious()` verfügbar (z.B. `TimeoutException` bei Verwendung von `timeout()`).
 
 ## Beispiele
 
@@ -58,7 +57,7 @@ use function Async\await;
 try {
     $result = await(signal(Signal::SIGINT, timeout(5000)));
     echo "Signal empfangen: " . $result->name . "\n";
-} catch (Async\TimeoutException $e) {
+} catch (Async\OperationCanceledException $e) {
     echo "Signal nicht innerhalb von 5 Sekunden empfangen\n";
 }
 ?>
@@ -120,8 +119,9 @@ $future = signal(Signal::SIGINT, $t);
 
 try {
     await($future);
-} catch (\Throwable $e) {
-    echo get_class($e) . "\n"; // Async\TimeoutException
+} catch (Async\OperationCanceledException $e) {
+    echo get_class($e) . "\n"; // Async\OperationCanceledException
+    echo get_class($e->getPrevious()) . "\n"; // Async\TimeoutException
 }
 ?>
 ```

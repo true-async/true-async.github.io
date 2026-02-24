@@ -202,13 +202,13 @@ $coroutine = spawn(function() {
 
 try {
     $result = await($coroutine, timeout(5000));
-} catch (Async\TimeoutException $e) {
+} catch (Async\OperationCanceledException $e) {
+    // $e->getPrevious()에 TimeoutException 포함
     echo "API didn't respond within 5 seconds\n";
 }
 ```
 
-`TimeoutException`은 `Cancellation`의 하위 타입이므로
-코루틴은 동일한 규칙으로 종료됩니다.
+취소 토큰이 발동되면(타임아웃 포함) `OperationCanceledException`이 발생합니다. 토큰의 원래 예외는 `$e->getPrevious()`를 통해 확인할 수 있습니다. 이를 통해 토큰 발동과 awaitable 객체 자체의 오류를 구분할 수 있습니다.
 
 ## 상태 확인
 

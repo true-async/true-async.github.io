@@ -17,6 +17,7 @@ TrueAsync는 다양한 유형의 오류를 위한 전문화된 예외 계층을 
 ```
 \Cancellation                              -- 기본 취소 클래스 (\Error 및 \Exception과 동급)
 +-- Async\AsyncCancellation                -- 코루틴 취소
+    +-- Async\OperationCanceledException   -- 취소 토큰에 의해 작업 중단
 
 \Error
 +-- Async\DeadlockError                    -- 데드락 감지
@@ -63,6 +64,42 @@ $coroutine->cancel();
 ```
 
 **중요:** 다시 던지지 않고 `catch (\Throwable $e)`로 `AsyncCancellation`을 잡지 마세요 -- 이는 협력적 취소 메커니즘을 위반합니다.
+
+## OperationCanceledException
+
+```php
+class Async\OperationCanceledException extends Async\AsyncCancellation {}
+```
+
+대기 중인 작업이 **취소 토큰**(cancellation token)에 의해 중단될 때 발생합니다. 토큰의 원래 예외는 `$previous`를 통해 확인할 수 있습니다. 이를 통해 토큰 발동과 awaitable 객체 자체에서 발생한 예외를 구분할 수 있습니다.
+
+취소 토큰이 있는 모든 작업에 영향: `await()`, `await_*()`, `Future::await()`, `Channel::send()`/`recv()`, `Scope::awaitCompletion()`.
+
+```php
+<?php
+use Async\OperationCanceledException;
+use function Async\spawn;
+use function Async\await;
+use function Async\timeout;
+use function Async\delay;
+
+$coroutine = spawn(function() {
+    delay(10000);
+    return "result";
+});
+
+try {
+    await($coroutine, timeout(1000));
+} catch (OperationCanceledException $e) {
+    // 취소 토큰 발동
+    echo "토큰에 의해 작업 중단\n";
+    echo "원인: " . $e->getPrevious()?->getMessage() . "\n";
+} catch (\Exception $e) {
+    // 코루틴 자체의 오류
+    echo "오류: " . $e->getMessage() . "\n";
+}
+?>
+```
 
 ## DeadlockError
 
@@ -117,11 +154,11 @@ class Async\AsyncException extends \Exception {}
 class Async\TimeoutException extends \Exception {}
 ```
 
-타임아웃이 초과되면 발생합니다. `timeout()`이 트리거될 때 자동으로 생성됩니다:
+코루틴 내부에서 타임아웃이 초과되면 발생합니다. `timeout()`이 **취소 토큰**으로 `await()`에서 사용될 때는 `OperationCanceledException`이 발생하며, `TimeoutException`은 `$previous`에 포함됩니다:
 
 ```php
 <?php
-use Async\TimeoutException;
+use Async\OperationCanceledException;
 use function Async\spawn;
 use function Async\await;
 use function Async\timeout;
@@ -132,7 +169,8 @@ try {
         delay(10000); // 긴 작업
     });
     await($coroutine, timeout(1000)); // 1초 타임아웃
-} catch (TimeoutException $e) {
+} catch (OperationCanceledException $e) {
+    // 취소 토큰 발동. $e->getPrevious() — TimeoutException.
     echo "Operation didn't complete in time\n";
 }
 ?>
