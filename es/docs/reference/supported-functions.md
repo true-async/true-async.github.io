@@ -140,6 +140,13 @@ Cada contexto async utiliza una conexión separada para concurrencia segura.
 | `stream_get_contents()` | Leer resto del flujo |
 | `stream_copy_to_stream()` | Copiar entre flujos |
 
+> **Importante: Timeouts para archivos y flujos pipe.**
+> PHP no soporta nativamente timeouts para operaciones de lectura/escritura en archivos y flujos pipe — las funciones estándar `fread()`, `fwrite()` y otras pueden bloquearse indefinidamente.
+> TrueAsync resuelve esto: si se establece un timeout para un flujo (mediante `stream_set_timeout()`),
+> la operación de lectura registra simultáneamente un evento IO y un temporizador. Si el temporizador se dispara antes de que la IO se complete,
+> la lectura se cancela y la corrutina recibe un resultado de `-1` (indicador de timeout).
+> Esto solo funciona dentro de corrutinas — fuera de ellas, el comportamiento es el estándar.
+
 ---
 
 ## Sockets de flujo
@@ -166,6 +173,15 @@ Cada contexto async utiliza una conexión separada para concurrencia segura.
 | `shell_exec()` | Ejecutar comando shell |
 | `system()` | Ejecutar comando del sistema |
 | `passthru()` | Ejecutar con salida directa |
+
+> **Importante: `proc_close()` y `pclose()` bloquean la corrutina.**
+> Llamar a `proc_close()` o `pclose()` espera a que el proceso hijo termine.
+> Dentro de una corrutina, esto **bloquea la corrutina actual** hasta que el proceso termine — las demás corrutinas siguen ejecutándose.
+> Lo mismo ocurre en llamadas implícitas a través de destructores: si una variable con un recurso de proceso sale del ámbito
+> o es destruida por el recolector de basura, el destructor llama a `pclose()`, lo que bloquea la corrutina donde se ejecuta la recolección de basura.
+>
+> Recomendación: cierre siempre los procesos explícitamente con `proc_close()` en lugar de depender de los destructores,
+> para controlar en qué corrutina se producirá el bloqueo.
 
 ---
 

@@ -140,6 +140,13 @@ Each async context uses a separate connection for safe concurrency.
 | `stream_get_contents()` | Read remaining stream |
 | `stream_copy_to_stream()` | Copy between streams |
 
+> **Important: Timeouts for files and pipe streams.**
+> PHP does not natively support timeouts for file and pipe stream read/write operations — standard `fread()`, `fwrite()` and other functions can block indefinitely.
+> TrueAsync solves this: if a timeout is set for a stream (via `stream_set_timeout()`),
+> the read operation registers both an IO event and a timer simultaneously. If the timer fires before the IO completes,
+> the read is cancelled and the coroutine receives a result of `-1` (indicating a timeout).
+> This only works inside coroutines — outside coroutines, behavior remains standard.
+
 ---
 
 ## Stream Sockets
@@ -166,6 +173,15 @@ Each async context uses a separate connection for safe concurrency.
 | `shell_exec()` | Execute shell command |
 | `system()` | Execute system command |
 | `passthru()` | Execute with direct output |
+
+> **Important: `proc_close()` and `pclose()` block the coroutine.**
+> Calling `proc_close()` or `pclose()` waits for the child process to exit.
+> Inside a coroutine, this **blocks the current coroutine** until the process exits — other coroutines continue running.
+> The same happens on implicit calls via destructors: if a variable holding a process resource goes out of scope
+> or is destroyed by the garbage collector, the destructor calls `pclose()`, which blocks the coroutine where garbage collection is running.
+>
+> Recommendation: always close processes explicitly via `proc_close()` instead of relying on destructors,
+> so you can control which coroutine will be blocked.
 
 ---
 

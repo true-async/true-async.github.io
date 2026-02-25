@@ -140,6 +140,13 @@ Jeder Async-Kontext verwendet eine separate Verbindung für sichere Nebenläufig
 | `stream_get_contents()` | Rest des Streams lesen |
 | `stream_copy_to_stream()` | Zwischen Streams kopieren |
 
+> **Wichtig: Timeouts für Dateien und Pipe-Streams.**
+> PHP unterstützt nativ keine Timeouts für Lese-/Schreiboperationen auf Dateien und Pipe-Streams — Standard-Funktionen wie `fread()`, `fwrite()` und andere können unbegrenzt blockieren.
+> TrueAsync löst dieses Problem: Wenn ein Timeout für einen Stream gesetzt ist (über `stream_set_timeout()`),
+> registriert die Leseoperation gleichzeitig ein IO-Ereignis und einen Timer. Wenn der Timer vor Abschluss der IO auslöst,
+> wird das Lesen abgebrochen und die Coroutine erhält das Ergebnis `-1` (Timeout-Indikator).
+> Dies funktioniert nur innerhalb von Coroutinen — außerhalb bleibt das Verhalten standard.
+
 ---
 
 ## Stream-Sockets
@@ -166,6 +173,15 @@ Jeder Async-Kontext verwendet eine separate Verbindung für sichere Nebenläufig
 | `shell_exec()` | Shell-Befehl ausführen |
 | `system()` | Systembefehl ausführen |
 | `passthru()` | Ausführen mit direkter Ausgabe |
+
+> **Wichtig: `proc_close()` und `pclose()` blockieren die Coroutine.**
+> Der Aufruf von `proc_close()` oder `pclose()` wartet auf das Ende des Kindprozesses.
+> Innerhalb einer Coroutine **blockiert dies die aktuelle Coroutine** bis der Prozess beendet ist — andere Coroutinen laufen weiter.
+> Dasselbe geschieht bei impliziten Aufrufen über Destruktoren: Wenn eine Variable mit einer Prozess-Ressource den Gültigkeitsbereich verlässt
+> oder vom Garbage Collector zerstört wird, ruft der Destruktor `pclose()` auf, was die Coroutine blockiert, in der die Garbage Collection läuft.
+>
+> Empfehlung: Schließen Sie Prozesse immer explizit über `proc_close()`, anstatt sich auf Destruktoren zu verlassen,
+> damit Sie kontrollieren können, welche Coroutine blockiert wird.
 
 ---
 

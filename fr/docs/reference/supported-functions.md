@@ -140,6 +140,13 @@ Chaque contexte async utilise une connexion séparée pour une concurrence sûre
 | `stream_get_contents()` | Lire le reste du flux |
 | `stream_copy_to_stream()` | Copier entre flux |
 
+> **Important : Timeouts pour les fichiers et les flux pipe.**
+> PHP ne supporte pas nativement les timeouts pour les opérations de lecture/écriture sur les fichiers et les flux pipe — les fonctions standard `fread()`, `fwrite()` et autres peuvent bloquer indéfiniment.
+> TrueAsync résout ce problème : si un timeout est défini pour un flux (via `stream_set_timeout()`),
+> l'opération de lecture enregistre simultanément un événement IO et un minuteur. Si le minuteur se déclenche avant la fin de l'IO,
+> la lecture est annulée et la coroutine reçoit un résultat de `-1` (indicateur de timeout).
+> Cela ne fonctionne qu'à l'intérieur des coroutines — en dehors, le comportement reste standard.
+
 ---
 
 ## Sockets de flux
@@ -166,6 +173,15 @@ Chaque contexte async utilise une connexion séparée pour une concurrence sûre
 | `shell_exec()` | Exécuter une commande shell |
 | `system()` | Exécuter une commande système |
 | `passthru()` | Exécuter avec sortie directe |
+
+> **Important : `proc_close()` et `pclose()` bloquent la coroutine.**
+> L'appel à `proc_close()` ou `pclose()` attend la fin du processus enfant.
+> À l'intérieur d'une coroutine, cela **bloque la coroutine courante** jusqu'à la fin du processus — les autres coroutines continuent de s'exécuter.
+> Cela se produit aussi lors d'appels implicites via les destructeurs : si une variable contenant une ressource de processus sort de la portée
+> ou est détruite par le ramasse-miettes, le destructeur appelle `pclose()`, ce qui bloque la coroutine où s'exécute le ramasse-miettes.
+>
+> Recommandation : fermez toujours les processus explicitement via `proc_close()` au lieu de compter sur les destructeurs,
+> afin de contrôler quelle coroutine sera bloquée.
 
 ---
 
