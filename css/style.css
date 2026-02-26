@@ -1177,6 +1177,7 @@ pre code {
     background: transparent;
     border-radius: var(--radius-lg) 0 0 var(--radius-lg);
     margin: 0;
+    order: 1;
 }
 .code-copy-btn {
     flex-shrink: 0;
@@ -1184,6 +1185,7 @@ pre code {
     border: none;
     border-left: 1px solid rgba(128, 128, 128, 0.15);
     border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+    order: 2;
     padding: 0.6rem 0.55rem;
     cursor: pointer;
     opacity: 0.5;
