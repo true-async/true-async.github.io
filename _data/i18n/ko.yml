@@ -406,6 +406,8 @@ architecture:
           label: "Waker"
         - url: "/ko/architecture/async-gc.html"
           label: "가비지 컬렉션"
+        - url: "/ko/architecture/fibers.html"
+          label: "파이버"
     - title: "컴포넌트"
       items:
         - url: "/ko/architecture/pool.html"

@@ -406,6 +406,8 @@ architecture:
           label: "Waker"
         - url: "/fr/architecture/async-gc.html"
           label: "Ramasse-miettes"
+        - url: "/fr/architecture/fibers.html"
+          label: "Fibers"
     - title: "Composants"
       items:
         - url: "/fr/architecture/pool.html"

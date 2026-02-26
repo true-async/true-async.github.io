@@ -406,6 +406,8 @@ architecture:
           label: "Waker"
         - url: "/zh/architecture/async-gc.html"
           label: "垃圾回收"
+        - url: "/zh/architecture/fibers.html"
+          label: "Fibers"
     - title: "组件"
       items:
         - url: "/zh/architecture/pool.html"

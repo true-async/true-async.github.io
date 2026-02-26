@@ -406,6 +406,8 @@ architecture:
           label: "Waker"
         - url: "/de/architecture/async-gc.html"
           label: "Garbage Collection"
+        - url: "/de/architecture/fibers.html"
+          label: "Fibers"
     - title: "Komponenten"
       items:
         - url: "/de/architecture/pool.html"
