@@ -1142,9 +1142,11 @@ pre code {
 }
 
 .download-card pre {
-    margin-bottom: 1rem;
     scrollbar-width: thin;
     scrollbar-color: var(--color-border) transparent;
+}
+.download-card .code-copy-wrapper {
+    margin-bottom: 1rem;
 }
 
 /* Thin scrollbars for code blocks (webkit) */
@@ -1164,34 +1166,36 @@ pre code {
 
 /* Copy button */
 .code-copy-wrapper {
-    position: relative;
-    display: block;
+    display: flex;
+    align-items: flex-start;
+    background: var(--color-code-bg);
+    border-radius: var(--radius-lg);
 }
 .code-copy-wrapper pre {
-    padding-right: 3rem;
+    flex: 1;
+    min-width: 0;
+    background: transparent;
+    border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+    margin: 0;
 }
 .code-copy-btn {
-    position: absolute;
-    top: 0.5rem;
-    right: 0.5rem;
-    z-index: 2;
-    background: rgba(128, 128, 128, 0.12);
-    backdrop-filter: blur(4px);
-    border: 1px solid var(--color-border);
-    border-radius: 6px;
-    padding: 0.4rem;
+    flex-shrink: 0;
+    background: transparent;
+    border: none;
+    border-left: 1px solid rgba(128, 128, 128, 0.15);
+    border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+    padding: 0.6rem 0.55rem;
     cursor: pointer;
-    opacity: 0.6;
+    opacity: 0.5;
     color: var(--color-text-muted);
     font-size: 0.75rem;
     line-height: 1;
     display: flex;
     align-items: center;
-    gap: 0.25rem;
     transition: opacity 0.2s, background 0.2s;
 }
 .code-copy-btn:hover {
-    background: rgba(128, 128, 128, 0.25);
+    background: rgba(128, 128, 128, 0.12);
     color: var(--color-text);
     opacity: 1;
 }
