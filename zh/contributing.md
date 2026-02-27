@@ -107,7 +107,7 @@ git checkout -b feature/my-improvement
 | 仓库 | 描述 |
 |------|------|
 | [php-src](https://github.com/true-async/php-src){:target="_blank"} | 带有 Async API 的 PHP 核心 |
-| [ext-async](https://github.com/true-async/ext-async){:target="_blank"} | 带有实现的扩展 |
+| [php-async](https://github.com/true-async/php-async){:target="_blank"} | 带有实现的扩展 |
 | [true-async.github.io](https://github.com/true-async/true-async.github.io){:target="_blank"} | 本文档网站 |
 
 ## 指南

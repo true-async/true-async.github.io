@@ -107,7 +107,7 @@ git checkout -b feature/my-improvement
 | 저장소 | 설명 |
 |--------|------|
 | [php-src](https://github.com/true-async/php-src){:target="_blank"} | Async API를 포함한 PHP 코어 |
-| [ext-async](https://github.com/true-async/ext-async){:target="_blank"} | 구현을 포함한 확장 |
+| [php-async](https://github.com/true-async/php-async){:target="_blank"} | 구현을 포함한 확장 |
 | [true-async.github.io](https://github.com/true-async/true-async.github.io){:target="_blank"} | 이 문서 사이트 |
 
 ## 가이드라인
