@@ -37,7 +37,7 @@ milestones:
       - name: "Read/write files"
         status: in-progress
       - name: "Deadlock diagnostics"
-        status: in-progress
+        status: done
 
   - version: "0.7"
     title: "ThreadPool & Stabilization"
