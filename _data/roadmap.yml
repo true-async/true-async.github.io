@@ -32,6 +32,10 @@ milestones:
         status: done
       - name: "FileSystemWatcher"
         status: done
+      - name: "CURL async"
+        status: in-progress
+      - name: "Read/write files"
+        status: in-progress
       - name: "Deadlock diagnostics"
         status: in-progress
 
