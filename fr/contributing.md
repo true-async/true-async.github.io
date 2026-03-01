@@ -107,7 +107,7 @@ git checkout -b feature/my-improvement
 | Dépôt | Description |
 |-------|-------------|
 | [php-src](https://github.com/true-async/php-src){:target="_blank"} | Cœur PHP avec Async API |
-| [ext-async](https://github.com/true-async/ext-async){:target="_blank"} | Extension avec implémentation |
+| [php-async](https://github.com/true-async/php-async){:target="_blank"} | Extension avec implémentation |
 | [true-async.github.io](https://github.com/true-async/true-async.github.io){:target="_blank"} | Ce site de documentation |
 
 ## Recommandations
