@@ -108,7 +108,7 @@ We welcome contributions in any language! See the [Contributing Guide](https://t
 | Repository | Description |
 |-----------|-------------|
 | [true-async/php-src](https://github.com/true-async/php-src) | PHP fork with TrueAsync API |
-| [true-async/ext-async](https://github.com/true-async/ext-async) | Extension implementing the Async API |
+| [true-async/php-async](https://github.com/true-async/php-async) | Extension implementing the Async API |
 
 ## License
 

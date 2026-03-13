@@ -107,7 +107,7 @@ git checkout -b feature/my-improvement
 | Репозиторий | Описание |
 |-------------|----------|
 | [php-src](https://github.com/true-async/php-src){:target="_blank"} | Ядро PHP с Async API |
-| [ext-async](https://github.com/true-async/ext-async){:target="_blank"} | Расширение с реализацией |
+| [php-async](https://github.com/true-async/php-async){:target="_blank"} | Расширение с реализацией |
 | [true-async.github.io](https://github.com/true-async/true-async.github.io){:target="_blank"} | Этот сайт с документацией |
 
 ## Рекомендации
