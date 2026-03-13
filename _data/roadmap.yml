@@ -13,8 +13,8 @@ milestones:
 
   - version: "0.6"
     title: "Complete Async API"
-    date: "Q1 2026"
-    status: active
+    date: "2026-03-14"
+    status: done
     features:
       - name: "TaskGroup & TaskSet"
         status: done
@@ -33,9 +33,7 @@ milestones:
       - name: "FileSystemWatcher"
         status: done
       - name: "CURL async"
-        status: in-progress
-      - name: "Read/write files"
-        status: in-progress
+        status: done
       - name: "Deadlock diagnostics"
         status: done
 
