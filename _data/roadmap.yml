@@ -38,17 +38,33 @@ milestones:
         status: done
 
   - version: "0.7"
-    title: "ThreadPool & Stabilization"
+    title: "Threads & Stabilization"
     date: "Summer 2026"
-    status: planned
+    status: active
+    tag: "In Development"
+    tag_style: highlight
     features:
-      - name: "ThreadPool"
+      - name: "spawn_thread() — cross-platform OS threads"
+        status: done
+      - name: "Thread lifecycle (request startup/shutdown, TSRM)"
+        status: done
+      - name: "Closure deep copy (op_array transfer via pemalloc)"
+        status: done
+      - name: "Zval transfer between threads (scalars, strings, arrays)"
+        status: done
+      - name: "RemoteException / ThreadTransferException"
+        status: done
+      - name: "Bailout recovery (fatal errors in child threads)"
+        status: done
+      - name: "Object transfer (declared properties)"
+        status: in-progress
+      - name: "Captured variables (use) in closures"
+        status: in-progress
+      - name: "ThreadPool with worker reuse"
         status: planned
-      - name: "Test suite"
+      - name: "Thread cancellation"
         status: planned
-      - name: "API stabilization"
-        status: planned
-      - name: "Telemetry"
+      - name: "Test suite & stabilization"
         status: planned
 
   - version: "0.8"
