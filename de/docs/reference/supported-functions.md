@@ -139,6 +139,13 @@ Jeder Async-Kontext verwendet eine separate Verbindung für sichere Nebenläufig
 | `fpassthru()` | Rest der Datei ausgeben |
 | `stream_get_contents()` | Rest des Streams lesen |
 | `stream_copy_to_stream()` | Zwischen Streams kopieren |
+| `flock()` | Dateisperrung (über Thread-Pool) |
+
+> **Wichtig: `flock()` verwendet den Thread-Pool.**
+> Die Funktion `flock()` ist ein blockierender Systemaufruf, der nicht über libuv-I/O-Events nicht-blockierend gemacht werden kann.
+> Innerhalb einer Coroutine werden blockierende Sperr-Operationen (`LOCK_SH`, `LOCK_EX`) an den libuv-Thread-Pool ausgelagert,
+> sodass andere Coroutinen weiterarbeiten können, während auf die Sperre gewartet wird.
+> Nicht-blockierende Sperren (`LOCK_NB`) und Entsperrungen (`LOCK_UN`) werden direkt ohne Thread-Pool ausgeführt.
 
 > **Wichtig: Timeouts für Dateien und Pipe-Streams.**
 > PHP unterstützt nativ keine Timeouts für Lese-/Schreiboperationen auf Dateien und Pipe-Streams — Standard-Funktionen wie `fread()`, `fwrite()` und andere können unbegrenzt blockieren.
@@ -236,7 +243,6 @@ Funktionen, die zur Implementierung geplant oder noch nicht angepasst sind.
 
 | Funktion | Beschreibung |
 |----------|--------------|
-| `flock()` | Dateisperrung |
 | `opendir()` / `readdir()` / `closedir()` | Verzeichnisdurchlauf |
 | `unlink()` / `rename()` | Datei löschen und umbenennen |
 | `mkdir()` / `rmdir()` | Verzeichnis erstellen und entfernen |
