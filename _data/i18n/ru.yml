@@ -425,6 +425,8 @@ download:
   # Release info
   current_release: "Текущий релиз"
   old_release: "Старый релиз"
+  previous_releases: "Предыдущие релизы"
+  version_col: "Версия"
   release_info_title: "О релизе"
   changelog: "Список изменений"
   release_date: "Дата выпуска"

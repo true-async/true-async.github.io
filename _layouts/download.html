@@ -17,10 +17,10 @@ layout: default
 <div class="download-main">
 <div class="download-layout">
 
-    <!-- Release Info -->
-    {% for release in releases.versions %}
+    <!-- Release Info: current release only -->
+    {% for release in releases.versions %}{% unless release.old %}
     <div class="download-card" id="release-{{ release.version }}">
-        <span class="version-badge{% if release.old %} version-badge--old{% endif %}">{% if release.old %}{{ t.download.old_release }}{% else %}{{ t.download.current_release }}{% endif %}</span>
+        <span class="version-badge">{{ t.download.current_release }}</span>
         <div class="release-header">
             <h2>TrueAsync {{ release.version }}</h2>
             <span class="release-meta">{{ t.download.release_date }}: {{ release.date }} &middot; {{ t.download.requires_php }} {{ release.php_requires }}</span>
@@ -29,7 +29,35 @@ layout: default
             <a href="{{ release.changelog_url | default: '#' }}" target="_blank" rel="noopener">{{ t.download.changelog }} &rarr;</a>
         </p>
     </div>
-    {% endfor %}
+    {% endunless %}{% endfor %}
+
+    <!-- Previous releases (collapsed) -->
+    {% assign old_releases = releases.versions | where: "old", true %}
+    {% if old_releases.size > 0 %}
+    <details class="download-card download-card--previous">
+        <summary>{{ t.download.previous_releases }} ({{ old_releases.size }})</summary>
+        <table class="previous-releases-table">
+            <thead>
+                <tr>
+                    <th>{{ t.download.version_col }}</th>
+                    <th>{{ t.download.release_date }}</th>
+                    <th>{{ t.download.requires_php }}</th>
+                    <th>{{ t.download.changelog }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for release in old_releases %}
+                <tr>
+                    <td>TrueAsync {{ release.version }}</td>
+                    <td>{{ release.date }}</td>
+                    <td>{{ release.php_requires }}</td>
+                    <td><a href="{{ release.changelog_url | default: '#' }}" target="_blank" rel="noopener">{{ t.download.changelog }} &rarr;</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </details>
+    {% endif %}
 
     <!-- Build from Source -->
     <div class="download-card" id="build-source">
@@ -167,9 +195,9 @@ CMD ["php", "server.php"]</code></pre>
         </div>
     </div>
 
-    <!-- Windows -->
-    {% for release in releases.versions %}
-    <div class="download-card" id="windows-{{ release.version }}">
+    <!-- Windows: current release only -->
+    {% for release in releases.versions %}{% unless release.old %}
+    <div class="download-card" id="windows">
         <h2>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.25rem;height:1.25rem;vertical-align:middle;margin-right:0.375rem;"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
             {{ t.download.windows_title }}
@@ -205,8 +233,41 @@ CMD ["php", "server.php"]</code></pre>
             </button>
             <pre><code>irm https://raw.githubusercontent.com/true-async/releases/master/installer/install.ps1 | iex</code></pre>
         </div>
+
+        <!-- Previous Windows releases (collapsed) -->
+        {% assign old_releases = releases.versions | where: "old", true %}
+        {% if old_releases.size > 0 %}
+        <details class="download-previous-inline" style="margin-top: 1.5rem;">
+            <summary>{{ t.download.previous_releases }} ({{ old_releases.size }})</summary>
+            <table class="previous-releases-table" style="margin-top: 0.75rem;">
+                <thead>
+                    <tr>
+                        <th>{{ t.download.version_col }}</th>
+                        <th>{{ t.download.release_date }}</th>
+                        <th>Release</th>
+                        <th>Debug</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for old in old_releases %}
+                    {% for platform in old.platforms %}
+                    {% if platform.name == "Windows" %}
+                    <tr>
+                        <td>{{ old.version }}</td>
+                        <td>{{ old.date }}</td>
+                        {% for file in platform.files %}
+                        <td><a href="{{ file.url | default: '#' }}">{{ file.size }}</a></td>
+                        {% endfor %}
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </details>
+        {% endif %}
     </div>
-    {% endfor %}
+    {% endunless %}{% endfor %}
 
     <!-- Additional Resources -->
     <div class="download-card" id="resources">
@@ -228,9 +289,7 @@ CMD ["php", "server.php"]</code></pre>
     <nav class="docs-nav">
         <a href="#build-source">Linux / macOS</a>
         <a href="#docker">Docker</a>
-        {% for release in releases.versions %}
-        <a href="#windows-{{ release.version }}">Windows</a>
-        {% endfor %}
+        <a href="#windows">Windows</a>
     </nav>
     <div class="docs-nav-title" style="margin-top: 1.5rem;">{{ t.download.sidebar_help }}</div>
     <nav class="docs-nav">
