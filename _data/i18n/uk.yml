@@ -425,6 +425,8 @@ download:
   # Release info
   current_release: "Поточний реліз"
   old_release: "Попередній реліз"
+  previous_releases: "Попередні релізи"
+  version_col: "Версія"
   release_info_title: "Про реліз"
   changelog: "Список змін"
   release_date: "Дата випуску"

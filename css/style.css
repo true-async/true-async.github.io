@@ -1260,6 +1260,109 @@ pre code {
     color: var(--color-text-secondary);
 }
 
+/* Previous releases collapsible block */
+.download-card--previous {
+    cursor: default;
+}
+
+.download-card--previous > summary {
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    user-select: none;
+}
+
+.download-card--previous > summary::-webkit-details-marker {
+    display: none;
+}
+
+.download-card--previous > summary::before {
+    content: "▶";
+    font-size: 0.625rem;
+    transition: transform 0.15s ease;
+    color: var(--color-text-muted);
+}
+
+.download-card--previous[open] > summary::before {
+    transform: rotate(90deg);
+}
+
+.download-card--previous > summary:hover {
+    color: var(--color-text-primary);
+}
+
+.download-previous-inline > summary {
+    cursor: pointer;
+    font-size: 0.8125rem;
+    color: var(--color-text-muted);
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    user-select: none;
+}
+
+.download-previous-inline > summary::-webkit-details-marker {
+    display: none;
+}
+
+.download-previous-inline > summary::before {
+    content: "▶";
+    font-size: 0.5625rem;
+    transition: transform 0.15s ease;
+}
+
+.download-previous-inline[open] > summary::before {
+    transform: rotate(90deg);
+}
+
+.download-previous-inline > summary:hover {
+    color: var(--color-text-secondary);
+}
+
+/* Compact table for old releases */
+.previous-releases-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8125rem;
+}
+
+.previous-releases-table th {
+    text-align: left;
+    padding: 0.375rem 0.75rem 0.375rem 0;
+    color: var(--color-text-muted);
+    font-weight: 500;
+    border-bottom: 1px solid var(--color-border);
+    white-space: nowrap;
+}
+
+.previous-releases-table td {
+    padding: 0.375rem 0.75rem 0.375rem 0;
+    color: var(--color-text-secondary);
+    border-bottom: 1px solid rgba(0,0,0,0.04);
+    vertical-align: middle;
+}
+
+.previous-releases-table tr:last-child td {
+    border-bottom: none;
+}
+
+.previous-releases-table a {
+    color: var(--color-primary);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    text-decoration-color: transparent;
+}
+
+.previous-releases-table a:hover {
+    text-decoration-color: var(--color-primary);
+}
+
 /* Release header */
 .release-header {
     margin-bottom: 0.5rem;

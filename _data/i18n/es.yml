@@ -425,6 +425,8 @@ download:
   # Release info
   current_release: "Versión actual"
   old_release: "Versión anterior"
+  previous_releases: "Versiones anteriores"
+  version_col: "Versión"
   release_info_title: "Acerca de la versión"
   changelog: "Registro de cambios"
   release_date: "Fecha de lanzamiento"

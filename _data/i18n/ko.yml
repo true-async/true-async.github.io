@@ -425,6 +425,8 @@ download:
   # Release info
   current_release: "현재 릴리스"
   old_release: "이전 릴리스"
+  previous_releases: "이전 릴리스 목록"
+  version_col: "버전"
   release_info_title: "릴리스 정보"
   changelog: "변경 로그"
   release_date: "릴리스 날짜"

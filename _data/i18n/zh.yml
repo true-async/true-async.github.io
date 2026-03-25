@@ -425,6 +425,8 @@ download:
   # Release info
   current_release: "当前版本"
   old_release: "旧版本"
+  previous_releases: "历史版本"
+  version_col: "版本"
   release_info_title: "关于此版本"
   changelog: "更新日志"
   release_date: "发布日期"
