@@ -1,17 +1,38 @@
 docker_images:
-  - tag: "trueasync/php-true-async:0.6.3-php8.6"
-    description: "Ubuntu 24.04 — CLI + FPM"
-  - tag: "trueasync/php-true-async:0.6.3-php8.6-alpine"
-    description: "Alpine 3.20 — CLI + FPM (lightweight)"
-  - tag: "trueasync/php-true-async:0.6.3-php8.6-debug"
-    description: "Ubuntu 24.04 — CLI + FPM (debug symbols)"
-
+  - tag: trueasync/php-true-async:0.6.4-php8.6
+    description: Ubuntu 24.04 — CLI + FPM
+  - tag: trueasync/php-true-async:0.6.4-php8.6-alpine
+    description: Alpine 3.20 — CLI + FPM (lightweight)
+  - tag: trueasync/php-true-async:0.6.4-php8.6-debug
+    description: Ubuntu 24.04 — CLI + FPM (debug symbols)
+  - tag: trueasync/php-true-async:latest
+    description: Ubuntu 24.04 — alias for latest stable
+  - tag: trueasync/php-true-async:latest-alpine
+    description: Alpine 3.20 — alias for latest stable
 versions:
+  - version: 0.6.4
+    date: "2026-03-25"
+    php_requires: PHP 8.6-dev (ZTS)
+    changelog_url: https://github.com/true-async/releases/releases/tag/v0.6.4
+    old: false
+    platforms:
+      - name: Windows
+        files:
+          - name: php-trueasync-0.6.4-php8.6-windows-x64.zip
+            label: Release
+            url: https://github.com/true-async/releases/releases/download/v0.6.4/php-trueasync-0.6.4-php8.6-windows-x64.zip
+            size: ~25 MB
+            sha256: see sha256sums.txt in release
+          - name: php-trueasync-0.6.4-php8.6-windows-x64-debug.zip
+            label: Debug
+            url: https://github.com/true-async/releases/releases/download/v0.6.4/php-trueasync-0.6.4-php8.6-windows-x64-debug.zip
+            size: ~30 MB
+            sha256: see sha256sums.txt in release
   - version: "0.6.3"
     date: "2026-03-25"
     php_requires: "PHP 8.6-dev (ZTS)"
     changelog_url: "https://github.com/true-async/php-async/releases/tag/v0.6.3"
-    old: false
+    old: true
     platforms:
       - name: Windows
         files:
@@ -25,7 +46,6 @@ versions:
             url: "https://github.com/true-async/releases/releases/download/v0.6.3/php-trueasync-0.6.3-php8.6-windows-x64-debug.zip"
             size: "~35.1 MB"
             sha256: "see sha256sums.txt in release"
-
   - version: "0.6.2"
     date: "2026-03-24"
     php_requires: "PHP 8.6-dev (ZTS)"
@@ -44,7 +64,6 @@ versions:
             url: "https://github.com/true-async/releases/releases/download/v0.6.2/php-trueasync-0.6.2-php8.6-windows-x64-debug.zip"
             size: "~35.1 MB"
             sha256: "see sha256sums.txt in release"
-
   - version: "0.6.1"
     date: "2026-03-15"
     php_requires: "PHP 8.6-dev (ZTS)"
@@ -63,7 +82,6 @@ versions:
             url: "https://github.com/true-async/releases/releases/download/v0.6.1/php-trueasync-0.6.1-php8.6-windows-x64-debug.zip"
             size: "~35.1 MB"
             sha256: "see sha256sums.txt in release"
-
   - version: "0.6.0"
     date: "2026-03-14"
     php_requires: "PHP 8.6-dev (ZTS)"
