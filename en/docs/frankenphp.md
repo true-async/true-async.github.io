@@ -5,7 +5,7 @@ path_key: "/docs/frankenphp.html"
 nav_active: docs
 permalink: /en/docs/frankenphp.html
 page_title: "FrankenPHP"
-description: "Running TrueAsync PHP with FrankenPHP — Docker quick start, building from source, Caddyfile configuration, and writing your async worker entrypoint."
+description: "Running TrueAsync PHP with FrankenPHP — Docker quick start, building from source, Caddyfile configuration, async worker entrypoint, graceful restart, and troubleshooting."
 ---
 
 # FrankenPHP + TrueAsync
@@ -97,7 +97,7 @@ FrankenPHP is configured via a `Caddyfile`. The minimal configuration for an asy
 {
     admin off
     frankenphp {
-        # Thread pool is sized automatically
+        num_threads 4   # total PHP threads across all workers (default: 2× CPU cores)
     }
 }
 
@@ -116,13 +116,20 @@ FrankenPHP is configured via a `Caddyfile`. The minimal configuration for an asy
 }
 ```
 
+### Global `frankenphp` directives
+
+| Directive | Description |
+|-----------|-------------|
+| `num_threads N` | Total PHP thread pool size. Defaults to `2 × CPU cores`. All workers share this pool |
+
 ### Key worker directives
 
 | Directive | Description |
 |-----------|-------------|
 | `file` | Path to the PHP entrypoint script |
-| `num` | Number of PHP threads (worker processes). Start with `1` and tune based on CPU-bound work |
+| `num` | Number of PHP threads assigned to this worker. Start with `1` and tune based on CPU-bound work |
 | `async` | **Required** — enables TrueAsync coroutine mode |
+| `drain_timeout` | Grace period for in-flight requests during graceful restart (default `30s`) |
 | `match` | URL pattern handled by this worker |
 
 ### Multiple workers
@@ -192,6 +199,13 @@ $response->write(string $data);   // Can be called multiple times (streaming)
 $response->end();                 // Finalize and send the response
 ```
 
+> **Important:** always call `end()`, even when the body is empty. `write()` hands the PHP buffer
+> directly to Go without copying; `end()` releases the pending write reference and signals
+> that the response is complete. Omitting `end()` will hang the request.
+
+`getBody()` reads the full request body at once and returns it as a string. The body is buffered
+on the Go side, so the read is non-blocking from PHP's perspective.
+
 ### Async I/O inside the handler
 
 Because each request runs in its own coroutine, you can use blocking I/O calls freely —
@@ -251,6 +265,49 @@ Mixed workload:  num = number of CPU cores / 2
 CPU-heavy:       num = number of CPU cores
 ```
 
+## Graceful Restart
+
+Async workers support **green-blue restarts** — code is reloaded without dropping in-flight requests.
+
+When a restart is triggered (via admin API, file watcher, or config reload):
+
+1. Old threads are **detached** — no new requests are routed to them.
+2. In-flight requests get a grace period (`drain_timeout`, default `30s`) to finish.
+3. Old threads shut down and release their resources (notifier, channels).
+4. Fresh threads boot with the updated PHP code.
+
+During the drain window new requests receive `HTTP 503`. Once the new threads are ready, traffic resumes normally.
+
+### Trigger via Admin API
+
+```bash
+curl -X POST http://localhost:2019/frankenphp/workers/restart
+```
+
+The Caddy admin API listens on `localhost:2019` by default. To enable it, remove `admin off` from
+your global block (or restrict it to localhost):
+
+```caddyfile
+{
+    admin localhost:2019
+    frankenphp {
+        num_threads 4
+    }
+}
+```
+
+### Configuring the drain timeout
+
+```caddyfile
+worker {
+    file entrypoint.php
+    num 2
+    async
+    drain_timeout 30s   # grace period for in-flight requests (default 30s)
+    match /*
+}
+```
+
 ## Checking the installation
 
 ```bash
@@ -269,6 +326,43 @@ Check that TrueAsync is active from PHP:
 ```php
 var_dump(extension_loaded('true_async')); // bool(true)
 var_dump(ZEND_THREAD_SAFE);               // bool(true)
+```
+
+## Troubleshooting
+
+### Requests never arrive at the PHP handler
+
+Make sure the worker has `async` enabled **and** that the Caddy matcher routes traffic to it.
+Without `match *` (or a specific pattern) no requests reach the async worker.
+
+### `undefined reference to tsrm_*` during build
+
+PHP was compiled with `--enable-embed=shared`. Rebuild without `=shared`:
+
+```bash
+./configure --enable-embed --enable-zts --enable-async ...
+```
+
+### Requests getting `HTTP 503`
+
+All PHP threads are busy and the grace period is active (drain window during a restart),
+or the thread queue is saturated. Increase `num` to add more threads, or reduce `drain_timeout`
+if deploys are taking too long.
+
+## Debugging with Delve
+
+Go 1.25+ emits **DWARF v5** debug information. If Delve reports a compatibility error, rebuild
+with DWARF v4:
+
+```bash
+GOEXPERIMENT=nodwarf5 go build -tags "trueasync,nowatcher" -o frankenphp ./caddy/frankenphp
+```
+
+Run the debugger:
+
+```bash
+go install github.com/go-delve/delve/cmd/dlv@latest
+dlv exec ./frankenphp
 ```
 
 ## Source code
