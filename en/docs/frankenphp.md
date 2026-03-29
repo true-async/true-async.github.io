@@ -110,7 +110,6 @@ FrankenPHP is configured via a `Caddyfile`. The minimal configuration for an asy
             file /app/entrypoint.php
             num 1
             async
-            buffer_size 20
             match /*
         }
     }
@@ -124,7 +123,6 @@ FrankenPHP is configured via a `Caddyfile`. The minimal configuration for an asy
 | `file` | Path to the PHP entrypoint script |
 | `num` | Number of PHP threads (worker processes). Start with `1` and tune based on CPU-bound work |
 | `async` | **Required** — enables TrueAsync coroutine mode |
-| `buffer_size` | How many pending requests each PHP thread can queue before returning HTTP 503 |
 | `match` | URL pattern handled by this worker |
 
 ### Multiple workers
@@ -139,14 +137,12 @@ You can run different entrypoints for different routes:
             file /app/api.php
             num 2
             async
-            buffer_size 50
             match /api/*
         }
         worker {
             file /app/web.php
             num 1
             async
-            buffer_size 20
             match /*
         }
     }
@@ -253,17 +249,6 @@ A good starting point:
 I/O-heavy API:   num 1–2
 Mixed workload:  num = number of CPU cores / 2
 CPU-heavy:       num = number of CPU cores
-```
-
-### Buffer size (`buffer_size`)
-
-`buffer_size` is the depth of the request queue per PHP thread. If all threads are full,
-FrankenPHP returns HTTP 503. Set it based on your expected burst traffic:
-
-```
-Low latency (real-time):   buffer_size 10–20
-General purpose:           buffer_size 50–100
-Batch / background tasks:  buffer_size 200+
 ```
 
 ## Checking the installation
