@@ -374,6 +374,10 @@ docs:
           label: "signal()"
         - url: "/uk/docs/reference/graceful-shutdown.html"
           label: "graceful_shutdown()"
+    - title: "Інтеграції"
+      items:
+        - url: "/uk/docs/frankenphp.html"
+          label: "FrankenPHP"
     - title: "Дослідження"
       items:
         - url: "/uk/docs/evidence/concurrency-efficiency.html"
