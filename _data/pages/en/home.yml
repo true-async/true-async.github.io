@@ -30,7 +30,7 @@ features:
       text: "<code>fread</code>, <code>fwrite</code>, <code>file_get_contents</code>, <code>ob_start</code>, <code>curl</code>, <code>MySQL</code>, <code>PostgreSQL</code>. Regular PHP functions now work asynchronously without extra effort."
     - title: "Async Web Servers"
       icon: "web-servers"
-      url: "/en/architecture/frankenphp.html"
+      url: "/en/docs/frankenphp.html"
       text: "Support for the model: multiple requests — one PHP process."
     - title: "Cooperative Cancellation"
       icon: "cancellation"
