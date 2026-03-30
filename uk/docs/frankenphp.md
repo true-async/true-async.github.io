@@ -180,29 +180,111 @@ HttpServer::onRequest(function (Request $request, Response $response): void {
 
 ### Об'єкт Request
 
-```php
-$request->getMethod();    // GET, POST, ...
-$request->getUri();       // Повний URI запиту
-$request->getHeaders();   // Масив усіх HTTP-заголовків
-$request->getHeader($name); // Значення окремого заголовка
-$request->getBody();      // Необроблений рядок тіла запиту
-```
+Усі дані запиту отримуються з Go-об'єкта `http.Request` через CGO — без SAPI-глобалів, безпечно для паралельних корутин.
+
+| Метод | Повертає | Опис |
+|-------|----------|------|
+| `getMethod()` | `string` | HTTP-метод (`GET`, `POST` тощо) |
+| `getUri()` | `string` | Повний URI запиту з рядком запиту |
+| `getHeader(string $name)` | `?string` | Значення окремого заголовка або `null` |
+| `getHeaders()` | `array` | Усі заголовки у вигляді `name => value` (кілька значень об'єднуються через `, `) |
+| `getBody()` | `string` | Повне тіло запиту (зчитується один раз) |
+| `getQueryParams()` | `array` | Розібрані та URL-декодовані параметри рядка запиту |
+| `getCookies()` | `array` | Розібрані та URL-декодовані cookies із заголовка `Cookie` |
+| `getHost()` | `string` | Значення заголовка Host |
+| `getRemoteAddr()` | `string` | Адреса клієнта (`ip:port`) |
+| `getScheme()` | `string` | `http` або `https` |
+| `getProtocolVersion()` | `string` | Протокол (`HTTP/1.1`, `HTTP/2.0`) |
+| `getParsedBody()` | `array` | Поля форми (urlencoded + multipart) |
+| `getUploadedFiles()` | `array` | Завантажені файли як об'єкти `UploadedFile` |
 
 ### Об'єкт Response
 
+Заголовки та статус зберігаються в самому об'єкті (не в SAPI-глобалах), серіалізуються та надсилаються в Go одним CGO-викликом при `end()`.
+
+| Метод | Повертає | Опис |
+|-------|----------|------|
+| `setStatus(int $code)` | `void` | Встановити HTTP-код статусу (за замовчуванням 200) |
+| `getStatus()` | `int` | Отримати поточний код статусу |
+| `setHeader(string $name, string $value)` | `void` | Встановити заголовок (замінює існуючий) |
+| `addHeader(string $name, string $value)` | `void` | Додати заголовок (для `Set-Cookie` тощо) |
+| `removeHeader(string $name)` | `void` | Видалити заголовок |
+| `getHeader(string $name)` | `?string` | Отримати перше значення заголовка або `null` |
+| `getHeaders()` | `array` | Усі заголовки у вигляді `name => [values...]` |
+| `isHeadersSent()` | `bool` | Чи було викликано `end()` |
+| `redirect(string $url, int $code = 302)` | `void` | Встановити заголовок Location + статус |
+| `write(string $data)` | `void` | Буферизувати тіло відповіді (можна викликати кілька разів) |
+| `end()` | `void` | Надіслати статус + заголовки + тіло клієнту. **Обов'язково викликати.** |
+
+> **Важливо:** завжди викликайте `end()`, навіть коли тіло відповіді порожнє. `write()` буферизує дані
+> в PHP-об'єкті; `end()` серіалізує заголовки + тіло та копіює їх у Go одним CGO-викликом.
+> Пропуск `end()` призведе до зависання запиту.
+
+### Об'єкт UploadedFile
+
+`getUploadedFiles()` повертає об'єкти `FrankenPHP\UploadedFile`. Go розбирає multipart через `http.Request.ParseMultipartForm`, зберігає файли у тимчасовий каталог і передає метадані в PHP.
+
+| Метод | Повертає | Опис |
+|-------|----------|------|
+| `getName()` | `string` | Оригінальне ім'я файлу |
+| `getType()` | `string` | MIME-тип |
+| `getSize()` | `int` | Розмір файлу в байтах |
+| `getTmpName()` | `string` | Шлях до тимчасового файлу |
+| `getError()` | `int` | Код помилки завантаження (`UPLOAD_ERR_OK` = 0) |
+| `moveTo(string $path)` | `bool` | Перемістити файл до вказаного місця (rename або copy+delete) |
+
+Кілька файлів для одного поля повертаються як масив об'єктів `UploadedFile`.
+
+### Приклад: cookies та редирект
+
 ```php
-$response->setStatus(int $code);
-$response->setHeader(string $name, string $value);
-$response->write(string $data);   // Можна викликати кілька разів (потокова передача)
-$response->end();                 // Завершити та надіслати відповідь
+HttpServer::onRequest(function (Request $request, Response $response): void {
+    $cookies = $request->getCookies();
+
+    if (!isset($cookies['session'])) {
+        $response->addHeader('Set-Cookie', 'session=abc123; Path=/; HttpOnly');
+        $response->addHeader('Set-Cookie', 'theme=dark; Path=/');
+        $response->redirect('/welcome');
+        $response->end();
+        return;
+    }
+
+    $params = $request->getQueryParams();
+    $name = $params['name'] ?? 'World';
+
+    $response->setStatus(200);
+    $response->setHeader('Content-Type', 'text/plain');
+    $response->write("Hello, {$name}!");
+    $response->end();
+});
 ```
 
-> **Важливо:** завжди викликайте `end()`, навіть коли тіло відповіді порожнє. `write()` передає PHP-буфер
-> безпосередньо в Go без копіювання; `end()` звільняє посилання на незавершений запис та сигналізує,
-> що відповідь завершена. Пропуск `end()` призведе до зависання запиту.
+### Приклад: завантаження файлів
 
-`getBody()` зчитує повне тіло запиту за один раз і повертає його як рядок. Тіло буферизується
-на стороні Go, тому зчитування є неблокуючим з точки зору PHP.
+```php
+HttpServer::onRequest(function (Request $request, Response $response): void {
+    $files = $request->getUploadedFiles();
+    $fields = $request->getParsedBody();
+
+    if (isset($files['avatar'])) {
+        $file = $files['avatar'];
+
+        if ($file->getError() === UPLOAD_ERR_OK) {
+            $file->moveTo('/uploads/' . $file->getName());
+            $response->setStatus(200);
+            $response->write("Uploaded: {$file->getName()} ({$file->getSize()} bytes)");
+        } else {
+            $response->setStatus(400);
+            $response->write("Upload error: {$file->getError()}");
+        }
+    } else {
+        $response->setStatus(400);
+        $response->write('No file uploaded');
+    }
+
+    $response->end();
+});
+```
 
 ### Асинхронний I/O всередині обробника
 
@@ -325,6 +407,16 @@ frankenphp adapt --config /etc/caddy/Caddyfile
 var_dump(extension_loaded('true_async')); // bool(true)
 var_dump(ZEND_THREAD_SAFE);               // bool(true)
 ```
+
+## Модель виконання
+
+FrankenPHP із TrueAsync використовує модель виконання, що принципово відрізняється від традиційного PHP:
+
+1. **Один потік -- багато запитів.** Кожен PHP-потік запускає цикл подій (event loop) TrueAsync. Вхідні HTTP-запити стають корутинами всередині цього циклу.
+2. **Неблокуючий I/O.** Коли корутина виконує операцію вводу/виводу (мережа, файли, БД), вона автоматично поступається управлінням планувальнику, який перемикається на іншу готову корутину.
+3. **Справжня паралельність через ZTS.** Якщо налаштовано кілька потоків (`num > 1`), кожен потік працює в окремому потоці ОС завдяки Zend Thread Safety. Це дозволяє обробляти CPU-інтенсивні завдання паралельно.
+4. **Ізольований стан запиту.** Кожна корутина має власний контекст -- об'єкти `Request` та `Response` не залежать від глобального стану SAPI, що забезпечує безпеку при одночасному виконанні.
+5. **Один CGO-виклик на відповідь.** Заголовки, статус та тіло відповіді буферизуються в PHP і надсилаються в Go одним викликом при `end()`, мінімізуючи накладні витрати на перетин кордону Go/PHP.
 
 ## Усунення неполадок
 

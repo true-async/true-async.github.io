@@ -180,31 +180,113 @@ HttpServer::onRequest(function (Request $request, Response $response): void {
 });
 ```
 
-### Request object
+### Request Object
+
+All request data is fetched from Go's `http.Request` via CGO — no SAPI globals, safe for concurrent coroutines.
+
+| Method | Return | Description |
+|--------|--------|-------------|
+| `getMethod()` | `string` | HTTP method (`GET`, `POST`, etc.) |
+| `getUri()` | `string` | Full request URI with query string |
+| `getHeader(string $name)` | `?string` | Single header value, or `null` |
+| `getHeaders()` | `array` | All headers as `name => value` (multi-values joined with `, `) |
+| `getBody()` | `string` | Full request body (read once) |
+| `getQueryParams()` | `array` | Parsed + URL-decoded query string |
+| `getCookies()` | `array` | Parsed + URL-decoded cookies from `Cookie` header |
+| `getHost()` | `string` | Host header value |
+| `getRemoteAddr()` | `string` | Client address (`ip:port`) |
+| `getScheme()` | `string` | `http` or `https` |
+| `getProtocolVersion()` | `string` | Protocol (`HTTP/1.1`, `HTTP/2.0`) |
+| `getParsedBody()` | `array` | Form fields (urlencoded + multipart) |
+| `getUploadedFiles()` | `array` | Uploaded files as `UploadedFile` objects |
+
+### Response Object
+
+Headers and status are stored per-object (not in SAPI globals), serialized and sent to Go in a single CGO call at `end()`.
+
+| Method | Return | Description |
+|--------|--------|-------------|
+| `setStatus(int $code)` | `void` | Set HTTP status code (default 200) |
+| `getStatus()` | `int` | Read current status code |
+| `setHeader(string $name, string $value)` | `void` | Set header (replaces existing) |
+| `addHeader(string $name, string $value)` | `void` | Append header (for `Set-Cookie`, etc.) |
+| `removeHeader(string $name)` | `void` | Remove a header |
+| `getHeader(string $name)` | `?string` | Read first value of a header, or `null` |
+| `getHeaders()` | `array` | All headers as `name => [values...]` |
+| `isHeadersSent()` | `bool` | Whether `end()` has been called |
+| `redirect(string $url, int $code = 302)` | `void` | Set Location header + status |
+| `write(string $data)` | `void` | Buffer response body (multiple calls OK) |
+| `end()` | `void` | Send status + headers + body to client. **Must be called.** |
+
+> **Important:** always call `end()`, even when the body is empty. `write()` buffers data
+> in the PHP object; `end()` serializes headers + body and copies them to Go in a single CGO call.
+> Omitting `end()` will hang the request.
+
+### UploadedFile Object
+
+`getUploadedFiles()` returns `FrankenPHP\UploadedFile` objects. Go parses multipart via `http.Request.ParseMultipartForm`, saves files to a temp directory, and passes metadata to PHP.
+
+| Method | Return | Description |
+|--------|--------|-------------|
+| `getName()` | `string` | Original filename |
+| `getType()` | `string` | MIME type |
+| `getSize()` | `int` | File size in bytes |
+| `getTmpName()` | `string` | Temp file path |
+| `getError()` | `int` | Upload error code (`UPLOAD_ERR_OK` = 0) |
+| `moveTo(string $path)` | `bool` | Move file to destination (rename or copy+delete) |
+
+Multiple files for the same field are returned as an array of `UploadedFile` objects.
+
+### Example: Cookies and Redirect
 
 ```php
-$request->getMethod();    // GET, POST, ...
-$request->getUri();       // Full request URI
-$request->getHeaders();   // Array of all HTTP headers
-$request->getHeader($name); // Single header value
-$request->getBody();      // Raw request body string
+HttpServer::onRequest(function (Request $request, Response $response): void {
+    $cookies = $request->getCookies();
+
+    if (!isset($cookies['session'])) {
+        $response->addHeader('Set-Cookie', 'session=abc123; Path=/; HttpOnly');
+        $response->addHeader('Set-Cookie', 'theme=dark; Path=/');
+        $response->redirect('/welcome');
+        $response->end();
+        return;
+    }
+
+    $params = $request->getQueryParams();
+    $name = $params['name'] ?? 'World';
+
+    $response->setStatus(200);
+    $response->setHeader('Content-Type', 'text/plain');
+    $response->write("Hello, {$name}!");
+    $response->end();
+});
 ```
 
-### Response object
+### Example: File Upload
 
 ```php
-$response->setStatus(int $code);
-$response->setHeader(string $name, string $value);
-$response->write(string $data);   // Can be called multiple times (streaming)
-$response->end();                 // Finalize and send the response
+HttpServer::onRequest(function (Request $request, Response $response): void {
+    $files = $request->getUploadedFiles();
+    $fields = $request->getParsedBody();
+
+    if (isset($files['avatar'])) {
+        $file = $files['avatar'];
+
+        if ($file->getError() === UPLOAD_ERR_OK) {
+            $file->moveTo('/uploads/' . $file->getName());
+            $response->setStatus(200);
+            $response->write("Uploaded: {$file->getName()} ({$file->getSize()} bytes)");
+        } else {
+            $response->setStatus(400);
+            $response->write("Upload error: {$file->getError()}");
+        }
+    } else {
+        $response->setStatus(400);
+        $response->write('No file uploaded');
+    }
+
+    $response->end();
+});
 ```
-
-> **Important:** always call `end()`, even when the body is empty. `write()` hands the PHP buffer
-> directly to Go without copying; `end()` releases the pending write reference and signals
-> that the response is complete. Omitting `end()` will hang the request.
-
-`getBody()` reads the full request body at once and returns it as a string. The body is buffered
-on the Go side, so the read is non-blocking from PHP's perspective.
 
 ### Async I/O inside the handler
 
@@ -327,6 +409,13 @@ Check that TrueAsync is active from PHP:
 var_dump(extension_loaded('true_async')); // bool(true)
 var_dump(ZEND_THREAD_SAFE);               // bool(true)
 ```
+
+## Execution Model
+
+- Each async thread uses a buffered channel with 1 slot (default). Set `buffer_size` to increase the per-thread request queue (max 10). If all threads are busy and all buffers are full, the client gets `503 (ErrAllBuffersFull)`.
+- Requests wake the PHP scheduler via a notifier (`eventfd` on Linux, `pipe` elsewhere) plus a heartbeat fast path to reduce wakeup latency.
+- `Response::write()` buffers data in the PHP object. `end()` serializes headers + body and copies them to Go in one CGO call. Always call `end()` even for empty bodies.
+- Shutdown sends a sentinel through the queue; the PHP loop frees pending writes and restores the heartbeat handler.
 
 ## Troubleshooting
 

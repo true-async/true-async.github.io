@@ -182,29 +182,114 @@ HttpServer::onRequest(function (Request $request, Response $response): void {
 
 ### Objet Request
 
-```php
-$request->getMethod();    // GET, POST, ...
-$request->getUri();       // URI complète de la requête
-$request->getHeaders();   // Tableau de tous les en-têtes HTTP
-$request->getHeader($name); // Valeur d'un en-tête unique
-$request->getBody();      // Corps brut de la requête (chaîne)
-```
+Toutes les données de la requête sont récupérées depuis l'objet `http.Request` de Go via CGO — pas de variables globales SAPI, sûr pour les coroutines concurrentes.
+
+| Méthode | Retour | Description |
+|---------|--------|-------------|
+| `getMethod()` | `string` | Méthode HTTP (`GET`, `POST`, etc.) |
+| `getUri()` | `string` | URI complète de la requête avec query string |
+| `getHeader(string $name)` | `?string` | Valeur d'un en-tête unique ou `null` |
+| `getHeaders()` | `array` | Tous les en-têtes sous forme `name => value` (les valeurs multiples sont jointes par `, `) |
+| `getBody()` | `string` | Corps complet de la requête (lu une seule fois) |
+| `getQueryParams()` | `array` | Paramètres de la query string décodés |
+| `getCookies()` | `array` | Cookies décodés depuis l'en-tête `Cookie` |
+| `getHost()` | `string` | Valeur de l'en-tête Host |
+| `getRemoteAddr()` | `string` | Adresse du client (`ip:port`) |
+| `getScheme()` | `string` | `http` ou `https` |
+| `getProtocolVersion()` | `string` | Protocole (`HTTP/1.1`, `HTTP/2.0`) |
+| `getParsedBody()` | `array` | Champs de formulaire (urlencoded + multipart) |
+| `getUploadedFiles()` | `array` | Fichiers téléversés sous forme d'objets `UploadedFile` |
 
 ### Objet Response
 
+Les en-têtes et le statut sont stockés dans l'objet lui-même (pas dans les variables globales SAPI), sérialisés et envoyés à Go en un seul appel CGO lors de `end()`.
+
+| Méthode | Retour | Description |
+|---------|--------|-------------|
+| `setStatus(int $code)` | `void` | Définir le statut HTTP (200 par défaut) |
+| `getStatus()` | `int` | Obtenir le code de statut actuel |
+| `setHeader(string $name, string $value)` | `void` | Définir un en-tête (remplace l'existant) |
+| `addHeader(string $name, string $value)` | `void` | Ajouter un en-tête (pour `Set-Cookie`, etc.) |
+| `removeHeader(string $name)` | `void` | Supprimer un en-tête |
+| `getHeader(string $name)` | `?string` | Obtenir la première valeur d'un en-tête ou `null` |
+| `getHeaders()` | `array` | Tous les en-têtes sous forme `name => [values...]` |
+| `isHeadersSent()` | `bool` | `end()` a-t-il déjà été appelé |
+| `redirect(string $url, int $code = 302)` | `void` | Définir l'en-tête Location + statut |
+| `write(string $data)` | `void` | Mettre en tampon le corps de la réponse (peut être appelé plusieurs fois) |
+| `end()` | `void` | Envoyer le statut + les en-têtes + le corps au client. **Obligatoire.** |
+
+> **Important :** appelez toujours `end()`, même lorsque le corps est vide. `write()` met en tampon les données
+> dans l'objet PHP ; `end()` sérialise les en-têtes et le corps et les copie vers Go en un seul appel CGO.
+> Omettre `end()` bloquera la requête indéfiniment.
+
+### Objet UploadedFile
+
+`getUploadedFiles()` renvoie des objets `FrankenPHP\UploadedFile`. Go analyse le multipart via `http.Request.ParseMultipartForm`, enregistre les fichiers dans un répertoire temporaire et transmet les métadonnées à PHP.
+
+| Méthode | Retour | Description |
+|---------|--------|-------------|
+| `getName()` | `string` | Nom original du fichier |
+| `getType()` | `string` | Type MIME |
+| `getSize()` | `int` | Taille du fichier en octets |
+| `getTmpName()` | `string` | Chemin vers le fichier temporaire |
+| `getError()` | `int` | Code d'erreur de téléversement (`UPLOAD_ERR_OK` = 0) |
+| `moveTo(string $path)` | `bool` | Déplacer le fichier (rename ou copy+delete) |
+
+Plusieurs fichiers pour un même champ sont renvoyés sous forme de tableau d'objets `UploadedFile`.
+
+### Exemple : Cookies et redirection
+
 ```php
-$response->setStatus(int $code);
-$response->setHeader(string $name, string $value);
-$response->write(string $data);   // Can be called multiple times (streaming)
-$response->end();                 // Finalize and send the response
+HttpServer::onRequest(function (Request $request, Response $response): void {
+    // Lecture des cookies de la requête
+    $cookies = $request->getCookies();
+
+    if (!isset($cookies['session'])) {
+        // Définition de plusieurs cookies
+        $response->addHeader('Set-Cookie', 'session=abc123; Path=/; HttpOnly');
+        $response->addHeader('Set-Cookie', 'theme=dark; Path=/');
+        $response->redirect('/welcome');
+        $response->end();
+        return;
+    }
+
+    // Paramètres de la query string
+    $params = $request->getQueryParams();
+    $name = $params['name'] ?? 'World';
+
+    $response->setStatus(200);
+    $response->setHeader('Content-Type', 'text/plain');
+    $response->write("Hello, {$name}!");
+    $response->end();
+});
 ```
 
-> **Important :** appelez toujours `end()`, même lorsque le corps est vide. `write()` transmet le tampon PHP
-> directement à Go sans copie ; `end()` libère la référence d'écriture en attente et signale
-> que la réponse est terminée. Omettre `end()` bloquera la requête indéfiniment.
+### Exemple : Upload de fichiers
 
-`getBody()` lit le corps complet de la requête en une seule fois et le renvoie sous forme de chaîne. Le corps est
-mis en tampon côté Go, donc la lecture est non bloquante du point de vue de PHP.
+```php
+HttpServer::onRequest(function (Request $request, Response $response): void {
+    $files = $request->getUploadedFiles();
+    $fields = $request->getParsedBody();
+
+    if (isset($files['avatar'])) {
+        $file = $files['avatar'];
+
+        if ($file->getError() === UPLOAD_ERR_OK) {
+            $file->moveTo('/uploads/' . $file->getName());
+            $response->setStatus(200);
+            $response->write("Uploaded: {$file->getName()} ({$file->getSize()} bytes)");
+        } else {
+            $response->setStatus(400);
+            $response->write("Upload error: {$file->getError()}");
+        }
+    } else {
+        $response->setStatus(400);
+        $response->write('No file uploaded');
+    }
+
+    $response->end();
+});
+```
 
 ### E/S asynchrones dans le handler
 
@@ -327,6 +412,13 @@ Vérifiez que TrueAsync est actif depuis PHP :
 var_dump(extension_loaded('true_async')); // bool(true)
 var_dump(ZEND_THREAD_SAFE);               // bool(true)
 ```
+
+## Modèle d'exécution
+
+- Chaque thread asynchrone utilise un canal bufferisé avec 1 slot (par défaut). Définissez `buffer_size` pour augmenter la file d'attente de requêtes par thread (maximum 10). Si tous les threads sont occupés et tous les tampons pleins, le client reçoit `503 (ErrAllBuffersFull)`.
+- Les requêtes réveillent l'ordonnanceur PHP via un notificateur (`eventfd` sous Linux, `pipe` sur les autres plateformes) plus un chemin rapide via heartbeat pour réduire la latence de réveil.
+- `Response::write()` met les données en tampon dans l'objet PHP. `end()` sérialise les en-têtes et le corps et les copie vers Go en un seul appel CGO. Appelez toujours `end()`, même pour un corps vide.
+- Lors de l'arrêt, une valeur sentinelle est envoyée dans la file ; la boucle PHP libère les écritures en attente et restaure le handler heartbeat.
 
 ## Dépannage
 

@@ -182,29 +182,111 @@ HttpServer::onRequest(function (Request $request, Response $response): void {
 
 ### Oggetto Request
 
-```php
-$request->getMethod();    // GET, POST, ...
-$request->getUri();       // URI completo della richiesta
-$request->getHeaders();   // Array di tutti gli header HTTP
-$request->getHeader($name); // Valore di un singolo header
-$request->getBody();      // Corpo della richiesta come stringa raw
-```
+Tutti i dati della richiesta vengono recuperati dall'oggetto `http.Request` di Go tramite CGO — nessuna variabile globale SAPI, sicuro per coroutine concorrenti.
+
+| Metodo | Ritorno | Descrizione |
+|--------|---------|-------------|
+| `getMethod()` | `string` | Metodo HTTP (`GET`, `POST`, ecc.) |
+| `getUri()` | `string` | URI completo della richiesta con query string |
+| `getHeader(string $name)` | `?string` | Valore di un singolo header, oppure `null` |
+| `getHeaders()` | `array` | Tutti gli header come `nome => valore` (valori multipli uniti con `, `) |
+| `getBody()` | `string` | Corpo completo della richiesta (lettura singola) |
+| `getQueryParams()` | `array` | Query string analizzata e decodificata |
+| `getCookies()` | `array` | Cookie analizzati e decodificati dall'header `Cookie` |
+| `getHost()` | `string` | Valore dell'header Host |
+| `getRemoteAddr()` | `string` | Indirizzo del client (`ip:porta`) |
+| `getScheme()` | `string` | `http` oppure `https` |
+| `getProtocolVersion()` | `string` | Protocollo (`HTTP/1.1`, `HTTP/2.0`) |
+| `getParsedBody()` | `array` | Campi del form (urlencoded + multipart) |
+| `getUploadedFiles()` | `array` | File caricati come oggetti `UploadedFile` |
 
 ### Oggetto Response
 
+Gli header e lo stato vengono memorizzati nell'oggetto stesso (non nelle variabili globali SAPI), serializzati e inviati a Go in un'unica chiamata CGO con `end()`.
+
+| Metodo | Ritorno | Descrizione |
+|--------|---------|-------------|
+| `setStatus(int $code)` | `void` | Imposta il codice di stato HTTP (predefinito 200) |
+| `getStatus()` | `int` | Legge il codice di stato corrente |
+| `setHeader(string $name, string $value)` | `void` | Imposta un header (sostituisce l'esistente) |
+| `addHeader(string $name, string $value)` | `void` | Aggiunge un header (per `Set-Cookie`, ecc.) |
+| `removeHeader(string $name)` | `void` | Rimuove un header |
+| `getHeader(string $name)` | `?string` | Legge il primo valore di un header, oppure `null` |
+| `getHeaders()` | `array` | Tutti gli header come `nome => [valori...]` |
+| `isHeadersSent()` | `bool` | Se `end()` è già stato chiamato |
+| `redirect(string $url, int $code = 302)` | `void` | Imposta header Location + stato |
+| `write(string $data)` | `void` | Bufferizza il corpo della risposta (chiamate multiple OK) |
+| `end()` | `void` | Invia stato + header + corpo al client. **Deve essere chiamato.** |
+
+> **Importante:** chiama sempre `end()`, anche quando il corpo è vuoto. `write()` bufferizza i dati
+> nell'oggetto PHP; `end()` serializza header + corpo e li copia in Go in un'unica chiamata CGO.
+> Omettere `end()` bloccherà la richiesta.
+
+### Oggetto UploadedFile
+
+`getUploadedFiles()` restituisce oggetti `FrankenPHP\UploadedFile`. Go analizza il multipart tramite `http.Request.ParseMultipartForm`, salva i file in una directory temporanea e passa i metadati a PHP.
+
+| Metodo | Ritorno | Descrizione |
+|--------|---------|-------------|
+| `getName()` | `string` | Nome del file originale |
+| `getType()` | `string` | Tipo MIME |
+| `getSize()` | `int` | Dimensione del file in byte |
+| `getTmpName()` | `string` | Percorso del file temporaneo |
+| `getError()` | `int` | Codice di errore upload (`UPLOAD_ERR_OK` = 0) |
+| `moveTo(string $path)` | `bool` | Sposta il file nella destinazione (rinomina o copia+elimina) |
+
+File multipli per lo stesso campo vengono restituiti come array di oggetti `UploadedFile`.
+
+### Esempio: Cookie e redirect
+
 ```php
-$response->setStatus(int $code);
-$response->setHeader(string $name, string $value);
-$response->write(string $data);   // Can be called multiple times (streaming)
-$response->end();                 // Finalize and send the response
+HttpServer::onRequest(function (Request $request, Response $response): void {
+    $cookies = $request->getCookies();
+
+    if (!isset($cookies['session'])) {
+        $response->addHeader('Set-Cookie', 'session=abc123; Path=/; HttpOnly');
+        $response->addHeader('Set-Cookie', 'theme=dark; Path=/');
+        $response->redirect('/welcome');
+        $response->end();
+        return;
+    }
+
+    $params = $request->getQueryParams();
+    $name = $params['name'] ?? 'World';
+
+    $response->setStatus(200);
+    $response->setHeader('Content-Type', 'text/plain');
+    $response->write("Hello, {$name}!");
+    $response->end();
+});
 ```
 
-> **Importante:** chiama sempre `end()`, anche quando il corpo è vuoto. `write()` passa il buffer PHP
-> direttamente a Go senza copiarlo; `end()` rilascia il riferimento di scrittura in sospeso e segnala
-> che la risposta è completa. Omettere `end()` bloccherà la richiesta.
+### Esempio: Upload di file
 
-`getBody()` legge l'intero corpo della richiesta in una sola volta e lo restituisce come stringa. Il corpo è bufferizzato
-sul lato Go, quindi la lettura è non bloccante dal punto di vista di PHP.
+```php
+HttpServer::onRequest(function (Request $request, Response $response): void {
+    $files = $request->getUploadedFiles();
+    $fields = $request->getParsedBody();
+
+    if (isset($files['avatar'])) {
+        $file = $files['avatar'];
+
+        if ($file->getError() === UPLOAD_ERR_OK) {
+            $file->moveTo('/uploads/' . $file->getName());
+            $response->setStatus(200);
+            $response->write("Caricato: {$file->getName()} ({$file->getSize()} byte)");
+        } else {
+            $response->setStatus(400);
+            $response->write("Errore upload: {$file->getError()}");
+        }
+    } else {
+        $response->setStatus(400);
+        $response->write('Nessun file caricato');
+    }
+
+    $response->end();
+});
+```
 
 ### I/O asincrono all'interno dell'handler
 
@@ -327,6 +409,29 @@ Verifica che TrueAsync sia attivo da PHP:
 var_dump(extension_loaded('true_async')); // bool(true)
 var_dump(ZEND_THREAD_SAFE);               // bool(true)
 ```
+
+## Modello di esecuzione
+
+In modalità `async`, ogni thread PHP esegue un singolo loop dello scheduler TrueAsync.
+Quando arriva una richiesta HTTP, FrankenPHP (lato Go) la inserisce nella coda del worker e
+lo scheduler la assegna a una nuova coroutine.
+
+```
+Thread PHP (1 thread OS)
+ ├─ Coroutine #1  ← richiesta GET /users    (in attesa di I/O dal DB)
+ ├─ Coroutine #2  ← richiesta POST /login   (in esecuzione)
+ ├─ Coroutine #3  ← richiesta GET /health   (in attesa di I/O di rete)
+ └─ ...
+```
+
+Tutte le coroutine condividono lo stesso thread, ma l'I/O non bloccante consente allo scheduler
+di alternare tra di esse in modo trasparente. Il codice utente appare sincrono — le funzioni
+`PDO::query()`, `file_get_contents()`, ecc. cedono automaticamente il controllo allo scheduler
+quando l'operazione sottostante è in attesa.
+
+Se un handler esegue lavoro CPU-bound per un tempo prolungato, le altre coroutine sullo stesso thread
+vengono ritardate. Per carichi CPU-heavy, aumenta `num` nel Caddyfile per distribuire
+le richieste su più thread OS.
 
 ## Risoluzione dei problemi
 

@@ -176,26 +176,109 @@ HttpServer::onRequest(function (Request $request, Response $response): void {
 
 ### Request 对象
 
-```php
-$request->getMethod();    // GET, POST, ...
-$request->getUri();       // Full request URI
-$request->getHeaders();   // Array of all HTTP headers
-$request->getHeader($name); // Single header value
-$request->getBody();      // Raw request body string
-```
+所有请求数据通过 CGO 从 Go 的 `http.Request` 对象获取——无 SAPI 全局变量，对并发协程安全。
+
+| 方法 | 返回值 | 描述 |
+|------|--------|------|
+| `getMethod()` | `string` | HTTP 方法（`GET`、`POST` 等） |
+| `getUri()` | `string` | 完整请求 URI（含查询字符串） |
+| `getHeader(string $name)` | `?string` | 单个请求头的值，或 `null` |
+| `getHeaders()` | `array` | 所有请求头，格式为 `name => value`（多值以 `, ` 连接） |
+| `getBody()` | `string` | 完整请求体（一次性读取） |
+| `getQueryParams()` | `array` | 已解析并 URL 解码的查询字符串 |
+| `getCookies()` | `array` | 从 `Cookie` 头解析并 URL 解码的 Cookie |
+| `getHost()` | `string` | Host 头的值 |
+| `getRemoteAddr()` | `string` | 客户端地址（`ip:port`） |
+| `getScheme()` | `string` | `http` 或 `https` |
+| `getProtocolVersion()` | `string` | 协议版本（`HTTP/1.1`、`HTTP/2.0`） |
+| `getParsedBody()` | `array` | 表单字段（urlencoded + multipart） |
+| `getUploadedFiles()` | `array` | 上传文件，返回 `UploadedFile` 对象 |
 
 ### Response 对象
 
+响应头和状态码存储在对象本身（而非 SAPI 全局变量），在 `end()` 时序列化并通过单次 CGO 调用发送到 Go。
+
+| 方法 | 返回值 | 描述 |
+|------|--------|------|
+| `setStatus(int $code)` | `void` | 设置 HTTP 状态码（默认 200） |
+| `getStatus()` | `int` | 读取当前状态码 |
+| `setHeader(string $name, string $value)` | `void` | 设置请求头（替换已有值） |
+| `addHeader(string $name, string $value)` | `void` | 追加请求头（用于 `Set-Cookie` 等） |
+| `removeHeader(string $name)` | `void` | 移除请求头 |
+| `getHeader(string $name)` | `?string` | 读取请求头的第一个值，或 `null` |
+| `getHeaders()` | `array` | 所有请求头，格式为 `name => [values...]` |
+| `isHeadersSent()` | `bool` | `end()` 是否已被调用 |
+| `redirect(string $url, int $code = 302)` | `void` | 设置 Location 头 + 状态码 |
+| `write(string $data)` | `void` | 缓冲响应体（可多次调用） |
+| `end()` | `void` | 发送状态码 + 响应头 + 响应体给客户端。**必须调用。** |
+
+> **重要提示：** 即使响应体为空，也务必调用 `end()`。`write()` 在 PHP 对象中缓冲数据；`end()` 将响应头 + 响应体序列化，并通过单次 CGO 调用复制到 Go。省略 `end()` 将导致请求挂起。
+
+### UploadedFile 对象
+
+`getUploadedFiles()` 返回 `FrankenPHP\UploadedFile` 对象。Go 通过 `http.Request.ParseMultipartForm` 解析 multipart 数据，将文件保存到临时目录，并将元数据传递给 PHP。
+
+| 方法 | 返回值 | 描述 |
+|------|--------|------|
+| `getName()` | `string` | 原始文件名 |
+| `getType()` | `string` | MIME 类型 |
+| `getSize()` | `int` | 文件大小（字节） |
+| `getTmpName()` | `string` | 临时文件路径 |
+| `getError()` | `int` | 上传错误码（`UPLOAD_ERR_OK` = 0） |
+| `moveTo(string $path)` | `bool` | 将文件移动到目标路径（重命名或复制+删除） |
+
+同一字段的多个文件以 `UploadedFile` 对象数组形式返回。
+
+### 示例：Cookie 与重定向
+
 ```php
-$response->setStatus(int $code);
-$response->setHeader(string $name, string $value);
-$response->write(string $data);   // Can be called multiple times (streaming)
-$response->end();                 // Finalize and send the response
+HttpServer::onRequest(function (Request $request, Response $response): void {
+    $cookies = $request->getCookies();
+
+    if (!isset($cookies['session'])) {
+        $response->addHeader('Set-Cookie', 'session=abc123; Path=/; HttpOnly');
+        $response->addHeader('Set-Cookie', 'theme=dark; Path=/');
+        $response->redirect('/welcome');
+        $response->end();
+        return;
+    }
+
+    $params = $request->getQueryParams();
+    $name = $params['name'] ?? 'World';
+
+    $response->setStatus(200);
+    $response->setHeader('Content-Type', 'text/plain');
+    $response->write("Hello, {$name}!");
+    $response->end();
+});
 ```
 
-> **重要提示：** 即使响应体为空，也务必调用 `end()`。`write()` 会将 PHP 缓冲区直接传递给 Go 而不进行复制；`end()` 会释放待写入的引用并发出响应完成的信号。省略 `end()` 将导致请求挂起。
+### 示例：文件上传
 
-`getBody()` 一次性读取完整的请求体并以字符串形式返回。请求体在 Go 端进行缓冲，因此从 PHP 的角度来看，读取操作是非阻塞的。
+```php
+HttpServer::onRequest(function (Request $request, Response $response): void {
+    $files = $request->getUploadedFiles();
+    $fields = $request->getParsedBody();
+
+    if (isset($files['avatar'])) {
+        $file = $files['avatar'];
+
+        if ($file->getError() === UPLOAD_ERR_OK) {
+            $file->moveTo('/uploads/' . $file->getName());
+            $response->setStatus(200);
+            $response->write("Uploaded: {$file->getName()} ({$file->getSize()} bytes)");
+        } else {
+            $response->setStatus(400);
+            $response->write("Upload error: {$file->getError()}");
+        }
+    } else {
+        $response->setStatus(400);
+        $response->write('No file uploaded');
+    }
+
+    $response->end();
+});
+```
 
 ### 处理器中的异步 I/O
 
@@ -314,6 +397,13 @@ frankenphp adapt --config /etc/caddy/Caddyfile
 var_dump(extension_loaded('true_async')); // bool(true)
 var_dump(ZEND_THREAD_SAFE);               // bool(true)
 ```
+
+## 执行模型
+
+- 每个异步线程使用一个 1 槽缓冲通道（默认）。可设置 `buffer_size` 增加每线程请求队列（最大 10）。如果所有线程都处于繁忙状态且所有缓冲区已满，客户端将收到 `503 (ErrAllBuffersFull)`。
+- 请求通过通知器（Linux 上的 `eventfd`，其他平台使用 `pipe`）加心跳快速路径唤醒 PHP 调度器，以减少唤醒延迟。
+- `Response::write()` 在 PHP 对象中缓冲数据。`end()` 将响应头 + 响应体序列化，并通过一次 CGO 调用复制到 Go。即使响应体为空，也必须调用 `end()`。
+- 关闭时通过队列发送哨兵值；PHP 循环释放待写入的引用并恢复心跳处理器。
 
 ## 故障排除
 

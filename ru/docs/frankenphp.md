@@ -182,29 +182,114 @@ HttpServer::onRequest(function (Request $request, Response $response): void {
 
 ### Объект Request
 
-```php
-$request->getMethod();    // GET, POST, ...
-$request->getUri();       // Полный URI запроса
-$request->getHeaders();   // Массив всех HTTP-заголовков
-$request->getHeader($name); // Значение конкретного заголовка
-$request->getBody();      // Тело запроса в виде строки
-```
+Все данные запроса извлекаются из Go-объекта `http.Request` через CGO — без SAPI-глобалов, безопасно для параллельных корутин.
+
+| Метод | Возврат | Описание |
+|-------|---------|----------|
+| `getMethod()` | `string` | HTTP-метод (`GET`, `POST` и т.д.) |
+| `getUri()` | `string` | Полный URI запроса с query string |
+| `getHeader(string $name)` | `?string` | Значение одного заголовка или `null` |
+| `getHeaders()` | `array` | Все заголовки в виде `name => value` (множественные значения объединяются через `, `) |
+| `getBody()` | `string` | Полное тело запроса (читается один раз) |
+| `getQueryParams()` | `array` | Разобранные и декодированные параметры query string |
+| `getCookies()` | `array` | Разобранные и декодированные cookies из заголовка `Cookie` |
+| `getHost()` | `string` | Значение заголовка Host |
+| `getRemoteAddr()` | `string` | Адрес клиента (`ip:port`) |
+| `getScheme()` | `string` | `http` или `https` |
+| `getProtocolVersion()` | `string` | Протокол (`HTTP/1.1`, `HTTP/2.0`) |
+| `getParsedBody()` | `array` | Поля формы (urlencoded + multipart) |
+| `getUploadedFiles()` | `array` | Загруженные файлы в виде объектов `UploadedFile` |
 
 ### Объект Response
 
+Заголовки и статус хранятся в самом объекте (не в SAPI-глобалах), сериализуются и отправляются в Go одним CGO-вызовом при `end()`.
+
+| Метод | Возврат | Описание |
+|-------|---------|----------|
+| `setStatus(int $code)` | `void` | Установить HTTP-статус (по умолчанию 200) |
+| `getStatus()` | `int` | Получить текущий код статуса |
+| `setHeader(string $name, string $value)` | `void` | Установить заголовок (заменяет существующий) |
+| `addHeader(string $name, string $value)` | `void` | Добавить заголовок (для `Set-Cookie` и т.д.) |
+| `removeHeader(string $name)` | `void` | Удалить заголовок |
+| `getHeader(string $name)` | `?string` | Получить первое значение заголовка или `null` |
+| `getHeaders()` | `array` | Все заголовки в виде `name => [values...]` |
+| `isHeadersSent()` | `bool` | Был ли уже вызван `end()` |
+| `redirect(string $url, int $code = 302)` | `void` | Установить заголовок Location + статус |
+| `write(string $data)` | `void` | Буферизовать тело ответа (можно вызывать несколько раз) |
+| `end()` | `void` | Отправить статус + заголовки + тело клиенту. **Обязательно вызвать.** |
+
+> **Важно:** всегда вызывайте `end()`, даже если тело ответа пустое. `write()` буферизует данные
+> в PHP-объекте; `end()` сериализует заголовки и тело и копирует их в Go одним CGO-вызовом.
+> Пропуск `end()` приведёт к зависанию запроса.
+
+### Объект UploadedFile
+
+`getUploadedFiles()` возвращает объекты `FrankenPHP\UploadedFile`. Go разбирает multipart через `http.Request.ParseMultipartForm`, сохраняет файлы во временный каталог и передаёт метаданные в PHP.
+
+| Метод | Возврат | Описание |
+|-------|---------|----------|
+| `getName()` | `string` | Оригинальное имя файла |
+| `getType()` | `string` | MIME-тип |
+| `getSize()` | `int` | Размер файла в байтах |
+| `getTmpName()` | `string` | Путь к временному файлу |
+| `getError()` | `int` | Код ошибки загрузки (`UPLOAD_ERR_OK` = 0) |
+| `moveTo(string $path)` | `bool` | Переместить файл (rename или copy+delete) |
+
+Несколько файлов для одного поля возвращаются как массив объектов `UploadedFile`.
+
+### Пример: cookies и редирект
+
 ```php
-$response->setStatus(int $code);
-$response->setHeader(string $name, string $value);
-$response->write(string $data);   // Можно вызывать несколько раз (потоковая передача)
-$response->end();                 // Завершить и отправить ответ
+HttpServer::onRequest(function (Request $request, Response $response): void {
+    // Чтение cookies из запроса
+    $cookies = $request->getCookies();
+
+    if (!isset($cookies['session'])) {
+        // Установка нескольких cookies
+        $response->addHeader('Set-Cookie', 'session=abc123; Path=/; HttpOnly');
+        $response->addHeader('Set-Cookie', 'theme=dark; Path=/');
+        $response->redirect('/welcome');
+        $response->end();
+        return;
+    }
+
+    // Параметры query string
+    $params = $request->getQueryParams();
+    $name = $params['name'] ?? 'World';
+
+    $response->setStatus(200);
+    $response->setHeader('Content-Type', 'text/plain');
+    $response->write("Hello, {$name}!");
+    $response->end();
+});
 ```
 
-> **Важно:** всегда вызывайте `end()`, даже если тело ответа пустое. `write()` передаёт PHP-буфер
-> напрямую в Go без копирования; `end()` освобождает ожидающую ссылку записи и сигнализирует
-> о завершении ответа. Пропуск `end()` приведёт к зависанию запроса.
+### Пример: загрузка файлов
 
-`getBody()` считывает всё тело запроса целиком и возвращает его в виде строки. Тело буферизуется
-на стороне Go, поэтому чтение является неблокирующим с точки зрения PHP.
+```php
+HttpServer::onRequest(function (Request $request, Response $response): void {
+    $files = $request->getUploadedFiles();
+    $fields = $request->getParsedBody();
+
+    if (isset($files['avatar'])) {
+        $file = $files['avatar'];
+
+        if ($file->getError() === UPLOAD_ERR_OK) {
+            $file->moveTo('/uploads/' . $file->getName());
+            $response->setStatus(200);
+            $response->write("Uploaded: {$file->getName()} ({$file->getSize()} bytes)");
+        } else {
+            $response->setStatus(400);
+            $response->write("Upload error: {$file->getError()}");
+        }
+    } else {
+        $response->setStatus(400);
+        $response->write('No file uploaded');
+    }
+
+    $response->end();
+});
+```
 
 ### Асинхронный I/O внутри обработчика
 
@@ -327,6 +412,13 @@ frankenphp adapt --config /etc/caddy/Caddyfile
 var_dump(extension_loaded('true_async')); // bool(true)
 var_dump(ZEND_THREAD_SAFE);               // bool(true)
 ```
+
+## Модель выполнения
+
+- Каждый асинхронный поток использует буферизованный канал с 1 слотом (по умолчанию). Установите `buffer_size`, чтобы увеличить очередь запросов на поток (максимум 10). Если все потоки заняты и все буферы заполнены, клиент получает `503 (ErrAllBuffersFull)`.
+- Запросы будят планировщик PHP через нотификатор (`eventfd` на Linux, `pipe` на других платформах) плюс быстрый путь через heartbeat для снижения задержки пробуждения.
+- `Response::write()` буферизует данные в PHP-объекте. `end()` сериализует заголовки и тело и копирует их в Go одним CGO-вызовом. Всегда вызывайте `end()`, даже для пустого тела.
+- При завершении работы в очередь отправляется sentinel-значение; цикл PHP освобождает ожидающие записи и восстанавливает heartbeat-обработчик.
 
 ## Устранение неполадок
 
