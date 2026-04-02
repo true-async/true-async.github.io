@@ -212,6 +212,116 @@ spawn(function() use ($pdo) {
 Note `POOL_MIN => 0`: if you set the minimum higher than zero, the pool will try
 to create connections in advance, and the error will occur when creating the PDO object.
 
+## Broken Connection Recovery
+
+In a long-running async application connections can break at any moment: the database server
+restarts, a DBA kills a session, a network glitch drops the TCP link, or a coroutine is cancelled
+while a query is in flight. Without special handling the broken connection would silently return
+to the pool and the **next** coroutine to use it would get a confusing error like
+`MySQL server has gone away` or `another command is already in progress`.
+
+PDO Pool solves this automatically at two levels.
+
+### Automatic detection on return
+
+When a connection is returned to the pool (after a coroutine finishes or releases it),
+the pool checks whether the connection is still healthy. If the connection is broken —
+it is **destroyed** instead of being placed back into the pool. The next coroutine
+gets a fresh, working connection.
+
+```php
+$pdo = new PDO('mysql:host=localhost;dbname=app', 'root', 'secret', [
+    PDO::ATTR_ERRMODE      => PDO::ERRMODE_EXCEPTION,
+    PDO::ATTR_POOL_ENABLED => true,
+    PDO::ATTR_POOL_MAX     => 5,
+]);
+
+spawn(function () use ($pdo) {
+    $pdo->query("SELECT SLEEP(30)");
+    // Meanwhile the DBA runs: KILL <connection_id>
+    // The query throws PDOException.
+    // When this coroutine ends, the pool detects the broken connection
+    // and destroys it instead of returning it to the pool.
+});
+
+spawn(function () use ($pdo) {
+    // This coroutine gets a brand-new healthy connection,
+    // NOT the killed one from the previous coroutine.
+    $rows = $pdo->query("SELECT * FROM users")->fetchAll();
+});
+```
+
+### Transparent reconnect on retry
+
+When a coroutine catches an error from a broken connection and retries the query
+**on the same `$pdo` object**, the pool transparently discards the broken connection
+and acquires a fresh one. No manual reconnection code needed:
+
+```php
+spawn(function () use ($pdo) {
+    try {
+        $pdo->query("SELECT 1");
+    } catch (PDOException $e) {
+        // Connection was broken (server restart, network issue, etc.)
+        // The pool has already discarded the broken connection internally.
+
+        // Just retry — the pool gives this coroutine a new connection:
+        $pdo->query("SELECT 1"); // works
+    }
+});
+```
+
+This means a simple `try/catch` with a retry is all you need for robust connection handling.
+You do **not** need to create a new `PDO` object or manually reconnect — the pool does it for you.
+
+### Scenarios covered
+
+| Scenario | What happens |
+|----------|-------------|
+| Database server restarts | Broken connections are detected and destroyed on return to pool |
+| DBA kills a session | Same — the killed connection never reaches another coroutine |
+| Coroutine cancelled mid-query | Connection is detected as broken and destroyed |
+| Network timeout / TCP reset | Pool discards the connection, next acquire gets a fresh one |
+
+## Error State Isolation
+
+In a pool each coroutine shares the same `$pdo` PHP object but uses a different
+underlying database connection. PDO Pool ensures that error state from one coroutine
+never leaks into another.
+
+### `errorCode()` and `errorInfo()`
+
+Each coroutine sees **only its own** error state through `$pdo->errorCode()` and `$pdo->errorInfo()`.
+A failed query in one coroutine does not affect the error code seen by another:
+
+```php
+$pdo = new PDO('mysql:host=localhost;dbname=app', 'root', 'secret', [
+    PDO::ATTR_POOL_ENABLED => true,
+]);
+
+$coro1 = spawn(function () use ($pdo) {
+    $pdo->query("SELECT * FROM nonexistent_table"); // fails
+    echo $pdo->errorCode(); // e.g. "42S02" — only this coroutine's error
+});
+
+$coro2 = spawn(function () use ($pdo) {
+    $pdo->query("SELECT 1"); // succeeds
+    echo $pdo->errorCode(); // "00000" — not affected by coro1's failure
+});
+```
+
+### Consistent initial state
+
+`$pdo->errorCode()` always returns `"00000"` before the first query in a coroutine,
+even when multiple coroutines start concurrently on fresh connections.
+
+```php
+spawn(function () use ($pdo) {
+    // Guaranteed "00000", never NULL — even on a fresh pool connection
+    echo $pdo->errorCode(); // "00000"
+});
+```
+
 ## Real-World Example: Parallel Order Processing
 
 ```php
