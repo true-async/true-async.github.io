@@ -1,0 +1,35 @@
+@startuml
+title Suspend и Resume корутины
+
+participant "Корутина A\n(выполняется)" as CoroA
+participant "Scheduler\n(в контексте A)" as Sched
+participant "Reactor\n(libuv)" as Reactor
+participant "Корутина B\n(ожидает)" as CoroB
+
+== Suspend корутины A ==
+
+CoroA -> Sched : ZEND_ASYNC_SUSPEND()
+note left: Нет context switch!\nScheduler работает\nв контексте корутины A
+
+Sched -> Sched : Обработать микрозадачи
+Sched -> Reactor : reactor_execute(no_wait=true)
+note right: Неблокирующий тик:\nсобрать готовые события
+Reactor --> Sched : Таймер сработал → enqueue(B)
+
+== Resume корутины B ==
+
+Sched -> Sched : coroutine_queue → Корутина B
+Sched -> CoroB : zend_fiber_switch_context()
+note right: Реальное переключение\nстека и регистров
+
+CoroB -> CoroB : Продолжить выполнение\nс точки suspend
+
+== Suspend корутины B ==
+
+CoroB -> Sched : ZEND_ASYNC_SUSPEND()
+note left: Scheduler теперь\nв контексте B
+
+Sched -> Reactor : reactor_execute(no_wait=false)
+note right: Очередь пуста →\nблокируемся до\nследующего события
+
+@enduml

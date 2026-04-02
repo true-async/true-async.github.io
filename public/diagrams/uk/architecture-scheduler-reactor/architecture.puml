@@ -1,0 +1,31 @@
+@startuml
+title Scheduler and Reactor Interaction
+
+participant "Coroutine" as Coro
+participant "Scheduler" as Sched
+participant "Reactor\n(libuv)" as Reactor
+
+== Coroutine subscribes to an event ==
+
+Coro -> Sched : SUSPEND()
+note left: Coroutine awaits I/O,\ntimer or another event
+
+Sched -> Sched : Are there more coroutines in the queue?
+
+alt queue is not empty
+    Sched -> Coro : switch context -> next coroutine
+else queue is empty
+    Sched -> Reactor : reactor_execute(blocking)
+    note right: Wait for the nearest\nevent from libuv
+    Reactor --> Sched : event triggered
+    Sched -> Sched : enqueue awakened coroutines
+    Sched -> Coro : switch context -> coroutine
+end
+
+== Between context switches ==
+
+Sched -> Sched : Process microtasks
+Sched -> Reactor : reactor_execute(non-blocking)
+note right: Collect ready events\nwithout waiting
+
+@enduml

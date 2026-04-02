@@ -1,0 +1,34 @@
+@startuml
+
+title Событие → Callback → Корутина
+
+participant "Корутина" as Coro
+participant "Waker" as Waker
+participant "Событие\n(таймер, poll, ...)" as Event
+participant "Reactor\n(libuv)" as Reactor
+
+== Подписка ==
+
+Coro -> Waker : waker_new()
+Waker -> Event : add_callback(coroutine_callback)
+Event -> Reactor : start()
+note right: loop_ref_count++\nactive_event_count++
+Coro -> Coro : SUSPEND()
+note left: Корутина засыпает
+
+== Пробуждение ==
+
+Reactor -> Event : libuv callback
+Event -> Event : NOTIFY(result, exception)
+Event -> Waker : coroutine_callback(result)
+Waker -> Waker : status = QUEUED
+Waker -> Coro : enqueue в Scheduler
+
+== Возобновление ==
+
+Coro -> Coro : RESUME()
+note left: Корутина продолжает\nс waker->result
+Coro -> Event : del_callback()
+note right: Очистка подписки
+
+@enduml

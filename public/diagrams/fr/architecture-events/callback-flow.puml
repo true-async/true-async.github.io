@@ -1,0 +1,34 @@
+@startuml
+
+title Event → Callback → Coroutine
+
+participant "Coroutine" as Coro
+participant "Waker" as Waker
+participant "Event\n(timer, poll, ...)" as Event
+participant "Reactor\n(libuv)" as Reactor
+
+== Subscription ==
+
+Coro -> Waker : waker_new()
+Waker -> Event : add_callback(coroutine_callback)
+Event -> Reactor : start()
+note right: loop_ref_count++\nactive_event_count++
+Coro -> Coro : SUSPEND()
+note left: Coroutine sleeps
+
+== Wakeup ==
+
+Reactor -> Event : libuv callback
+Event -> Event : NOTIFY(result, exception)
+Event -> Waker : coroutine_callback(result)
+Waker -> Waker : status = QUEUED
+Waker -> Coro : enqueue in Scheduler
+
+== Resumption ==
+
+Coro -> Coro : RESUME()
+note left: Coroutine continues\nwith waker->result
+Coro -> Event : del_callback()
+note right: Cleanup subscription
+
+@enduml

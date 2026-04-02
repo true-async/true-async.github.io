@@ -1,0 +1,42 @@
+@startuml
+
+title Full Cycle: acquire → use → release
+
+participant "Coroutine A" as CoroA
+participant "Pool" as Pool
+participant "idle buffer" as Idle
+participant "Factory" as Factory
+participant "Coroutine B\n(waiting)" as CoroB
+
+== Acquire (coroutine A) ==
+
+CoroA -> Pool : acquire()
+Pool -> Idle : pop()
+Idle --> Pool : resource #1
+Pool -> Pool : active_count++
+Pool --> CoroA : resource #1
+
+== Acquire (coroutine B, pool at max) ==
+
+CoroB -> Pool : acquire(5000)
+Pool -> Pool : idle empty, active == max
+Pool -> Pool : Add to waiters
+note right: Coroutine B is suspended
+
+== Release (coroutine A) ==
+
+CoroA -> Pool : release(resource #1)
+Pool -> Pool : active_count--
+Pool -> Pool : beforeRelease? OK
+Pool -> Idle : push(resource #1)
+Pool -> CoroB : wake (resource available)
+
+== Retry acquire (coroutine B) ==
+
+CoroB -> Pool : retry acquire
+Pool -> Idle : pop()
+Idle --> Pool : resource #1
+Pool -> Pool : active_count++
+Pool --> CoroB : resource #1
+
+@enduml

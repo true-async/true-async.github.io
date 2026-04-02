@@ -1,0 +1,66 @@
+@startuml
+
+title acquire() — внутренний алгоритм
+
+start
+
+:zend_async_pool_acquire(pool, result, timeout);
+
+if (Pool закрыт?) then (да)
+    :throw PoolException;
+    stop
+endif
+
+if (CircuitBreaker\nINACTIVE?) then (да)
+    :throw ServiceUnavailableException;
+    stop
+endif
+
+label retry
+
+if (idle buffer\nне пуст?) then (да)
+    :Извлечь ресурс\nиз circular buffer;
+
+    if (beforeAcquire?) then (задан)
+        if (beforeAcquire\nвернул true?) then (да)
+        else (нет)
+            :Уничтожить ресурс\n(destructor);
+            goto retry
+        endif
+    endif
+
+    :active_count++;
+    :return resource;
+    stop
+
+elseif (idle + active\n< max_size?) then (да)
+    :Вызвать factory;
+
+    if (Factory\nуспешен?) then (да)
+        :active_count++;
+        :return resource;
+        stop
+    else (нет)
+        note right
+            Ошибка factory —
+            не фатальная.
+            Переходим к ожиданию.
+        end note
+    endif
+endif
+
+:pool_wait_for_resource();
+
+note right
+    1. Создать waiter
+    2. Добавить в очередь FIFO
+    3. Зарегистрировать timeout (если > 0)
+    4. ZEND_ASYNC_SUSPEND()
+    5. Корутина приостановлена
+end note
+
+:Корутина возобновлена;
+
+goto retry
+
+@enduml

@@ -1,0 +1,19 @@
+@startuml
+title Состояния Circuit Breaker
+
+[*] --> ACTIVE
+
+ACTIVE --> INACTIVE : deactivate()
+ACTIVE : acquire() — разрешён
+ACTIVE : Все запросы проходят
+
+INACTIVE --> RECOVERING : recover()
+INACTIVE : acquire() — throw Exception
+INACTIVE : Все запросы отклонены
+
+RECOVERING --> ACTIVE : activate()
+RECOVERING --> INACTIVE : deactivate()
+RECOVERING : acquire() — разрешён
+RECOVERING : Тестовый режим
+
+@enduml

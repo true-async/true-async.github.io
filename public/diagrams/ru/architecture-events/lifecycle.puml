@@ -1,0 +1,32 @@
+@startuml
+title Жизненный цикл события
+
+[*] --> Создано : new event
+Создано : ref_count = 1
+Создано : flags = 0
+
+Создано --> Активно : start()
+Создано --> Создано : add_callback()
+
+Активно : loop_ref_count > 0
+Активно : active_event_count++
+Активно --> Активно : add_callback()
+Активно --> Активно : del_callback()
+
+Активно --> Сработало : libuv callback
+Сработало : triggered_events обновлён
+
+Сработало --> Активно : NOTIFY\n(периодический таймер, poll)
+Сработало --> Закрыто : NOTIFY_AND_CLOSE\n(DNS, exec, Future)
+
+Активно --> Остановлено : stop()
+Остановлено : loop_ref_count = 0
+Остановлено --> Активно : start()
+
+Остановлено --> Закрыто : dispose()
+Закрыто : flags |= F_CLOSED
+Закрыто : подписка невозможна
+
+Закрыто --> [*] : ref_count = 0\ndispose()
+
+@enduml

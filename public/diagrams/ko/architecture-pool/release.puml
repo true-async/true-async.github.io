@@ -1,0 +1,44 @@
+@startuml
+
+title release() — Internal Algorithm
+
+start
+
+:zend_async_pool_release(pool, resource);
+
+:active_count--;
+
+if (beforeRelease\nset?) then (yes)
+    if (beforeRelease\nreturned true?) then (yes)
+    else (no)
+        :reportFailure()\nto CircuitBreaker;
+        :Destroy resource\n(destructor);
+        stop
+    endif
+endif
+
+:reportSuccess()\nto CircuitBreaker;
+
+if (Pool closed?) then (yes)
+    :Destroy resource;
+    stop
+endif
+
+if (Waiting coroutines\nexist?) then (yes)
+    :Place resource\nin idle buffer;
+
+    :Wake first coroutine\nfrom queue;
+
+    note right
+        Coroutine will wake up
+        and take the resource
+        via retry in acquire()
+    end note
+
+    stop
+else (no)
+    :Return to idle buffer;
+    stop
+endif
+
+@enduml

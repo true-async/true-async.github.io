@@ -1,0 +1,54 @@
+@startuml
+title Основной цикл Scheduler
+
+start
+
+:Scheduler запущен;
+
+repeat
+
+    :Обработать очередь **микрозадач**;
+    note right
+        FIFO порядок.
+        Исключение прерывает обработку.
+    end note
+
+    if (coroutine_queue пуста?) then (да)
+        :Вызвать **reactor_execute**(no_wait=false);
+        note right
+            Блокируется до
+            ближайшего события
+        end note
+    else (нет)
+        :Извлечь следующую корутину из очереди;
+        note right
+            Всегда из головы очереди.
+            HI_PRIORITY корутины попадают
+            в начало при enqueue.
+        end note
+
+        :zend_fiber_switch_context()\n→ передать управление корутине;
+
+        switch (switch_status)
+        case ( SWITCHED )
+            :Корутина вызвала suspend\n→ вернулись в scheduler;
+        case ( FINISHED )
+            :Корутина завершилась\n→ вернуть fiber context в пул;
+        case ( SHOULD_BE_EXIT )
+            :Graceful shutdown\n→ finally_shutdown();
+            stop
+        endswitch
+    endif
+
+    :Вызвать **reactor_execute**(no_wait=true);
+    note right
+        Неблокирующий тик:
+        обработать готовые события
+    end note
+
+repeat while (shutdown?) is (нет)
+
+:finally_shutdown();
+stop
+
+@enduml

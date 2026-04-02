@@ -1,0 +1,28 @@
+@startuml
+title Статусы Waker
+
+[*] --> NO_STATUS : waker_new()
+NO_STATUS : Waker не активен
+NO_STATUS : Корутина выполняется
+
+NO_STATUS --> WAITING : SUSPEND()
+WAITING : Корутина ждёт событий
+WAITING : events — список подписок
+
+WAITING --> QUEUED : событие сработало
+QUEUED : Корутина в очереди Scheduler
+QUEUED : result / error заполнены
+
+WAITING --> IGNORED : повторное срабатывание
+IGNORED : Корутина уже в очереди
+IGNORED : результат отброшен
+
+QUEUED --> RESULT : Scheduler переключил контекст
+RESULT : Результат применён к корутине
+RESULT : waker->result доступен
+
+RESULT --> NO_STATUS : waker_clean()
+
+IGNORED --> NO_STATUS : waker_clean()
+
+@enduml
