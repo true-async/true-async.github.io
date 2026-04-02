@@ -218,7 +218,7 @@ In a long-running async application connections can break at any moment: the dat
 restarts, a DBA kills a session, a network glitch drops the TCP link, or a coroutine is cancelled
 while a query is in flight. Without special handling the broken connection would silently return
 to the pool and the **next** coroutine to use it would get a confusing error like
-`MySQL server has gone away` or `another command is already in progress`.
+`MySQL server has gone away`.
 
 PDO Pool solves this automatically at two levels.
 
