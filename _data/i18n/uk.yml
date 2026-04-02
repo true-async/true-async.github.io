@@ -378,6 +378,14 @@ docs:
       items:
         - url: "/uk/docs/frankenphp.html"
           label: "FrankenPHP"
+          icon: "server"
+          children:
+            - url: "/uk/docs/reference/frankenphp/request.html"
+              label: "Request"
+            - url: "/uk/docs/reference/frankenphp/response.html"
+              label: "Response"
+            - url: "/uk/docs/reference/frankenphp/uploaded-file.html"
+              label: "UploadedFile"
     - title: "Дослідження"
       items:
         - url: "/uk/docs/evidence/concurrency-efficiency.html"

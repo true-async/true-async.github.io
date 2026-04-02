@@ -30,7 +30,7 @@ features:
       text: "<code>fread</code>, <code>fwrite</code>, <code>file_get_contents</code>, <code>ob_start</code>, <code>curl</code>, <code>MySQL</code>, <code>PostgreSQL</code>. Las funciones habituales de PHP ahora funcionan de forma asíncrona sin esfuerzo adicional."
     - title: "Servidores Web asíncronos"
       icon: "web-servers"
-      url: "/es/architecture/frankenphp.html"
+      url: "/es/docs/frankenphp.html"
       text: "Soporte del modelo: múltiples solicitudes — un solo proceso PHP."
     - title: "Cancelación cooperativa"
       icon: "cancellation"

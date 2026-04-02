@@ -30,7 +30,7 @@ features:
       text: "<code>fread</code>、<code>fwrite</code>、<code>file_get_contents</code>、<code>ob_start</code>、<code>curl</code>、<code>MySQL</code>、<code>PostgreSQL</code>。普通 PHP 函数无需额外操作即可异步运行。"
     - title: "异步 Web 服务器"
       icon: "web-servers"
-      url: "/zh/architecture/frankenphp.html"
+      url: "/zh/docs/frankenphp.html"
       text: "支持多请求、单 PHP 进程的模型。"
     - title: "协作式取消"
       icon: "cancellation"

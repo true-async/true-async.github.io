@@ -374,6 +374,18 @@ docs:
           label: "signal()"
         - url: "/ko/docs/reference/graceful-shutdown.html"
           label: "graceful_shutdown()"
+    - title: "통합"
+      items:
+        - url: "/ko/docs/frankenphp.html"
+          label: "FrankenPHP"
+          icon: "server"
+          children:
+            - url: "/ko/docs/reference/frankenphp/request.html"
+              label: "Request"
+            - url: "/ko/docs/reference/frankenphp/response.html"
+              label: "Response"
+            - url: "/ko/docs/reference/frankenphp/uploaded-file.html"
+              label: "UploadedFile"
     - title: "연구"
       items:
         - url: "/ko/docs/evidence/concurrency-efficiency.html"

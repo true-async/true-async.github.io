@@ -30,7 +30,7 @@ features:
       text: "<code>fread</code>, <code>fwrite</code>, <code>file_get_contents</code>, <code>ob_start</code>, <code>curl</code>, <code>MySQL</code>, <code>PostgreSQL</code>. Звичайні функції PHP тепер працюють асинхронно без додаткових зусиль."
     - title: "Асинхронні Web-сервери"
       icon: "web-servers"
-      url: "/uk/architecture/frankenphp.html"
+      url: "/uk/docs/frankenphp.html"
       text: "Підтримка моделі: декілька запитів — один PHP-процес."
     - title: "Кооперативне скасування"
       icon: "cancellation"

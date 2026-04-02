@@ -68,17 +68,12 @@ curl -fsSL https://raw.githubusercontent.com/true-async/releases/master/installe
 
 Or interactively — the wizard will ask about FrankenPHP as part of the extension preset selection.
 
-Go 1.26+ is required for the build. If it is not found, the installer downloads and uses it automatically
-without affecting your system installation.
-
 ### macOS
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/true-async/releases/master/installer/build-macos.sh | \
   BUILD_FRANKENPHP=true NO_INTERACTIVE=true bash
 ```
-
-Go is installed via Homebrew if needed.
 
 ### What gets installed
 
@@ -180,113 +175,19 @@ HttpServer::onRequest(function (Request $request, Response $response): void {
 });
 ```
 
-### Request Object
+The handler receives a [`Request`](/en/docs/reference/frankenphp/request.html) and a [`Response`](/en/docs/reference/frankenphp/response.html) object.
+Each request runs in its own coroutine — there are no shared globals, so handlers are safe for concurrent execution.
 
-All request data is fetched from Go's `http.Request` via CGO — no SAPI globals, safe for concurrent coroutines.
-
-| Method | Return | Description |
-|--------|--------|-------------|
-| `getMethod()` | `string` | HTTP method (`GET`, `POST`, etc.) |
-| `getUri()` | `string` | Full request URI with query string |
-| `getHeader(string $name)` | `?string` | Single header value, or `null` |
-| `getHeaders()` | `array` | All headers as `name => value` (multi-values joined with `, `) |
-| `getBody()` | `string` | Full request body (read once) |
-| `getQueryParams()` | `array` | Parsed + URL-decoded query string |
-| `getCookies()` | `array` | Parsed + URL-decoded cookies from `Cookie` header |
-| `getHost()` | `string` | Host header value |
-| `getRemoteAddr()` | `string` | Client address (`ip:port`) |
-| `getScheme()` | `string` | `http` or `https` |
-| `getProtocolVersion()` | `string` | Protocol (`HTTP/1.1`, `HTTP/2.0`) |
-| `getParsedBody()` | `array` | Form fields (urlencoded + multipart) |
-| `getUploadedFiles()` | `array` | Uploaded files as `UploadedFile` objects |
-
-### Response Object
-
-Headers and status are stored per-object (not in SAPI globals), serialized and sent to Go in a single CGO call at `end()`.
-
-| Method | Return | Description |
-|--------|--------|-------------|
-| `setStatus(int $code)` | `void` | Set HTTP status code (default 200) |
-| `getStatus()` | `int` | Read current status code |
-| `setHeader(string $name, string $value)` | `void` | Set header (replaces existing) |
-| `addHeader(string $name, string $value)` | `void` | Append header (for `Set-Cookie`, etc.) |
-| `removeHeader(string $name)` | `void` | Remove a header |
-| `getHeader(string $name)` | `?string` | Read first value of a header, or `null` |
-| `getHeaders()` | `array` | All headers as `name => [values...]` |
-| `isHeadersSent()` | `bool` | Whether `end()` has been called |
-| `redirect(string $url, int $code = 302)` | `void` | Set Location header + status |
-| `write(string $data)` | `void` | Buffer response body (multiple calls OK) |
-| `end()` | `void` | Send status + headers + body to client. **Must be called.** |
-
-> **Important:** always call `end()`, even when the body is empty. `write()` buffers data
-> in the PHP object; `end()` serializes headers + body and copies them to Go in a single CGO call.
+> **Important:** always call `response->end()` to send the response, even when the body is empty.
 > Omitting `end()` will hang the request.
 
-### UploadedFile Object
+### API Reference
 
-`getUploadedFiles()` returns `FrankenPHP\UploadedFile` objects. Go parses multipart via `http.Request.ParseMultipartForm`, saves files to a temp directory, and passes metadata to PHP.
-
-| Method | Return | Description |
-|--------|--------|-------------|
-| `getName()` | `string` | Original filename |
-| `getType()` | `string` | MIME type |
-| `getSize()` | `int` | File size in bytes |
-| `getTmpName()` | `string` | Temp file path |
-| `getError()` | `int` | Upload error code (`UPLOAD_ERR_OK` = 0) |
-| `moveTo(string $path)` | `bool` | Move file to destination (rename or copy+delete) |
-
-Multiple files for the same field are returned as an array of `UploadedFile` objects.
-
-### Example: Cookies and Redirect
-
-```php
-HttpServer::onRequest(function (Request $request, Response $response): void {
-    $cookies = $request->getCookies();
-
-    if (!isset($cookies['session'])) {
-        $response->addHeader('Set-Cookie', 'session=abc123; Path=/; HttpOnly');
-        $response->addHeader('Set-Cookie', 'theme=dark; Path=/');
-        $response->redirect('/welcome');
-        $response->end();
-        return;
-    }
-
-    $params = $request->getQueryParams();
-    $name = $params['name'] ?? 'World';
-
-    $response->setStatus(200);
-    $response->setHeader('Content-Type', 'text/plain');
-    $response->write("Hello, {$name}!");
-    $response->end();
-});
-```
-
-### Example: File Upload
-
-```php
-HttpServer::onRequest(function (Request $request, Response $response): void {
-    $files = $request->getUploadedFiles();
-    $fields = $request->getParsedBody();
-
-    if (isset($files['avatar'])) {
-        $file = $files['avatar'];
-
-        if ($file->getError() === UPLOAD_ERR_OK) {
-            $file->moveTo('/uploads/' . $file->getName());
-            $response->setStatus(200);
-            $response->write("Uploaded: {$file->getName()} ({$file->getSize()} bytes)");
-        } else {
-            $response->setStatus(400);
-            $response->write("Upload error: {$file->getError()}");
-        }
-    } else {
-        $response->setStatus(400);
-        $response->write('No file uploaded');
-    }
-
-    $response->end();
-});
-```
+| Class | Description |
+|-------|-------------|
+| [`FrankenPHP\Request`](/en/docs/reference/frankenphp/request.html) | Read-only access to HTTP method, URI, headers, body, query params, cookies, and uploaded files |
+| [`FrankenPHP\Response`](/en/docs/reference/frankenphp/response.html) | Set status, headers, buffer body with `write()`, send with `end()`, redirect |
+| [`FrankenPHP\UploadedFile`](/en/docs/reference/frankenphp/uploaded-file.html) | Uploaded file metadata (name, type, size, error) and `moveTo()` |
 
 ### Async I/O inside the handler
 
@@ -295,7 +196,6 @@ they will yield the coroutine instead of blocking the thread:
 
 ```php
 HttpServer::onRequest(function (Request $request, Response $response): void {
-    // Both requests run concurrently in the same PHP thread
     $db   = new PDO('pgsql:host=localhost;dbname=app', 'user', 'pass');
     $rows = $db->query('SELECT * FROM users LIMIT 10')->fetchAll();
 
@@ -355,7 +255,7 @@ When a restart is triggered (via admin API, file watcher, or config reload):
 
 1. Old threads are **detached** — no new requests are routed to them.
 2. In-flight requests get a grace period (`drain_timeout`, default `30s`) to finish.
-3. Old threads shut down and release their resources (notifier, channels).
+3. Old threads shut down and release their resources.
 4. Fresh threads boot with the updated PHP code.
 
 During the drain window new requests receive `HTTP 503`. Once the new threads are ready, traffic resumes normally.
@@ -410,13 +310,6 @@ var_dump(extension_loaded('true_async')); // bool(true)
 var_dump(ZEND_THREAD_SAFE);               // bool(true)
 ```
 
-## Execution Model
-
-- Each async thread uses a buffered channel with 1 slot (default). Set `buffer_size` to increase the per-thread request queue (max 10). If all threads are busy and all buffers are full, the client gets `503 (ErrAllBuffersFull)`.
-- Requests wake the PHP scheduler via a notifier (`eventfd` on Linux, `pipe` elsewhere) plus a heartbeat fast path to reduce wakeup latency.
-- `Response::write()` buffers data in the PHP object. `end()` serializes headers + body and copies them to Go in one CGO call. Always call `end()` even for empty bodies.
-- Shutdown sends a sentinel through the queue; the PHP loop frees pending writes and restores the heartbeat handler.
-
 ## Troubleshooting
 
 ### Requests never arrive at the PHP handler
@@ -424,35 +317,10 @@ var_dump(ZEND_THREAD_SAFE);               // bool(true)
 Make sure the worker has `async` enabled **and** that the Caddy matcher routes traffic to it.
 Without `match *` (or a specific pattern) no requests reach the async worker.
 
-### `undefined reference to tsrm_*` during build
-
-PHP was compiled with `--enable-embed=shared`. Rebuild without `=shared`:
-
-```bash
-./configure --enable-embed --enable-zts --enable-async ...
-```
-
 ### Requests getting `HTTP 503`
 
-All PHP threads are busy and the grace period is active (drain window during a restart),
-or the thread queue is saturated. Increase `num` to add more threads, or reduce `drain_timeout`
-if deploys are taking too long.
-
-## Debugging with Delve
-
-Go 1.25+ emits **DWARF v5** debug information. If Delve reports a compatibility error, rebuild
-with DWARF v4:
-
-```bash
-GOEXPERIMENT=nodwarf5 go build -tags "trueasync,nowatcher" -o frankenphp ./caddy/frankenphp
-```
-
-Run the debugger:
-
-```bash
-go install github.com/go-delve/delve/cmd/dlv@latest
-dlv exec ./frankenphp
-```
+All PHP threads are busy and the thread queue is saturated, or a graceful restart is in progress.
+Increase `num` to add more threads, or reduce `drain_timeout` if deploys are taking too long.
 
 ## Source code
 

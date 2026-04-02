@@ -30,7 +30,7 @@ features:
       text: "<code>fread</code>, <code>fwrite</code>, <code>file_get_contents</code>, <code>ob_start</code>, <code>curl</code>, <code>MySQL</code>, <code>PostgreSQL</code>. 일반 PHP 함수가 추가 노력 없이 비동기로 작동합니다."
     - title: "비동기 웹 서버"
       icon: "web-servers"
-      url: "/ko/architecture/frankenphp.html"
+      url: "/ko/docs/frankenphp.html"
       text: "여러 요청 — 하나의 PHP 프로세스 모델을 지원합니다."
     - title: "협력적 취소"
       icon: "cancellation"
