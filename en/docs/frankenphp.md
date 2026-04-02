@@ -13,7 +13,7 @@ description: "Running TrueAsync PHP with FrankenPHP — Docker quick start, buil
 [FrankenPHP](https://frankenphp.dev) is a PHP application server built on top of [Caddy](https://caddyserver.com).
 It embeds the PHP runtime directly into a Go process, eliminating the overhead of a separate FastCGI proxy.
 
-In the TrueAsync fork of FrankenPHP, a single PHP thread handles **many requests simultaneously** —
+In the TrueAsync fork of FrankenPHP, a single PHP thread handles **many requests concurrently** —
 each incoming HTTP request gets its own coroutine, and the TrueAsync scheduler switches between them
 while they are waiting for I/O.
 
