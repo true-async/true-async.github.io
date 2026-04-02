@@ -8,23 +8,20 @@ const repoUrl = 'https://github.com/true-async/true-async.github.io'
 
 const currentLang = computed(() => {
   const path = page.value.relativePath
-  if (path.startsWith('ru/')) return 'ru'
-  return 'en'
+  const match = path.match(/^(ru|de|es|fr|it|ko|uk|zh)\//)
+  return match ? match[1] : 'en'
 })
 
-const labels = computed(() => {
-  if (currentLang.value === 'ru') {
-    return {
-      editPage: 'Редактировать страницу',
-      reportError: 'Сообщить об ошибке',
-      shortcut: 'Ctrl+Shift+E',
-      issuePrefix: 'Ошибка в документации',
-      bodyPage: 'Страница',
-      bodySelected: 'Выделенный текст',
-      bodyDescription: 'Опишите проблему...',
-    }
-  }
-  return {
+const i18n: Record<string, {
+  editPage: string
+  reportError: string
+  shortcut: string
+  issuePrefix: string
+  bodyPage: string
+  bodySelected: string
+  bodyDescription: string
+}> = {
+  en: {
     editPage: 'Edit this page',
     reportError: 'Report error',
     shortcut: 'Ctrl+Shift+E',
@@ -32,7 +29,83 @@ const labels = computed(() => {
     bodyPage: 'Page',
     bodySelected: 'Selected text',
     bodyDescription: 'Describe the issue...',
-  }
+  },
+  ru: {
+    editPage: 'Редактировать страницу',
+    reportError: 'Сообщить об ошибке',
+    shortcut: 'Ctrl+Shift+E',
+    issuePrefix: 'Ошибка в документации',
+    bodyPage: 'Страница',
+    bodySelected: 'Выделенный текст',
+    bodyDescription: 'Опишите проблему...',
+  },
+  de: {
+    editPage: 'Seite bearbeiten',
+    reportError: 'Fehler melden',
+    shortcut: 'Ctrl+Shift+E',
+    issuePrefix: 'Dokumentationsfehler',
+    bodyPage: 'Seite',
+    bodySelected: 'Ausgewählter Text',
+    bodyDescription: 'Beschreiben Sie das Problem...',
+  },
+  es: {
+    editPage: 'Editar esta página',
+    reportError: 'Reportar error',
+    shortcut: 'Ctrl+Shift+E',
+    issuePrefix: 'Error en la documentación',
+    bodyPage: 'Página',
+    bodySelected: 'Texto seleccionado',
+    bodyDescription: 'Describa el problema...',
+  },
+  fr: {
+    editPage: 'Modifier cette page',
+    reportError: 'Signaler une erreur',
+    shortcut: 'Ctrl+Shift+E',
+    issuePrefix: 'Erreur de documentation',
+    bodyPage: 'Page',
+    bodySelected: 'Texte sélectionné',
+    bodyDescription: 'Décrivez le problème...',
+  },
+  it: {
+    editPage: 'Modifica questa pagina',
+    reportError: 'Segnala un errore',
+    shortcut: 'Ctrl+Shift+E',
+    issuePrefix: 'Errore nella documentazione',
+    bodyPage: 'Pagina',
+    bodySelected: 'Testo selezionato',
+    bodyDescription: 'Descrivi il problema...',
+  },
+  ko: {
+    editPage: '이 페이지 편집',
+    reportError: '오류 신고',
+    shortcut: 'Ctrl+Shift+E',
+    issuePrefix: '문서 오류',
+    bodyPage: '페이지',
+    bodySelected: '선택한 텍스트',
+    bodyDescription: '문제를 설명해 주세요...',
+  },
+  uk: {
+    editPage: 'Редагувати сторінку',
+    reportError: 'Повідомити про помилку',
+    shortcut: 'Ctrl+Shift+E',
+    issuePrefix: 'Помилка в документації',
+    bodyPage: 'Сторінка',
+    bodySelected: 'Виділений текст',
+    bodyDescription: 'Опишіть проблему...',
+  },
+  zh: {
+    editPage: '编辑此页',
+    reportError: '报告错误',
+    shortcut: 'Ctrl+Shift+E',
+    issuePrefix: '文档错误',
+    bodyPage: '页面',
+    bodySelected: '选中的文本',
+    bodyDescription: '请描述问题...',
+  },
+}
+
+const labels = computed(() => {
+  return i18n[currentLang.value] || i18n.en
 })
 
 const editUrl = computed(() => {
