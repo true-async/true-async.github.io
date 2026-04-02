@@ -55,10 +55,24 @@ export default defineConfig({
     ['link', { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' }],
     ['link', { href: 'https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400;500;600;700&family=Fira+Mono:wght@400;500&display=swap', rel: 'stylesheet' }],
     ['link', { rel: 'icon', type: 'image/png', href: '/assets/favicon.png' }],
+    ['meta', { property: 'og:type', content: 'website' }],
+    ['meta', { property: 'og:title', content: 'TrueAsync - True Asynchronous PHP' }],
+    ['meta', { property: 'og:description', content: 'True async/await, coroutines, and non-blocking I/O for PHP' }],
+    ['meta', { property: 'og:image', content: 'https://true-async.github.io/assets/logo-header.png' }],
+    ['meta', { property: 'og:url', content: 'https://true-async.github.io' }],
+    ['meta', { name: 'twitter:card', content: 'summary' }],
   ],
 
+  sitemap: {
+    hostname: 'https://true-async.github.io',
+  },
+
   // Use our fully custom theme — no VitePress defaults
-  themeConfig: {},
+  themeConfig: {
+    search: {
+      provider: 'local',
+    },
+  },
 
   locales: {
     'en': { label: 'English', lang: 'en' },

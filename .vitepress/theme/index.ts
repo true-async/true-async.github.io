@@ -1,9 +1,11 @@
 import type { Theme } from 'vitepress'
 import Layout from './Layout.vue'
+import NotFound from './NotFound.vue'
 import './style.css'
 
 export default {
   Layout,
+  NotFound,
   enhanceApp({ app }) {
     // Force full page load for /interactive/ links (served as static HTML from public/)
     if (typeof window !== 'undefined') {
