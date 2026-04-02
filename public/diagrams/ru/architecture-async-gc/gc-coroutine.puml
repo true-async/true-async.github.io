@@ -1,0 +1,43 @@
+@startuml
+title Сборка мусора в отдельной корутине
+
+participant "Корутина A" as A
+participant "Scheduler" as Sched
+participant "GC-корутина" as GC
+participant "Dtor-корутина" as Dtor
+participant "Корутина B" as B
+
+== Порог GC достигнут ==
+
+A -> A : gc_possible_root()\nбуфер полон
+A -> Sched : start_gc_in_coroutine()
+note right: Корутина A\nне блокируется,\nпродолжает работу
+
+Sched -> GC : spawn gc_coroutine\n(gc_scope)
+activate GC
+GC -> GC : zend_gc_collect_cycles()\nмаркировка, сбор
+
+== Вызов деструкторов ==
+
+GC -> Dtor : spawn dtor_coroutine\n(dtor_scope, HI_PRIORITY)
+activate Dtor
+GC -> GC : SUSPEND()\nждёт dtor_scope
+
+Dtor -> Dtor : obj->dtor_obj()\nвызов деструктора
+
+alt Деструктор вызвал await
+    Dtor -> Sched : SUSPEND()
+    note right: Деструктор ждёт I/O
+    Sched -> B : переключение на другую корутину
+    B -> B : работа...
+    Sched -> Dtor : microtask → spawn\nновая dtor-корутина
+    Dtor -> Dtor : продолжить\nс dtor_idx
+end
+
+Dtor -> Sched : dtor_scope завершён
+deactivate Dtor
+Sched -> GC : RESUME()
+GC -> GC : освобождение памяти
+deactivate GC
+
+@enduml

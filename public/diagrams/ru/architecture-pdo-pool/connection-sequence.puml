@@ -1,0 +1,37 @@
+@startuml
+
+title Создание соединения из пула
+
+participant "Корутина" as Coro
+participant "pdo_pool.c" as Pool
+participant "zend_async_pool_t" as AsyncPool
+participant "pdo_pool_factory" as Factory
+participant "MySQL Driver" as Driver
+
+Coro -> Pool : query("SELECT 1")
+Pool -> Pool : Поиск соединения\nдля текущей корутины
+
+alt Соединение не найдено
+    Pool -> AsyncPool : acquire()
+
+    alt Нет свободных, но < max
+        AsyncPool -> Factory : создать новое
+        Factory -> Factory : conn = ecalloc(pdo_dbh_t)
+        Factory -> Factory : Копирование DSN,\nlogin, password\nиз template (estrdup)
+        Factory -> Driver : db_handle_factory(conn)
+        Driver -> Driver : Парсинг DSN,\nTCP-подключение
+        Driver --> Factory : OK
+        Factory -> Factory : Освобождение копий\ncredentials (efree)
+        Factory --> AsyncPool : conn
+    end
+
+    AsyncPool --> Pool : conn
+    Pool -> Pool : Привязка conn\nк coroutine ID
+    Pool -> Pool : Регистрация cleanup\nна завершение корутины
+end
+
+Pool -> Driver : Выполнение запроса\nчерез conn->methods
+Driver --> Pool : Результат
+Pool --> Coro : PDOStatement
+
+@enduml

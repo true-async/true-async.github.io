@@ -1,0 +1,31 @@
+@startuml
+title Взаимодействие Scheduler и Reactor
+
+participant "Корутина" as Coro
+participant "Scheduler" as Sched
+participant "Reactor\n(libuv)" as Reactor
+
+== Корутина подписывается на событие ==
+
+Coro -> Sched : SUSPEND()
+note left: Корутина ждёт I/O,\nтаймер или другое событие
+
+Sched -> Sched : Есть ещё корутины в очереди?
+
+alt очередь не пуста
+    Sched -> Coro : switch context → следующая корутина
+else очередь пуста
+    Sched -> Reactor : reactor_execute(блокирующий)
+    note right: Ждём ближайшее\nсобытие от libuv
+    Reactor --> Sched : событие сработало
+    Sched -> Sched : enqueue пробуждённые корутины
+    Sched -> Coro : switch context → корутина
+end
+
+== Между переключениями ==
+
+Sched -> Sched : Обработать microtasks
+Sched -> Reactor : reactor_execute(неблокирующий)
+note right: Собрать готовые события\nбез ожидания
+
+@enduml

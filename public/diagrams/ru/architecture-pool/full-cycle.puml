@@ -1,0 +1,42 @@
+@startuml
+
+title Полный цикл acquire → use → release
+
+participant "Корутина A" as CoroA
+participant "Pool" as Pool
+participant "idle buffer" as Idle
+participant "Factory" as Factory
+participant "Корутина B\n(ожидает)" as CoroB
+
+== Acquire (корутина A) ==
+
+CoroA -> Pool : acquire()
+Pool -> Idle : pop()
+Idle --> Pool : ресурс #1
+Pool -> Pool : active_count++
+Pool --> CoroA : ресурс #1
+
+== Acquire (корутина B, пул на max) ==
+
+CoroB -> Pool : acquire(5000)
+Pool -> Pool : idle пуст, active == max
+Pool -> Pool : Добавить в waiters
+note right: Корутина B приостановлена
+
+== Release (корутина A) ==
+
+CoroA -> Pool : release(ресурс #1)
+Pool -> Pool : active_count--
+Pool -> Pool : beforeRelease? OK
+Pool -> Idle : push(ресурс #1)
+Pool -> CoroB : wake (ресурс доступен)
+
+== Retry acquire (корутина B) ==
+
+CoroB -> Pool : retry acquire
+Pool -> Idle : pop()
+Idle --> Pool : ресурс #1
+Pool -> Pool : active_count++
+Pool --> CoroB : ресурс #1
+
+@enduml

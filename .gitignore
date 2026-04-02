@@ -6,3 +6,6 @@ _site
 vendor
 Gemfile.lock
 .claude/
+node_modules/
+.vitepress/cache/
+.vitepress/dist/

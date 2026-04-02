@@ -1,0 +1,31 @@
+@startuml
+
+title Resource Lifecycle
+
+start
+
+:acquire();
+
+if (Is there a free resource?) then (yes)
+    :Take from idle buffer;
+else (no)
+    if (Count < max?) then (yes)
+        :Create new\n(factory);
+    else (no)
+        :Wait for release;
+    endif
+endif
+
+:Usage;
+
+:release();
+
+if (beforeRelease succeeded?) then (yes)
+    :Return to idle buffer;
+else (no)
+    :Destroy (destructor);
+endif
+
+stop
+
+@enduml

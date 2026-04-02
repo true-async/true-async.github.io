@@ -1,0 +1,25 @@
+@startuml
+
+title Healthcheck — Periodic Verification
+
+start
+
+:Timer fired;
+
+while (Resources exist\nin idle buffer?) is (yes)
+    :Extract resource;
+
+    if (healthcheck()\nreturned true?) then (yes)
+        :Return to\nidle buffer;
+    else (no)
+        :Destroy\n(destructor);
+
+        if (Total < min?) then (yes)
+            :Create replacement\n(factory);
+        endif
+    endif
+endwhile (no)
+
+stop
+
+@enduml
