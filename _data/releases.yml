@@ -50,6 +50,24 @@ versions:
             url: https://github.com/true-async/releases/releases/download/v0.6.6/php-trueasync-0.6.6-php8.6-windows-x64-debug.zip
             size: ~35 MB
             sha256: see sha256sums.txt in release
+  - version: 0.6.6
+    date: "2026-04-03"
+    php_requires: PHP 8.6-dev (ZTS)
+    changelog_url: https://github.com/true-async/releases/releases/tag/v0.6.6
+    old: true
+    platforms:
+      - name: Windows
+        files:
+          - name: php-trueasync-0.6.6-php8.6-windows-x64.zip
+            label: Release
+            url: https://github.com/true-async/releases/releases/download/v0.6.6/php-trueasync-0.6.6-php8.6-windows-x64.zip
+            size: ~38 MB
+            sha256: see sha256sums.txt in release
+          - name: php-trueasync-0.6.6-php8.6-windows-x64-debug.zip
+            label: Debug
+            url: https://github.com/true-async/releases/releases/download/v0.6.6/php-trueasync-0.6.6-php8.6-windows-x64-debug.zip
+            size: ~35 MB
+            sha256: see sha256sums.txt in release
   - version: 0.6.5
     date: "2026-03-29"
     php_requires: PHP 8.6-dev (ZTS)
