@@ -91,6 +91,11 @@ export default defineConfig({
     breaks: false,
     // Enable MathJax rendering ($$...$$ and $...$)
     math: true,
+    // Dual theme for light/dark syntax highlighting
+    theme: {
+      light: 'github-light',
+      dark: 'github-dark',
+    },
     config: (md) => {
       // Wrap all rendered markdown in <div v-pre> to prevent Vue
       // from compiling raw HTML (e.g. <style>, <script>) inside content.
