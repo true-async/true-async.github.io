@@ -8,6 +8,7 @@ import Sidebar from './Sidebar.vue'
 import RoadmapPage from './RoadmapPage.vue'
 import DownloadPage from './DownloadPage.vue'
 import DocFeedback from './DocFeedback.vue'
+import LearningMap from './LearningMap.vue'
 import { docsSidebar, architectureSidebar } from './sidebarData'
 import { docsSidebarRu, architectureSidebarRu } from './sidebarDataRu'
 import { docsSidebarDe, architectureSidebarDe } from './sidebarDataDe'
@@ -44,6 +45,7 @@ const currentDocsSidebar = computed(() => docsSidebarMap[currentLang.value] || d
 const currentArchSidebar = computed(() => archSidebarMap[currentLang.value] || architectureSidebar)
 
 const layout = computed(() => frontmatter.value.layout || 'default')
+const isMainDocsPage = computed(() => frontmatter.value.path_key === '/docs.html')
 </script>
 
 <template>
@@ -63,6 +65,7 @@ const layout = computed(() => frontmatter.value.layout || 'default')
       <Sidebar :sidebar="currentDocsSidebar" />
       <main class="docs-content">
         <Content />
+        <LearningMap v-if="isMainDocsPage" />
         <DocFeedback />
       </main>
     </div>
