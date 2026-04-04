@@ -1,10 +1,37 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, defineAsyncComponent, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vitepress'
+
+const VPLocalSearchBox = defineAsyncComponent(() =>
+  import('vitepress/dist/client/theme-default/components/VPLocalSearchBox.vue')
+)
 
 const route = useRoute()
 const menuOpen = ref(false)
 const langOpen = ref(false)
+const showSearch = ref(false)
+
+function openSearch() {
+  showSearch.value = true
+}
+
+function onSearchKeydown(e: KeyboardEvent) {
+  if ((e.key === 'k' || e.key === 'K') && (e.ctrlKey || e.metaKey)) {
+    e.preventDefault()
+    showSearch.value = true
+  }
+  if (e.key === '/' && !(e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement)) {
+    e.preventDefault()
+    showSearch.value = true
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('keydown', onSearchKeydown)
+})
+onUnmounted(() => {
+  window.removeEventListener('keydown', onSearchKeydown)
+})
 
 const languages = [
   { code: 'en', label: 'English' },
@@ -110,6 +137,15 @@ if (typeof document !== 'undefined') {
         </ul>
 
         <div class="navbar-actions">
+          <button class="search-button" @click="openSearch" type="button" aria-label="Search">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
+              <circle cx="11" cy="11" r="8"/>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <span class="search-button-label">Search</span>
+            <kbd class="search-kbd">Ctrl K</kbd>
+          </button>
+
           <div class="lang-dropdown" :class="{ open: langOpen }">
             <button class="lang-dropdown-toggle" @click="toggleLang" type="button">
               {{ getCurrentLang().toUpperCase() }}
@@ -136,5 +172,45 @@ if (typeof document !== 'undefined') {
         </div>
       </div>
     </div>
+    <VPLocalSearchBox v-if="showSearch" @close="showSearch = false" />
   </nav>
 </template>
+
+<style scoped>
+.search-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-bg-subtle);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.85em;
+  transition: border-color 0.2s, color 0.2s;
+  white-space: nowrap;
+}
+.search-button:hover {
+  border-color: var(--color-primary);
+  color: var(--color-text);
+}
+.search-button-label {
+  display: none;
+}
+.search-kbd {
+  display: none;
+  font-family: inherit;
+  font-size: 0.8em;
+  padding: 1px 5px;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  color: var(--color-text-muted);
+  background: var(--color-bg);
+}
+@media (min-width: 768px) {
+  .search-button-label { display: inline; }
+  .search-kbd { display: inline; }
+}
+</style>
