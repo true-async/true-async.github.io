@@ -594,8 +594,8 @@ function onSvgTouch(ev: TouchEvent) {
           <clipPath :id="`lmc-${n.id}`">
             <rect :x="n.cx - n.w/2" :y="n.cy - n.h/2" :width="n.w" :height="n.h" :rx="Math.min(n.h/2, 14)" />
           </clipPath>
-          <rect class="node-bg" :x="n.cx - n.w/2" :y="n.cy - n.h/2" :width="n.w" :height="n.h"
-                :rx="Math.min(n.h/2, 14)" fill="#fff"
+          <rect class="node-bg node-fill" :x="n.cx - n.w/2" :y="n.cy - n.h/2" :width="n.w" :height="n.h"
+                :rx="Math.min(n.h/2, 14)"
                 :stroke="GRP_COLORS[n.group].border" stroke-width="1.5" filter="url(#lmShadow)" />
           <rect :x="n.cx - n.w/2" :y="n.cy - n.h/2" width="4" :height="n.h" rx="2"
                 :fill="GRP_COLORS[n.group].color" opacity="0.7" :clip-path="`url(#lmc-${n.id})`" />
@@ -608,7 +608,7 @@ function onSvgTouch(ev: TouchEvent) {
           <g v-if="n.order" class="order-badge-g" :style="{ animationDelay: n.order * 0.08 + 's', transformOrigin: `${n.cx + n.w/2 - 2}px ${n.cy - n.h/2 - 2}px` }">
             <circle :cx="n.cx + n.w/2 - 2" :cy="n.cy - n.h/2 - 2" r="11" :fill="GRP_COLORS[n.group].color" />
             <text :x="n.cx + n.w/2 - 2" :y="n.cy - n.h/2 - 2" text-anchor="middle" dominant-baseline="central"
-                  font-family="Fira Sans,sans-serif" font-size="9" font-weight="700" fill="#fff" pointer-events="none">
+                  font-family="Fira Sans,sans-serif" font-size="9" font-weight="700" class="badge-text" pointer-events="none">
               {{ n.order }}
             </text>
           </g>
@@ -700,6 +700,10 @@ function onSvgTouch(ev: TouchEvent) {
   font-size: 0.85em;
 }
 
+/* Node fills — use CSS for theme-aware SVG colors */
+.node-fill { fill: var(--color-bg); }
+.badge-text { fill: #fff; }
+
 /* Node transitions */
 .lm-node { transition: opacity 0.25s; }
 .lm-node.dimmed { opacity: 0.12; }
@@ -733,7 +737,7 @@ function onSvgTouch(ev: TouchEvent) {
 /* Tooltip */
 .lm-tooltip {
   position: fixed; pointer-events: none;
-  background: #fff; border: 1px solid var(--color-border);
+  background: var(--color-bg); border: 1px solid var(--color-border);
   border-radius: var(--radius-lg, 10px); padding: 10px 14px;
   font-size: 0.82em; box-shadow: 0 4px 20px rgba(0,0,0,0.12);
   z-index: 100; opacity: 0; transition: opacity 0.18s;
@@ -745,10 +749,10 @@ function onSvgTouch(ev: TouchEvent) {
 .tt-group { font-size: 0.88em; font-weight: 500; }
 .tt-order { font-size: 0.85em; margin-top: 3px; font-weight: 600; }
 .tt-code {
-  margin-top: 6px; padding: 6px 8px; background: #F3F4F6;
+  margin-top: 6px; padding: 6px 8px; background: var(--color-code-bg);
   border-radius: 6px; font-family: 'Fira Mono', monospace;
-  font-size: 0.82em; line-height: 1.5; color: #1F2937;
-  white-space: pre; overflow-x: auto; border: 1px solid #E5E7EB;
+  font-size: 0.82em; line-height: 1.5; color: var(--color-text);
+  white-space: pre; overflow-x: auto; border: 1px solid var(--color-border);
 }
 :deep(.tt-code .kw) { color: #7C3AED; font-weight: 600; }
 :deep(.tt-code .fn) { color: #2563EB; }
@@ -771,7 +775,7 @@ function onSvgTouch(ev: TouchEvent) {
 }
 .lm-sheet-overlay.visible { display: block; }
 .lm-sheet {
-  position: fixed; left: 0; right: 0; bottom: 0; background: #fff;
+  position: fixed; left: 0; right: 0; bottom: 0; background: var(--color-bg);
   border-radius: 16px 16px 0 0; box-shadow: 0 -4px 24px rgba(0,0,0,0.15);
   z-index: 200; transform: translateY(100%);
   transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
@@ -781,7 +785,7 @@ function onSvgTouch(ev: TouchEvent) {
 .lm-sheet.visible { transform: translateY(0); }
 .sh-header {
   display: flex; align-items: center; justify-content: center;
-  padding: 10px 0 6px; position: sticky; top: 0; background: #fff; z-index: 1;
+  padding: 10px 0 6px; position: sticky; top: 0; background: var(--color-bg); z-index: 1;
 }
 .sh-handle { flex: 1; display: flex; justify-content: center; cursor: grab; }
 .sh-handle span { display: block; width: 36px; height: 4px; border-radius: 2px; background: #D1D5DB; }
@@ -798,9 +802,9 @@ function onSvgTouch(ev: TouchEvent) {
 .sh-group { font-size: 0.85em; font-weight: 500; margin-bottom: 2px; }
 .sh-order { font-size: 0.85em; font-weight: 600; margin-bottom: 8px; }
 .sh-code {
-  padding: 8px 10px; background: #F3F4F6; border-radius: 8px;
+  padding: 8px 10px; background: var(--color-code-bg); border-radius: 8px;
   font-family: 'Fira Mono', monospace; font-size: 0.82em; line-height: 1.5;
-  color: #1F2937; white-space: pre; overflow-x: auto; border: 1px solid #E5E7EB; margin-bottom: 10px;
+  color: var(--color-text); white-space: pre; overflow-x: auto; border: 1px solid var(--color-border); margin-bottom: 10px;
 }
 :deep(.sh-code .kw) { color: #7C3AED; font-weight: 600; }
 :deep(.sh-code .fn) { color: #2563EB; }
