@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, onMounted } from 'vue'
+import { inBrowser } from 'vitepress'
 import Navbar from './Navbar.vue'
 import Footer from './Footer.vue'
 
 const currentLang = computed(() => {
+  if (!inBrowser) return 'en'
   const match = window.location.pathname.match(/^\/(en|ru|de|es|fr|it|uk|zh|ko)\//)
   return match ? match[1] : 'en'
 })
