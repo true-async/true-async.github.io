@@ -58,41 +58,47 @@ $orders = spawn(fn() => $db->query('SELECT * FROM orders'));
 ## Building Locally
 
 ```bash
-# Prerequisites: Ruby, Bundler
-gem install bundler
+# Prerequisites: Node.js 22+
+node -v
 
 # Install dependencies
-bundle install
+npm install
 
-# Serve locally
-bundle exec jekyll serve
+# Serve locally with hot reload
+npm run dev
 
-# Open http://localhost:4000
+# Open http://localhost:5173
 ```
 
 ## Tech Stack
 
-- **[Jekyll](https://jekyllrb.com/)** with GitHub Pages gem
-- **[kramdown](https://kramdown.gettalong.org/)** + Rouge for Markdown rendering
-- **[KaTeX](https://katex.org/)** for mathematical formulas
-- **[PlantUML](https://plantuml.com/)** diagrams pre-rendered to SVG
-- Custom i18n system via `_data/i18n/{lang}.yml`
+- **[VitePress](https://vitepress.dev/)** — Vue-powered static site generator
+- **[Vue 3](https://vuejs.org/)** — custom theme with SFC components
+- **[Shiki](https://shiki.style/)** — syntax highlighting with dual light/dark themes
+- **[MathJax](https://www.mathjax.org/)** — mathematical formulas (built-in VitePress support)
+- Custom i18n system with 9 languages
+- Dark/light theme with system preference detection
 
 ## Repository Map
 
 ```
-├── ru/                    # Russian (original)
-├── en/                    # English
-├── de/ it/ es/ fr/        # German, Italian, Spanish, French
-├── uk/ zh/ ko/            # Ukrainian, Chinese, Korean
-├── diagrams/{lang}/       # SVG diagrams per language
-├── _data/
-│   ├── i18n/              # Navigation & UI translations
-│   └── pages/             # Page-specific data (home, etc.)
-├── _includes/             # Shared HTML partials
-├── _layouts/              # Page layouts
-├── assets/                # CSS, JS, images
-└── css/                   # Stylesheets
+├── .vitepress/
+│   ├── config.mts             # VitePress configuration
+│   └── theme/                 # Custom Vue theme
+│       ├── Layout.vue         # Main layout
+│       ├── Navbar.vue         # Navigation bar
+│       ├── Sidebar.vue        # Docs sidebar
+│       ├── Footer.vue         # Site footer
+│       ├── HomePage.vue       # Landing page
+│       ├── LearningMap.vue    # Interactive learning map (SVG)
+│       ├── DownloadPage.vue   # Downloads page
+│       ├── style.css          # Global styles + dark theme
+│       └── sidebarData*.ts    # Sidebar navigation per language
+├── en/ ru/ de/ ...            # Content per language (9 dirs)
+├── vitepress-docs/            # Docs main pages
+├── diagrams/{lang}/           # SVG diagrams per language
+├── assets/                    # Images, logos
+└── package.json
 ```
 
 ## Contributing
