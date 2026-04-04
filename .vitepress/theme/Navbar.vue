@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, defineAsyncComponent, onMounted, onUnmounted } from 'vue'
+import { ref, watch, defineAsyncComponent, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vitepress'
 
 const VPLocalSearchBox = defineAsyncComponent(() =>
@@ -11,6 +11,11 @@ const menuOpen = ref(false)
 const langOpen = ref(false)
 const showSearch = ref(false)
 const isDark = ref(false)
+
+watch(() => route.path, () => {
+  menuOpen.value = false
+  langOpen.value = false
+})
 
 function openSearch() {
   showSearch.value = true
