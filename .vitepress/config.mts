@@ -61,6 +61,10 @@ export default defineConfig({
     ['meta', { property: 'og:image', content: 'https://true-async.github.io/assets/logo-header.png' }],
     ['meta', { property: 'og:url', content: 'https://true-async.github.io' }],
     ['meta', { name: 'twitter:card', content: 'summary' }],
+    // KaTeX for math formulas (used in evidence pages)
+    ['link', { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css' }],
+    ['script', { defer: '', src: 'https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js' }],
+    ['script', { defer: '', src: 'https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js', onload: "renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})" }],
   ],
 
   sitemap: {
@@ -89,8 +93,6 @@ export default defineConfig({
   markdown: {
     // Keep GitHub Flavored Markdown behavior
     breaks: false,
-    // Enable MathJax rendering ($$...$$ and $...$)
-    math: true,
     // Dual theme for light/dark syntax highlighting
     theme: {
       light: 'github-light',

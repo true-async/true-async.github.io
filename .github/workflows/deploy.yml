@@ -33,7 +33,7 @@ jobs:
         run: npm ci
 
       - name: Build with VitePress
-        run: npx vitepress build
+        run: NODE_OPTIONS="--max-old-space-size=8192" npx vitepress build
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
