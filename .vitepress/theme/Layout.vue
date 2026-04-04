@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, watch, nextTick } from 'vue'
-import { useData, useRoute, inBrowser } from 'vitepress'
+import { computed, watch, nextTick, onMounted } from 'vue'
+import { useData, useRoute } from 'vitepress'
 import Navbar from './Navbar.vue'
 import Footer from './Footer.vue'
 import HomePage from './HomePage.vue'
@@ -44,15 +44,16 @@ const archSidebarMap: Record<string, any[]> = {
 const currentDocsSidebar = computed(() => docsSidebarMap[currentLang.value] || docsSidebar)
 const currentArchSidebar = computed(() => archSidebarMap[currentLang.value] || architectureSidebar)
 
+const route = useRoute()
+
 const layout = computed(() => frontmatter.value.layout || 'default')
 const isMainDocsPage = computed(() => frontmatter.value.path_key === '/docs.html')
 
 // Re-render KaTeX math formulas after SPA navigation
-if (inBrowser) {
-  const route = useRoute()
+onMounted(() => {
   watch(() => route.path, () => {
     nextTick(() => {
-      if (typeof window !== 'undefined' && (window as any).renderMathInElement) {
+      if ((window as any).renderMathInElement) {
         ;(window as any).renderMathInElement(document.body, {
           delimiters: [
             { left: '$$', right: '$$', display: true },
@@ -62,7 +63,7 @@ if (inBrowser) {
       }
     })
   })
-}
+})
 </script>
 
 <template>
