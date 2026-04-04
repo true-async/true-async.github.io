@@ -92,7 +92,7 @@ Go встановлюється через Homebrew за потреби.
 
 FrankenPHP налаштовується через `Caddyfile`. Мінімальна конфігурація для асинхронного воркера TrueAsync:
 
-```caddyfile
+```txt
 {
     admin off
     frankenphp {
@@ -135,7 +135,7 @@ FrankenPHP налаштовується через `Caddyfile`. Мінімаль
 
 Ви можете запускати різні точки входу для різних маршрутів:
 
-```caddyfile
+```txt
 :8080 {
     root * /app
     php_server {
@@ -367,7 +367,7 @@ curl -X POST http://localhost:2019/frankenphp/workers/restart
 Admin API Caddy за замовчуванням слухає на `localhost:2019`. Щоб увімкнути його, видаліть `admin off` з
 глобального блоку (або обмежте його до localhost):
 
-```caddyfile
+```txt
 {
     admin localhost:2019
     frankenphp {
@@ -378,7 +378,7 @@ Admin API Caddy за замовчуванням слухає на `localhost:201
 
 ### Налаштування drain timeout
 
-```caddyfile
+```txt
 worker {
     file entrypoint.php
     num 2

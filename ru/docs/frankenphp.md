@@ -88,7 +88,7 @@ curl -fsSL https://raw.githubusercontent.com/true-async/releases/master/installe
 
 FrankenPHP настраивается через `Caddyfile`. Минимальная конфигурация для асинхронного воркера TrueAsync:
 
-```caddyfile
+```txt
 {
     admin off
     frankenphp {
@@ -131,7 +131,7 @@ FrankenPHP настраивается через `Caddyfile`. Минимальн
 
 Вы можете запускать разные точки входа для разных маршрутов:
 
-```caddyfile
+```txt
 :8080 {
     root * /app
     php_server {
@@ -269,7 +269,7 @@ curl -X POST http://localhost:2019/frankenphp/workers/restart
 Admin API Caddy по умолчанию слушает на `localhost:2019`. Чтобы включить его, удалите `admin off` из
 глобального блока (или ограничьте доступ localhost):
 
-```caddyfile
+```txt
 {
     admin localhost:2019
     frankenphp {
@@ -280,7 +280,7 @@ Admin API Caddy по умолчанию слушает на `localhost:2019`. Ч
 
 ### Настройка drain timeout
 
-```caddyfile
+```txt
 worker {
     file entrypoint.php
     num 2

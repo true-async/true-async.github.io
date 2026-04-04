@@ -88,7 +88,7 @@ After a successful build both binaries are placed in `$INSTALL_DIR/bin/`:
 
 FrankenPHP is configured via a `Caddyfile`. The minimal configuration for an async TrueAsync worker:
 
-```caddyfile
+```txt
 {
     admin off
     frankenphp {
@@ -131,7 +131,7 @@ FrankenPHP is configured via a `Caddyfile`. The minimal configuration for an asy
 
 You can run different entrypoints for different routes:
 
-```caddyfile
+```txt
 :8080 {
     root * /app
     php_server {
@@ -269,7 +269,7 @@ curl -X POST http://localhost:2019/frankenphp/workers/restart
 The Caddy admin API listens on `localhost:2019` by default. To enable it, remove `admin off` from
 your global block (or restrict it to localhost):
 
-```caddyfile
+```txt
 {
     admin localhost:2019
     frankenphp {
@@ -280,7 +280,7 @@ your global block (or restrict it to localhost):
 
 ### Configuring the drain timeout
 
-```caddyfile
+```txt
 worker {
     file entrypoint.php
     num 2

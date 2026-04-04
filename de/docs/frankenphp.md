@@ -91,7 +91,7 @@ Nach einem erfolgreichen Build werden beide Binärdateien in `$INSTALL_DIR/bin/`
 
 FrankenPHP wird über ein `Caddyfile` konfiguriert. Die minimale Konfiguration für einen asynchronen TrueAsync-Worker:
 
-```caddyfile
+```txt
 {
     admin off
     frankenphp {
@@ -134,7 +134,7 @@ FrankenPHP wird über ein `Caddyfile` konfiguriert. Die minimale Konfiguration f
 
 Sie können verschiedene Einstiegspunkte für verschiedene Routen verwenden:
 
-```caddyfile
+```txt
 :8080 {
     root * /app
     php_server {
@@ -368,7 +368,7 @@ curl -X POST http://localhost:2019/frankenphp/workers/restart
 
 Die Caddy-Admin-API hört standardmäßig auf `localhost:2019`. Um sie zu aktivieren, entfernen Sie `admin off` aus Ihrem globalen Block (oder beschränken Sie sie auf localhost):
 
-```caddyfile
+```txt
 {
     admin localhost:2019
     frankenphp {
@@ -379,7 +379,7 @@ Die Caddy-Admin-API hört standardmäßig auf `localhost:2019`. Um sie zu aktivi
 
 ### Konfiguration des Drain-Timeouts
 
-```caddyfile
+```txt
 worker {
     file entrypoint.php
     num 2
