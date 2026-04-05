@@ -120,11 +120,16 @@ function toggleLang(e: Event) {
 }
 
 // Close lang dropdown on outside click
-if (typeof document !== 'undefined') {
-  document.addEventListener('click', () => {
-    langOpen.value = false
-  })
-}
+let closeLangDropdown: (() => void) | null = null
+onMounted(() => {
+  closeLangDropdown = () => { langOpen.value = false }
+  document.addEventListener('click', closeLangDropdown)
+})
+onUnmounted(() => {
+  if (closeLangDropdown) {
+    document.removeEventListener('click', closeLangDropdown)
+  }
+})
 </script>
 
 <template>

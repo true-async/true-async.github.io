@@ -98,15 +98,6 @@ export default defineConfig({
       light: 'github-light',
       dark: 'github-dark',
     },
-    config: (md) => {
-      // Wrap all rendered markdown in <div v-pre> to prevent Vue
-      // from compiling raw HTML (e.g. <style>, <script>) inside content.
-      const defaultRender = md.render.bind(md)
-      md.render = (src, env) => {
-        const html = defaultRender(src, env)
-        return `<div v-pre>${html}</div>`
-      }
-    },
   },
 
   vite: {

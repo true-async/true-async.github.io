@@ -67,7 +67,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div>
+  <div :key="route.path">
     <Navbar />
 
     <!-- Page Header (docs, architecture, roadmap, download) -->
