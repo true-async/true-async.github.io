@@ -1,0 +1,100 @@
+# TrueAsync
+
+> Native asynchronous programming for PHP: coroutines, non-blocking I/O, structured concurrency, and channels — built into PHP core via the Zend Async API.
+
+TrueAsync brings kernel-level asynchrony to PHP with zero-cost abstractions. Standard PHP functions (file I/O, network, PDO) work asynchronously inside coroutines without code changes. The project targets PHP 8.6 as an official extension.
+
+Key concepts: Coroutine (lightweight concurrent unit), Scope (structured concurrency boundary), Future (deferred result), Channel (CSP-style communication), Context (hierarchical data propagation), Pool (resource management with circuit breaker).
+
+## Getting Started
+
+- [Documentation Hub](https://true-async.github.io/en/docs.html): Installation, learning resources, and organized guides
+- [Introduction to Concurrency](https://true-async.github.io/en/docs/components/introduction.html): PHP-FPM blocking model vs TrueAsync coroutine-based concurrency
+- [Motivation](https://true-async.github.io/en/motivation.html): Why PHP needs built-in async and TrueAsync's approach
+- [Download](https://true-async.github.io/en/download.html): Installation instructions
+
+## Core Components
+
+- [Coroutines](https://true-async.github.io/en/docs/components/coroutines.html): Creation, lifecycle, state management, cancellation, error handling, and debugging
+- [Scope](https://true-async.github.io/en/docs/components/scope.html): Structured concurrency with hierarchical error handling and cancellation
+- [TaskGroup](https://true-async.github.io/en/docs/components/task-group.html): Execute and coordinate groups of tasks with waiting strategies (all, race, any) and concurrency limits
+- [TaskSet](https://true-async.github.io/en/docs/components/task-set.html): Dynamic task streams with automatic result cleanup and consumption-based iteration
+- [Future](https://true-async.github.io/en/docs/components/future.html): Deferred results with transformation chains via map, catch, finally
+- [Channels](https://true-async.github.io/en/docs/components/channels.html): CSP-style inter-coroutine communication with buffering and blocking
+- [Context](https://true-async.github.io/en/docs/components/context.html): Hierarchical execution data bound to Scopes without explicit parameter passing
+- [Cancellation](https://true-async.github.io/en/docs/components/cancellation.html): Cooperative cancellation, critical sections with protect(), cascading via Scope hierarchy
+- [Exceptions](https://true-async.github.io/en/docs/components/exceptions.html): Exception hierarchy — AsyncCancellation, TimeoutException, DeadlockError, CompositeException
+- [Interfaces](https://true-async.github.io/en/docs/components/interfaces.html): Base contracts — Awaitable, Completable, Timeout, ScopeProvider, SpawnStrategy
+- [PDO Pool](https://true-async.github.io/en/docs/components/pdo-pool.html): Transparent PDO connection pooling with auto transaction management and health checks
+- [Pool](https://true-async.github.io/en/docs/components/pool.html): Universal resource pool with acquire/release, health checking, and circuit breaker
+- [Zombie Coroutines](https://true-async.github.io/en/docs/components/zombie-coroutines.html): Fault-tolerance for unresponsive coroutines without blocking Scope termination
+- [FileSystemWatcher](https://true-async.github.io/en/docs/components/filesystem-watcher.html): Persistent file system monitoring with event buffering and coalescing
+
+## API Reference — Functions
+
+- [spawn()](https://true-async.github.io/en/docs/reference/spawn.html): Launch a function in a new coroutine
+- [spawn_with()](https://true-async.github.io/en/docs/reference/spawn-with.html): Launch a coroutine in a specified Scope for explicit lifecycle control
+- [await()](https://true-async.github.io/en/docs/reference/await.html): Wait for a coroutine, Future, or Completable to complete
+- [await_all()](https://true-async.github.io/en/docs/reference/await-all.html): Wait for all tasks, collecting results and errors separately
+- [await_all_or_fail()](https://true-async.github.io/en/docs/reference/await-all-or-fail.html): Wait for all tasks or throw on first failure
+- [await_any_of()](https://true-async.github.io/en/docs/reference/await-any-of.html): Wait for first N tasks to complete
+- [await_any_of_or_fail()](https://true-async.github.io/en/docs/reference/await-any-of-or-fail.html): Wait for first N successes or throw on failure
+- [await_any_or_fail()](https://true-async.github.io/en/docs/reference/await-any-or-fail.html): Wait for first task, propagate its exception if thrown
+- [await_first_success()](https://true-async.github.io/en/docs/reference/await-first-success.html): Wait for first successful task
+- [delay()](https://true-async.github.io/en/docs/reference/delay.html): Suspend coroutine for specified milliseconds
+- [suspend()](https://true-async.github.io/en/docs/reference/suspend.html): Yield control to the scheduler
+- [timeout()](https://true-async.github.io/en/docs/reference/timeout.html): Create a timeout object for limiting wait times
+- [protect()](https://true-async.github.io/en/docs/reference/protect.html): Execute closure in non-cancellable mode
+- [signal()](https://true-async.github.io/en/docs/reference/signal.html): Wait for an OS signal, returns Future
+- [iterate()](https://true-async.github.io/en/docs/reference/iterate.html): Concurrent iteration with configurable concurrency
+- [graceful_shutdown()](https://true-async.github.io/en/docs/reference/graceful-shutdown.html): Initiate graceful scheduler shutdown
+- [current_coroutine()](https://true-async.github.io/en/docs/reference/current-coroutine.html): Get the currently executing coroutine object
+- [current_context()](https://true-async.github.io/en/docs/reference/current-context.html): Get Context bound to the current Scope
+- [root_context()](https://true-async.github.io/en/docs/reference/root-context.html): Get global root Context for the request
+- [coroutine_context()](https://true-async.github.io/en/docs/reference/coroutine-context.html): Get private Context of the current coroutine
+- [get_coroutines()](https://true-async.github.io/en/docs/reference/get-coroutines.html): Get all active coroutines for diagnostics
+- [Supported Functions](https://true-async.github.io/en/docs/reference/supported-functions.html): 70+ standard PHP functions adapted for non-blocking operation
+- [INI Settings](https://true-async.github.io/en/docs/reference/ini-settings.html): Configuration directives for the TrueAsync extension
+
+## API Reference — Classes
+
+- [Coroutine](https://true-async.github.io/en/docs/reference/coroutine/get-id.html): getId, cancel, getState, getResult, isCancelled, isCompleted, and more
+- [Scope](https://true-async.github.io/en/docs/reference/scope/construct.html): construct, spawn, cancel, getCoroutines, onException, and more
+- [Future](https://true-async.github.io/en/docs/reference/future/construct.html): construct, completed, map, catch, finally, cancel, getResult, and more
+- [Channel](https://true-async.github.io/en/docs/reference/channel/construct.html): construct, send, recv, sendAsync, recvAsync, close, getIterator, and more
+- [Context](https://true-async.github.io/en/docs/reference/context/get.html): get, set, find, has, findLocal, getLocal, hasLocal, unset
+- [TaskGroup](https://true-async.github.io/en/docs/reference/task-group/construct.html): construct, spawn, awaitAll, awaitRace, awaitAny, cancel, and more
+- [TaskSet](https://true-async.github.io/en/docs/reference/task-set/construct.html): construct, spawn, join, joinNoFail, close, and more
+- [Pool](https://true-async.github.io/en/docs/reference/pool/construct.html): construct, acquire, release, close, getStats, and more
+- [FileSystemWatcher](https://true-async.github.io/en/docs/reference/filesystem-watcher/construct.html): construct, close, isClosed, getIterator
+
+## Architecture
+
+- [Architecture Overview](https://true-async.github.io/en/architecture.html): Internal architecture, Zend Async ABI, scheduler-reactor design
+- [Zend Async API](https://true-async.github.io/en/architecture/zend-async-api.html): ABI with function pointers, extension registration, global state
+- [Scheduler & Reactor](https://true-async.github.io/en/architecture/scheduler-reactor.html): Context switching, microtasks, fiber pools, libuv event loop
+- [Fibers in Async Mode](https://true-async.github.io/en/architecture/fibers.html): How PHP Fibers transform into coroutines when TrueAsync is active
+- [Events](https://true-async.github.io/en/architecture/events.html): Universal zend_async_event_t structure — callbacks, lifecycle, event hierarchy
+- [Waker](https://true-async.github.io/en/architecture/waker.html): Links coroutines to events with status tracking and result delivery
+- [Async GC](https://true-async.github.io/en/architecture/async-gc.html): Garbage collection with separate GC coroutines for destructors that call await
+- [PDO Pool Internals](https://true-async.github.io/en/architecture/pdo-pool.html): Two-level architecture, template connections, transaction pinning
+- [Pool Internals](https://true-async.github.io/en/architecture/pool.html): Circular buffer, acquire/release algorithms, healthcheck timers, circuit breaker
+- [FrankenPHP Integration](https://true-async.github.io/en/architecture/frankenphp.html): Request routing via Go channels, eventfd notification, scheduler heartbeat
+
+## FrankenPHP
+
+- [FrankenPHP Guide](https://true-async.github.io/en/docs/frankenphp.html): Running TrueAsync with FrankenPHP — Docker, configuration, entrypoint, graceful restarts
+- [Request](https://true-async.github.io/en/docs/reference/frankenphp/request.html): Read-only HTTP request data access
+- [Response](https://true-async.github.io/en/docs/reference/frankenphp/response.html): Set status, headers, body, and send HTTP response
+- [UploadedFile](https://true-async.github.io/en/docs/reference/frankenphp/uploaded-file.html): Access uploaded file metadata and move to storage
+
+## Optional
+
+- [RFC](https://true-async.github.io/en/rfc.html): Two PHP RFCs proposing TrueAsync's concurrency model (draft status)
+- [Contributing](https://true-async.github.io/en/contributing.html): How to contribute — code, docs, testing, community
+- [Roadmap](https://true-async.github.io/en/roadmap.html): Development timeline — v0.7 Threads (Summer 2026), v1.0 target PHP 8.6 (November 2026)
+- [Concurrency Efficiency Evidence](https://true-async.github.io/en/docs/evidence/concurrency-efficiency.html): Benchmarks and performance data
+- [Coroutines Evidence](https://true-async.github.io/en/docs/evidence/coroutines-evidence.html): Research supporting coroutine model
+- [Python Async Evidence](https://true-async.github.io/en/docs/evidence/python-evidence.html): Lessons from Python's async ecosystem
+- [Real-World Statistics](https://true-async.github.io/en/docs/evidence/real-world-statistics.html): Production usage data
+- [Swoole Evidence](https://true-async.github.io/en/docs/evidence/swoole-evidence.html): Comparison with Swoole's approach
