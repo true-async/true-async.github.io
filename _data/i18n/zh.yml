@@ -488,6 +488,7 @@ download:
   windows_subtitle: "包含 TrueAsync 的预编译 PHP Windows x64 二进制文件。"
   windows_release_desc: "用于常规使用"
   windows_debug_desc: "调试符号和断言 - 用于 PHP/扩展开发"
+  windows_frankenphp_desc: "FrankenPHP — 支持异步 Worker 的 Caddy 服务器"
   windows_verify_note: "SHA256 哈希值可在每个发行版的 <code>sha256sums.txt</code> 中找到。"
   windows_powershell_title: "快速安装 (PowerShell)"
   # Resources

@@ -488,6 +488,7 @@ download:
   windows_subtitle: "Windows x64용 TrueAsync가 포함된 사전 빌드 PHP 바이너리."
   windows_release_desc: "일반 사용용"
   windows_debug_desc: "디버그 심볼 및 어서션 — PHP/확장 개발용"
+  windows_frankenphp_desc: "FrankenPHP — 비동기 워커 지원이 포함된 Caddy 서버"
   windows_verify_note: "SHA256 해시는 각 릴리스의 <code>sha256sums.txt</code>에서 확인할 수 있습니다."
   windows_powershell_title: "빠른 설치 (PowerShell)"
   # Resources

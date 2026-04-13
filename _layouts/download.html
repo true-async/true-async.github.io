@@ -217,6 +217,8 @@ CMD ["php", "server.php"]</code></pre>
                 <span class="release-file-hash" style="color: var(--color-text-muted);">{{ t.download.windows_release_desc }}</span>
                 {% elsif file.label == "Debug" %}
                 <span class="release-file-hash" style="color: var(--color-text-muted);">{{ t.download.windows_debug_desc }}</span>
+                {% elsif file.label == "FrankenPHP" %}
+                <span class="release-file-hash" style="color: var(--color-text-muted);">{{ t.download.windows_frankenphp_desc }}</span>
                 {% endif %}
             </div>
             {% endfor %}
@@ -246,6 +248,7 @@ CMD ["php", "server.php"]</code></pre>
                         <th>{{ t.download.release_date }}</th>
                         <th>Release</th>
                         <th>Debug</th>
+                        <th>FrankenPHP</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -255,9 +258,12 @@ CMD ["php", "server.php"]</code></pre>
                     <tr>
                         <td>{{ old.version }}</td>
                         <td>{{ old.date }}</td>
-                        {% for file in platform.files %}
-                        <td><a href="{{ file.url | default: '#' }}">{{ file.size }}</a></td>
-                        {% endfor %}
+                        {% assign release_file = platform.files | where: "label", "Release" | first %}
+                        {% assign debug_file = platform.files | where: "label", "Debug" | first %}
+                        {% assign franken_file = platform.files | where: "label", "FrankenPHP" | first %}
+                        <td>{% if release_file %}<a href="{{ release_file.url | default: '#' }}">{{ release_file.size }}</a>{% else %}—{% endif %}</td>
+                        <td>{% if debug_file %}<a href="{{ debug_file.url | default: '#' }}">{{ debug_file.size }}</a>{% else %}—{% endif %}</td>
+                        <td>{% if franken_file %}<a href="{{ franken_file.url | default: '#' }}">{{ franken_file.size }}</a>{% else %}—{% endif %}</td>
                     </tr>
                     {% endif %}
                     {% endfor %}

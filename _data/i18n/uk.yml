@@ -488,6 +488,7 @@ download:
   windows_subtitle: "Готові збірки PHP з TrueAsync для Windows x64."
   windows_release_desc: "Для загального використання"
   windows_debug_desc: "Символи налагодження та перевірки -- для розробки PHP/розширень"
+  windows_frankenphp_desc: "FrankenPHP — Caddy-сервер з підтримкою async workers"
   windows_verify_note: "SHA256-хеші доступні у файлі <code>sha256sums.txt</code> в кожному релізі."
   windows_powershell_title: "Швидке встановлення (PowerShell)"
   # Resources

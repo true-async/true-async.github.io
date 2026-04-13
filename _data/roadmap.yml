@@ -57,11 +57,11 @@ milestones:
       - name: "Bailout recovery (fatal errors in child threads)"
         status: done
       - name: "Object transfer (declared properties)"
-        status: in-progress
+        status: done
       - name: "Captured variables (use) in closures"
-        status: in-progress
+        status: done
       - name: "ThreadPool with worker reuse"
-        status: planned
+        status: in-progress
       - name: "Thread cancellation"
         status: planned
       - name: "Test suite & stabilization"

@@ -488,6 +488,7 @@ download:
   windows_subtitle: "Binari PHP precompilati con TrueAsync per Windows x64."
   windows_release_desc: "Per uso generale"
   windows_debug_desc: "Simboli di debug e asserzioni — per lo sviluppo di PHP/estensioni"
+  windows_frankenphp_desc: "FrankenPHP — server Caddy con supporto per worker asincroni"
   windows_verify_note: "Gli hash SHA256 sono disponibili in <code>sha256sums.txt</code> in ogni release."
   windows_powershell_title: "Installazione rapida (PowerShell)"
   # Resources
