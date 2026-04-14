@@ -87,6 +87,10 @@ Negli ultimi mesi, la discussione si è praticamente fermata e non c'è chiarezz
 Per queste ragioni, il processo di `RFC` è attualmente considerato congelato,
 e il progetto continuerà a svilupparsi all'interno della comunità aperta, senza uno status "ufficiale".
 
+> *"It's easier to ask forgiveness than it is to get permission."*
+>
+> — Grace Hopper
+
 ## Partecipare alla discussione
 
 Gli RFC sono discussi nella mailing list [internals@lists.php.net](mailto:internals@lists.php.net)

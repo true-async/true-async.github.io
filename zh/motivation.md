@@ -8,6 +8,10 @@ page_title: "动机"
 description: "为什么 PHP 需要内置的异步功能"
 ---
 
+> *"The most dangerous phrase in the language is 'We've always done it this way.'"*
+>
+> — Grace Hopper
+
 ## 为什么 PHP 需要异步？
 
 `PHP` 是最后几个仍然没有内置并发执行支持的主流语言之一（**在语言层面**）。

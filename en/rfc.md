@@ -87,6 +87,10 @@ It is quite obvious that the `RFC` will not be able to pass a vote, and there is
 For these reasons, the `RFC` process is currently considered frozen,
 and the project will continue to develop within the open community, without "official" status.
 
+> *"It's easier to ask forgiveness than it is to get permission."*
+>
+> — Grace Hopper
+
 ## Join the Discussion
 
 RFCs are discussed on the [internals@lists.php.net](mailto:internals@lists.php.net) mailing list

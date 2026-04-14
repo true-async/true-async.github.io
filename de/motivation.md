@@ -8,6 +8,10 @@ page_title: "Motivation"
 description: "Warum PHP eingebaute asynchrone Fähigkeiten braucht"
 ---
 
+> *"The most dangerous phrase in the language is 'We've always done it this way.'"*
+>
+> — Grace Hopper
+
 ## Warum braucht PHP Asynchronität?
 
 `PHP` ist eine der letzten großen Sprachen, die noch keine eingebaute

@@ -87,6 +87,10 @@ Il est assez évident que le `RFC` ne pourra pas passer le vote, et il n'y a auc
 Pour ces raisons, le processus de `RFC` est actuellement considéré comme gelé,
 et le projet continuera à se développer au sein de la communauté ouverte, sans statut « officiel ».
 
+> *"It's easier to ask forgiveness than it is to get permission."*
+>
+> — Grace Hopper
+
 ## Participer à la discussion
 
 Les RFC sont discutés sur la liste de diffusion [internals@lists.php.net](mailto:internals@lists.php.net)

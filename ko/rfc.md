@@ -87,6 +87,10 @@ Scope 계층 구조, 오류 전파,
 이러한 이유로 `RFC` 프로세스는 현재 동결 상태로 간주되며,
 프로젝트는 "공식" 지위 없이 오픈 커뮤니티 내에서 계속 발전할 것입니다.
 
+> *"It's easier to ask forgiveness than it is to get permission."*
+>
+> — Grace Hopper
+
 ## 논의에 참여하기
 
 RFC는 [internals@lists.php.net](mailto:internals@lists.php.net) 메일링 리스트

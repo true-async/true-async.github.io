@@ -8,6 +8,10 @@ page_title: "동기"
 description: "PHP에 내장 비동기 기능이 필요한 이유"
 ---
 
+> *"The most dangerous phrase in the language is 'We've always done it this way.'"*
+>
+> — Grace Hopper
+
 ## PHP에 비동기가 필요한 이유는?
 
 `PHP`는 **언어 수준**에서 동시 실행에 대한 내장 지원이

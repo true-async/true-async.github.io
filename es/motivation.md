@@ -8,6 +8,10 @@ page_title: "Motivación"
 description: "Por qué PHP necesita capacidades asíncronas integradas"
 ---
 
+> *"The most dangerous phrase in the language is 'We've always done it this way.'"*
+>
+> — Grace Hopper
+
 ## ¿Por qué PHP necesita asincronía?
 
 `PHP` es uno de los últimos grandes lenguajes que aún carece de soporte integrado

@@ -8,6 +8,10 @@ page_title: "Motivation"
 description: "Why PHP needs built-in asynchronous capabilities"
 ---
 
+> *"The most dangerous phrase in the language is 'We've always done it this way.'"*
+>
+> — Grace Hopper
+
 ## Why does PHP need asynchrony?
 
 `PHP` is one of the last major languages that still lacks built-in

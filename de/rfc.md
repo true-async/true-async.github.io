@@ -87,6 +87,10 @@ Es ist ziemlich offensichtlich, dass das `RFC` keine Abstimmung bestehen kann, u
 Aus diesen Gründen wird der `RFC`-Prozess derzeit als eingefroren betrachtet,
 und das Projekt wird sich innerhalb der offenen Community weiterentwickeln, ohne „offiziellen" Status.
 
+> *"It's easier to ask forgiveness than it is to get permission."*
+>
+> — Grace Hopper
+
 ## An der Diskussion teilnehmen
 
 RFCs werden auf der Mailingliste [internals@lists.php.net](mailto:internals@lists.php.net)

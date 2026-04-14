@@ -87,6 +87,10 @@ description: "Офіційні пропозиції щодо додавання 
 З цих причин на поточний момент процес `RFC` вважається замороженим,
 і проект буде розвиватися в рамках відкритої спільноти, без «офіційного» статусу.
 
+> *"It's easier to ask forgiveness than it is to get permission."*
+>
+> — Grace Hopper
+
 ## Участь в обговоренні
 
 RFC обговорюються в розсилці [internals@lists.php.net](mailto:internals@lists.php.net)

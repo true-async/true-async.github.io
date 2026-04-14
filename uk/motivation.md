@@ -8,6 +8,10 @@ page_title: "Мотивація"
 description: "Чому PHP потрібна вбудована асинхронність"
 ---
 
+> *"The most dangerous phrase in the language is 'We've always done it this way.'"*
+>
+> — Grace Hopper
+
 ## Навіщо PHP асинхронність?
 
 `PHP` — одна з останніх великих мов, яка досі не має вбудованої
