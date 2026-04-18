@@ -542,6 +542,7 @@
         <button class="filter-btn" data-group="context" style="--btn-color:#8B5CF6">上下文</button>
         <button class="filter-btn" data-group="iterate" style="--btn-color:#F59E0B">iterate()</button>
         <button class="filter-btn" data-group="resources" style="--btn-color:#16A34A">资源和池</button>
+        <button class="filter-btn" data-group="threads" style="--btn-color:#EA580C">线程</button>
     </div>
     <div class="map-legend">
         <span class="legend-item">
@@ -555,7 +556,7 @@
 <p class="map-scroll-hint">&#8592; 滚动查看完整地图 &#8594;</p>
 
 <div class="map-container">
-    <svg id="learningMap" viewBox="0 0 1260 520" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+    <svg id="learningMap" viewBox="0 0 1260 640" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
         <defs>
             <marker id="arrowPurple" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
                 <polygon points="0 0,10 3.5,0 7" fill="#6B58FF" opacity="0.65"/>
@@ -577,6 +578,9 @@
             </marker>
             <marker id="arrowGreen" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
                 <polygon points="0 0,10 3.5,0 7" fill="#16A34A" opacity="0.65"/>
+            </marker>
+            <marker id="arrowOrange" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+                <polygon points="0 0,10 3.5,0 7" fill="#EA580C" opacity="0.65"/>
             </marker>
             <filter id="nodeShadow" x="-20%" y="-20%" width="140%" height="140%">
                 <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.06"/>
@@ -635,7 +639,8 @@
         structural:    { color: '#0891B2', bg: 'rgba(8,145,178,0.12)',   border: 'rgba(8,145,178,0.50)',   arrow: 'url(#arrowTeal)',   label: '结构化并发' },
         context:       { color: '#8B5CF6', bg: 'rgba(139,92,246,0.12)',  border: 'rgba(139,92,246,0.50)',  arrow: 'url(#arrowViolet)', label: '上下文' },
         iterate:       { color: '#F59E0B', bg: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.50)', arrow: 'url(#arrowAmber)',  label: 'iterate()' },
-        resources:     { color: '#16A34A', bg: 'rgba(22,163,74,0.12)',   border: 'rgba(22,163,74,0.50)',   arrow: 'url(#arrowGreen)',  label: '资源和池' }
+        resources:     { color: '#16A34A', bg: 'rgba(22,163,74,0.12)',   border: 'rgba(22,163,74,0.50)',   arrow: 'url(#arrowGreen)',  label: '资源和池' },
+        threads:       { color: '#EA580C', bg: 'rgba(234,88,12,0.12)',  border: 'rgba(234,88,12,0.50)',   arrow: 'url(#arrowOrange)', label: '线程' }
     };
 
     /* ===== DESKTOP POSITIONS ===== */
@@ -650,7 +655,10 @@
         'context':     { cx: 200, cy: 399 },
         'iterate':     { cx: 480, cy: 399 },
         'pool':        { cx: 780, cy: 399 },
-        'pdo-pool':    { cx: 960, cy: 399 }
+        'pdo-pool':    { cx: 960, cy: 399 },
+        'taskset':     { cx: 1185, cy: 243 },
+        'thread':      { cx: 420, cy: 555 },
+        'thread-pool': { cx: 620, cy: 555 }
     };
 
     /* ===== MOBILE POSITIONS (vertical 2-column layout, viewBox 0 0 380 720) ===== */
@@ -662,10 +670,13 @@
         'cancellation':{ cx: 190, cy: 245 },
         'scope':       { cx: 115, cy: 345 },
         'taskgroup':   { cx: 275, cy: 345 },
-        'context':     { cx: 190, cy: 440 },
-        'iterate':     { cx: 105, cy: 540 },
-        'pool':        { cx: 260, cy: 540 },
-        'pdo-pool':    { cx: 260, cy: 640 }
+        'context':     { cx: 190, cy: 490 },
+        'iterate':     { cx: 105, cy: 590 },
+        'pool':        { cx: 260, cy: 590 },
+        'pdo-pool':    { cx: 260, cy: 640 },
+        'taskset':     { cx: 275, cy: 395 },
+        'thread':      { cx: 105, cy: 710 },
+        'thread-pool': { cx: 265, cy: 710 }
     };
 
     /* ===== DESKTOP ZONES ===== */
@@ -673,10 +684,11 @@
         { group: 'primitives',   label: '基本原语',         x: 210, y: 38,  w: 520, h: 104, rx: 16 },
         { group: 'sync',         label: '同步',              x: 70,  y: 188, w: 380, h: 110, rx: 16 },
         { group: 'cancellation', label: '取消',               x: 500, y: 188, w: 210, h: 110, rx: 16 },
-        { group: 'structural',   label: '结构化并发',  x: 750, y: 188, w: 380, h: 110, rx: 16 },
+        { group: 'structural',   label: '结构化并发',  x: 750, y: 188, w: 530, h: 110, rx: 16 },
         { group: 'context',      label: '上下文',                     x: 95,  y: 345, w: 220, h: 108, rx: 16 },
         { group: 'iterate',      label: 'iterate()',                   x: 375, y: 345, w: 220, h: 108, rx: 16 },
-        { group: 'resources',    label: '资源和池',              x: 655, y: 345, w: 405, h: 108, rx: 16 }
+        { group: 'resources',    label: '资源和池',              x: 655, y: 345, w: 405, h: 108, rx: 16 },
+        { group: 'threads',      label: '线程', x: 210, y: 505, w: 570, h: 110, rx: 16 }
     ];
 
     /* ===== MOBILE ZONES ===== */
@@ -684,10 +696,11 @@
         { group: 'primitives',   label: '基本原语',     x: 15,  y: 10,  w: 350, h: 90,  rx: 14 },
         { group: 'sync',         label: '同步',          x: 15,  y: 108, w: 350, h: 90,  rx: 14 },
         { group: 'cancellation', label: '取消',           x: 65,  y: 205, w: 250, h: 85,  rx: 14 },
-        { group: 'structural',   label: '结构化并发',    x: 15,  y: 300, w: 350, h: 90,  rx: 14 },
-        { group: 'context',      label: '上下文',                x: 65,  y: 398, w: 250, h: 85,  rx: 14 },
-        { group: 'iterate',      label: 'iterate()',              x: 15,  y: 495, w: 175, h: 90,  rx: 14 },
-        { group: 'resources',    label: '资源和池',         x: 155, y: 495, w: 220, h: 190, rx: 14 }
+        { group: 'structural',   label: '结构化并发',    x: 15,  y: 300, w: 350, h: 140, rx: 14 },
+        { group: 'context',      label: '上下文',                x: 65,  y: 448, w: 250, h: 85,  rx: 14 },
+        { group: 'iterate',      label: 'iterate()',              x: 15,  y: 545, w: 175, h: 90,  rx: 14 },
+        { group: 'resources',    label: '资源和池',         x: 155, y: 545, w: 220, h: 140, rx: 14 },
+        { group: 'threads',      label: '线程', x: 15, y: 665, w: 350, h: 90, rx: 14 }
     ];
 
     /* ===== NODES (11) ===== */
@@ -745,7 +758,17 @@
         { id: 'pdo-pool', title: 'PDO 连接池',
           desc: '数据库连接池',
           code: '<span class="var">$pdo</span> = <span class="kw">new</span> <span class="fn">PDO</span>(<span class="var">$dsn</span>, <span class="var">$user</span>, <span class="var">$pwd</span>, [\n  PDO::<span class="fn">ATTR_POOL_MAX</span> => <span class="num">10</span>\n]);',
-          url: '/zh/docs/components/pdo-pool.html', group: 'resources', order: null, w: 120, h: 44 }
+          url: '/zh/docs/components/pdo-pool.html', group: 'resources', order: null, w: 120, h: 44 },
+
+        { id: 'taskset', title: 'TaskSet', desc: '按完成顺序迭代任务结果',
+          code: '<span class="var">$set</span> = <span class="kw">new</span> Async\\<span class="fn">TaskSet</span>(<span class="num">10</span>);\n<span class="var">$set</span>-><span class="fn">spawn</span>(<span class="var">$task</span>);\n<span class="var">$r</span> = <span class="var">$set</span>-><span class="fn">joinNext</span>();',
+          url: '/zh/docs/components/task-set.html', group: 'structural', order: null, w: 120, h: 44 },
+        { id: 'thread', title: 'Thread', desc: '在具有独立 PHP 运行环境的并行 OS 线程中运行 CPU 密集型代码',
+          code: '<span class="var">$t</span> = <span class="fn">spawn_thread</span>(<span class="kw">function</span>() {\n  <span class="kw">return</span> <span class="fn">heavyCompute</span>();\n});\n<span class="var">$r</span> = <span class="fn">await</span>(<span class="var">$t</span>);',
+          url: '/zh/docs/components/threads.html', group: 'threads', order: null, w: 110, h: 44 },
+        { id: 'thread-pool', title: 'ThreadPool', desc: '固定的可复用工作线程池，用于并行 CPU 任务',
+          code: '<span class="var">$pool</span> = <span class="kw">new</span> <span class="fn">ThreadPool</span>(<span class="num">4</span>);\n<span class="var">$f</span> = <span class="var">$pool</span>-><span class="fn">submit</span>(<span class="var">$task</span>);\n<span class="var">$results</span> = <span class="var">$pool</span>-><span class="fn">map</span>(<span class="var">$items</span>, <span class="var">$fn</span>);',
+          url: '/zh/docs/components/thread-pool.html', group: 'threads', order: null, w: 130, h: 44 }
     ];
 
     /* Apply positions and sizes based on mode */
@@ -772,7 +795,10 @@
         { from: 'scope', to: 'taskgroup', type: 'path' },
         { from: 'coroutines', to: 'future',   type: 'related' },
         { from: 'coroutines', to: 'channels', type: 'related' },
-        { from: 'coroutines', to: 'iterate',  type: 'related' }
+        { from: 'coroutines', to: 'iterate',  type: 'related' },
+        { from: 'scope',  to: 'taskset',     type: 'related' },
+        { from: 'pool',   to: 'thread-pool', type: 'related' },
+        { from: 'thread', to: 'thread-pool', type: 'related' }
     ];
 
     /* ===== SUB-PAGES ===== */
@@ -841,7 +867,7 @@
 
     /* Set viewBox based on mode */
     if (isMobile) {
-        svgEl.setAttribute('viewBox', '0 0 380 700');
+        svgEl.setAttribute('viewBox', '0 0 380 810');
     }
 
     /* Update info text for mobile */

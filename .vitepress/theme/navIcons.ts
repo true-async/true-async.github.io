@@ -18,6 +18,9 @@ export const navIcons: Record<string, string> = {
   eye: '<path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/>',
   'list-checks': '<path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/>',
   server: '<rect width="20" height="8" x="2" y="2" rx="2" ry="2"/><rect width="20" height="8" x="2" y="14" rx="2" ry="2"/><line x1="6" x2="6.01" y1="6" y2="6"/><line x1="6" x2="6.01" y1="18" y2="18"/>',
+  cpu: '<rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M15 2v2"/><path d="M15 20v2"/><path d="M2 15h2"/><path d="M2 9h2"/><path d="M20 15h2"/><path d="M20 9h2"/><path d="M9 2v2"/><path d="M9 20v2"/>',
+  shuffle: '<path d="m18 14 4 4-4 4"/><path d="m18 2 4 4-4 4"/><path d="M2 18h1.973a4 4 0 0 0 3.3-1.7l5.454-8.6A4 4 0 0 1 16.054 6H22"/><path d="M2 6h1.972a4 4 0 0 1 3.6 2.2"/><path d="M22 18h-6.041a4 4 0 0 1-3.3-1.8l-.359-.45"/>',
+  workflow: '<rect width="8" height="8" x="3" y="3" rx="2"/><path d="M7 11v4a2 2 0 0 0 2 2h4"/><rect width="8" height="8" x="13" y="13" rx="2"/>',
   // FrankenPHP — elephant with bolts (PHP mascot + Frankenstein)
   'frankenphp': '<ellipse cx="12" cy="11" rx="7" ry="8"/><path d="M5 9c-2 0-3.5-1-3.5-1L3 12c0 1 1 2 2 2"/><path d="M19 9c2 0 3.5-1 3.5-1L21 12c0 1-1 2-2 2"/><circle cx="9.5" cy="9" r="1.2" fill="currentColor"/><circle cx="14.5" cy="9" r="1.2" fill="currentColor"/><path d="M10 14c.5.5 1.2.8 2 .8s1.5-.3 2-.8"/><path d="M7 4l-1.5-2.5"/><path d="M17 4l1.5-2.5"/><circle cx="5.5" cy="1.5" r="1" fill="currentColor"/><circle cx="18.5" cy="1.5" r="1" fill="currentColor"/>',
   // Section icons

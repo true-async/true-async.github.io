@@ -30,6 +30,7 @@ const i18n: Record<string, LmI18n> = {
     groups: {
       primitives: 'Basic Primitives', sync: 'Synchronization', cancellation: 'Cancellation',
       structural: 'Str. Concurrency', context: 'Context', iterate: 'iterate()', resources: 'Resources & Pools',
+      threads: 'Threads',
     },
     nodes: {
       coroutines: { title: 'Coroutines', desc: 'Basic unit of asynchrony \u2014 launching concurrent tasks' },
@@ -44,6 +45,8 @@ const i18n: Record<string, LmI18n> = {
       iterate: { title: 'iterate()', desc: 'Concurrent collection processing' },
       pool: { title: 'Async\\Pool', desc: 'Reuse expensive resources (connections, workers)' },
       'pdo-pool': { title: 'PDO Pool', desc: 'PDO database connection pool. Use familiar functions transparently' },
+      thread: { title: 'Thread', desc: 'Run CPU-bound code in a parallel OS thread with its own isolated PHP runtime' },
+      'thread-pool': { title: 'ThreadPool', desc: 'Fixed pool of reusable worker threads. Submit tasks and get Futures back' },
     },
   },
   ru: {
@@ -55,6 +58,7 @@ const i18n: Record<string, LmI18n> = {
     groups: {
       primitives: 'Базовые примитивы', sync: 'Синхронизация', cancellation: 'Cancellation',
       structural: 'Стр. конкурентность', context: 'Context', iterate: 'iterate()', resources: 'Ресурсы и пулы',
+      threads: 'Потоки',
     },
     nodes: {
       coroutines: { title: 'Корутины', desc: 'Базовая единица асинхронности — запуск параллельных задач' },
@@ -69,6 +73,8 @@ const i18n: Record<string, LmI18n> = {
       iterate: { title: 'iterate()', desc: 'Конкурентная обработка коллекций' },
       pool: { title: 'Async\\Pool', desc: 'Переиспользовать дорогие ресурсы (соединения, воркеры)' },
       'pdo-pool': { title: 'PDO Pool', desc: 'PDO Пул соединений с базой данных. Используй привычные функции прозрачно' },
+      thread: { title: 'Thread', desc: 'CPU-нагрузка в параллельном OS-потоке с изолированным PHP-окружением' },
+      'thread-pool': { title: 'ThreadPool', desc: 'Фиксированный пул воркер-потоков. Отправляй задачи и получай Future' },
     },
   },
   de: {
@@ -80,6 +86,7 @@ const i18n: Record<string, LmI18n> = {
     groups: {
       primitives: 'Grundlegende Primitive', sync: 'Synchronisation', cancellation: 'Abbruch',
       structural: 'Str. Nebenläufigkeit', context: 'Kontext', iterate: 'iterate()', resources: 'Ressourcen & Pools',
+      threads: 'Threads',
     },
     nodes: {
       coroutines: { title: 'Koroutinen', desc: 'Grundeinheit der Asynchronität — nebenläufige Aufgaben starten' },
@@ -94,6 +101,8 @@ const i18n: Record<string, LmI18n> = {
       iterate: { title: 'iterate()', desc: 'Nebenläufige Sammlungsverarbeitung' },
       pool: { title: 'Async\\Pool', desc: 'Teure Ressourcen wiederverwenden (Verbindungen, Worker)' },
       'pdo-pool': { title: 'PDO Pool', desc: 'PDO-Datenbankverbindungspool. Vertraute Funktionen transparent nutzen' },
+      thread: { title: 'Thread', desc: 'CPU-intensive Aufgaben in einem parallelen OS-Thread mit isolierter PHP-Laufzeit' },
+      'thread-pool': { title: 'ThreadPool', desc: 'Fester Pool wiederverwendbarer Worker-Threads. Aufgaben einreichen und Futures erhalten' },
     },
   },
   es: {
@@ -105,6 +114,7 @@ const i18n: Record<string, LmI18n> = {
     groups: {
       primitives: 'Primitivas básicas', sync: 'Sincronización', cancellation: 'Cancelación',
       structural: 'Conc. estructurada', context: 'Contexto', iterate: 'iterate()', resources: 'Recursos y pools',
+      threads: 'Hilos',
     },
     nodes: {
       coroutines: { title: 'Corrutinas', desc: 'Unidad básica de asincronía — lanzar tareas concurrentes' },
@@ -119,6 +129,8 @@ const i18n: Record<string, LmI18n> = {
       iterate: { title: 'iterate()', desc: 'Procesamiento concurrente de colecciones' },
       pool: { title: 'Async\\Pool', desc: 'Reutilizar recursos costosos (conexiones, workers)' },
       'pdo-pool': { title: 'PDO Pool', desc: 'Pool de conexiones PDO a bases de datos. Use funciones familiares de forma transparente' },
+      thread: { title: 'Thread', desc: 'Código CPU-intensivo en un hilo OS paralelo con entorno PHP aislado' },
+      'thread-pool': { title: 'ThreadPool', desc: 'Pool fijo de hilos worker reutilizables. Envía tareas y recibe Futures' },
     },
   },
   fr: {
@@ -130,6 +142,7 @@ const i18n: Record<string, LmI18n> = {
     groups: {
       primitives: 'Primitives de base', sync: 'Synchronisation', cancellation: 'Annulation',
       structural: 'Conc. structurée', context: 'Contexte', iterate: 'iterate()', resources: 'Ressources et pools',
+      threads: 'Threads',
     },
     nodes: {
       coroutines: { title: 'Coroutines', desc: "Unité de base de l'asynchronie — lancer des tâches concurrentes" },
@@ -144,6 +157,8 @@ const i18n: Record<string, LmI18n> = {
       iterate: { title: 'iterate()', desc: 'Traitement concurrent de collections' },
       pool: { title: 'Async\\Pool', desc: 'Réutiliser des ressources coûteuses (connexions, workers)' },
       'pdo-pool': { title: 'PDO Pool', desc: 'Pool de connexions PDO. Utilisez les fonctions habituelles de manière transparente' },
+      thread: { title: 'Thread', desc: 'Code CPU-intensif dans un thread OS parallèle avec environnement PHP isolé' },
+      'thread-pool': { title: 'ThreadPool', desc: 'Pool fixe de threads workers réutilisables. Soumettez des tâches et obtenez des Futures' },
     },
   },
   it: {
@@ -155,6 +170,7 @@ const i18n: Record<string, LmI18n> = {
     groups: {
       primitives: 'Primitive di base', sync: 'Sincronizzazione', cancellation: 'Cancellazione',
       structural: 'Conc. Strutturata', context: 'Context', iterate: 'iterate()', resources: 'Risorse e Pool',
+      threads: 'Thread',
     },
     nodes: {
       coroutines: { title: 'Coroutines', desc: "Unita base dell'asincronia -- lancio di task concorrenti" },
@@ -169,6 +185,8 @@ const i18n: Record<string, LmI18n> = {
       iterate: { title: 'iterate()', desc: 'Elaborazione concorrente delle collezioni' },
       pool: { title: 'Async\\Pool', desc: 'Riutilizzare risorse costose (connessioni, worker)' },
       'pdo-pool': { title: 'PDO Pool', desc: 'Pool di connessioni database PDO. Usa le funzioni familiari in modo trasparente' },
+      thread: { title: 'Thread', desc: 'Codice CPU-intensivo in un thread OS parallelo con ambiente PHP isolato' },
+      'thread-pool': { title: 'ThreadPool', desc: 'Pool fisso di thread worker riutilizzabili. Invia task e ottieni Future' },
     },
   },
   ko: {
@@ -180,6 +198,7 @@ const i18n: Record<string, LmI18n> = {
     groups: {
       primitives: '기본 프리미티브', sync: '동기화', cancellation: '취소',
       structural: '구조적 동시성', context: '컨텍스트', iterate: 'iterate()', resources: '리소스 및 풀',
+      threads: '스레드',
     },
     nodes: {
       coroutines: { title: '코루틴', desc: '비동기의 기본 단위 — 동시 작업 실행' },
@@ -194,6 +213,8 @@ const i18n: Record<string, LmI18n> = {
       iterate: { title: 'iterate()', desc: '동시 컬렉션 처리' },
       pool: { title: 'Async\\Pool', desc: '비용이 큰 리소스 재사용 (연결, 워커)' },
       'pdo-pool': { title: 'PDO Pool', desc: 'PDO 데이터베이스 연결 풀. 익숙한 함수를 투명하게 사용' },
+      thread: { title: 'Thread', desc: '격리된 PHP 런타임을 가진 병렬 OS 스레드에서 CPU 집약적 코드 실행' },
+      'thread-pool': { title: 'ThreadPool', desc: '재사용 가능한 워커 스레드 고정 풀. 작업을 제출하고 Future를 받습니다' },
     },
   },
   uk: {
@@ -205,6 +226,7 @@ const i18n: Record<string, LmI18n> = {
     groups: {
       primitives: 'Базові примітиви', sync: 'Синхронізація', cancellation: 'Скасування',
       structural: 'Стр. конкурентність', context: 'Контекст', iterate: 'iterate()', resources: 'Ресурси та пули',
+      threads: 'Потоки',
     },
     nodes: {
       coroutines: { title: 'Корутини', desc: 'Базова одиниця асинхронності — запуск паралельних задач' },
@@ -219,6 +241,8 @@ const i18n: Record<string, LmI18n> = {
       iterate: { title: 'iterate()', desc: 'Конкурентна обробка колекцій' },
       pool: { title: 'Async\\Pool', desc: 'Повторне використання дорогих ресурсів (з\'єднань, воркерів)' },
       'pdo-pool': { title: 'PDO Pool', desc: 'Пул з\'єднань PDO до бази даних. Використовуйте звичні функції прозоро' },
+      thread: { title: 'Thread', desc: 'CPU-навантаження у паралельному OS-потоці з ізольованим PHP-середовищем' },
+      'thread-pool': { title: 'ThreadPool', desc: 'Фіксований пул воркер-потоків. Надсилай задачі та отримуй Future' },
     },
   },
   zh: {
@@ -230,6 +254,7 @@ const i18n: Record<string, LmI18n> = {
     groups: {
       primitives: '基础原语', sync: '同步', cancellation: '取消',
       structural: '结构化并发', context: '上下文', iterate: 'iterate()', resources: '资源与连接池',
+      threads: '线程',
     },
     nodes: {
       coroutines: { title: '协程', desc: '异步的基本单元 — 启动并发任务' },
@@ -244,6 +269,8 @@ const i18n: Record<string, LmI18n> = {
       iterate: { title: 'iterate()', desc: '并发集合处理' },
       pool: { title: 'Async\\Pool', desc: '复用昂贵的资源（连接、工作进程）' },
       'pdo-pool': { title: 'PDO Pool', desc: 'PDO 数据库连接池。透明地使用熟悉的函数' },
+      thread: { title: 'Thread', desc: '在具有独立 PHP 运行环境的并行 OS 线程中运行 CPU 密集型代码' },
+      'thread-pool': { title: 'ThreadPool', desc: '固定的可复用工作线程池。提交任务并获取 Future' },
     },
   },
 }
@@ -260,11 +287,13 @@ const GRP_COLORS: Record<string, { color: string; bg: string; border: string }> 
   context:      { color: '#8B5CF6', bg: 'rgba(139,92,246,0.12)',  border: 'rgba(139,92,246,0.50)' },
   iterate:      { color: '#F59E0B', bg: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.50)' },
   resources:    { color: '#16A34A', bg: 'rgba(22,163,74,0.12)',   border: 'rgba(22,163,74,0.50)' },
+  threads:      { color: '#EA580C', bg: 'rgba(234,88,12,0.12)',  border: 'rgba(234,88,12,0.50)' },
 }
 
 const ARROW_IDS: Record<string, string> = {
   primitives: 'lmArrPurple', sync: 'lmArrBlue', cancellation: 'lmArrRed',
   structural: 'lmArrTeal', context: 'lmArrViolet', resources: 'lmArrGreen',
+  threads: 'lmArrOrange',
 }
 
 interface NodeDef {
@@ -311,6 +340,12 @@ const nodesDef: NodeDef[] = [
   { id: 'pdo-pool', group: 'resources', order: null, w: 120, h: 44, cx: 510, cy: 532,
     urlSuffix: '/docs/components/pdo-pool.html',
     codeHtml: '<span class="var">$pdo</span> = <span class="kw">new</span> <span class="fn">PDO</span>(<span class="var">$dsn</span>, <span class="var">$user</span>, <span class="var">$pwd</span>, [\n  PDO::<span class="fn">ATTR_POOL_MAX</span> => <span class="num">10</span>\n]);' },
+  { id: 'thread', group: 'threads', order: null, w: 110, h: 44, cx: 180, cy: 635,
+    urlSuffix: '/docs/components/threads.html',
+    codeHtml: '<span class="var">$t</span> = <span class="fn">spawn_thread</span>(<span class="kw">function</span>() {\n  <span class="kw">return</span> <span class="fn">heavyCompute</span>();\n});\n<span class="var">$r</span> = <span class="fn">await</span>(<span class="var">$t</span>);' },
+  { id: 'thread-pool', group: 'threads', order: null, w: 130, h: 44, cx: 420, cy: 635,
+    urlSuffix: '/docs/components/thread-pool.html',
+    codeHtml: '<span class="var">$pool</span> = <span class="kw">new</span> <span class="fn">ThreadPool</span>(<span class="num">4</span>);\n<span class="var">$f</span> = <span class="var">$pool</span>-><span class="fn">submit</span>(<span class="var">$task</span>);\n<span class="var">$results</span> = <span class="var">$pool</span>-><span class="fn">map</span>(<span class="var">$items</span>, <span class="var">$fn</span>);' },
 ]
 
 const edges = [
@@ -324,6 +359,8 @@ const edges = [
   { from: 'pool', to: 'pdo-pool', type: 'path' },
   { from: 'coroutines', to: 'future', type: 'related' },
   { from: 'coroutines', to: 'channels', type: 'related' },
+  { from: 'pool', to: 'thread-pool', type: 'related' },
+  { from: 'thread', to: 'thread-pool', type: 'related' },
 ]
 
 const zones = [
@@ -334,6 +371,7 @@ const zones = [
   { group: 'context', x: 185, y: 390, w: 230, h: 85, rx: 14 },
   { group: 'iterate', x: 30, y: 485, w: 190, h: 90, rx: 14 },
   { group: 'resources', x: 245, y: 485, w: 330, h: 90, rx: 14 },
+  { group: 'threads', x: 30, y: 595, w: 540, h: 90, rx: 14 },
 ]
 
 const subPages: Record<string, { label: string; urlSuffix: string }[]> = {
@@ -374,6 +412,14 @@ const subPages: Record<string, { label: string; urlSuffix: string }[]> = {
     { label: 'seal()', urlSuffix: '/docs/reference/task-set/seal.html' },
   ],
   pool: [{ label: 'Pool::tryAcquire()', urlSuffix: '/docs/components/pool.html' }],
+  thread: [
+    { label: 'spawn_thread()', urlSuffix: '/docs/reference/spawn-thread.html' },
+    { label: 'ThreadChannel', urlSuffix: '/docs/components/thread-channels.html' },
+  ],
+  'thread-pool': [
+    { label: 'submit()', urlSuffix: '/docs/reference/thread-pool/submit.html' },
+    { label: 'map()', urlSuffix: '/docs/reference/thread-pool/map.html' },
+  ],
 }
 
 // --- Adjacency map ---
@@ -541,7 +587,7 @@ function onSvgTouch(ev: TouchEvent) {
     <p class="lm-hint">{{ isMobile ? t.hintMobile : t.hint }}</p>
     <div class="lm-container">
       <svg
-        viewBox="0 0 600 590"
+        viewBox="0 0 600 700"
         preserveAspectRatio="xMidYMid meet"
         xmlns="http://www.w3.org/2000/svg"
         @mousemove="onSvgMouseMove"
@@ -554,6 +600,7 @@ function onSvgTouch(ev: TouchEvent) {
           <marker id="lmArrTeal" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse"><polygon points="0 0,10 3.5,0 7" fill="#0891B2" opacity="0.65"/></marker>
           <marker id="lmArrViolet" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse"><polygon points="0 0,10 3.5,0 7" fill="#8B5CF6" opacity="0.65"/></marker>
           <marker id="lmArrGreen" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse"><polygon points="0 0,10 3.5,0 7" fill="#16A34A" opacity="0.65"/></marker>
+          <marker id="lmArrOrange" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse"><polygon points="0 0,10 3.5,0 7" fill="#EA580C" opacity="0.65"/></marker>
           <filter id="lmShadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.06"/></filter>
         </defs>
 

@@ -5,7 +5,7 @@ path_key: "/docs/components/future.html"
 nav_active: docs
 permalink: /ru/docs/components/future.html
 page_title: "Future"
-description: "Future в TrueAsync — обещание результата, цепочки трансформаций map/catch/finally, FutureState и диагностика."
+description: "Future в TrueAsync — обещание результата, цепочки трансформаций map/catch/finally, FutureState и передача между потоками."
 ---
 
 # Future: обещание результата
@@ -389,6 +389,89 @@ $userFuture = httpGet('https://api.example.com/user/1')
     ->catch(fn($e) => ['error' => $e->getMessage()]);
 
 $result = $userFuture->await();
+?>
+```
+
+## Future между потоками
+
+**`Async\Future` нельзя передавать между потоками напрямую.** Future — это объект-ожидатель,
+чьи события привязаны к планировщику того потока, где он был создан. Передача Future в другой
+поток ни к чему не приведёт: планировщик чужого потока ничего не знает об этом Future и не
+сможет доставить в него результат.
+
+**`Async\FutureState` умеет передаваться между потоками и передаёт владение.** Это специальный
+мост с персистентной общей памятью. Только один поток-получатель вправе вызвать `complete()`
+или `error()` — именно это и есть передача владения результатом.
+
+Типичная схема работы:
+1. Родительский поток создаёт пару `FutureState` + `Future`.
+2. `FutureState` (writer) передаётся дочернему потоку.
+3. `Future` (reader) остаётся в родительском потоке.
+4. Дочерний поток вызывает `complete()` или `error()`.
+5. Родительский поток получает результат через `await($future)`.
+
+```php
+<?php
+use Async\Future;
+use Async\FutureState;
+use function Async\spawn_thread;
+use function Async\await;
+
+// 1. Создаём пару в родительском потоке
+$state  = new FutureState();
+$future = new Future($state);
+
+// 2. Передаём FutureState (writer) в дочерний поток
+spawn_thread(function() use ($state) {
+    // 4. Дочерний поток завершает операцию
+    $result = doHeavyComputation();
+    $state->complete($result);
+});
+
+// 5. Родительский поток ожидает результат
+$result = await($future);
+?>
+```
+
+### Что нельзя делать: передавать Future в другой поток
+
+Передача самого `Future` в дочерний поток и вызов `await()` оттуда **не работает** — планировщик
+дочернего потока не управляет этим Future, и вызов зависнет или даст неопределённое поведение:
+
+```php
+<?php
+use Async\Future;
+use Async\FutureState;
+use function Async\spawn_thread;
+
+$state  = new FutureState();
+$future = new Future($state);
+
+// НЕВЕРНО: передаём Future (reader) в дочерний поток
+spawn_thread(function() use ($future) {
+    // Этот await() привязан к планировщику дочернего потока,
+    // который ничего не знает о $future — поведение не определено.
+    $result = $future->await(); // не делайте так
+});
+
+$state->complete(42); // завершение в родительском потоке
+?>
+```
+
+Правило простое: **`FutureState` идёт в поток-производитель, `Future` остаётся в потоке-потребителе.**
+
+### Ограничения передачи FutureState
+
+- `FutureState` можно передать **только в один** другой поток. Попытка использовать один и тот
+  же `FutureState` из двух разных потоков-производителей приведёт к `AsyncException` при втором
+  вызове `complete()` или `error()`.
+- После вызова `complete()` или `error()` состояние Future неизменно — повторный вызов из
+  любого потока выбросит `AsyncException`.
+
+```php
+<?php
+$state->complete(1);
+$state->complete(2); // AsyncException: FutureState is already completed
 ?>
 ```
 
