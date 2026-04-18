@@ -61,7 +61,9 @@ milestones:
       - name: "Captured variables (use) in closures"
         status: done
       - name: "ThreadPool with worker reuse"
-        status: in-progress
+        status: done
+      - name: "ThreadChannel (cross-thread data exchange)"
+        status: done
       - name: "Thread cancellation"
         status: planned
       - name: "Test suite & stabilization"
