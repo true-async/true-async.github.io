@@ -4,20 +4,11 @@ export default defineConfig({
   title: 'TrueAsync',
   description: 'True Asynchronous PHP',
 
-  // Don't process Jekyll/build files
+  // Don't process non-docs root files
   srcExclude: [
-    '_layouts/**',
-    '_includes/**',
-    '_data/**',
-    '_sass/**',
-    'css/**',
-    'scripts/**',
-    'Gemfile*',
-    '_config.yml',
     'CLAUDE.md',
     'README.md',
     'CHANGELOG.md',
-    'index.html',
     // Exclude docs.md for all languages — contains inline <style>/<script>
     // Clean versions are in vitepress-docs/ and mapped via rewrites
     'en/docs.md',

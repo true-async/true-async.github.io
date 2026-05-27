@@ -293,13 +293,42 @@ export const docsSidebarRu: NavGroup[] = [
     ],
   },
   {
+    title: 'TrueAsync Server',
+    icon: 'server',
+    items: [
+      { url: '/ru/docs/server/index.html', label: 'Обзор', icon: 'eye' },
+      { url: '/ru/docs/server/quickstart.html', label: 'Быстрый старт', icon: 'section-rocket' },
+      { url: '/ru/docs/server/configuration.html', label: 'Конфигурация', icon: 'section-settings' },
+      { url: '/ru/docs/server/compression.html', label: 'Компрессия', icon: 'layers' },
+      { url: '/ru/docs/server/static-files.html', label: 'Статика и sendFile', icon: 'section-blocks' },
+      { url: '/ru/docs/server/streaming.html', label: 'Стриминг', icon: 'arrow-left-right' },
+      { url: '/ru/docs/server/workers.html', label: 'Multi-worker', icon: 'cpu' },
+      { url: '/ru/docs/server/examples.html', label: 'Примеры', icon: 'section-code' },
+      {
+        url: '/ru/docs/reference/server/http-server.html',
+        label: 'HttpServer',
+        icon: 'braces',
+        children: [
+          { url: '/ru/docs/reference/server/http-server-config.html', label: 'HttpServerConfig' },
+          { url: '/ru/docs/reference/server/http-request.html', label: 'HttpRequest' },
+          { url: '/ru/docs/reference/server/http-response.html', label: 'HttpResponse' },
+          { url: '/ru/docs/reference/server/static-handler.html', label: 'StaticHandler' },
+          { url: '/ru/docs/reference/server/send-file-options.html', label: 'SendFileOptions' },
+          { url: '/ru/docs/reference/server/uploaded-file.html', label: 'UploadedFile' },
+          { url: '/ru/docs/reference/server/log-severity.html', label: 'LogSeverity' },
+          { url: '/ru/docs/reference/server/exceptions.html', label: 'Исключения' },
+        ],
+      },
+    ],
+  },
+  {
     title: 'Интеграции',
     icon: 'section-puzzle',
     items: [
       {
         url: '/ru/docs/frankenphp.html',
         label: 'FrankenPHP',
-        icon: 'server',
+        icon: 'package',
         children: [
           { url: '/ru/docs/reference/frankenphp/request.html', label: 'Request' },
           { url: '/ru/docs/reference/frankenphp/response.html', label: 'Response' },
@@ -341,6 +370,13 @@ export const architectureSidebarRu: NavGroup[] = [
     items: [
       { url: '/ru/architecture/pool.html', label: 'Async\\Pool' },
       { url: '/ru/architecture/pdo-pool.html', label: 'PDO Pool' },
+    ],
+  },
+  {
+    title: 'Сервер',
+    icon: 'section-puzzle',
+    items: [
+      { url: '/ru/architecture/server.html', label: 'TrueAsync Server' },
     ],
   },
   {

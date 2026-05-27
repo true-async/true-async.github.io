@@ -13,21 +13,30 @@ description: "Создание нового ThreadPool с фиксированн
 (PHP 8.6+, True Async 1.0)
 
 ```php
-public ThreadPool::__construct(int $workers, int $queueSize = 0)
+public ThreadPool::__construct(
+    int $workers = 0,
+    int $queueSize = 0,
+    ?\Closure $bootloader = null,
+    bool $coroutine = false,
+    int $concurrency = 0,
+)
 ```
 
 Создаёт новый пул потоков и немедленно запускает все рабочие потоки. Потоки остаются активными на протяжении всего времени жизни пула, что исключает накладные расходы на запуск потока для каждой задачи.
 
 ## Параметры
 
-| Параметр     | Тип   | Описание                                                                                                          |
-|--------------|-------|-------------------------------------------------------------------------------------------------------------------|
-| `$workers`   | `int` | Количество создаваемых рабочих потоков. Должно быть ≥ 1. Все потоки запускаются в момент создания объекта.        |
-| `$queueSize` | `int` | Максимальное количество задач, которые могут ожидать в очереди. `0` (по умолчанию) означает `$workers × 4`. Когда очередь заполнена, `submit()` приостанавливает вызывающую корутину до освобождения слота. |
+| Параметр       | Тип          | Описание                                                                                                          |
+|----------------|--------------|-------------------------------------------------------------------------------------------------------------------|
+| `$workers`     | `int`        | Количество рабочих потоков. `0` (по умолчанию) — автодетект через [`Async\available_parallelism()`](/ru/docs/reference/available-parallelism.html). |
+| `$queueSize`   | `int`        | Максимальная длина очереди ожидающих задач. `0` (по умолчанию) — `workers × 4`. Когда очередь полна, `submit()` приостанавливает вызывающую корутину до освобождения слота. |
+| `$bootloader`  | `?\Closure`  | Per-worker startup hook. Замыкание глубоко копируется один раз и выполняется в каждом воркере **до** task-loop'а. Идеально для autoload, прогрева пулов соединений, прекомпиляции opcache. Исключение из bootloader фейлит весь пул. |
+| `$coroutine`   | `bool`       | Если `true` — каждая задача запускается **как корутина** в child-scope под per-worker pool scope. Внутри задачи можно делать `await`, использовать channels, IO и `spawn` — всё без блокировки OS-потока. |
+| `$concurrency` | `int`        | Лимит одновременно живых корутин внутри одного воркера. Используется только при `coroutine: true`. `0` (по умолчанию) — без лимита. |
 
 ## Исключения
 
-Выбрасывает `\ValueError`, если `$workers < 1`.
+Выбрасывает `\ValueError`, если `$workers < 0` или `$queueSize < 0`.
 
 ## Примеры
 
@@ -67,6 +76,66 @@ spawn(function() {
 
     $pool->close();
 });
+```
+
+### Пример #3 Bootloader для per-worker инициализации
+
+```php
+<?php
+
+use Async\ThreadPool;
+use function Async\spawn;
+
+spawn(function () {
+    $pool = new ThreadPool(
+        workers: 4,
+        bootloader: function () {
+            require __DIR__ . '/vendor/autoload.php';
+            App\Container::boot();
+            App\Database::warmupPool(min: 4, max: 16);
+        },
+    );
+
+    // ... submit-задачи увидят полностью инициализированное окружение ...
+
+    $pool->close();
+});
+```
+
+### Пример #4 Coroutine-mode — внутри задачи можно делать await
+
+```php
+<?php
+
+use Async\ThreadPool;
+use function Async\spawn;
+use function Async\await;
+
+spawn(function () {
+    $pool = new ThreadPool(workers: 4, coroutine: true);
+
+    $future = $pool->submit(function () {
+        // обычный блокирующий вызов корректно паркует корутину,
+        // а не блокирует OS-поток воркера
+        $pdo  = new PDO('mysql:host=localhost;dbname=app', 'user', 'pass');
+        $rows = $pdo->query('SELECT * FROM users LIMIT 10')->fetchAll();
+        return $rows;
+    });
+
+    print_r(await($future));
+    $pool->close();
+});
+```
+
+### Пример #5 Автодетект числа воркеров по доступным CPU
+
+```php
+<?php
+
+use Async\ThreadPool;
+
+// workers: 0 (по умолчанию) → Async\available_parallelism()
+$pool = new ThreadPool();   // учитывает cgroup-квоту контейнера / affinity
 ```
 
 ## Смотрите также
