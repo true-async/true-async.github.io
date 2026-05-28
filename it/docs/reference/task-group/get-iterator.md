@@ -26,8 +26,8 @@ TaskGroup implementa `IteratorAggregate`, quindi è possibile utilizzare `foreac
 - Il valore è un array `[mixed $result, ?Throwable $error]`:
   - Successo: `[$result, null]`
   - Errore: `[null, $error]`
-- L'iterazione termina quando il gruppo è sigillato **e** tutti i task sono stati elaborati
-- Se il gruppo non è sigillato, `foreach` si sospende in attesa di nuovi task
+- L'iterazione termina quando il gruppo è chiuso **e** tutti i task sono stati elaborati
+- Se il gruppo non è chiuso, `foreach` si sospende in attesa di nuovi task
 
 > **Importante:** Senza chiamare `close()`, l'iterazione attenderà indefinitamente.
 

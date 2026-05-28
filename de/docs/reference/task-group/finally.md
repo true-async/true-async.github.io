@@ -16,7 +16,7 @@ description: "Einen Abschluss-Handler fuer die Gruppe registrieren."
 public TaskGroup::finally(Closure $callback): void
 ```
 
-Registriert einen Callback, der aufgerufen wird, wenn die Gruppe versiegelt ist und alle Aufgaben abgeschlossen sind.
+Registriert einen Callback, der aufgerufen wird, wenn die Gruppe geschlossen ist und alle Aufgaben abgeschlossen sind.
 Der Callback erhaelt die TaskGroup als Parameter.
 
 Da `cancel()` implizit `close()` aufruft, wird der Handler auch bei einem Abbruch ausgeloest.
@@ -81,5 +81,5 @@ spawn(function() {
 
 ## Siehe auch
 
-- [TaskGroup::close](/de/docs/reference/task-group/close.html) --- Die Gruppe versiegeln
+- [TaskGroup::close](/de/docs/reference/task-group/close.html) --- Die Gruppe schließen
 - [TaskGroup::cancel](/de/docs/reference/task-group/cancel.html) --- Aufgaben abbrechen

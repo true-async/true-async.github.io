@@ -48,5 +48,5 @@ spawn(function() {
 
 ## See Also
 
-- [TaskSet::close](/en/docs/reference/task-set/close.html) — Seal the set
+- [TaskSet::close](/en/docs/reference/task-set/close.html) — Close the set
 - [TaskSet::dispose](/en/docs/reference/task-set/dispose.html) — Destroy the set scope

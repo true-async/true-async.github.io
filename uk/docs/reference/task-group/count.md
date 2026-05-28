@@ -52,4 +52,4 @@ spawn(function() {
 ## Дивіться також
 
 - [TaskGroup::isFinished](/uk/docs/reference/task-group/is-finished.html) --- Перевірити, чи всі задачі завершені
-- [TaskGroup::isClosed](/uk/docs/reference/task-group/is-closed.html) --- Перевірити, чи група запечатана
+- [TaskGroup::isClosed](/uk/docs/reference/task-group/is-closed.html) --- Перевірити, чи група закрита

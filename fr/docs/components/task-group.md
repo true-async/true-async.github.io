@@ -248,7 +248,7 @@ limitation de la concurrence sans semaphore, strategies d'attente multiples dans
 - [TaskGroup::race](/fr/docs/reference/task-group/race.html) -- Obtenir le resultat de la premiere tache terminee
 - [TaskGroup::any](/fr/docs/reference/task-group/any.html) -- Obtenir le resultat de la premiere tache reussie
 - [TaskGroup::awaitCompletion](/fr/docs/reference/task-group/await-completion.html) -- Attendre la fin de toutes les taches
-- [TaskGroup::close](/fr/docs/reference/task-group/close.html) -- Sceller le groupe pour les nouvelles taches
+- [TaskGroup::close](/fr/docs/reference/task-group/close.html) -- Fermer le groupe pour les nouvelles taches
 - [TaskGroup::cancel](/fr/docs/reference/task-group/cancel.html) -- Annuler toutes les taches
 - [TaskGroup::dispose](/fr/docs/reference/task-group/dispose.html) -- Detruire le scope du groupe
 - [TaskGroup::finally](/fr/docs/reference/task-group/finally.html) -- Enregistrer un gestionnaire de fin

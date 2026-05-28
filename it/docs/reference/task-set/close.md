@@ -47,5 +47,5 @@ spawn(function() {
 
 ## См. также
 
-- [TaskSet::cancel](/it/docs/reference/task-set/cancel.html) — Отменить все задачи (неявно вызывает seal)
+- [TaskSet::cancel](/it/docs/reference/task-set/cancel.html) — Annulla tutti i task (chiama implicitamente close)
 - [TaskSet::isClosed](/it/docs/reference/task-set/is-closed.html) — Проверить, запечатан ли набор

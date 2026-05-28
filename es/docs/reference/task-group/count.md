@@ -52,4 +52,4 @@ spawn(function() {
 ## Ver también
 
 - [TaskGroup::isFinished](/es/docs/reference/task-group/is-finished.html) — Verificar si todas las tareas han finalizado
-- [TaskGroup::isClosed](/es/docs/reference/task-group/is-closed.html) — Verificar si el grupo está sellado
+- [TaskGroup::isClosed](/es/docs/reference/task-group/is-closed.html) — Verificar si el grupo está cerrado

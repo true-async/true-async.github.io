@@ -47,5 +47,5 @@ spawn(function() {
 
 ## Vedi anche
 
-- [TaskGroup::cancel](/it/docs/reference/task-group/cancel.html) --- Cancella tutti i task (chiama implicitamente seal)
-- [TaskGroup::isClosed](/it/docs/reference/task-group/is-closed.html) --- Verifica se il gruppo è sigillato
+- [TaskGroup::cancel](/it/docs/reference/task-group/cancel.html) --- Cancella tutti i task (chiama implicitamente close)
+- [TaskGroup::isClosed](/it/docs/reference/task-group/is-closed.html) --- Verifica se il gruppo è chiuso

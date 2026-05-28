@@ -18,7 +18,7 @@ public TaskSet::isFinished(): bool
 
 Gibt `true` zurück, wenn keine aktiven Coroutinen vorhanden sind und die Task-Warteschlange leer ist.
 
-Wenn das Set nicht versiegelt ist, kann dieser Zustand vorübergehend sein — neue Tasks
+Wenn das Set nicht geschlossen ist, kann dieser Zustand vorübergehend sein — neue Tasks
 können über `spawn()` hinzugefügt werden.
 
 ## Rückgabewert
@@ -50,5 +50,5 @@ spawn(function() {
 
 ## Siehe auch
 
-- [TaskSet::isClosed](/de/docs/reference/task-set/is-closed.html) — Prüfen, ob das Set versiegelt ist
+- [TaskSet::isClosed](/de/docs/reference/task-set/is-closed.html) — Prüfen, ob das Set geschlossen ist
 - [TaskSet::count](/de/docs/reference/task-set/count.html) — Anzahl der Tasks

@@ -16,7 +16,7 @@ description: "Einen Abschluss-Handler für das Set registrieren."
 public TaskSet::finally(Closure $callback): void
 ```
 
-Registriert einen Callback, der aufgerufen wird, wenn das Set versiegelt ist und alle Tasks abgeschlossen sind.
+Registriert einen Callback, der aufgerufen wird, wenn das Set geschlossen ist und alle Tasks abgeschlossen sind.
 Der Callback erhält das TaskSet als Parameter.
 
 Da `cancel()` implizit `close()` aufruft, wird der Handler auch bei einem Abbruch ausgelöst.
@@ -81,5 +81,5 @@ spawn(function() {
 
 ## Siehe auch
 
-- [TaskSet::close](/de/docs/reference/task-set/close.html) — Das Set versiegeln
+- [TaskSet::close](/de/docs/reference/task-set/close.html) — Das Set schließen
 - [TaskSet::awaitCompletion](/de/docs/reference/task-set/await-completion.html) — Auf den Abschluss warten

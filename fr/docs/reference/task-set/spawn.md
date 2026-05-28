@@ -31,7 +31,7 @@ Sinon, le callable avec ses arguments est placé dans une file d'attente et dém
 
 ## Erreurs
 
-Lance `Async\AsyncException` si l'ensemble est scellé (`close()`) ou annulé (`cancel()`).
+Lance `Async\AsyncException` si l'ensemble est fermé (`close()`) ou annulé (`cancel()`).
 
 ## Exemples
 

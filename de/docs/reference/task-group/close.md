@@ -5,7 +5,7 @@ path_key: "/docs/reference/task-group/close.html"
 nav_active: docs
 permalink: /de/docs/reference/task-group/close.html
 page_title: "TaskGroup::close"
-description: "Die Gruppe versiegeln, um neue Aufgaben zu verhindern."
+description: "Die Gruppe schließen, um neue Aufgaben zu verhindern."
 ---
 
 # TaskGroup::close
@@ -16,7 +16,7 @@ description: "Die Gruppe versiegeln, um neue Aufgaben zu verhindern."
 public TaskGroup::close(): void
 ```
 
-Versiegelt die Gruppe. Jeder Versuch, `spawn()` oder `spawnWithKey()` zu verwenden, wirft eine Ausnahme.
+Geschlossen die Gruppe. Jeder Versuch, `spawn()` oder `spawnWithKey()` zu verwenden, wirft eine Ausnahme.
 Bereits laufende Coroutinen und Aufgaben in der Warteschlange werden weiter ausgefuehrt.
 
 Wiederholte Aufrufe sind ein No-Op.
@@ -47,5 +47,5 @@ spawn(function() {
 
 ## Siehe auch
 
-- [TaskGroup::cancel](/de/docs/reference/task-group/cancel.html) --- Alle Aufgaben abbrechen (ruft implizit seal auf)
-- [TaskGroup::isClosed](/de/docs/reference/task-group/is-closed.html) --- Pruefen, ob die Gruppe versiegelt ist
+- [TaskGroup::cancel](/de/docs/reference/task-group/cancel.html) --- Alle Aufgaben abbrechen (ruft implizit close auf)
+- [TaskGroup::isClosed](/de/docs/reference/task-group/is-closed.html) --- Pruefen, ob die Gruppe geschlossen ist

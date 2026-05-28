@@ -20,5 +20,5 @@ Retourne `true` apres que `close()` ou `cancel()` a ete appele.
 
 ## Voir aussi
 
-- [TaskGroup::close](/fr/docs/reference/task-group/close.html) --- Sceller le groupe
+- [TaskGroup::close](/fr/docs/reference/task-group/close.html) --- Fermer le groupe
 - [TaskGroup::isFinished](/fr/docs/reference/task-group/is-finished.html) --- Verifier si termine

@@ -18,14 +18,14 @@ public TaskSet::awaitCompletion(): void
 
 Suspende la coroutine actual hasta que todas las tareas del conjunto se hayan completado.
 
-El conjunto **debe** estar sellado antes de llamar a este método.
+El conjunto **debe** estar cerrado antes de llamar a este método.
 
 A diferencia de `joinAll()`, este método no lanza excepciones ante errores de las tareas
 y no devuelve resultados.
 
 ## Errores
 
-Lanza `Async\AsyncException` si el conjunto no está sellado.
+Lanza `Async\AsyncException` si el conjunto no está cerrado.
 
 ## Ejemplos
 

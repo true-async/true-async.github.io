@@ -16,7 +16,7 @@ description: "Registrar un handler de finalización para el conjunto."
 public TaskSet::finally(Closure $callback): void
 ```
 
-Registra un callback que se invoca cuando el conjunto está sellado y todas las tareas se han completado.
+Registra un callback que se invoca cuando el conjunto está cerrado y todas las tareas se han completado.
 El callback recibe el TaskSet como parámetro.
 
 Dado que `cancel()` llama implícitamente a `close()`, el handler también se dispara al cancelar.
@@ -81,5 +81,5 @@ spawn(function() {
 
 ## Ver también
 
-- [TaskSet::close](/es/docs/reference/task-set/close.html) — Sellar el conjunto
+- [TaskSet::close](/es/docs/reference/task-set/close.html) — Cerrar el conjunto
 - [TaskSet::awaitCompletion](/es/docs/reference/task-set/await-completion.html) — Esperar la finalización

@@ -5,7 +5,7 @@ path_key: "/docs/reference/task-set/close.html"
 nav_active: docs
 permalink: /en/docs/reference/task-set/close.html
 page_title: "TaskSet::close"
-description: "Seal the set for new tasks."
+description: "Close the set for new tasks."
 ---
 
 # TaskSet::close

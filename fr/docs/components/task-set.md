@@ -321,12 +321,12 @@ spawn(function() use ($set) {
 - [TaskSet::joinNext](/fr/docs/reference/task-set/join-next.html) — Obtenir le résultat de la première tâche terminée
 - [TaskSet::joinAny](/fr/docs/reference/task-set/join-any.html) — Obtenir le résultat de la première tâche réussie
 - [TaskSet::joinAll](/fr/docs/reference/task-set/join-all.html) — Attendre toutes les tâches et obtenir les résultats
-- [TaskSet::close](/fr/docs/reference/task-set/close.html) — Sceller l'ensemble pour les nouvelles tâches
+- [TaskSet::close](/fr/docs/reference/task-set/close.html) — Fermer l'ensemble pour les nouvelles tâches
 - [TaskSet::cancel](/fr/docs/reference/task-set/cancel.html) — Annuler toutes les tâches
 - [TaskSet::dispose](/fr/docs/reference/task-set/dispose.html) — Détruire le scope de l'ensemble
 - [TaskSet::finally](/fr/docs/reference/task-set/finally.html) — Enregistrer un gestionnaire d'achèvement
 - [TaskSet::isFinished](/fr/docs/reference/task-set/is-finished.html) — Vérifier si toutes les tâches sont terminées
-- [TaskSet::isClosed](/fr/docs/reference/task-set/is-closed.html) — Vérifier si l'ensemble est scellé
+- [TaskSet::isClosed](/fr/docs/reference/task-set/is-closed.html) — Vérifier si l'ensemble est fermé
 - [TaskSet::count](/fr/docs/reference/task-set/count.html) — Obtenir le nombre de tâches non livrées
 - [TaskSet::awaitCompletion](/fr/docs/reference/task-set/await-completion.html) — Attendre l'achèvement de toutes les tâches
 - [TaskSet::getIterator](/fr/docs/reference/task-set/get-iterator.html) — Itérer sur les résultats avec nettoyage automatique

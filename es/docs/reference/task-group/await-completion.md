@@ -19,7 +19,7 @@ public TaskGroup::awaitCompletion(): void
 Espera hasta que todas las tareas del grupo se hayan completado completamente.
 A diferencia de `all()`, no devuelve resultados ni lanza excepciones por errores de tareas.
 
-El grupo debe estar sellado antes de llamar a este método.
+El grupo debe estar cerrado antes de llamar a este método.
 
 Un caso de uso típico es esperar a que las corrutinas terminen realmente después de `cancel()`.
 El método `cancel()` inicia la cancelación, pero las corrutinas pueden finalizar de forma asíncrona.
@@ -27,7 +27,7 @@ El método `cancel()` inicia la cancelación, pero las corrutinas pueden finaliz
 
 ## Errores
 
-Lanza `Async\AsyncException` si el grupo no está sellado.
+Lanza `Async\AsyncException` si el grupo no está cerrado.
 
 ## Ejemplos
 
@@ -84,4 +84,4 @@ spawn(function() {
 
 - [TaskGroup::all](/es/docs/reference/task-group/all.html) — Esperar todas las tareas y obtener resultados
 - [TaskGroup::cancel](/es/docs/reference/task-group/cancel.html) — Cancelar todas las tareas
-- [TaskGroup::close](/es/docs/reference/task-group/close.html) — Sellar el grupo
+- [TaskGroup::close](/es/docs/reference/task-group/close.html) — Cerrar el grupo

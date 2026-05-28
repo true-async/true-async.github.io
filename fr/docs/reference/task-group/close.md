@@ -5,7 +5,7 @@ path_key: "/docs/reference/task-group/close.html"
 nav_active: docs
 permalink: /fr/docs/reference/task-group/close.html
 page_title: "TaskGroup::close"
-description: "Sceller le groupe pour empecher l'ajout de nouvelles taches."
+description: "Fermer le groupe pour empecher l'ajout de nouvelles taches."
 ---
 
 # TaskGroup::close
@@ -47,5 +47,5 @@ spawn(function() {
 
 ## Voir aussi
 
-- [TaskGroup::cancel](/fr/docs/reference/task-group/cancel.html) --- Annuler toutes les taches (appelle implicitement seal)
+- [TaskGroup::cancel](/fr/docs/reference/task-group/cancel.html) --- Annuler toutes les taches (appelle implicitement close)
 - [TaskGroup::isClosed](/fr/docs/reference/task-group/is-closed.html) --- Verifier si le groupe est scelle

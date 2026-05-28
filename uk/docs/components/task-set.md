@@ -321,12 +321,12 @@ spawn(function() use ($set) {
 - [TaskSet::joinNext](/uk/docs/reference/task-set/join-next.html) — Отримати результат першого завершеного завдання
 - [TaskSet::joinAny](/uk/docs/reference/task-set/join-any.html) — Отримати результат першого успішного завдання
 - [TaskSet::joinAll](/uk/docs/reference/task-set/join-all.html) — Дочекатися всіх завдань та отримати результати
-- [TaskSet::close](/uk/docs/reference/task-set/close.html) — Запечатати набір для нових завдань
+- [TaskSet::close](/uk/docs/reference/task-set/close.html) — Закрити набір для нових завдань
 - [TaskSet::cancel](/uk/docs/reference/task-set/cancel.html) — Скасувати всі завдання
 - [TaskSet::dispose](/uk/docs/reference/task-set/dispose.html) — Знищити scope набору
 - [TaskSet::finally](/uk/docs/reference/task-set/finally.html) — Зареєструвати обробник завершення
 - [TaskSet::isFinished](/uk/docs/reference/task-set/is-finished.html) — Перевірити, чи завершені всі завдання
-- [TaskSet::isClosed](/uk/docs/reference/task-set/is-closed.html) — Перевірити, чи запечатаний набір
+- [TaskSet::isClosed](/uk/docs/reference/task-set/is-closed.html) — Перевірити, чи закритий набір
 - [TaskSet::count](/uk/docs/reference/task-set/count.html) — Отримати кількість недоставлених завдань
 - [TaskSet::awaitCompletion](/uk/docs/reference/task-set/await-completion.html) — Дочекатися завершення всіх завдань
 - [TaskSet::getIterator](/uk/docs/reference/task-set/get-iterator.html) — Ітерація по результатах з автоочищенням

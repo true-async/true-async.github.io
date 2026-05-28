@@ -31,7 +31,7 @@ public TaskSet::spawn(callable $task, mixed ...$args): void
 
 ## Помилки
 
-Викидає `Async\AsyncException`, якщо набір запечатаний (`close()`) або скасований (`cancel()`).
+Викидає `Async\AsyncException`, якщо набір закритий (`close()`) або скасований (`cancel()`).
 
 ## Приклади
 

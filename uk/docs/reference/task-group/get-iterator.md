@@ -26,8 +26,8 @@ TaskGroup реалізує `IteratorAggregate`, тому можна викори
 - Значення --- масив `[mixed $result, ?Throwable $error]`:
   - Успіх: `[$result, null]`
   - Помилка: `[null, $error]`
-- Ітерація завершується, коли група запечатана **і** всі задачі оброблені
-- Якщо група не запечатана, `foreach` призупиняється в очікуванні нових задач
+- Ітерація завершується, коли група закрита **і** всі задачі оброблені
+- Якщо група не закрита, `foreach` призупиняється в очікуванні нових задач
 
 > **Важливо:** Без виклику `close()` ітерація чекатиме нескінченно.
 
@@ -82,6 +82,6 @@ spawn(function() {
 
 ## Дивіться також
 
-- [TaskGroup::close](/uk/docs/reference/task-group/close.html) --- Запечатати групу
+- [TaskGroup::close](/uk/docs/reference/task-group/close.html) --- Закрити групу
 - [TaskGroup::all](/uk/docs/reference/task-group/all.html) --- Дочекатися всіх задач
 - [TaskGroup::getResults](/uk/docs/reference/task-group/get-results.html) --- Отримати масив результатів

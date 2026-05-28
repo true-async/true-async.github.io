@@ -31,7 +31,7 @@ Altrimenti, il callable con i suoi argomenti viene messo in coda e avviato quand
 
 ## Errori
 
-Lancia `Async\AsyncException` se il gruppo è sigillato (`close()`) o cancellato (`cancel()`).
+Lancia `Async\AsyncException` se il gruppo è chiuso (`close()`) o cancellato (`cancel()`).
 
 ## Esempi
 

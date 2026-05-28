@@ -32,7 +32,7 @@ Das Aufgabenergebnis ist ueber diesen Schluessel in `all()`, `getResults()` und 
 
 ## Fehler
 
-Wirft `Async\AsyncException`, wenn die Gruppe versiegelt ist oder der Schluessel bereits existiert.
+Wirft `Async\AsyncException`, wenn die Gruppe geschlossen ist oder der Schluessel bereits existiert.
 
 ## Beispiele
 

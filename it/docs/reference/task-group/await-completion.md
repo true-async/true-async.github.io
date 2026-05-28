@@ -19,7 +19,7 @@ public TaskGroup::awaitCompletion(): void
 Attende che tutti i task del gruppo siano completamente terminati.
 A differenza di `all()`, non restituisce risultati e non lancia eccezioni in caso di errori nei task.
 
-Il gruppo deve essere sigillato prima di chiamare questo metodo.
+Il gruppo deve essere chiuso prima di chiamare questo metodo.
 
 Un caso d'uso tipico è attendere che le coroutine terminino effettivamente dopo `cancel()`.
 Il metodo `cancel()` avvia la cancellazione, ma le coroutine possono terminare in modo asincrono.
@@ -27,7 +27,7 @@ Il metodo `cancel()` avvia la cancellazione, ma le coroutine possono terminare i
 
 ## Errori
 
-Lancia `Async\AsyncException` se il gruppo non è sigillato.
+Lancia `Async\AsyncException` se il gruppo non è chiuso.
 
 ## Esempi
 

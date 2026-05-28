@@ -19,7 +19,7 @@ public TaskGroup::awaitCompletion(): void
 Очікує повного завершення всіх задач у групі.
 На відміну від `all()`, не повертає результати і не генерує винятки при помилках задач.
 
-Група повинна бути запечатана перед викликом цього методу.
+Група повинна бути закрита перед викликом цього методу.
 
 Типовий випадок використання --- очікування фактичного завершення корутин після `cancel()`.
 Метод `cancel()` ініціює скасування, але корутини можуть завершитися асинхронно.
@@ -27,7 +27,7 @@ public TaskGroup::awaitCompletion(): void
 
 ## Помилки
 
-Кидає `Async\AsyncException`, якщо група не запечатана.
+Кидає `Async\AsyncException`, якщо група не закрита.
 
 ## Приклади
 
@@ -84,4 +84,4 @@ spawn(function() {
 
 - [TaskGroup::all](/uk/docs/reference/task-group/all.html) --- Дочекатися всіх задач та отримати результати
 - [TaskGroup::cancel](/uk/docs/reference/task-group/cancel.html) --- Скасувати всі задачі
-- [TaskGroup::close](/uk/docs/reference/task-group/close.html) --- Запечатати групу
+- [TaskGroup::close](/uk/docs/reference/task-group/close.html) --- Закрити групу

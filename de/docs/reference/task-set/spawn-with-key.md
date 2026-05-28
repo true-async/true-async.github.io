@@ -32,7 +32,7 @@ und bei der Iteration über `foreach` verwendet.
 
 ## Fehler
 
-- Wirft `Async\AsyncException`, wenn das Set versiegelt oder abgebrochen wurde.
+- Wirft `Async\AsyncException`, wenn das Set geschlossen oder abgebrochen wurde.
 - Wirft `Async\AsyncException`, wenn der Schlüssel bereits in Verwendung ist.
 
 ## Beispiele

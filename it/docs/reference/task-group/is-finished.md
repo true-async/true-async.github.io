@@ -18,9 +18,9 @@ public TaskGroup::isFinished(): bool
 
 Restituisce `true` se la coda è vuota e non ci sono coroutine attive.
 
-Questo stato può essere temporaneo: se il gruppo non è sigillato, nuovi task possono ancora essere aggiunti.
+Questo stato può essere temporaneo: se il gruppo non è chiuso, nuovi task possono ancora essere aggiunti.
 
 ## Vedi anche
 
-- [TaskGroup::isClosed](/it/docs/reference/task-group/is-closed.html) --- Verifica se il gruppo è sigillato
+- [TaskGroup::isClosed](/it/docs/reference/task-group/is-closed.html) --- Verifica se il gruppo è chiuso
 - [TaskGroup::awaitCompletion](/it/docs/reference/task-group/await-completion.html) --- Attende il completamento

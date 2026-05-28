@@ -32,7 +32,7 @@ Il risultato del task sarà accessibile tramite questa chiave in `all()`, `getRe
 
 ## Errori
 
-Lancia `Async\AsyncException` se il gruppo è sigillato o la chiave esiste già.
+Lancia `Async\AsyncException` se il gruppo è chiuso o la chiave esiste già.
 
 ## Esempi
 

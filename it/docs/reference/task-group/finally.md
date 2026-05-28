@@ -16,7 +16,7 @@ description: "Registra un gestore di completamento per il gruppo."
 public TaskGroup::finally(Closure $callback): void
 ```
 
-Registra un callback che viene invocato quando il gruppo è sigillato e tutti i task sono completati.
+Registra un callback che viene invocato quando il gruppo è chiuso e tutti i task sono completati.
 Il callback riceve il TaskGroup come parametro.
 
 Poiché `cancel()` chiama implicitamente `close()`, il gestore viene attivato anche in caso di cancellazione.

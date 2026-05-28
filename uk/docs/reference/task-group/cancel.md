@@ -69,6 +69,6 @@ spawn(function() {
 
 ## Дивіться також
 
-- [TaskGroup::close](/uk/docs/reference/task-group/close.html) --- Запечатати без скасування
+- [TaskGroup::close](/uk/docs/reference/task-group/close.html) --- Закрити без скасування
 - [TaskGroup::awaitCompletion](/uk/docs/reference/task-group/await-completion.html) --- Дочекатися завершення
 - [TaskGroup::dispose](/uk/docs/reference/task-group/dispose.html) --- Вивільнити область видимості групи

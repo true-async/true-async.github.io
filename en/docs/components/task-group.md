@@ -60,7 +60,7 @@ All tasks added to `TaskGroup` execute inside this `Scope`.
 This means that when `TaskGroup` is cancelled or destroyed,
 all coroutines will be automatically cancelled, ensuring safe resource management and preventing leaks.
 
-## Sealing and Iteration
+## Closing and Iteration
 
 `TaskGroup` allows adding tasks dynamically, until it is
 closed using the `close()` method.

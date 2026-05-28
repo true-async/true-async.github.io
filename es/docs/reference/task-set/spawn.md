@@ -31,7 +31,7 @@ De lo contrario, el callable con sus argumentos se coloca en una cola y se inici
 
 ## Errores
 
-Lanza `Async\AsyncException` si el conjunto está sellado (`close()`) o cancelado (`cancel()`).
+Lanza `Async\AsyncException` si el conjunto está cerrado (`close()`) o cancelado (`cancel()`).
 
 ## Ejemplos
 

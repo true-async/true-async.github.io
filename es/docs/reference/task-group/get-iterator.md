@@ -26,8 +26,8 @@ TaskGroup implementa `IteratorAggregate`, por lo que puede usar `foreach` direct
 - El valor es un array `[mixed $result, ?Throwable $error]`:
   - Éxito: `[$result, null]`
   - Error: `[null, $error]`
-- La iteración termina cuando el grupo está sellado **y** todas las tareas han sido procesadas
-- Si el grupo no está sellado, `foreach` se suspende esperando nuevas tareas
+- La iteración termina cuando el grupo está cerrado **y** todas las tareas han sido procesadas
+- Si el grupo no está cerrado, `foreach` se suspende esperando nuevas tareas
 
 > **Importante:** Sin llamar a `close()`, la iteración esperará indefinidamente.
 
@@ -82,6 +82,6 @@ spawn(function() {
 
 ## Ver también
 
-- [TaskGroup::close](/es/docs/reference/task-group/close.html) — Sellar el grupo
+- [TaskGroup::close](/es/docs/reference/task-group/close.html) — Cerrar el grupo
 - [TaskGroup::all](/es/docs/reference/task-group/all.html) — Esperar todas las tareas
 - [TaskGroup::getResults](/es/docs/reference/task-group/get-results.html) — Obtener un array de resultados

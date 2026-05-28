@@ -84,4 +84,4 @@ spawn(function() {
 
 - [TaskGroup::all](/fr/docs/reference/task-group/all.html) --- Attendre toutes les taches et obtenir les resultats
 - [TaskGroup::cancel](/fr/docs/reference/task-group/cancel.html) --- Annuler toutes les taches
-- [TaskGroup::close](/fr/docs/reference/task-group/close.html) --- Sceller le groupe
+- [TaskGroup::close](/fr/docs/reference/task-group/close.html) --- Fermer le groupe

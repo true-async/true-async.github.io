@@ -60,10 +60,10 @@ Todas las tareas anadidas a `TaskGroup` se ejecutan dentro de este `Scope`.
 Esto significa que cuando `TaskGroup` es cancelado o destruido,
 todas las corrutinas seran canceladas automaticamente, asegurando la gestion segura de recursos y previniendo fugas.
 
-## Sellado e Iteracion
+## Cerrado e Iteracion
 
 `TaskGroup` permite anadir tareas dinamicamente, hasta que es
-sellado usando el metodo `close()`.
+cerrado usando el metodo `close()`.
 
 El metodo `all()` devuelve un `Future` que se activa cuando todas las tareas existentes
 en la cola se han completado. Esto permite usar `TaskGroup` en un bucle, donde las tareas se anaden dinamicamente,
@@ -248,12 +248,12 @@ limitacion de concurrencia sin semaforo, multiples estrategias de espera en un s
 - [TaskGroup::race](/es/docs/reference/task-group/race.html) -- Obtener el resultado de la primera tarea completada
 - [TaskGroup::any](/es/docs/reference/task-group/any.html) -- Obtener el resultado de la primera tarea exitosa
 - [TaskGroup::awaitCompletion](/es/docs/reference/task-group/await-completion.html) -- Esperar a que todas las tareas completen
-- [TaskGroup::close](/es/docs/reference/task-group/close.html) -- Sellar el grupo para nuevas tareas
+- [TaskGroup::close](/es/docs/reference/task-group/close.html) -- Cerrar el grupo para nuevas tareas
 - [TaskGroup::cancel](/es/docs/reference/task-group/cancel.html) -- Cancelar todas las tareas
 - [TaskGroup::dispose](/es/docs/reference/task-group/dispose.html) -- Destruir el scope del grupo
 - [TaskGroup::finally](/es/docs/reference/task-group/finally.html) -- Registrar un manejador de finalizacion
 - [TaskGroup::isFinished](/es/docs/reference/task-group/is-finished.html) -- Verificar si todas las tareas han terminado
-- [TaskGroup::isClosed](/es/docs/reference/task-group/is-closed.html) -- Verificar si el grupo esta sellado
+- [TaskGroup::isClosed](/es/docs/reference/task-group/is-closed.html) -- Verificar si el grupo esta cerrado
 - [TaskGroup::count](/es/docs/reference/task-group/count.html) -- Obtener el numero de tareas
 - [TaskGroup::getResults](/es/docs/reference/task-group/get-results.html) -- Obtener un array de resultados exitosos
 - [TaskGroup::getErrors](/es/docs/reference/task-group/get-errors.html) -- Obtener un array de errores

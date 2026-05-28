@@ -29,8 +29,8 @@ freigegeben und `count()` verringert wird.
 - Der Wert ist ein Array `[mixed $result, ?Throwable $error]`:
   - Erfolg: `[$result, null]`
   - Fehler: `[null, $error]`
-- Die Iteration endet, wenn das Set versiegelt ist **und** alle Tasks verarbeitet wurden
-- Wenn das Set nicht versiegelt ist, wartet `foreach` auf neue Tasks
+- Die Iteration endet, wenn das Set geschlossen ist **und** alle Tasks verarbeitet wurden
+- Wenn das Set nicht geschlossen ist, wartet `foreach` auf neue Tasks
 
 > **Wichtig:** Ohne Aufruf von `close()` wartet die Iteration unbegrenzt.
 
@@ -88,6 +88,6 @@ spawn(function() {
 
 ## Siehe auch
 
-- [TaskSet::close](/de/docs/reference/task-set/close.html) — Das Set versiegeln
+- [TaskSet::close](/de/docs/reference/task-set/close.html) — Das Set schließen
 - [TaskSet::joinAll](/de/docs/reference/task-set/join-all.html) — Auf alle Tasks warten
 - [TaskSet::joinNext](/de/docs/reference/task-set/join-next.html) — Nächstes Ergebnis

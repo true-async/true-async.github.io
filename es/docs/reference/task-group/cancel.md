@@ -69,6 +69,6 @@ spawn(function() {
 
 ## Ver también
 
-- [TaskGroup::close](/es/docs/reference/task-group/close.html) — Sellar sin cancelación
+- [TaskGroup::close](/es/docs/reference/task-group/close.html) — Cerrar sin cancelación
 - [TaskGroup::awaitCompletion](/es/docs/reference/task-group/await-completion.html) — Esperar la finalización
 - [TaskGroup::dispose](/es/docs/reference/task-group/dispose.html) — Disponer del ámbito del grupo

@@ -42,11 +42,11 @@ spawn(function() {
     // Alle Tasks abbrechen
     $set->cancel();
 
-    echo $set->isClosed() ? "versiegelt\n" : "nein\n"; // "versiegelt"
+    echo $set->isClosed() ? "geschlossen\n" : "nein\n"; // "geschlossen"
 });
 ```
 
 ## Siehe auch
 
-- [TaskSet::close](/de/docs/reference/task-set/close.html) — Das Set versiegeln
+- [TaskSet::close](/de/docs/reference/task-set/close.html) — Das Set schließen
 - [TaskSet::dispose](/de/docs/reference/task-set/dispose.html) — Den Scope des Sets zerstören

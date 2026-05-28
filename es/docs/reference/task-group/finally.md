@@ -16,7 +16,7 @@ description: "Registrar un manejador de finalización para el grupo."
 public TaskGroup::finally(Closure $callback): void
 ```
 
-Registra un callback que se invoca cuando el grupo está sellado y todas las tareas se han completado.
+Registra un callback que se invoca cuando el grupo está cerrado y todas las tareas se han completado.
 El callback recibe el TaskGroup como parámetro.
 
 Dado que `cancel()` llama implícitamente a `close()`, el manejador también se dispara en la cancelación.
@@ -81,5 +81,5 @@ spawn(function() {
 
 ## Ver también
 
-- [TaskGroup::close](/es/docs/reference/task-group/close.html) — Sellar el grupo
+- [TaskGroup::close](/es/docs/reference/task-group/close.html) — Cerrar el grupo
 - [TaskGroup::cancel](/es/docs/reference/task-group/cancel.html) — Cancelar tareas

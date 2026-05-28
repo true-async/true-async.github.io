@@ -18,7 +18,7 @@ public TaskSet::isFinished(): bool
 
 Devuelve `true` si no hay coroutines activas y la cola de tareas está vacía.
 
-Si el conjunto no está sellado, este estado puede ser temporal — se pueden
+Si el conjunto no está cerrado, este estado puede ser temporal — se pueden
 agregar nuevas tareas mediante `spawn()`.
 
 ## Valor de retorno
@@ -50,5 +50,5 @@ spawn(function() {
 
 ## Ver también
 
-- [TaskSet::isClosed](/es/docs/reference/task-set/is-closed.html) — Comprobar si el conjunto está sellado
+- [TaskSet::isClosed](/es/docs/reference/task-set/is-closed.html) — Comprobar si el conjunto está cerrado
 - [TaskSet::count](/es/docs/reference/task-set/count.html) — Número de tareas

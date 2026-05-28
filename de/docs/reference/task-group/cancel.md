@@ -69,6 +69,6 @@ spawn(function() {
 
 ## Siehe auch
 
-- [TaskGroup::close](/de/docs/reference/task-group/close.html) --- Versiegeln ohne Abbruch
+- [TaskGroup::close](/de/docs/reference/task-group/close.html) --- Schließen ohne Abbruch
 - [TaskGroup::awaitCompletion](/de/docs/reference/task-group/await-completion.html) --- Auf Abschluss warten
 - [TaskGroup::dispose](/de/docs/reference/task-group/dispose.html) --- Den Gruppen-Scope freigeben

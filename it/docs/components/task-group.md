@@ -63,7 +63,7 @@ tutte le coroutine verranno automaticamente cancellate, garantendo una gestione 
 ## Sigillatura e Iterazione
 
 `TaskGroup` permette di aggiungere task dinamicamente, finché non viene
-sigillato usando il metodo `close()`.
+chiuso usando il metodo `close()`.
 
 Il metodo `all()` restituisce un `Future` che si attiva quando tutti i task esistenti
 nella coda sono completati. Questo permette di usare `TaskGroup` in un ciclo, dove i task vengono aggiunti dinamicamente,
@@ -253,7 +253,7 @@ limitazione della concorrenza senza semaforo, strategie di attesa multiple in un
 - [TaskGroup::dispose](/it/docs/reference/task-group/dispose.html) -- Distruggi lo scope del gruppo
 - [TaskGroup::finally](/it/docs/reference/task-group/finally.html) -- Registra un handler di completamento
 - [TaskGroup::isFinished](/it/docs/reference/task-group/is-finished.html) -- Verifica se tutti i task sono terminati
-- [TaskGroup::isClosed](/it/docs/reference/task-group/is-closed.html) -- Verifica se il gruppo è sigillato
+- [TaskGroup::isClosed](/it/docs/reference/task-group/is-closed.html) -- Verifica se il gruppo è chiuso
 - [TaskGroup::count](/it/docs/reference/task-group/count.html) -- Ottieni il numero di task
 - [TaskGroup::getResults](/it/docs/reference/task-group/get-results.html) -- Ottieni un array di risultati riusciti
 - [TaskGroup::getErrors](/it/docs/reference/task-group/get-errors.html) -- Ottieni un array di errori

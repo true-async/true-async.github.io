@@ -32,7 +32,7 @@ El resultado de la tarea será accesible por esta clave en `all()`, `getResults(
 
 ## Errores
 
-Lanza `Async\AsyncException` si el grupo está sellado o la clave ya existe.
+Lanza `Async\AsyncException` si el grupo está cerrado o la clave ya existe.
 
 ## Ejemplos
 

@@ -5,7 +5,7 @@ path_key: "/docs/reference/task-group/is-closed.html"
 nav_active: docs
 permalink: /it/docs/reference/task-group/is-closed.html
 page_title: "TaskGroup::isClosed"
-description: "Verifica se il gruppo è sigillato."
+description: "Verifica se il gruppo è chiuso."
 ---
 
 # TaskGroup::isClosed

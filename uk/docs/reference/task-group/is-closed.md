@@ -5,7 +5,7 @@ path_key: "/docs/reference/task-group/is-closed.html"
 nav_active: docs
 permalink: /uk/docs/reference/task-group/is-closed.html
 page_title: "TaskGroup::isClosed"
-description: "Перевірити, чи група запечатана."
+description: "Перевірити, чи група закрита."
 ---
 
 # TaskGroup::isClosed
@@ -20,5 +20,5 @@ public TaskGroup::isClosed(): bool
 
 ## Дивіться також
 
-- [TaskGroup::close](/uk/docs/reference/task-group/close.html) --- Запечатати групу
+- [TaskGroup::close](/uk/docs/reference/task-group/close.html) --- Закрити групу
 - [TaskGroup::isFinished](/uk/docs/reference/task-group/is-finished.html) --- Перевірити, чи завершено

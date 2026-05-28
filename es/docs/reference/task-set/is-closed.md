@@ -5,7 +5,7 @@ path_key: "/docs/reference/task-set/is-closed.html"
 nav_active: docs
 permalink: /es/docs/reference/task-set/is-closed.html
 page_title: "TaskSet::isClosed"
-description: "Comprobar si el conjunto está sellado."
+description: "Comprobar si el conjunto está cerrado."
 ---
 
 # TaskSet::isClosed
@@ -16,11 +16,11 @@ description: "Comprobar si el conjunto está sellado."
 public TaskSet::isClosed(): bool
 ```
 
-Devuelve `true` si el conjunto está sellado (se llamó a `close()` o `cancel()`).
+Devuelve `true` si el conjunto está cerrado (se llamó a `close()` o `cancel()`).
 
 ## Valor de retorno
 
-`true` si el conjunto está sellado. `false` en caso contrario.
+`true` si el conjunto está cerrado. `false` en caso contrario.
 
 ## Ejemplos
 
@@ -43,5 +43,5 @@ spawn(function() {
 
 ## Ver también
 
-- [TaskSet::close](/es/docs/reference/task-set/close.html) — Sellar el conjunto
+- [TaskSet::close](/es/docs/reference/task-set/close.html) — Cerrar el conjunto
 - [TaskSet::isFinished](/es/docs/reference/task-set/is-finished.html) — Comprobar si las tareas han finalizado

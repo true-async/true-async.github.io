@@ -42,11 +42,11 @@ spawn(function() {
     // Cancelar todas las tareas
     $set->cancel();
 
-    echo $set->isClosed() ? "sealed\n" : "no\n"; // "sealed"
+    echo $set->isClosed() ? "closed\n" : "no\n"; // "closed"
 });
 ```
 
 ## Ver también
 
-- [TaskSet::close](/es/docs/reference/task-set/close.html) — Sellar el conjunto
+- [TaskSet::close](/es/docs/reference/task-set/close.html) — Cerrar el conjunto
 - [TaskSet::dispose](/es/docs/reference/task-set/dispose.html) — Destruir el scope del conjunto

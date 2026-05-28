@@ -321,7 +321,7 @@ spawn(function() use ($set) {
 - [TaskSet::joinNext](/en/docs/reference/task-set/join-next.html) — Get the result of the first completed task
 - [TaskSet::joinAny](/en/docs/reference/task-set/join-any.html) — Get the result of the first successful task
 - [TaskSet::joinAll](/en/docs/reference/task-set/join-all.html) — Wait for all tasks and get results
-- [TaskSet::close](/en/docs/reference/task-set/close.html) — Seal the set for new tasks
+- [TaskSet::close](/en/docs/reference/task-set/close.html) — Close the set for new tasks
 - [TaskSet::cancel](/en/docs/reference/task-set/cancel.html) — Cancel all tasks
 - [TaskSet::dispose](/en/docs/reference/task-set/dispose.html) — Destroy the set's scope
 - [TaskSet::finally](/en/docs/reference/task-set/finally.html) — Register a completion handler

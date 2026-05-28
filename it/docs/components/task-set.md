@@ -321,12 +321,12 @@ spawn(function() use ($set) {
 - [TaskSet::joinNext](/it/docs/reference/task-set/join-next.html) — Ottenere il risultato del primo task completato
 - [TaskSet::joinAny](/it/docs/reference/task-set/join-any.html) — Ottenere il risultato del primo task con successo
 - [TaskSet::joinAll](/it/docs/reference/task-set/join-all.html) — Attendere tutti i task e ottenere i risultati
-- [TaskSet::close](/it/docs/reference/task-set/close.html) — Sigillare l'insieme per nuovi task
+- [TaskSet::close](/it/docs/reference/task-set/close.html) — Chiudere l'insieme per nuovi task
 - [TaskSet::cancel](/it/docs/reference/task-set/cancel.html) — Annullare tutti i task
 - [TaskSet::dispose](/it/docs/reference/task-set/dispose.html) — Distruggere lo scope dell'insieme
 - [TaskSet::finally](/it/docs/reference/task-set/finally.html) — Registrare un handler di completamento
 - [TaskSet::isFinished](/it/docs/reference/task-set/is-finished.html) — Verificare se tutti i task sono terminati
-- [TaskSet::isClosed](/it/docs/reference/task-set/is-closed.html) — Verificare se l'insieme è sigillato
+- [TaskSet::isClosed](/it/docs/reference/task-set/is-closed.html) — Verificare se l'insieme è chiuso
 - [TaskSet::count](/it/docs/reference/task-set/count.html) — Ottenere il numero di task non ancora consegnati
 - [TaskSet::awaitCompletion](/it/docs/reference/task-set/await-completion.html) — Attendere il completamento di tutti i task
 - [TaskSet::getIterator](/it/docs/reference/task-set/get-iterator.html) — Iterare sui risultati con pulizia automatica

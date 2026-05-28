@@ -5,7 +5,7 @@ path_key: "/docs/reference/task-set/close.html"
 nav_active: docs
 permalink: /es/docs/reference/task-set/close.html
 page_title: "TaskSet::close"
-description: "Sellar el conjunto para nuevas tareas."
+description: "Cerrar el conjunto para nuevas tareas."
 ---
 
 # TaskSet::close
@@ -47,5 +47,5 @@ spawn(function() {
 
 ## Ver también
 
-- [TaskSet::cancel](/es/docs/reference/task-set/cancel.html) — Cancelar todas las tareas (llama a seal implícitamente)
-- [TaskSet::isClosed](/es/docs/reference/task-set/is-closed.html) — Comprobar si el conjunto está sellado
+- [TaskSet::cancel](/es/docs/reference/task-set/cancel.html) — Cancelar todas las tareas (llama a close implícitamente)
+- [TaskSet::isClosed](/es/docs/reference/task-set/is-closed.html) — Comprobar si el conjunto está cerrado

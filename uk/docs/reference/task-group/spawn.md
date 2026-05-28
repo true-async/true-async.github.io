@@ -31,7 +31,7 @@ public TaskGroup::spawn(callable $task, mixed ...$args): void
 
 ## Помилки
 
-Кидає `Async\AsyncException`, якщо група запечатана (`close()`) або скасована (`cancel()`).
+Кидає `Async\AsyncException`, якщо група закрита (`close()`) або скасована (`cancel()`).
 
 ## Приклади
 

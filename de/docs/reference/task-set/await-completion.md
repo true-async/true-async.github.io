@@ -18,14 +18,14 @@ public TaskSet::awaitCompletion(): void
 
 Suspendiert die aktuelle Coroutine, bis alle Tasks im Set abgeschlossen sind.
 
-Das Set **muss** vor dem Aufruf dieser Methode versiegelt sein.
+Das Set **muss** vor dem Aufruf dieser Methode geschlossen sein.
 
 Im Gegensatz zu `joinAll()` wirft diese Methode keine Exceptions bei Task-Fehlern
 und gibt keine Ergebnisse zurück.
 
 ## Fehler
 
-Wirft `Async\AsyncException`, wenn das Set nicht versiegelt ist.
+Wirft `Async\AsyncException`, wenn das Set nicht geschlossen ist.
 
 ## Beispiele
 

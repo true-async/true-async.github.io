@@ -321,12 +321,12 @@ spawn(function() use ($set) {
 - [TaskSet::joinNext](/es/docs/reference/task-set/join-next.html) — Obtener el resultado de la primera tarea completada
 - [TaskSet::joinAny](/es/docs/reference/task-set/join-any.html) — Obtener el resultado de la primera tarea exitosa
 - [TaskSet::joinAll](/es/docs/reference/task-set/join-all.html) — Esperar todas las tareas y obtener resultados
-- [TaskSet::close](/es/docs/reference/task-set/close.html) — Sellar el conjunto para nuevas tareas
+- [TaskSet::close](/es/docs/reference/task-set/close.html) — Cerrar el conjunto para nuevas tareas
 - [TaskSet::cancel](/es/docs/reference/task-set/cancel.html) — Cancelar todas las tareas
 - [TaskSet::dispose](/es/docs/reference/task-set/dispose.html) — Destruir el scope del conjunto
 - [TaskSet::finally](/es/docs/reference/task-set/finally.html) — Registrar un handler de finalización
 - [TaskSet::isFinished](/es/docs/reference/task-set/is-finished.html) — Comprobar si todas las tareas han finalizado
-- [TaskSet::isClosed](/es/docs/reference/task-set/is-closed.html) — Comprobar si el conjunto está sellado
+- [TaskSet::isClosed](/es/docs/reference/task-set/is-closed.html) — Comprobar si el conjunto está cerrado
 - [TaskSet::count](/es/docs/reference/task-set/count.html) — Obtener el número de tareas no entregadas
 - [TaskSet::awaitCompletion](/es/docs/reference/task-set/await-completion.html) — Esperar a que todas las tareas se completen
 - [TaskSet::getIterator](/es/docs/reference/task-set/get-iterator.html) — Iterar sobre resultados con limpieza automática

@@ -43,5 +43,5 @@ spawn(function() {
 
 ## See Also
 
-- [TaskSet::close](/en/docs/reference/task-set/close.html) — Seal the set
+- [TaskSet::close](/en/docs/reference/task-set/close.html) — Close the set
 - [TaskSet::isFinished](/en/docs/reference/task-set/is-finished.html) — Check if tasks are finished

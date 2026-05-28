@@ -32,7 +32,7 @@ public TaskGroup::spawnWithKey(string|int $key, callable $task, mixed ...$args):
 
 ## Помилки
 
-Кидає `Async\AsyncException`, якщо група запечатана або ключ вже існує.
+Кидає `Async\AsyncException`, якщо група закрита або ключ вже існує.
 
 ## Приклади
 

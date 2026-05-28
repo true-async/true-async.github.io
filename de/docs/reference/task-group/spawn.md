@@ -31,7 +31,7 @@ Andernfalls wird das Callable mit seinen Argumenten in eine Warteschlange gestel
 
 ## Fehler
 
-Wirft `Async\AsyncException`, wenn die Gruppe versiegelt (`close()`) oder abgebrochen (`cancel()`) ist.
+Wirft `Async\AsyncException`, wenn die Gruppe geschlossen (`close()`) oder abgebrochen (`cancel()`) ist.
 
 ## Beispiele
 

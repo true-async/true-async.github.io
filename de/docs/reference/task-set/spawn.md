@@ -31,7 +31,7 @@ Andernfalls wird das Callable mit seinen Argumenten in eine Warteschlange einger
 
 ## Fehler
 
-Wirft `Async\AsyncException`, wenn das Set versiegelt (`close()`) oder abgebrochen (`cancel()`) wurde.
+Wirft `Async\AsyncException`, wenn das Set geschlossen (`close()`) oder abgebrochen (`cancel()`) wurde.
 
 ## Beispiele
 

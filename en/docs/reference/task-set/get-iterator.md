@@ -88,6 +88,6 @@ spawn(function() {
 
 ## See Also
 
-- [TaskSet::close](/en/docs/reference/task-set/close.html) — Seal the set
+- [TaskSet::close](/en/docs/reference/task-set/close.html) — Close the set
 - [TaskSet::joinAll](/en/docs/reference/task-set/join-all.html) — Wait for all tasks
 - [TaskSet::joinNext](/en/docs/reference/task-set/join-next.html) — Next result

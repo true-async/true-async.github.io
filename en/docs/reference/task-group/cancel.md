@@ -69,6 +69,6 @@ spawn(function() {
 
 ## See Also
 
-- [TaskGroup::close](/en/docs/reference/task-group/close.html) --- Seal without cancellation
+- [TaskGroup::close](/en/docs/reference/task-group/close.html) --- Close without cancellation
 - [TaskGroup::awaitCompletion](/en/docs/reference/task-group/await-completion.html) --- Wait for completion
 - [TaskGroup::dispose](/en/docs/reference/task-group/dispose.html) --- Dispose of the group scope

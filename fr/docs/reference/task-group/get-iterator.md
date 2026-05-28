@@ -82,6 +82,6 @@ spawn(function() {
 
 ## Voir aussi
 
-- [TaskGroup::close](/fr/docs/reference/task-group/close.html) --- Sceller le groupe
+- [TaskGroup::close](/fr/docs/reference/task-group/close.html) --- Fermer le groupe
 - [TaskGroup::all](/fr/docs/reference/task-group/all.html) --- Attendre toutes les taches
 - [TaskGroup::getResults](/fr/docs/reference/task-group/get-results.html) --- Obtenir un tableau de resultats

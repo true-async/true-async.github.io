@@ -63,7 +63,7 @@ alle Coroutinen automatisch abgebrochen werden, was sichere Ressourcenverwaltung
 ## Versiegelung und Iteration
 
 `TaskGroup` ermöglicht das dynamische Hinzufügen von Aufgaben, bis sie
-mit der Methode `close()` versiegelt wird.
+mit der Methode `close()` geschlossen wird.
 
 Die Methode `all()` gibt ein `Future` zurück, das ausgelöst wird, wenn alle bestehenden Aufgaben
 in der Warteschlange abgeschlossen sind. Dies ermöglicht die Verwendung von `TaskGroup` in einer Schleife, in der Aufgaben dynamisch hinzugefügt werden,
@@ -248,12 +248,12 @@ Nebenläufigkeitsbegrenzung ohne Semaphore, mehrere Wartestrategien in einem ein
 - [TaskGroup::race](/de/docs/reference/task-group/race.html) -- Ergebnis der ersten abgeschlossenen Aufgabe abrufen
 - [TaskGroup::any](/de/docs/reference/task-group/any.html) -- Ergebnis der ersten erfolgreichen Aufgabe abrufen
 - [TaskGroup::awaitCompletion](/de/docs/reference/task-group/await-completion.html) -- Auf Abschluss aller Aufgaben warten
-- [TaskGroup::close](/de/docs/reference/task-group/close.html) -- Gruppe für neue Aufgaben versiegeln
+- [TaskGroup::close](/de/docs/reference/task-group/close.html) -- Gruppe für neue Aufgaben schließen
 - [TaskGroup::cancel](/de/docs/reference/task-group/cancel.html) -- Alle Aufgaben abbrechen
 - [TaskGroup::dispose](/de/docs/reference/task-group/dispose.html) -- Scope der Gruppe zerstören
 - [TaskGroup::finally](/de/docs/reference/task-group/finally.html) -- Abschlusshandler registrieren
 - [TaskGroup::isFinished](/de/docs/reference/task-group/is-finished.html) -- Prüfen, ob alle Aufgaben abgeschlossen sind
-- [TaskGroup::isClosed](/de/docs/reference/task-group/is-closed.html) -- Prüfen, ob die Gruppe versiegelt ist
+- [TaskGroup::isClosed](/de/docs/reference/task-group/is-closed.html) -- Prüfen, ob die Gruppe geschlossen ist
 - [TaskGroup::count](/de/docs/reference/task-group/count.html) -- Anzahl der Aufgaben abrufen
 - [TaskGroup::getResults](/de/docs/reference/task-group/get-results.html) -- Array erfolgreicher Ergebnisse abrufen
 - [TaskGroup::getErrors](/de/docs/reference/task-group/get-errors.html) -- Array der Fehler abrufen

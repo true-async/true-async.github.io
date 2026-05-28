@@ -38,4 +38,4 @@ spawn(function() {
 ## Siehe auch
 
 - [TaskSet::cancel](/de/docs/reference/task-set/cancel.html) — Tasks abbrechen
-- [TaskSet::close](/de/docs/reference/task-set/close.html) — Das Set versiegeln
+- [TaskSet::close](/de/docs/reference/task-set/close.html) — Das Set schließen

@@ -5,7 +5,7 @@ path_key: "/docs/reference/task-set/is-closed.html"
 nav_active: docs
 permalink: /de/docs/reference/task-set/is-closed.html
 page_title: "TaskSet::isClosed"
-description: "Prüfen, ob das Set versiegelt ist."
+description: "Prüfen, ob das Set geschlossen ist."
 ---
 
 # TaskSet::isClosed
@@ -16,11 +16,11 @@ description: "Prüfen, ob das Set versiegelt ist."
 public TaskSet::isClosed(): bool
 ```
 
-Gibt `true` zurück, wenn das Set versiegelt ist (`close()` oder `cancel()` wurde aufgerufen).
+Gibt `true` zurück, wenn das Set geschlossen ist (`close()` oder `cancel()` wurde aufgerufen).
 
 ## Rückgabewert
 
-`true`, wenn das Set versiegelt ist. Andernfalls `false`.
+`true`, wenn das Set geschlossen ist. Andernfalls `false`.
 
 ## Beispiele
 
@@ -43,5 +43,5 @@ spawn(function() {
 
 ## Siehe auch
 
-- [TaskSet::close](/de/docs/reference/task-set/close.html) — Das Set versiegeln
+- [TaskSet::close](/de/docs/reference/task-set/close.html) — Das Set schließen
 - [TaskSet::isFinished](/de/docs/reference/task-set/is-finished.html) — Prüfen, ob die Tasks abgeschlossen sind

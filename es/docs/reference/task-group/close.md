@@ -5,7 +5,7 @@ path_key: "/docs/reference/task-group/close.html"
 nav_active: docs
 permalink: /es/docs/reference/task-group/close.html
 page_title: "TaskGroup::close"
-description: "Sellar el grupo para prevenir nuevas tareas."
+description: "Cerrar el grupo para prevenir nuevas tareas."
 ---
 
 # TaskGroup::close
@@ -47,5 +47,5 @@ spawn(function() {
 
 ## Ver también
 
-- [TaskGroup::cancel](/es/docs/reference/task-group/cancel.html) — Cancelar todas las tareas (llama implícitamente a seal)
-- [TaskGroup::isClosed](/es/docs/reference/task-group/is-closed.html) — Verificar si el grupo está sellado
+- [TaskGroup::cancel](/es/docs/reference/task-group/cancel.html) — Cancelar todas las tareas (llama implícitamente a close)
+- [TaskGroup::isClosed](/es/docs/reference/task-group/is-closed.html) — Verificar si el grupo está cerrado

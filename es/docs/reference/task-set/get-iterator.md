@@ -29,8 +29,8 @@ y disminuyendo `count()`.
 - El valor es un array `[mixed $result, ?Throwable $error]`:
   - Éxito: `[$result, null]`
   - Error: `[null, $error]`
-- La iteración termina cuando el conjunto está sellado **y** todas las tareas han sido procesadas
-- Si el conjunto no está sellado, `foreach` se suspende esperando nuevas tareas
+- La iteración termina cuando el conjunto está cerrado **y** todas las tareas han sido procesadas
+- Si el conjunto no está cerrado, `foreach` se suspende esperando nuevas tareas
 
 > **Importante:** Sin llamar a `close()`, la iteración esperará indefinidamente.
 
@@ -88,6 +88,6 @@ spawn(function() {
 
 ## Ver también
 
-- [TaskSet::close](/es/docs/reference/task-set/close.html) — Sellar el conjunto
+- [TaskSet::close](/es/docs/reference/task-set/close.html) — Cerrar el conjunto
 - [TaskSet::joinAll](/es/docs/reference/task-set/join-all.html) — Esperar todas las tareas
 - [TaskSet::joinNext](/es/docs/reference/task-set/join-next.html) — Siguiente resultado

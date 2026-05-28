@@ -63,7 +63,7 @@ description: "Async\\TaskGroup -- високорівневий патерн ст
 ## Запечатування та ітерація
 
 `TaskGroup` дозволяє додавати завдання динамічно, поки він не буде
-запечатаний за допомогою методу `close()`.
+закритий за допомогою методу `close()`.
 
 Метод `all()` повертає `Future`, що спрацьовує, коли всі наявні завдання
 в черзі завершені. Це дозволяє використовувати `TaskGroup` у циклі, де завдання додаються динамічно,
@@ -248,12 +248,12 @@ PHP `TaskGroup` поєднує можливості, які в інших мов
 - [TaskGroup::race](/uk/docs/reference/task-group/race.html) -- Отримати результат першого завершеного завдання
 - [TaskGroup::any](/uk/docs/reference/task-group/any.html) -- Отримати результат першого успішного завдання
 - [TaskGroup::awaitCompletion](/uk/docs/reference/task-group/await-completion.html) -- Дочекатися завершення всіх завдань
-- [TaskGroup::close](/uk/docs/reference/task-group/close.html) -- Запечатати групу для нових завдань
+- [TaskGroup::close](/uk/docs/reference/task-group/close.html) -- Закрити групу для нових завдань
 - [TaskGroup::cancel](/uk/docs/reference/task-group/cancel.html) -- Скасувати всі завдання
 - [TaskGroup::dispose](/uk/docs/reference/task-group/dispose.html) -- Знищити scope групи
 - [TaskGroup::finally](/uk/docs/reference/task-group/finally.html) -- Зареєструвати обробник завершення
 - [TaskGroup::isFinished](/uk/docs/reference/task-group/is-finished.html) -- Перевірити, чи завершено всі завдання
-- [TaskGroup::isClosed](/uk/docs/reference/task-group/is-closed.html) -- Перевірити, чи запечатана група
+- [TaskGroup::isClosed](/uk/docs/reference/task-group/is-closed.html) -- Перевірити, чи закрита група
 - [TaskGroup::count](/uk/docs/reference/task-group/count.html) -- Отримати кількість завдань
 - [TaskGroup::getResults](/uk/docs/reference/task-group/get-results.html) -- Отримати масив успішних результатів
 - [TaskGroup::getErrors](/uk/docs/reference/task-group/get-errors.html) -- Отримати масив помилок

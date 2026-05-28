@@ -5,7 +5,7 @@ path_key: "/docs/reference/task-group/close.html"
 nav_active: docs
 permalink: /uk/docs/reference/task-group/close.html
 page_title: "TaskGroup::close"
-description: "Запечатати групу, щоб запобігти додаванню нових задач."
+description: "Закрити групу, щоб запобігти додаванню нових задач."
 ---
 
 # TaskGroup::close
@@ -47,5 +47,5 @@ spawn(function() {
 
 ## Дивіться також
 
-- [TaskGroup::cancel](/uk/docs/reference/task-group/cancel.html) --- Скасувати всі задачі (неявно викликає seal)
-- [TaskGroup::isClosed](/uk/docs/reference/task-group/is-closed.html) --- Перевірити, чи група запечатана
+- [TaskGroup::cancel](/uk/docs/reference/task-group/cancel.html) --- Скасувати всі задачі (неявно викликає close)
+- [TaskGroup::isClosed](/uk/docs/reference/task-group/is-closed.html) --- Перевірити, чи група закрита

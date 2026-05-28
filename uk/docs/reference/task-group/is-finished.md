@@ -18,9 +18,9 @@ public TaskGroup::isFinished(): bool
 
 Повертає `true`, якщо черга порожня і немає активних корутин.
 
-Цей стан може бути тимчасовим: якщо група не запечатана, нові задачі все ще можна додавати.
+Цей стан може бути тимчасовим: якщо група не закрита, нові задачі все ще можна додавати.
 
 ## Дивіться також
 
-- [TaskGroup::isClosed](/uk/docs/reference/task-group/is-closed.html) --- Перевірити, чи група запечатана
+- [TaskGroup::isClosed](/uk/docs/reference/task-group/is-closed.html) --- Перевірити, чи група закрита
 - [TaskGroup::awaitCompletion](/uk/docs/reference/task-group/await-completion.html) --- Дочекатися завершення

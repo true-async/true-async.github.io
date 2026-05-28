@@ -81,5 +81,5 @@ spawn(function() {
 
 ## See Also
 
-- [TaskSet::close](/en/docs/reference/task-set/close.html) — Seal the set
+- [TaskSet::close](/en/docs/reference/task-set/close.html) — Close the set
 - [TaskSet::awaitCompletion](/en/docs/reference/task-set/await-completion.html) — Wait for completion

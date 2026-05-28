@@ -18,9 +18,9 @@ public TaskGroup::isFinished(): bool
 
 Gibt `true` zurueck, wenn die Warteschlange leer ist und keine aktiven Coroutinen vorhanden sind.
 
-Dieser Zustand kann voruebergehend sein: Wenn die Gruppe nicht versiegelt ist, koennen noch neue Aufgaben hinzugefuegt werden.
+Dieser Zustand kann voruebergehend sein: Wenn die Gruppe nicht geschlossen ist, koennen noch neue Aufgaben hinzugefuegt werden.
 
 ## Siehe auch
 
-- [TaskGroup::isClosed](/de/docs/reference/task-group/is-closed.html) --- Pruefen, ob die Gruppe versiegelt ist
+- [TaskGroup::isClosed](/de/docs/reference/task-group/is-closed.html) --- Pruefen, ob die Gruppe geschlossen ist
 - [TaskGroup::awaitCompletion](/de/docs/reference/task-group/await-completion.html) --- Auf Abschluss warten

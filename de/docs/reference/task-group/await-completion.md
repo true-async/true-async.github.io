@@ -19,7 +19,7 @@ public TaskGroup::awaitCompletion(): void
 Wartet, bis alle Aufgaben in der Gruppe vollstaendig abgeschlossen sind.
 Im Gegensatz zu `all()` gibt sie keine Ergebnisse zurueck und wirft keine Ausnahmen bei Aufgabenfehlern.
 
-Die Gruppe muss vor dem Aufruf dieser Methode versiegelt sein.
+Die Gruppe muss vor dem Aufruf dieser Methode geschlossen sein.
 
 Ein typischer Anwendungsfall ist das Warten auf das tatsaechliche Ende von Coroutinen nach `cancel()`.
 Die Methode `cancel()` leitet den Abbruch ein, aber Coroutinen koennen asynchron enden.
@@ -27,7 +27,7 @@ Die Methode `cancel()` leitet den Abbruch ein, aber Coroutinen koennen asynchron
 
 ## Fehler
 
-Wirft `Async\AsyncException`, wenn die Gruppe nicht versiegelt ist.
+Wirft `Async\AsyncException`, wenn die Gruppe nicht geschlossen ist.
 
 ## Beispiele
 
@@ -84,4 +84,4 @@ spawn(function() {
 
 - [TaskGroup::all](/de/docs/reference/task-group/all.html) --- Auf alle Aufgaben warten und Ergebnisse erhalten
 - [TaskGroup::cancel](/de/docs/reference/task-group/cancel.html) --- Alle Aufgaben abbrechen
-- [TaskGroup::close](/de/docs/reference/task-group/close.html) --- Die Gruppe versiegeln
+- [TaskGroup::close](/de/docs/reference/task-group/close.html) --- Die Gruppe schließen

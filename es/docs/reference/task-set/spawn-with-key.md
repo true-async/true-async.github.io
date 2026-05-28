@@ -32,7 +32,7 @@ y durante la iteración mediante `foreach`.
 
 ## Errores
 
-- Lanza `Async\AsyncException` si el conjunto está sellado o cancelado.
+- Lanza `Async\AsyncException` si el conjunto está cerrado o cancelado.
 - Lanza `Async\AsyncException` si la clave ya está en uso.
 
 ## Ejemplos

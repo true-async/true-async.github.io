@@ -321,12 +321,12 @@ spawn(function() use ($set) {
 - [TaskSet::joinNext](/de/docs/reference/task-set/join-next.html) — Ergebnis des ersten abgeschlossenen Tasks abrufen
 - [TaskSet::joinAny](/de/docs/reference/task-set/join-any.html) — Ergebnis des ersten erfolgreichen Tasks abrufen
 - [TaskSet::joinAll](/de/docs/reference/task-set/join-all.html) — Auf alle Tasks warten und Ergebnisse abrufen
-- [TaskSet::close](/de/docs/reference/task-set/close.html) — Das Set für neue Tasks versiegeln
+- [TaskSet::close](/de/docs/reference/task-set/close.html) — Das Set für neue Tasks schließen
 - [TaskSet::cancel](/de/docs/reference/task-set/cancel.html) — Alle Tasks abbrechen
 - [TaskSet::dispose](/de/docs/reference/task-set/dispose.html) — Den Scope des Sets zerstören
 - [TaskSet::finally](/de/docs/reference/task-set/finally.html) — Einen Abschluss-Handler registrieren
 - [TaskSet::isFinished](/de/docs/reference/task-set/is-finished.html) — Prüfen, ob alle Tasks abgeschlossen sind
-- [TaskSet::isClosed](/de/docs/reference/task-set/is-closed.html) — Prüfen, ob das Set versiegelt ist
+- [TaskSet::isClosed](/de/docs/reference/task-set/is-closed.html) — Prüfen, ob das Set geschlossen ist
 - [TaskSet::count](/de/docs/reference/task-set/count.html) — Anzahl der nicht ausgelieferten Tasks abrufen
 - [TaskSet::awaitCompletion](/de/docs/reference/task-set/await-completion.html) — Auf den Abschluss aller Tasks warten
 - [TaskSet::getIterator](/de/docs/reference/task-set/get-iterator.html) — Ergebnisse mit automatischer Bereinigung iterieren

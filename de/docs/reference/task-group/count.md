@@ -52,4 +52,4 @@ spawn(function() {
 ## Siehe auch
 
 - [TaskGroup::isFinished](/de/docs/reference/task-group/is-finished.html) --- Pruefen, ob alle Aufgaben abgeschlossen sind
-- [TaskGroup::isClosed](/de/docs/reference/task-group/is-closed.html) --- Pruefen, ob die Gruppe versiegelt ist
+- [TaskGroup::isClosed](/de/docs/reference/task-group/is-closed.html) --- Pruefen, ob die Gruppe geschlossen ist

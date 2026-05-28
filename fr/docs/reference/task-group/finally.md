@@ -81,5 +81,5 @@ spawn(function() {
 
 ## Voir aussi
 
-- [TaskGroup::close](/fr/docs/reference/task-group/close.html) --- Sceller le groupe
+- [TaskGroup::close](/fr/docs/reference/task-group/close.html) --- Fermer le groupe
 - [TaskGroup::cancel](/fr/docs/reference/task-group/cancel.html) --- Annuler les taches
