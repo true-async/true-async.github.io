@@ -76,7 +76,7 @@ spawn(function() {
     foreach ($urls as $url) {
         $set->spawn(fn() => httpClient()->get($url)->getBody());
     }
-    $set->seal();
+    $set->close();
 
     while ($set->count() > 0) {
         try {

@@ -18,9 +18,9 @@ public TaskGroup::isFinished(): bool
 
 Returns `true` if the queue is empty and there are no active coroutines.
 
-This state may be temporary: if the group is not sealed, new tasks can still be added.
+This state may be temporary: if the group is not closed, new tasks can still be added.
 
 ## See Also
 
-- [TaskGroup::isSealed](/en/docs/reference/task-group/is-sealed.html) --- Check if the group is sealed
+- [TaskGroup::isClosed](/en/docs/reference/task-group/is-closed.html) --- Check if the group is closed
 - [TaskGroup::awaitCompletion](/en/docs/reference/task-group/await-completion.html) --- Wait for completion

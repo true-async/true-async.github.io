@@ -49,6 +49,43 @@ await(Async\Completable $awaitable, ?Async\Completable $cancellation = null): mi
 
 취소 토큰(`$cancellation`)이 트리거된 경우, `Async\OperationCanceledException`이 던져집니다. 토큰의 원래 예외는 `$e->getPrevious()`를 통해 접근할 수 있습니다. 이를 통해 토큰 트리거와 awaitable 객체 자체의 예외를 구분할 수 있습니다.
 
+## 예외가 전달되는 방식
+
+코루틴이 예외와 함께 종료되면, **결과는 누군가가 가져갈 때까지 코루틴 핸들에 "남아"** 있습니다.
+동작은 `Async\Future`와 대칭이며 Scheduler 외에 누군가 코루틴 핸들을 유지하고 있는지에 따라
+달라집니다.
+
+- **핸들이 유지되는 경우** (`$coro = spawn(...)`, 코루틴이 배열에 들어 있거나 `await_all()`에
+  전달된 경우 등) — 예외는 핸들에 보관되고 대기합니다. 어떤 `await($coro)`라도, 코루틴이 이미
+  오래 전에 끝났더라도, 그것을 가져옵니다.
+- **핸들이 유지되지 않는 경우** (fire-and-forget — 결과를 저장하지 않는 `spawn(...)`) — 예외는
+  fire-and-forget safety net을 통해 핸들 파괴 시 나타납니다.
+
+핵심적인 실용적 결과 — **`await`는 경쟁 상황에서도 예외를 잡습니다**:
+
+```php
+use function Async\spawn;
+use function Async\await;
+
+$coro = spawn(function () {
+    throw new RuntimeException('boom');
+});
+
+// 코루틴은 우리가 await에 도달하기 전에 끝날 수 있습니다 — 정상입니다.
+// 예외는 여기서 차분히 우리를 기다립니다:
+try {
+    await($coro);
+} catch (RuntimeException $e) {
+    echo "잡았다: ", $e->getMessage(), "\n"; // 잡았다: boom
+}
+```
+
+`await_all()`, `await_any_or_fail()`, 다른 `await_*()`도 마찬가지입니다: 코루틴을 배열에 모아
+동시에 동작시킨 다음 나중에 기다릴 수 있습니다. 예외는 `await`를 통해 수집됩니다.
+
+> 부모 scope가 자신의 코루틴보다 먼저 죽으면, 자식 코루틴은 사양에 따라 `AsyncCancellation`을
+> 받습니다. 이 갈래는 별도로 처리되며 누가 핸들을 유지하는지와 무관합니다.
+
 ## 예제
 
 ### 예제 #1 await()의 기본 사용법

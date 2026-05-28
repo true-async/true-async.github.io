@@ -68,7 +68,7 @@ spawn(function() {
     $group->spawn(fn() => "ok");
     $group->spawn(fn() => throw new \RuntimeException("fail"));
 
-    $group->seal();
+    $group->close();
     $group->awaitCompletion();
 
     // 예외 없음 — 수동으로 확인
@@ -84,4 +84,4 @@ spawn(function() {
 
 - [TaskGroup::all](/ko/docs/reference/task-group/all.html) --- 모든 태스크를 대기하고 결과 가져오기
 - [TaskGroup::cancel](/ko/docs/reference/task-group/cancel.html) --- 모든 태스크 취소
-- [TaskGroup::seal](/ko/docs/reference/task-group/seal.html) --- 그룹 봉인
+- [TaskGroup::close](/ko/docs/reference/task-group/close.html) --- 그룹 봉인

@@ -17,7 +17,7 @@ public TaskSet::cancel(?Async\AsyncCancellation $cancellation = null): void
 ```
 
 Bricht alle laufenden Coroutinen ab und leert die Task-Warteschlange.
-Ruft implizit `seal()` auf.
+Ruft implizit `close()` auf.
 
 ## Parameter
 
@@ -42,11 +42,11 @@ spawn(function() {
     // Alle Tasks abbrechen
     $set->cancel();
 
-    echo $set->isSealed() ? "versiegelt\n" : "nein\n"; // "versiegelt"
+    echo $set->isClosed() ? "versiegelt\n" : "nein\n"; // "versiegelt"
 });
 ```
 
 ## Siehe auch
 
-- [TaskSet::seal](/de/docs/reference/task-set/seal.html) — Das Set versiegeln
+- [TaskSet::close](/de/docs/reference/task-set/close.html) — Das Set versiegeln
 - [TaskSet::dispose](/de/docs/reference/task-set/dispose.html) — Den Scope des Sets zerstören

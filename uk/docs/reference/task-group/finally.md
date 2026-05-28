@@ -19,7 +19,7 @@ public TaskGroup::finally(Closure $callback): void
 Реєструє зворотний виклик, який виконується, коли група запечатана і всі задачі завершені.
 Зворотний виклик отримує TaskGroup як параметр.
 
-Оскільки `cancel()` неявно викликає `seal()`, обробник також спрацьовує при скасуванні.
+Оскільки `cancel()` неявно викликає `close()`, обробник також спрацьовує при скасуванні.
 
 Якщо група вже завершена, зворотний виклик виконується синхронно негайно.
 
@@ -47,7 +47,7 @@ spawn(function() {
     $group->spawn(fn() => "a");
     $group->spawn(fn() => "b");
 
-    $group->seal();
+    $group->close();
     $group->all();
 });
 // Виведе:
@@ -64,7 +64,7 @@ use Async\TaskGroup;
 spawn(function() {
     $group = new TaskGroup();
     $group->spawn(fn() => 1);
-    $group->seal();
+    $group->close();
     $group->all();
 
     // Група вже завершена — зворотний виклик виконується синхронно
@@ -81,5 +81,5 @@ spawn(function() {
 
 ## Дивіться також
 
-- [TaskGroup::seal](/uk/docs/reference/task-group/seal.html) --- Запечатати групу
+- [TaskGroup::close](/uk/docs/reference/task-group/close.html) --- Запечатати групу
 - [TaskGroup::cancel](/uk/docs/reference/task-group/cancel.html) --- Скасувати задачі

@@ -26,10 +26,10 @@ TaskGroup implements `IteratorAggregate`, so you can use `foreach` directly.
 - The value is an array `[mixed $result, ?Throwable $error]`:
   - Success: `[$result, null]`
   - Error: `[null, $error]`
-- Iteration ends when the group is sealed **and** all tasks have been processed
-- If the group is not sealed, `foreach` suspends waiting for new tasks
+- Iteration ends when the group is closed **and** all tasks have been processed
+- If the group is not closed, `foreach` suspends waiting for new tasks
 
-> **Important:** Without calling `seal()`, iteration will wait indefinitely.
+> **Important:** Without calling `close()`, iteration will wait indefinitely.
 
 ## Examples
 
@@ -46,7 +46,7 @@ spawn(function() {
     for ($i = 0; $i < 10; $i++) {
         $group->spawn(fn() => fetchUrl($urls[$i]));
     }
-    $group->seal();
+    $group->close();
 
     foreach ($group as $key => [$result, $error]) {
         if ($error !== null) {
@@ -70,7 +70,7 @@ spawn(function() {
 
     $group->spawnWithKey('users', fn() => fetchUsers());
     $group->spawnWithKey('orders', fn() => fetchOrders());
-    $group->seal();
+    $group->close();
 
     foreach ($group as $key => [$result, $error]) {
         if ($error === null) {
@@ -82,6 +82,6 @@ spawn(function() {
 
 ## See Also
 
-- [TaskGroup::seal](/en/docs/reference/task-group/seal.html) --- Seal the group
+- [TaskGroup::close](/en/docs/reference/task-group/close.html) --- Close the group
 - [TaskGroup::all](/en/docs/reference/task-group/all.html) --- Wait for all tasks
 - [TaskGroup::getResults](/en/docs/reference/task-group/get-results.html) --- Get an array of results

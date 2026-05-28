@@ -32,7 +32,7 @@ public TaskSet::spawnWithKey(string|int $key, callable $task, mixed ...$args): v
 
 ## Ошибки
 
-- Бросает `Async\AsyncException`, если набор запечатан или отменён.
+- Бросает `Async\AsyncException`, если набор закрыт или отменён.
 - Бросает `Async\AsyncException`, если ключ уже используется.
 
 ## Примеры
@@ -50,7 +50,7 @@ spawn(function() {
     $set->spawnWithKey('user',   fn() => fetchUser($id));
     $set->spawnWithKey('orders', fn() => fetchOrders($id));
 
-    $set->seal();
+    $set->close();
     $data = $set->joinAll()->await();
 
     echo $data['user']['name'];

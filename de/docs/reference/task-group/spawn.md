@@ -31,7 +31,7 @@ Andernfalls wird das Callable mit seinen Argumenten in eine Warteschlange gestel
 
 ## Fehler
 
-Wirft `Async\AsyncException`, wenn die Gruppe versiegelt (`seal()`) oder abgebrochen (`cancel()`) ist.
+Wirft `Async\AsyncException`, wenn die Gruppe versiegelt (`close()`) oder abgebrochen (`cancel()`) ist.
 
 ## Beispiele
 
@@ -48,7 +48,7 @@ spawn(function() {
     $group->spawn(fn() => "erste");
     $group->spawn(fn() => "zweite");
 
-    $group->seal();
+    $group->close();
     $results = $group->all();
 
     var_dump($results[0]); // string(5) "erste"
@@ -70,7 +70,7 @@ spawn(function() {
         return "user:$id";
     }, 42);
 
-    $group->seal();
+    $group->close();
     $results = $group->all();
     var_dump($results[0]); // string(7) "user:42"
 });

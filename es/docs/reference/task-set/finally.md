@@ -19,7 +19,7 @@ public TaskSet::finally(Closure $callback): void
 Registra un callback que se invoca cuando el conjunto está sellado y todas las tareas se han completado.
 El callback recibe el TaskSet como parámetro.
 
-Dado que `cancel()` llama implícitamente a `seal()`, el handler también se dispara al cancelar.
+Dado que `cancel()` llama implícitamente a `close()`, el handler también se dispara al cancelar.
 
 Si el conjunto ya ha finalizado, el callback se invoca de forma síncrona inmediatamente.
 
@@ -47,7 +47,7 @@ spawn(function() {
     $set->spawn(fn() => "a");
     $set->spawn(fn() => "b");
 
-    $set->seal();
+    $set->close();
     $set->joinAll()->await();
 });
 // Output:
@@ -64,7 +64,7 @@ use Async\TaskSet;
 spawn(function() {
     $set = new TaskSet();
     $set->spawn(fn() => 1);
-    $set->seal();
+    $set->close();
     $set->joinAll()->await();
 
     // El conjunto ya finalizó — el callback se invoca síncronamente
@@ -81,5 +81,5 @@ spawn(function() {
 
 ## Ver también
 
-- [TaskSet::seal](/es/docs/reference/task-set/seal.html) — Sellar el conjunto
+- [TaskSet::close](/es/docs/reference/task-set/close.html) — Sellar el conjunto
 - [TaskSet::awaitCompletion](/es/docs/reference/task-set/await-completion.html) — Esperar la finalización

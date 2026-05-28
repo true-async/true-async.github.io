@@ -22,5 +22,5 @@ Este estado puede ser temporal: si el grupo no está sellado, aún se pueden agr
 
 ## Ver también
 
-- [TaskGroup::isSealed](/es/docs/reference/task-group/is-sealed.html) — Verificar si el grupo está sellado
+- [TaskGroup::isClosed](/es/docs/reference/task-group/is-closed.html) — Verificar si el grupo está sellado
 - [TaskGroup::awaitCompletion](/es/docs/reference/task-group/await-completion.html) — Esperar la finalización

@@ -63,14 +63,14 @@ description: "Async\\TaskGroup -- високорівневий патерн ст
 ## Запечатування та ітерація
 
 `TaskGroup` дозволяє додавати завдання динамічно, поки він не буде
-запечатаний за допомогою методу `seal()`.
+запечатаний за допомогою методу `close()`.
 
 Метод `all()` повертає `Future`, що спрацьовує, коли всі наявні завдання
 в черзі завершені. Це дозволяє використовувати `TaskGroup` у циклі, де завдання додаються динамічно,
 а `all()` викликається для отримання результатів поточного набору завдань.
 
 `TaskGroup` також підтримує `foreach` для ітерації результатів у міру їх готовності.
-У цьому випадку `seal()` потрібно викликати після додавання всіх завдань, щоб сигналізувати,
+У цьому випадку `close()` потрібно викликати після додавання всіх завдань, щоб сигналізувати,
 що нових завдань не буде, і `foreach` може завершитися після обробки всіх результатів.
 
 ## Огляд класу
@@ -92,14 +92,14 @@ final class Async\TaskGroup implements Async\Awaitable, Countable, IteratorAggre
     public awaitCompletion(): void
 
     /* Життєвий цикл */
-    public seal(): void
+    public close(): void
     public cancel(?Async\AsyncCancellation $cancellation = null): void
     public dispose(): void
     public finally(Closure $callback): void
 
     /* Стан */
     public isFinished(): bool
-    public isSealed(): bool
+    public isClosed(): bool
     public count(): int
 
     /* Результати та помилки */
@@ -200,7 +200,7 @@ foreach ($imageFiles as $file) {
     $group->spawn(fn() => processImage($file));
 }
 
-$group->seal();
+$group->close();
 
 foreach ($group as $key => $result) {
     // Результати надходять у міру готовності, а не в порядку додавання
@@ -217,7 +217,7 @@ $group = new Async\TaskGroup();
 
 $group->spawn(fn() => slowApi()->fetchReport());
 $group->spawn(fn() => anotherApi()->fetchStats());
-$group->seal();
+$group->close();
 
 try {
     $results = $group->all()->await(Async\timeout(5.0));
@@ -230,7 +230,7 @@ try {
 
 | Можливість              | PHP `TaskGroup`                     | Python `asyncio.TaskGroup`      | Java `StructuredTaskScope`               | Kotlin `coroutineScope`   |
 |-------------------------|-------------------------------------|---------------------------------|------------------------------------------|---------------------------|
-| Структурована конкурентність | `seal()` + `all()->await()`    | `async with` блок               | `try-with-resources` + `join()`          | Автоматично через scope   |
+| Структурована конкурентність | `close()` + `all()->await()`    | `async with` блок               | `try-with-resources` + `join()`          | Автоматично через scope   |
 | Стратегії очікування    | `all()`, `race()`, `any()` -> Future | Тільки all (через `async with`) | `ShutdownOnSuccess`, `ShutdownOnFailure` | `async`/`await`, `select` |
 | Обмеження конкурентності | `concurrency: N`                   | Ні (потрібен `Semaphore`)       | Ні                                       | Ні (потрібен `Semaphore`) |
 | Ітерація результатів    | `foreach` у міру завершення         | Ні                              | Ні                                       | `Channel`                 |
@@ -248,12 +248,12 @@ PHP `TaskGroup` поєднує можливості, які в інших мов
 - [TaskGroup::race](/uk/docs/reference/task-group/race.html) -- Отримати результат першого завершеного завдання
 - [TaskGroup::any](/uk/docs/reference/task-group/any.html) -- Отримати результат першого успішного завдання
 - [TaskGroup::awaitCompletion](/uk/docs/reference/task-group/await-completion.html) -- Дочекатися завершення всіх завдань
-- [TaskGroup::seal](/uk/docs/reference/task-group/seal.html) -- Запечатати групу для нових завдань
+- [TaskGroup::close](/uk/docs/reference/task-group/close.html) -- Запечатати групу для нових завдань
 - [TaskGroup::cancel](/uk/docs/reference/task-group/cancel.html) -- Скасувати всі завдання
 - [TaskGroup::dispose](/uk/docs/reference/task-group/dispose.html) -- Знищити scope групи
 - [TaskGroup::finally](/uk/docs/reference/task-group/finally.html) -- Зареєструвати обробник завершення
 - [TaskGroup::isFinished](/uk/docs/reference/task-group/is-finished.html) -- Перевірити, чи завершено всі завдання
-- [TaskGroup::isSealed](/uk/docs/reference/task-group/is-sealed.html) -- Перевірити, чи запечатана група
+- [TaskGroup::isClosed](/uk/docs/reference/task-group/is-closed.html) -- Перевірити, чи запечатана група
 - [TaskGroup::count](/uk/docs/reference/task-group/count.html) -- Отримати кількість завдань
 - [TaskGroup::getResults](/uk/docs/reference/task-group/get-results.html) -- Отримати масив успішних результатів
 - [TaskGroup::getErrors](/uk/docs/reference/task-group/get-errors.html) -- Отримати масив помилок

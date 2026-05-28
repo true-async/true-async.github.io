@@ -16,10 +16,10 @@ description: "Register a completion handler for the group."
 public TaskGroup::finally(Closure $callback): void
 ```
 
-Registers a callback that is invoked when the group is sealed and all tasks have completed.
+Registers a callback that is invoked when the group is closed and all tasks have completed.
 The callback receives the TaskGroup as a parameter.
 
-Since `cancel()` implicitly calls `seal()`, the handler also fires on cancellation.
+Since `cancel()` implicitly calls `close()`, the handler also fires on cancellation.
 
 If the group is already finished, the callback is called synchronously immediately.
 
@@ -47,7 +47,7 @@ spawn(function() {
     $group->spawn(fn() => "a");
     $group->spawn(fn() => "b");
 
-    $group->seal();
+    $group->close();
     $group->all();
 });
 // Output:
@@ -64,7 +64,7 @@ use Async\TaskGroup;
 spawn(function() {
     $group = new TaskGroup();
     $group->spawn(fn() => 1);
-    $group->seal();
+    $group->close();
     $group->all();
 
     // Group is already finished — callback is called synchronously
@@ -81,5 +81,5 @@ spawn(function() {
 
 ## See Also
 
-- [TaskGroup::seal](/en/docs/reference/task-group/seal.html) --- Seal the group
+- [TaskGroup::close](/en/docs/reference/task-group/close.html) --- Close the group
 - [TaskGroup::cancel](/en/docs/reference/task-group/cancel.html) --- Cancel tasks

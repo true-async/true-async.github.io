@@ -42,7 +42,7 @@ spawn(function() {
 
     echo count($group); // 3
 
-    $group->seal();
+    $group->close();
     $group->all();
 
     echo count($group); // 3
@@ -52,4 +52,4 @@ spawn(function() {
 ## См. также
 
 - [TaskGroup::isFinished](/ru/docs/reference/task-group/is-finished.html) — Проверить, завершены ли все задачи
-- [TaskGroup::isSealed](/ru/docs/reference/task-group/is-sealed.html) — Проверить, запечатана ли группа
+- [TaskGroup::isClosed](/ru/docs/reference/task-group/is-closed.html) — Проверить, закрыта ли группа

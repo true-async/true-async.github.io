@@ -18,9 +18,9 @@ public TaskGroup::isFinished(): bool
 
 Возвращает `true`, если очередь пуста и нет активных корутин.
 
-Это состояние может быть временным: если группа не запечатана, новые задачи могут быть добавлены.
+Это состояние может быть временным: если группа не закрыта, новые задачи могут быть добавлены.
 
 ## См. также
 
-- [TaskGroup::isSealed](/ru/docs/reference/task-group/is-sealed.html) — Проверить, запечатана ли группа
+- [TaskGroup::isClosed](/ru/docs/reference/task-group/is-closed.html) — Проверить, закрыта ли группа
 - [TaskGroup::awaitCompletion](/ru/docs/reference/task-group/await-completion.html) — Дождаться завершения

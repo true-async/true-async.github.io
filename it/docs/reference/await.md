@@ -49,6 +49,45 @@ Se la coroutine è stata annullata, verrà lanciata `Async\AsyncCancellation`.
 
 Se il token di cancellazione (`$cancellation`) si attiva, verrà lanciata `Async\OperationCanceledException`. L'eccezione originale del token è disponibile tramite `$e->getPrevious()`. Questo permette di distinguere l'attivazione del token da un'eccezione lanciata dall'oggetto awaitable stesso.
 
+## Come viene propagata l'eccezione
+
+Quando una coroutine termina con un'eccezione, **il risultato "si deposita" sul suo handle** finché
+qualcuno non lo preleva. Il comportamento è simmetrico a `Async\Future` e dipende dal fatto che
+qualcuno trattenga l'handle della coroutine oltre allo Scheduler:
+
+- **L'handle è trattenuto** (`$coro = spawn(...)`, la coroutine si trova in un array, è passata a
+  `await_all()` ecc.): l'eccezione resta sull'handle e attende. Qualunque `await($coro)` la riceverà,
+  anche se la coroutine è terminata molto prima.
+- **L'handle non è trattenuto da nessuno** (fire-and-forget — `spawn(...)` senza salvare il
+  risultato): l'eccezione emerge alla distruzione dell'handle tramite la safety net fire-and-forget.
+
+La conseguenza pratica fondamentale è che **`await` cattura l'eccezione anche in caso di race**:
+
+```php
+use function Async\spawn;
+use function Async\await;
+
+$coro = spawn(function () {
+    throw new RuntimeException('boom');
+});
+
+// La coroutine può terminare prima che arriviamo ad await — è normale.
+// L'eccezione ci attenderà tranquillamente qui:
+try {
+    await($coro);
+} catch (RuntimeException $e) {
+    echo "catturata: ", $e->getMessage(), "\n"; // catturata: boom
+}
+```
+
+Lo stesso vale per `await_all()`, `await_any_or_fail()` e le altre `await_*()`: puoi raccogliere le
+coroutine in un array, lasciarle lavorare in parallelo e poi attenderle. Le eccezioni vengono
+raccolte tramite `await`.
+
+> Quando il parent scope termina prima della propria coroutine, le coroutine figlie ricevono
+> `AsyncCancellation` per specifica. Quel ramo è gestito a parte e non dipende da chi trattiene
+> l'handle.
+
 ## Esempi
 
 ### Esempio #1 Uso base di await()

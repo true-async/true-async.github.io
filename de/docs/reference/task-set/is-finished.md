@@ -42,7 +42,7 @@ spawn(function() {
     $set->spawn(fn() => "task");
     echo $set->isFinished() ? "ja\n" : "nein\n"; // "nein"
 
-    $set->seal();
+    $set->close();
     $set->joinAll()->await();
     echo $set->isFinished() ? "ja\n" : "nein\n"; // "ja"
 });
@@ -50,5 +50,5 @@ spawn(function() {
 
 ## Siehe auch
 
-- [TaskSet::isSealed](/de/docs/reference/task-set/is-sealed.html) — Prüfen, ob das Set versiegelt ist
+- [TaskSet::isClosed](/de/docs/reference/task-set/is-closed.html) — Prüfen, ob das Set versiegelt ist
 - [TaskSet::count](/de/docs/reference/task-set/count.html) — Anzahl der Tasks

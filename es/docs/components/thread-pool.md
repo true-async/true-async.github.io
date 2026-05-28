@@ -77,22 +77,82 @@ en C). Más trabajadores que núcleos no acelera las cargas de trabajo limitadas
 ## Creación de un pool
 
 ```php
+// autodetección por número de CPUs
+$pool = new ThreadPool();
+
+// número explícito de workers
 $pool = new ThreadPool(workers: 4);
+
+// + tamaño de la cola
 $pool = new ThreadPool(workers: 4, queueSize: 64);
+
+// + bootloader, ejecutado una vez en cada worker
+$pool = new ThreadPool(
+    workers: 4,
+    queueSize: 64,
+    bootloader: function () {
+        require __DIR__ . '/vendor/autoload.php';
+        Database::warmupPool();
+    },
+);
+
+// + coroutine-mode: la tarea arranca como corrutina dentro del pool scope por worker
+$pool = new ThreadPool(workers: 4, coroutine: true);
 ```
 
-| Parámetro    | Tipo  | Propósito                                                             | Valor por defecto |
-|--------------|-------|-----------------------------------------------------------------------|-------------------|
-| `$workers`   | `int` | Número de hilos de trabajo. Todos inician cuando se crea el pool      | **requerido**     |
-| `$queueSize` | `int` | Longitud máxima de la cola de tareas pendientes                       | `workers × 4`     |
+| Parámetro      | Tipo          | Propósito                                                                | Por defecto      |
+|----------------|---------------|--------------------------------------------------------------------------|------------------|
+| `$workers`     | `int`         | Número de hilos de trabajo. `0` — autodetección vía `available_parallelism()` | `0`         |
+| `$queueSize`   | `int`         | Longitud máxima de la cola de tareas pendientes                          | `workers × 4`    |
+| `$bootloader`  | `?\Closure`   | Hook de arranque por worker (véase abajo)                                | `null`           |
+| `$coroutine`   | `bool`        | Ejecutar cada tarea como corrutina (véase abajo)                         | `false`          |
+| `$concurrency` | `int`         | Límite de corrutinas concurrentes por worker (solo con `coroutine: true`)| `0` (sin límite) |
 
-Todos los hilos de trabajo inician **inmediatamente al crear** el pool — `new ThreadPool(4)` crea cuatro
-hilos de inmediato. Esta es una pequeña inversión "por adelantado", pero las llamadas posteriores a `submit()` no tienen
-sobrecarga de inicio de hilo.
+Todos los hilos de trabajo inician **inmediatamente al crear** el pool. Esta es una pequeña
+inversión "por adelantado", pero las llamadas posteriores a `submit()` no tienen sobrecarga de
+inicio de hilo.
 
-`$queueSize` limita el tamaño de la cola interna de tareas. Si la cola está llena (todos los trabajadores están ocupados
-y ya hay `$queueSize` tareas en la cola), el siguiente `submit()` **suspende la corrutina llamante**
-hasta que un trabajador esté disponible. Un valor de cero significa `workers × 4`.
+`$queueSize` limita el tamaño de la cola interna de tareas. Si la cola está llena (todos los
+trabajadores están ocupados y ya hay `$queueSize` tareas en la cola), el siguiente `submit()`
+**suspende la corrutina llamante** hasta que un trabajador esté disponible. Un valor de cero
+significa `workers × 4`.
+
+### Autodetección del número de workers
+
+Cuando `workers: 0` (o se omite el parámetro), el pool toma el valor de
+[`Async\available_parallelism()`](/es/docs/reference/available-parallelism.html). Esta función
+tiene en cuenta las cuotas de `cgroup`, la affinity y los límites de contenedor: en un pod de
+Kubernetes con `cpu.max=2` obtendrás 2, no el número físico de núcleos del host.
+
+### Bootloader
+
+La closure `$bootloader` se deep-copia una vez y se ejecuta en **cada** worker antes del bucle
+principal de procesamiento de tareas. Lugar ideal para autoload, calentamiento de pools de
+conexiones y precompilación de opcache — todo aquello que, de otro modo, se ejecutaría dentro de
+cada `submit()`.
+
+Si el bootloader lanza una excepción, el pool entero se considera fallido: el worker no arranca y
+el error se propaga al padre.
+
+### Modo corrutinas
+
+Con `coroutine: true`, cada tarea se ejecuta **como corrutina** en su propio scope hijo, que a su
+vez está anidado dentro del scope común del pool del worker. Dentro de la tarea puedes hacer
+`await`, usar `Channel`s, E/S y `spawn`, todo sin bloquear al propio worker.
+
+```php
+$pool = new ThreadPool(workers: 4, coroutine: true);
+
+$pool->submit(function () {
+    // las llamadas bloqueantes habituales en este modo aparcan correctamente la corrutina,
+    // en vez de bloquear el hilo del SO
+    $rows = (new PDO('mysql:...'))->query('SELECT ...')->fetchAll();
+    return $rows;
+});
+```
+
+`$concurrency` limita el número de corrutinas vivas concurrentemente dentro de **un único**
+worker.
 
 ## Envío de tareas
 

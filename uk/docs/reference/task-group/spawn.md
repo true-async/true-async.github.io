@@ -31,7 +31,7 @@ public TaskGroup::spawn(callable $task, mixed ...$args): void
 
 ## Помилки
 
-Кидає `Async\AsyncException`, якщо група запечатана (`seal()`) або скасована (`cancel()`).
+Кидає `Async\AsyncException`, якщо група запечатана (`close()`) або скасована (`cancel()`).
 
 ## Приклади
 
@@ -48,7 +48,7 @@ spawn(function() {
     $group->spawn(fn() => "first");
     $group->spawn(fn() => "second");
 
-    $group->seal();
+    $group->close();
     $results = $group->all();
 
     var_dump($results[0]); // string(5) "first"
@@ -70,7 +70,7 @@ spawn(function() {
         return "user:$id";
     }, 42);
 
-    $group->seal();
+    $group->close();
     $results = $group->all();
     var_dump($results[0]); // string(7) "user:42"
 });

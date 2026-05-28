@@ -22,5 +22,5 @@ public TaskGroup::isFinished(): bool
 
 ## Дивіться також
 
-- [TaskGroup::isSealed](/uk/docs/reference/task-group/is-sealed.html) --- Перевірити, чи група запечатана
+- [TaskGroup::isClosed](/uk/docs/reference/task-group/is-closed.html) --- Перевірити, чи група запечатана
 - [TaskGroup::awaitCompletion](/uk/docs/reference/task-group/await-completion.html) --- Дочекатися завершення

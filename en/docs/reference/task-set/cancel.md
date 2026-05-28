@@ -17,7 +17,7 @@ public TaskSet::cancel(?Async\AsyncCancellation $cancellation = null): void
 ```
 
 Cancels all running coroutines and clears the task queue.
-Implicitly calls `seal()`.
+Implicitly calls `close()`.
 
 ## Parameters
 
@@ -42,11 +42,11 @@ spawn(function() {
     // Cancel all tasks
     $set->cancel();
 
-    echo $set->isSealed() ? "sealed\n" : "no\n"; // "sealed"
+    echo $set->isClosed() ? "closed\n" : "no\n"; // "closed"
 });
 ```
 
 ## See Also
 
-- [TaskSet::seal](/en/docs/reference/task-set/seal.html) — Seal the set
+- [TaskSet::close](/en/docs/reference/task-set/close.html) — Seal the set
 - [TaskSet::dispose](/en/docs/reference/task-set/dispose.html) — Destroy the set scope

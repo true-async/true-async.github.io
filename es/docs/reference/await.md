@@ -49,6 +49,46 @@ Si la corrutina fue cancelada, se lanzará `Async\AsyncCancellation`.
 
 Si se activa el token de cancelación (`$cancellation`), se lanzará `Async\OperationCanceledException`. La excepción original del token está disponible a través de `$e->getPrevious()`. Esto permite distinguir la activación del token de una excepción lanzada por el propio objeto awaitable.
 
+## Cómo se transmite la excepción
+
+Cuando una corrutina termina con una excepción, **el resultado "se asienta" en su descriptor**
+hasta que alguien lo recoge. El comportamiento es simétrico al de `Async\Future` y depende de si
+alguien retiene el descriptor de la corrutina además del Scheduler:
+
+- **Hay un descriptor retenido** (`$coro = spawn(...)`, la corrutina guardada en un array, pasada
+  a `await_all()`, etc.): la excepción queda almacenada en el descriptor y espera. Cualquier
+  `await($coro)` la recibirá, incluso si la corrutina terminó hace tiempo.
+- **El descriptor no lo retiene nadie** (fire-and-forget — `spawn(...)` sin guardar el resultado):
+  la excepción se manifiesta al destruir el handle a través de la safety net de fire-and-forget.
+
+La consecuencia práctica más importante es que **`await` captura la excepción incluso ante una
+carrera**:
+
+```php
+use function Async\spawn;
+use function Async\await;
+
+$coro = spawn(function () {
+    throw new RuntimeException('boom');
+});
+
+// La corrutina puede terminar antes de que lleguemos al await: es normal.
+// La excepción esperará tranquilamente aquí:
+try {
+    await($coro);
+} catch (RuntimeException $e) {
+    echo "capturada: ", $e->getMessage(), "\n"; // capturada: boom
+}
+```
+
+Lo mismo aplica a `await_all()`, `await_any_or_fail()` y al resto de `await_*()`: puedes reunir
+corrutinas en un array, dejar que trabajen concurrentemente y luego esperarlas. Las excepciones
+se recogen mediante `await`.
+
+> Cuando el parent-scope muere antes que su corrutina, las corrutinas hijas reciben
+> `AsyncCancellation` según la especificación. Esa rama se trata aparte y no depende de quién
+> retenga el descriptor.
+
 ## Ejemplos
 
 ### Ejemplo #1 Uso básico de await()

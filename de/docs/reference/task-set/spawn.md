@@ -31,7 +31,7 @@ Andernfalls wird das Callable mit seinen Argumenten in eine Warteschlange einger
 
 ## Fehler
 
-Wirft `Async\AsyncException`, wenn das Set versiegelt (`seal()`) oder abgebrochen (`cancel()`) wurde.
+Wirft `Async\AsyncException`, wenn das Set versiegelt (`close()`) oder abgebrochen (`cancel()`) wurde.
 
 ## Beispiele
 
@@ -48,7 +48,7 @@ spawn(function() {
     $set->spawn(fn() => "first");
     $set->spawn(fn() => "second");
 
-    $set->seal();
+    $set->close();
     $results = $set->joinAll()->await();
 
     var_dump($results[0]); // string(5) "first"
@@ -70,7 +70,7 @@ spawn(function() {
         return $a + $b;
     }, 10, 20);
 
-    $set->seal();
+    $set->close();
     $results = $set->joinAll()->await();
     var_dump($results[0]); // int(30)
 });

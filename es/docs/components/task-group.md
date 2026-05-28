@@ -63,14 +63,14 @@ todas las corrutinas seran canceladas automaticamente, asegurando la gestion seg
 ## Sellado e Iteracion
 
 `TaskGroup` permite anadir tareas dinamicamente, hasta que es
-sellado usando el metodo `seal()`.
+sellado usando el metodo `close()`.
 
 El metodo `all()` devuelve un `Future` que se activa cuando todas las tareas existentes
 en la cola se han completado. Esto permite usar `TaskGroup` en un bucle, donde las tareas se anaden dinamicamente,
 y `all()` se llama para obtener los resultados del conjunto actual de tareas.
 
 `TaskGroup` tambien soporta `foreach` para iterar sobre los resultados a medida que estan listos.
-En este caso, `seal()` debe llamarse despues de anadir todas las tareas para senalar que
+En este caso, `close()` debe llamarse despues de anadir todas las tareas para senalar que
 no habra nuevas tareas, y `foreach` puede terminar despues de procesar todos los resultados.
 
 ## Resumen de la Clase
@@ -92,14 +92,14 @@ final class Async\TaskGroup implements Async\Awaitable, Countable, IteratorAggre
     public awaitCompletion(): void
 
     /* Ciclo de vida */
-    public seal(): void
+    public close(): void
     public cancel(?Async\AsyncCancellation $cancellation = null): void
     public dispose(): void
     public finally(Closure $callback): void
 
     /* Estado */
     public isFinished(): bool
-    public isSealed(): bool
+    public isClosed(): bool
     public count(): int
 
     /* Resultados y errores */
@@ -200,7 +200,7 @@ foreach ($imageFiles as $file) {
     $group->spawn(fn() => processImage($file));
 }
 
-$group->seal();
+$group->close();
 
 foreach ($group as $key => $result) {
     // Los resultados llegan a medida que estan listos, no en el orden en que fueron anadidos
@@ -217,7 +217,7 @@ $group = new Async\TaskGroup();
 
 $group->spawn(fn() => slowApi()->fetchReport());
 $group->spawn(fn() => anotherApi()->fetchStats());
-$group->seal();
+$group->close();
 
 try {
     $results = $group->all()->await(Async\timeout(5.0));
@@ -230,7 +230,7 @@ try {
 
 | Capacidad               | PHP `TaskGroup`                     | Python `asyncio.TaskGroup`      | Java `StructuredTaskScope`               | Kotlin `coroutineScope`   |
 |--------------------------|-------------------------------------|---------------------------------|------------------------------------------|---------------------------|
-| Concurrencia estructurada | `seal()` + `all()->await()`        | Bloque `async with`             | `try-with-resources` + `join()`          | Automaticamente via scope |
+| Concurrencia estructurada | `close()` + `all()->await()`        | Bloque `async with`             | `try-with-resources` + `join()`          | Automaticamente via scope |
 | Estrategias de espera    | `all()`, `race()`, `any()` -> Future | Solo all (via `async with`)    | `ShutdownOnSuccess`, `ShutdownOnFailure` | `async`/`await`, `select` |
 | Limite de concurrencia   | `concurrency: N`                    | No (necesita `Semaphore`)       | No                                       | No (necesita `Semaphore`) |
 | Iteracion de resultados  | `foreach` a medida que completan    | No                              | No                                       | `Channel`                 |
@@ -248,12 +248,12 @@ limitacion de concurrencia sin semaforo, multiples estrategias de espera en un s
 - [TaskGroup::race](/es/docs/reference/task-group/race.html) -- Obtener el resultado de la primera tarea completada
 - [TaskGroup::any](/es/docs/reference/task-group/any.html) -- Obtener el resultado de la primera tarea exitosa
 - [TaskGroup::awaitCompletion](/es/docs/reference/task-group/await-completion.html) -- Esperar a que todas las tareas completen
-- [TaskGroup::seal](/es/docs/reference/task-group/seal.html) -- Sellar el grupo para nuevas tareas
+- [TaskGroup::close](/es/docs/reference/task-group/close.html) -- Sellar el grupo para nuevas tareas
 - [TaskGroup::cancel](/es/docs/reference/task-group/cancel.html) -- Cancelar todas las tareas
 - [TaskGroup::dispose](/es/docs/reference/task-group/dispose.html) -- Destruir el scope del grupo
 - [TaskGroup::finally](/es/docs/reference/task-group/finally.html) -- Registrar un manejador de finalizacion
 - [TaskGroup::isFinished](/es/docs/reference/task-group/is-finished.html) -- Verificar si todas las tareas han terminado
-- [TaskGroup::isSealed](/es/docs/reference/task-group/is-sealed.html) -- Verificar si el grupo esta sellado
+- [TaskGroup::isClosed](/es/docs/reference/task-group/is-closed.html) -- Verificar si el grupo esta sellado
 - [TaskGroup::count](/es/docs/reference/task-group/count.html) -- Obtener el numero de tareas
 - [TaskGroup::getResults](/es/docs/reference/task-group/get-results.html) -- Obtener un array de resultados exitosos
 - [TaskGroup::getErrors](/es/docs/reference/task-group/get-errors.html) -- Obtener un array de errores

@@ -51,7 +51,7 @@ $group = new Async\TaskGroup();
 $group->spawn(fn() => "alpha");
 $group->spawn(fn() => "beta");
 $group->spawn(fn() => "gamma");
-$group->seal();
+$group->close();
 
 // race() always returns the same first completed task
 $first  = $group->race()->await(); // "alpha"
@@ -87,7 +87,7 @@ $third  = $set->joinNext()->await(); // "gamma"
 echo $set->count(); // 0 — set is empty
 
 // joinAll() after full consumption — empty array
-$set->seal();
+$set->close();
 $rest = $set->joinAll()->await(); // [] — nothing to return
 ```
 
@@ -99,7 +99,7 @@ $set = new Async\TaskSet();
 $set->spawn(fn() => "alpha");
 $set->spawn(fn() => "beta");
 $set->spawn(fn() => "gamma");
-$set->seal();
+$set->close();
 
 // First foreach consumes all results
 foreach ($set as $key => [$result, $error]) {
@@ -155,7 +155,7 @@ $set = new Async\TaskSet();
 foreach ($urls as $url) {
     $set->spawn(fn() => fetch($url));
 }
-$set->seal();
+$set->close();
 
 foreach ($set as $key => [$result, $error]) {
     // $set->count() decreases with each iteration
@@ -195,14 +195,14 @@ final class Async\TaskSet implements Async\Awaitable, Countable, IteratorAggrega
     public joinAll(bool $ignoreErrors = false): Async\Future
 
     /* Lifecycle */
-    public seal(): void
+    public close(): void
     public cancel(?Async\AsyncCancellation $cancellation = null): void
     public dispose(): void
     public finally(Closure $callback): void
 
     /* State */
     public isFinished(): bool
-    public isSealed(): bool
+    public isClosed(): bool
     public count(): int
 
     /* Awaiting completion */
@@ -224,7 +224,7 @@ $set->spawnWithKey('user',    fn() => $db->query('SELECT * FROM users WHERE id =
 $set->spawnWithKey('orders',  fn() => $db->query('SELECT * FROM orders WHERE user_id = ?', [$id]));
 $set->spawnWithKey('reviews', fn() => $api->get("/users/{$id}/reviews"));
 
-$set->seal();
+$set->close();
 $data = $set->joinAll()->await();
 // $set->count() === 0, all entries removed
 
@@ -239,7 +239,7 @@ $set = new Async\TaskSet(concurrency: 5);
 foreach ($urls as $url) {
     $set->spawn(fn() => httpClient()->get($url)->getBody());
 }
-$set->seal();
+$set->close();
 
 while ($set->count() > 0) {
     $result = $set->joinNext()->await();
@@ -269,7 +269,7 @@ $set = new Async\TaskSet(concurrency: 20);
 foreach ($imageFiles as $file) {
     $set->spawn(fn() => processImage($file));
 }
-$set->seal();
+$set->close();
 
 foreach ($set as $key => [$result, $error]) {
     if ($error !== null) {
@@ -291,7 +291,7 @@ spawn(function() use ($set, $queue) {
     while ($message = $queue->receive()) {
         $set->spawn(fn() => processMessage($message));
     }
-    $set->seal();
+    $set->close();
 });
 
 // Another processes results
@@ -321,12 +321,12 @@ spawn(function() use ($set) {
 - [TaskSet::joinNext](/en/docs/reference/task-set/join-next.html) — Get the result of the first completed task
 - [TaskSet::joinAny](/en/docs/reference/task-set/join-any.html) — Get the result of the first successful task
 - [TaskSet::joinAll](/en/docs/reference/task-set/join-all.html) — Wait for all tasks and get results
-- [TaskSet::seal](/en/docs/reference/task-set/seal.html) — Seal the set for new tasks
+- [TaskSet::close](/en/docs/reference/task-set/close.html) — Seal the set for new tasks
 - [TaskSet::cancel](/en/docs/reference/task-set/cancel.html) — Cancel all tasks
 - [TaskSet::dispose](/en/docs/reference/task-set/dispose.html) — Destroy the set's scope
 - [TaskSet::finally](/en/docs/reference/task-set/finally.html) — Register a completion handler
 - [TaskSet::isFinished](/en/docs/reference/task-set/is-finished.html) — Check if all tasks are finished
-- [TaskSet::isSealed](/en/docs/reference/task-set/is-sealed.html) — Check if the set is sealed
+- [TaskSet::isClosed](/en/docs/reference/task-set/is-closed.html) — Check if the set is closed
 - [TaskSet::count](/en/docs/reference/task-set/count.html) — Get the number of undelivered tasks
 - [TaskSet::awaitCompletion](/en/docs/reference/task-set/await-completion.html) — Wait for all tasks to complete
 - [TaskSet::getIterator](/en/docs/reference/task-set/get-iterator.html) — Iterate over results with auto-cleanup

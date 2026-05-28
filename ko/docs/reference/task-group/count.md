@@ -42,7 +42,7 @@ spawn(function() {
 
     echo count($group); // 3
 
-    $group->seal();
+    $group->close();
     $group->all();
 
     echo count($group); // 3
@@ -52,4 +52,4 @@ spawn(function() {
 ## 참고
 
 - [TaskGroup::isFinished](/ko/docs/reference/task-group/is-finished.html) --- 모든 태스크가 완료되었는지 확인
-- [TaskGroup::isSealed](/ko/docs/reference/task-group/is-sealed.html) --- 그룹이 봉인되었는지 확인
+- [TaskGroup::isClosed](/ko/docs/reference/task-group/is-closed.html) --- 그룹이 봉인되었는지 확인

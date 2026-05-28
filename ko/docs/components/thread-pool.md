@@ -79,22 +79,78 @@ spawn(function() {
 ## 풀 생성
 
 ```php
+// CPU 수에 따라 자동 감지
+$pool = new ThreadPool();
+
+// 명시적 워커 수
 $pool = new ThreadPool(workers: 4);
+
+// + 큐 크기
 $pool = new ThreadPool(workers: 4, queueSize: 64);
+
+// + 각 워커에서 한 번 실행되는 bootloader
+$pool = new ThreadPool(
+    workers: 4,
+    queueSize: 64,
+    bootloader: function () {
+        require __DIR__ . '/vendor/autoload.php';
+        Database::warmupPool();
+    },
+);
+
+// + 코루틴 모드: 작업이 per-worker pool scope 내의 코루틴으로 시작됨
+$pool = new ThreadPool(workers: 4, coroutine: true);
 ```
 
-| 파라미터     | 타입  | 목적                                                                 | 기본값            |
-|--------------|-------|----------------------------------------------------------------------|-------------------|
-| `$workers`   | `int` | 워커 스레드 수. 풀 생성 시 모두 시작됨                               | **필수**          |
-| `$queueSize` | `int` | 대기 중인 작업 큐의 최대 길이                                        | `workers × 4`     |
+| 파라미터       | 타입         | 목적                                                                 | 기본값            |
+|----------------|--------------|----------------------------------------------------------------------|-------------------|
+| `$workers`     | `int`        | 워커 스레드 수. `0`은 `available_parallelism()`을 통한 자동 감지     | `0`               |
+| `$queueSize`   | `int`        | 대기 중인 작업 큐의 최대 길이                                        | `workers × 4`     |
+| `$bootloader`  | `?\Closure`  | per-worker 시작 훅 (아래 참고)                                       | `null`            |
+| `$coroutine`   | `bool`       | 각 작업을 코루틴으로 실행 (아래 참고)                                | `false`           |
+| `$concurrency` | `int`        | 워커당 동시 코루틴 한도 (`coroutine: true`인 경우에만)               | `0` (제한 없음)   |
 
-모든 워커 스레드는 풀 **생성 즉시 시작됩니다** — `new ThreadPool(4)`는 즉시 네 개의 스레드를
-생성합니다. 이것은 작은 "선불" 투자이지만, 이후 `submit()` 호출에는 스레드 시작 오버헤드가
-없습니다.
+모든 워커 스레드는 풀 **생성 즉시 시작됩니다**. 이것은 작은 "선불" 투자이지만, 이후 `submit()`
+호출에는 스레드 시작 오버헤드가 없습니다.
 
 `$queueSize`는 내부 작업 큐의 크기를 제한합니다. 큐가 가득 차면 (모든 워커가 바쁘고 큐에
 이미 `$queueSize`개의 작업이 있을 때), 다음 `submit()`은 워커가 사용 가능해질 때까지 **호출
 코루틴을 일시 중단**합니다. 값이 0이면 `workers × 4`를 의미합니다.
+
+### 워커 수 자동 감지
+
+`workers: 0`(또는 매개변수 생략)이면 풀이
+[`Async\available_parallelism()`](/ko/docs/reference/available-parallelism.html)에서 값을
+가져옵니다. 이 함수는 `cgroup` 쿼터, affinity, 컨테이너 한도를 고려합니다 — `cpu.max=2`인
+Kubernetes pod에서는 호스트 물리 코어 수가 아니라 2를 받습니다.
+
+### Bootloader
+
+`$bootloader` 클로저는 한 번 deep copy되어 **각** 워커에서 작업 처리 메인 루프 전에 실행됩니다.
+autoload, 커넥션 풀 워밍, opcache 사전 컴파일에 이상적입니다 — 그렇지 않으면 매 `submit()` 안에서
+실행되었을 모든 것.
+
+bootloader가 예외를 던지면 전체 풀이 실패로 간주됩니다: 워커가 시작하지 않고 오류가 부모로
+전파됩니다.
+
+### 코루틴 모드
+
+`coroutine: true`이면 각 작업이 자체 자식 scope에서 **코루틴으로** 실행되며, 그 scope는 워커
+풀의 공통 scope에 중첩됩니다. 작업 안에서 `await`, `Channel`, IO, `spawn`을 사용할 수 있습니다 —
+워커 자체를 블로킹하지 않고.
+
+```php
+$pool = new ThreadPool(workers: 4, coroutine: true);
+
+$pool->submit(function () {
+    // 이 모드에서는 일반적인 블로킹 호출이 OS 스레드를 블로킹하지 않고
+    // 코루틴을 올바르게 park합니다
+    $rows = (new PDO('mysql:...'))->query('SELECT ...')->fetchAll();
+    return $rows;
+});
+```
+
+`$concurrency`는 **한** 워커 내에서 동시에 살아 있는 코루틴 수를 제한합니다.
 
 ## 작업 제출
 

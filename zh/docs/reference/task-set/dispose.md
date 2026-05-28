@@ -38,4 +38,4 @@ spawn(function() {
 ## См. также
 
 - [TaskSet::cancel](/zh/docs/reference/task-set/cancel.html) — Отменить задачи
-- [TaskSet::seal](/zh/docs/reference/task-set/seal.html) — Запечатать набор
+- [TaskSet::close](/zh/docs/reference/task-set/close.html) — Запечатать набор

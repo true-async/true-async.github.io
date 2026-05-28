@@ -31,7 +31,7 @@ Otherwise, the callable with arguments is placed in a queue and started when a s
 
 ## Errors
 
-Throws `Async\AsyncException` if the set is sealed (`seal()`) or cancelled (`cancel()`).
+Throws `Async\AsyncException` if the set is closed (`close()`) or cancelled (`cancel()`).
 
 ## Examples
 
@@ -48,7 +48,7 @@ spawn(function() {
     $set->spawn(fn() => "first");
     $set->spawn(fn() => "second");
 
-    $set->seal();
+    $set->close();
     $results = $set->joinAll()->await();
 
     var_dump($results[0]); // string(5) "first"
@@ -70,7 +70,7 @@ spawn(function() {
         return $a + $b;
     }, 10, 20);
 
-    $set->seal();
+    $set->close();
     $results = $set->joinAll()->await();
     var_dump($results[0]); // int(30)
 });

@@ -31,7 +31,7 @@ public TaskSet::spawn(callable $task, mixed ...$args): void
 
 ## Помилки
 
-Викидає `Async\AsyncException`, якщо набір запечатаний (`seal()`) або скасований (`cancel()`).
+Викидає `Async\AsyncException`, якщо набір запечатаний (`close()`) або скасований (`cancel()`).
 
 ## Приклади
 
@@ -48,7 +48,7 @@ spawn(function() {
     $set->spawn(fn() => "перший");
     $set->spawn(fn() => "другий");
 
-    $set->seal();
+    $set->close();
     $results = $set->joinAll()->await();
 
     var_dump($results[0]); // string(12) "перший"
@@ -70,7 +70,7 @@ spawn(function() {
         return $a + $b;
     }, 10, 20);
 
-    $set->seal();
+    $set->close();
     $results = $set->joinAll()->await();
     var_dump($results[0]); // int(30)
 });

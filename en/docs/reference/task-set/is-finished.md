@@ -18,7 +18,7 @@ public TaskSet::isFinished(): bool
 
 Returns `true` if there are no active coroutines and the task queue is empty.
 
-If the set is not sealed, this state may be temporary — new tasks
+If the set is not closed, this state may be temporary — new tasks
 can be added via `spawn()`.
 
 ## Return Value
@@ -42,7 +42,7 @@ spawn(function() {
     $set->spawn(fn() => "task");
     echo $set->isFinished() ? "yes\n" : "no\n"; // "no"
 
-    $set->seal();
+    $set->close();
     $set->joinAll()->await();
     echo $set->isFinished() ? "yes\n" : "no\n"; // "yes"
 });
@@ -50,5 +50,5 @@ spawn(function() {
 
 ## See Also
 
-- [TaskSet::isSealed](/en/docs/reference/task-set/is-sealed.html) — Check if the set is sealed
+- [TaskSet::isClosed](/en/docs/reference/task-set/is-closed.html) — Check if the set is closed
 - [TaskSet::count](/en/docs/reference/task-set/count.html) — Number of tasks

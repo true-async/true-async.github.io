@@ -32,7 +32,7 @@ freigegeben und `count()` verringert wird.
 - Die Iteration endet, wenn das Set versiegelt ist **und** alle Tasks verarbeitet wurden
 - Wenn das Set nicht versiegelt ist, wartet `foreach` auf neue Tasks
 
-> **Wichtig:** Ohne Aufruf von `seal()` wartet die Iteration unbegrenzt.
+> **Wichtig:** Ohne Aufruf von `close()` wartet die Iteration unbegrenzt.
 
 ## Beispiele
 
@@ -49,7 +49,7 @@ spawn(function() {
     for ($i = 0; $i < 100; $i++) {
         $set->spawn(fn() => processItem($items[$i]));
     }
-    $set->seal();
+    $set->close();
 
     foreach ($set as $key => [$result, $error]) {
         if ($error !== null) {
@@ -76,7 +76,7 @@ spawn(function() {
 
     $set->spawnWithKey('users', fn() => fetchUsers());
     $set->spawnWithKey('orders', fn() => fetchOrders());
-    $set->seal();
+    $set->close();
 
     foreach ($set as $key => [$result, $error]) {
         if ($error === null) {
@@ -88,6 +88,6 @@ spawn(function() {
 
 ## Siehe auch
 
-- [TaskSet::seal](/de/docs/reference/task-set/seal.html) — Das Set versiegeln
+- [TaskSet::close](/de/docs/reference/task-set/close.html) — Das Set versiegeln
 - [TaskSet::joinAll](/de/docs/reference/task-set/join-all.html) — Auf alle Tasks warten
 - [TaskSet::joinNext](/de/docs/reference/task-set/join-next.html) — Nächstes Ergebnis

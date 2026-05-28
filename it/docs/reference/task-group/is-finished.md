@@ -22,5 +22,5 @@ Questo stato può essere temporaneo: se il gruppo non è sigillato, nuovi task p
 
 ## Vedi anche
 
-- [TaskGroup::isSealed](/it/docs/reference/task-group/is-sealed.html) --- Verifica se il gruppo è sigillato
+- [TaskGroup::isClosed](/it/docs/reference/task-group/is-closed.html) --- Verifica se il gruppo è sigillato
 - [TaskGroup::awaitCompletion](/it/docs/reference/task-group/await-completion.html) --- Attende il completamento

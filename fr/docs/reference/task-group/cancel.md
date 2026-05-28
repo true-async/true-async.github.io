@@ -17,7 +17,7 @@ public TaskGroup::cancel(?Async\AsyncCancellation $cancellation = null): void
 ```
 
 Annule toutes les coroutines en cours d'execution et les taches en file d'attente.
-Appelle implicitement `seal()`. Les taches en file d'attente ne sont jamais demarrees.
+Appelle implicitement `close()`. Les taches en file d'attente ne sont jamais demarrees.
 
 Les coroutines recoivent une `AsyncCancellation` et se terminent.
 L'annulation se fait de maniere asynchrone --- utilisez `awaitCompletion()` pour garantir la fin.
@@ -69,6 +69,6 @@ spawn(function() {
 
 ## Voir aussi
 
-- [TaskGroup::seal](/fr/docs/reference/task-group/seal.html) --- Sceller sans annulation
+- [TaskGroup::close](/fr/docs/reference/task-group/close.html) --- Sceller sans annulation
 - [TaskGroup::awaitCompletion](/fr/docs/reference/task-group/await-completion.html) --- Attendre la fin
 - [TaskGroup::dispose](/fr/docs/reference/task-group/dispose.html) --- Liberer le scope du groupe

@@ -29,10 +29,10 @@ TaskSet реализует `IteratorAggregate`, поэтому можно исп
 - Значение — массив `[mixed $result, ?Throwable $error]`:
   - Успех: `[$result, null]`
   - Ошибка: `[null, $error]`
-- Итерация завершается, когда набор запечатан **и** все задачи обработаны
-- Если набор не запечатан — `foreach` приостанавливается в ожидании новых задач
+- Итерация завершается, когда набор закрыт **и** все задачи обработаны
+- Если набор не закрыт — `foreach` приостанавливается в ожидании новых задач
 
-> **Важно:** Без вызова `seal()` итерация будет ждать бесконечно.
+> **Важно:** Без вызова `close()` итерация будет ждать бесконечно.
 
 ## Примеры
 
@@ -49,7 +49,7 @@ spawn(function() {
     for ($i = 0; $i < 100; $i++) {
         $set->spawn(fn() => processItem($items[$i]));
     }
-    $set->seal();
+    $set->close();
 
     foreach ($set as $key => [$result, $error]) {
         if ($error !== null) {
@@ -76,7 +76,7 @@ spawn(function() {
 
     $set->spawnWithKey('users', fn() => fetchUsers());
     $set->spawnWithKey('orders', fn() => fetchOrders());
-    $set->seal();
+    $set->close();
 
     foreach ($set as $key => [$result, $error]) {
         if ($error === null) {
@@ -88,6 +88,6 @@ spawn(function() {
 
 ## См. также
 
-- [TaskSet::seal](/ru/docs/reference/task-set/seal.html) — Запечатать набор
+- [TaskSet::close](/ru/docs/reference/task-set/close.html) — Закрыть набор
 - [TaskSet::joinAll](/ru/docs/reference/task-set/join-all.html) — Дождаться всех задач
 - [TaskSet::joinNext](/ru/docs/reference/task-set/join-next.html) — Следующий результат

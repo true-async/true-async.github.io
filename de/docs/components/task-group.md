@@ -63,14 +63,14 @@ alle Coroutinen automatisch abgebrochen werden, was sichere Ressourcenverwaltung
 ## Versiegelung und Iteration
 
 `TaskGroup` ermöglicht das dynamische Hinzufügen von Aufgaben, bis sie
-mit der Methode `seal()` versiegelt wird.
+mit der Methode `close()` versiegelt wird.
 
 Die Methode `all()` gibt ein `Future` zurück, das ausgelöst wird, wenn alle bestehenden Aufgaben
 in der Warteschlange abgeschlossen sind. Dies ermöglicht die Verwendung von `TaskGroup` in einer Schleife, in der Aufgaben dynamisch hinzugefügt werden,
 und `all()` aufgerufen wird, um Ergebnisse der aktuellen Aufgabenmenge zu erhalten.
 
 `TaskGroup` unterstützt auch `foreach` zur Iteration über Ergebnisse, sobald sie bereit sind.
-In diesem Fall muss `seal()` nach dem Hinzufügen aller Aufgaben aufgerufen werden, um zu signalisieren, dass
+In diesem Fall muss `close()` nach dem Hinzufügen aller Aufgaben aufgerufen werden, um zu signalisieren, dass
 es keine neuen Aufgaben mehr geben wird, und `foreach` nach der Verarbeitung aller Ergebnisse beendet werden kann.
 
 ## Klassenübersicht
@@ -92,14 +92,14 @@ final class Async\TaskGroup implements Async\Awaitable, Countable, IteratorAggre
     public awaitCompletion(): void
 
     /* Lebenszyklus */
-    public seal(): void
+    public close(): void
     public cancel(?Async\AsyncCancellation $cancellation = null): void
     public dispose(): void
     public finally(Closure $callback): void
 
     /* Zustand */
     public isFinished(): bool
-    public isSealed(): bool
+    public isClosed(): bool
     public count(): int
 
     /* Ergebnisse und Fehler */
@@ -200,7 +200,7 @@ foreach ($imageFiles as $file) {
     $group->spawn(fn() => processImage($file));
 }
 
-$group->seal();
+$group->close();
 
 foreach ($group as $key => $result) {
     // Ergebnisse treffen ein, sobald sie bereit sind, nicht in der Reihenfolge des Hinzufügens
@@ -217,7 +217,7 @@ $group = new Async\TaskGroup();
 
 $group->spawn(fn() => slowApi()->fetchReport());
 $group->spawn(fn() => anotherApi()->fetchStats());
-$group->seal();
+$group->close();
 
 try {
     $results = $group->all()->await(Async\timeout(5.0));
@@ -230,7 +230,7 @@ try {
 
 | Fähigkeit               | PHP `TaskGroup`                     | Python `asyncio.TaskGroup`      | Java `StructuredTaskScope`               | Kotlin `coroutineScope`   |
 |-------------------------|-------------------------------------|---------------------------------|------------------------------------------|---------------------------|
-| Strukturierte Nebenläufigkeit | `seal()` + `all()->await()`    | `async with`-Block              | `try-with-resources` + `join()`          | Automatisch via Scope     |
+| Strukturierte Nebenläufigkeit | `close()` + `all()->await()`    | `async with`-Block              | `try-with-resources` + `join()`          | Automatisch via Scope     |
 | Wartestrategien         | `all()`, `race()`, `any()` -> Future | Nur all (via `async with`)      | `ShutdownOnSuccess`, `ShutdownOnFailure` | `async`/`await`, `select` |
 | Nebenläufigkeitslimit   | `concurrency: N`                    | Nein (braucht `Semaphore`)      | Nein                                     | Nein (braucht `Semaphore`)|
 | Ergebnisiteration       | `foreach` bei Abschluss             | Nein                            | Nein                                     | `Channel`                 |
@@ -248,12 +248,12 @@ Nebenläufigkeitsbegrenzung ohne Semaphore, mehrere Wartestrategien in einem ein
 - [TaskGroup::race](/de/docs/reference/task-group/race.html) -- Ergebnis der ersten abgeschlossenen Aufgabe abrufen
 - [TaskGroup::any](/de/docs/reference/task-group/any.html) -- Ergebnis der ersten erfolgreichen Aufgabe abrufen
 - [TaskGroup::awaitCompletion](/de/docs/reference/task-group/await-completion.html) -- Auf Abschluss aller Aufgaben warten
-- [TaskGroup::seal](/de/docs/reference/task-group/seal.html) -- Gruppe für neue Aufgaben versiegeln
+- [TaskGroup::close](/de/docs/reference/task-group/close.html) -- Gruppe für neue Aufgaben versiegeln
 - [TaskGroup::cancel](/de/docs/reference/task-group/cancel.html) -- Alle Aufgaben abbrechen
 - [TaskGroup::dispose](/de/docs/reference/task-group/dispose.html) -- Scope der Gruppe zerstören
 - [TaskGroup::finally](/de/docs/reference/task-group/finally.html) -- Abschlusshandler registrieren
 - [TaskGroup::isFinished](/de/docs/reference/task-group/is-finished.html) -- Prüfen, ob alle Aufgaben abgeschlossen sind
-- [TaskGroup::isSealed](/de/docs/reference/task-group/is-sealed.html) -- Prüfen, ob die Gruppe versiegelt ist
+- [TaskGroup::isClosed](/de/docs/reference/task-group/is-closed.html) -- Prüfen, ob die Gruppe versiegelt ist
 - [TaskGroup::count](/de/docs/reference/task-group/count.html) -- Anzahl der Aufgaben abrufen
 - [TaskGroup::getResults](/de/docs/reference/task-group/get-results.html) -- Array erfolgreicher Ergebnisse abrufen
 - [TaskGroup::getErrors](/de/docs/reference/task-group/get-errors.html) -- Array der Fehler abrufen

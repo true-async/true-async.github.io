@@ -17,7 +17,7 @@ public TaskGroup::cancel(?Async\AsyncCancellation $cancellation = null): void
 ```
 
 Скасовує всі запущені корутини та задачі в черзі.
-Неявно викликає `seal()`. Задачі в черзі ніколи не запускаються.
+Неявно викликає `close()`. Задачі в черзі ніколи не запускаються.
 
 Корутини отримують `AsyncCancellation` і завершуються.
 Скасування відбувається асинхронно --- використовуйте `awaitCompletion()`, щоб гарантувати завершення.
@@ -69,6 +69,6 @@ spawn(function() {
 
 ## Дивіться також
 
-- [TaskGroup::seal](/uk/docs/reference/task-group/seal.html) --- Запечатати без скасування
+- [TaskGroup::close](/uk/docs/reference/task-group/close.html) --- Запечатати без скасування
 - [TaskGroup::awaitCompletion](/uk/docs/reference/task-group/await-completion.html) --- Дочекатися завершення
 - [TaskGroup::dispose](/uk/docs/reference/task-group/dispose.html) --- Вивільнити область видимості групи

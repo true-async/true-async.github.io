@@ -19,7 +19,7 @@ public TaskGroup::awaitCompletion(): void
 Waits until all tasks in the group have fully completed.
 Unlike `all()`, it does not return results and does not throw exceptions on task errors.
 
-The group must be sealed before calling this method.
+The group must be closed before calling this method.
 
 A typical use case is waiting for coroutines to actually finish after `cancel()`.
 The `cancel()` method initiates cancellation, but coroutines may finish asynchronously.
@@ -27,7 +27,7 @@ The `cancel()` method initiates cancellation, but coroutines may finish asynchro
 
 ## Errors
 
-Throws `Async\AsyncException` if the group is not sealed.
+Throws `Async\AsyncException` if the group is not closed.
 
 ## Examples
 
@@ -68,7 +68,7 @@ spawn(function() {
     $group->spawn(fn() => "ok");
     $group->spawn(fn() => throw new \RuntimeException("fail"));
 
-    $group->seal();
+    $group->close();
     $group->awaitCompletion();
 
     // No exceptions — check manually
@@ -84,4 +84,4 @@ spawn(function() {
 
 - [TaskGroup::all](/en/docs/reference/task-group/all.html) --- Wait for all tasks and get results
 - [TaskGroup::cancel](/en/docs/reference/task-group/cancel.html) --- Cancel all tasks
-- [TaskGroup::seal](/en/docs/reference/task-group/seal.html) --- Seal the group
+- [TaskGroup::close](/en/docs/reference/task-group/close.html) --- Close the group

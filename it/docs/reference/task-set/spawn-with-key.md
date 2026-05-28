@@ -50,7 +50,7 @@ spawn(function() {
     $set->spawnWithKey('user',   fn() => fetchUser($id));
     $set->spawnWithKey('orders', fn() => fetchOrders($id));
 
-    $set->seal();
+    $set->close();
     $data = $set->joinAll()->await();
 
     echo $data['user']['name'];

@@ -68,7 +68,7 @@ spawn(function() {
     $group->spawn(fn() => "ok");
     $group->spawn(fn() => throw new \RuntimeException("fail"));
 
-    $group->seal();
+    $group->close();
     $group->awaitCompletion();
 
     // Без винятків — перевіряємо вручну
@@ -84,4 +84,4 @@ spawn(function() {
 
 - [TaskGroup::all](/uk/docs/reference/task-group/all.html) --- Дочекатися всіх задач та отримати результати
 - [TaskGroup::cancel](/uk/docs/reference/task-group/cancel.html) --- Скасувати всі задачі
-- [TaskGroup::seal](/uk/docs/reference/task-group/seal.html) --- Запечатати групу
+- [TaskGroup::close](/uk/docs/reference/task-group/close.html) --- Запечатати групу

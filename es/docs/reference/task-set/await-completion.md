@@ -43,7 +43,7 @@ spawn(function() {
     $set->spawn(fn() => processFile("b.txt"));
     $set->spawn(fn() => throw new \RuntimeException("error"));
 
-    $set->seal();
+    $set->close();
     $set->awaitCompletion(); // No lanza excepción aunque las tareas hayan fallado
 
     echo "All tasks completed\n";

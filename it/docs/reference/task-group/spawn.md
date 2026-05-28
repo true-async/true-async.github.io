@@ -31,7 +31,7 @@ Altrimenti, il callable con i suoi argomenti viene messo in coda e avviato quand
 
 ## Errori
 
-Lancia `Async\AsyncException` se il gruppo è sigillato (`seal()`) o cancellato (`cancel()`).
+Lancia `Async\AsyncException` se il gruppo è sigillato (`close()`) o cancellato (`cancel()`).
 
 ## Esempi
 
@@ -48,7 +48,7 @@ spawn(function() {
     $group->spawn(fn() => "first");
     $group->spawn(fn() => "second");
 
-    $group->seal();
+    $group->close();
     $results = $group->all();
 
     var_dump($results[0]); // string(5) "first"
@@ -70,7 +70,7 @@ spawn(function() {
         return "user:$id";
     }, 42);
 
-    $group->seal();
+    $group->close();
     $results = $group->all();
     var_dump($results[0]); // string(7) "user:42"
 });

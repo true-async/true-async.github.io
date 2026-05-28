@@ -42,7 +42,7 @@ spawn(function() {
     });
     $group->spawn(fn() => "ok");
 
-    $group->seal();
+    $group->close();
     $group->all(ignoreErrors: true);
 
     foreach ($group->getErrors() as $key => $error) {

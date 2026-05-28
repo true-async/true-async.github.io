@@ -71,7 +71,7 @@ spawn(function() {
     $group->spawn(fn() => throw new \RuntimeException("err 1"));
     $group->spawn(fn() => throw new \RuntimeException("err 2"));
 
-    $group->seal();
+    $group->close();
 
     try {
         $group->any()->await();

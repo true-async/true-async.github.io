@@ -18,12 +18,18 @@ public ThreadPool::cancel(): void
 
 发起池的强制关闭。调用 `cancel()` 后：
 
-- 任何后续的 `submit()` 调用将立即抛出 `Async\ThreadPoolException`。
-- 在队列中等待的任务（尚未被工作线程取走）将被**立即拒绝** — 其对应的 `Future` 对象以 `ThreadPoolException` 进入拒绝状态。
-- 已在工作线程中执行的任务会运行至当前任务完成（强制中断线程内的 PHP 代码是不可能的）。
-- 工作线程在完成当前任务后停止，不再从队列中取新任务。
+- 任何后续的 `submit()` 调用都会立即抛出 `Async\ThreadPoolException`。
+- 在队列中等待的任务（尚未被 worker 拿走）会**立即被拒绝** —— 对应的 `Future` 进入拒绝状态，
+  携带 `ThreadPoolException`（在 `coroutine: true` 模式下携带 `CancellationException`）。
+- 在**普通模式**（`coroutine: false`）下，已在 worker 中执行的任务会运行至当前任务结束 ——
+  无法强制打断 OS 线程内运行的 PHP 代码。
+- 在 **`coroutine: true` 模式**下，正在进行中的任务**会被真正取消**（自 TrueAsync 0.7.0 起）：
+  原子标志 `cancel_requested` 在 channel 关闭前置位，worker 调用
+  `ZEND_ASYNC_SCOPE_CANCEL(pool_scope, NULL, false, false)`，`AFTER_MAIN` 把所有正在跑的任务的
+  子 scope 级联取消。
+- worker 在当前任务结束后立即停止，不再从队列中拉取新任务。
 
-如需等待所有已排队任务完成后再关闭，请改用 [`close()`](/zh/docs/reference/thread-pool/close.html)。
+如果想要**优雅**关闭并让队列中的任务跑完，请使用 [`close()`](/zh/docs/reference/thread-pool/close.html)。
 
 ## 返回值
 

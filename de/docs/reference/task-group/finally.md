@@ -19,7 +19,7 @@ public TaskGroup::finally(Closure $callback): void
 Registriert einen Callback, der aufgerufen wird, wenn die Gruppe versiegelt ist und alle Aufgaben abgeschlossen sind.
 Der Callback erhaelt die TaskGroup als Parameter.
 
-Da `cancel()` implizit `seal()` aufruft, wird der Handler auch bei einem Abbruch ausgeloest.
+Da `cancel()` implizit `close()` aufruft, wird der Handler auch bei einem Abbruch ausgeloest.
 
 Wenn die Gruppe bereits abgeschlossen ist, wird der Callback sofort synchron aufgerufen.
 
@@ -47,7 +47,7 @@ spawn(function() {
     $group->spawn(fn() => "a");
     $group->spawn(fn() => "b");
 
-    $group->seal();
+    $group->close();
     $group->all();
 });
 // Ausgabe:
@@ -64,7 +64,7 @@ use Async\TaskGroup;
 spawn(function() {
     $group = new TaskGroup();
     $group->spawn(fn() => 1);
-    $group->seal();
+    $group->close();
     $group->all();
 
     // Gruppe ist bereits abgeschlossen — Callback wird synchron aufgerufen
@@ -81,5 +81,5 @@ spawn(function() {
 
 ## Siehe auch
 
-- [TaskGroup::seal](/de/docs/reference/task-group/seal.html) --- Die Gruppe versiegeln
+- [TaskGroup::close](/de/docs/reference/task-group/close.html) --- Die Gruppe versiegeln
 - [TaskGroup::cancel](/de/docs/reference/task-group/cancel.html) --- Aufgaben abbrechen

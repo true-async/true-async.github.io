@@ -56,7 +56,7 @@ spawn(function() {
     $group->spawnWithKey('b', fn() => 20);
     $group->spawnWithKey('c', fn() => 30);
 
-    $group->seal();
+    $group->close();
     $results = $group->all()->await();
 
     var_dump($results['a']); // int(10)
@@ -78,7 +78,7 @@ spawn(function() {
     $group->spawn(fn() => "ok");
     $group->spawn(fn() => throw new \RuntimeException("fehlgeschlagen"));
 
-    $group->seal();
+    $group->close();
 
     try {
         $group->all()->await();
@@ -103,7 +103,7 @@ spawn(function() {
     $group->spawn(fn() => "ok");
     $group->spawn(fn() => throw new \RuntimeException("fehlgeschlagen"));
 
-    $group->seal();
+    $group->close();
 
     $results = $group->all(ignoreErrors: true)->await();
     echo count($results) . "\n"; // 1
@@ -126,7 +126,7 @@ spawn(function() {
 
     $group->spawn(fn() => slowApi()->fetchReport());
     $group->spawn(fn() => anotherApi()->fetchStats());
-    $group->seal();
+    $group->close();
 
     $timeout = Async\timeout(5.0);
 

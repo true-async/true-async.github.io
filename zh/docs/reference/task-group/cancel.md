@@ -17,7 +17,7 @@ public TaskGroup::cancel(?Async\AsyncCancellation $cancellation = null): void
 ```
 
 取消所有正在运行的协程和排队的任务。
-隐式调用 `seal()`。排队的任务不会被启动。
+隐式调用 `close()`。排队的任务不会被启动。
 
 协程接收到 `AsyncCancellation` 后终止。
 取消是异步发生的 --- 使用 `awaitCompletion()` 来保证完成。
@@ -69,6 +69,6 @@ spawn(function() {
 
 ## 参见
 
-- [TaskGroup::seal](/zh/docs/reference/task-group/seal.html) --- 密封但不取消
+- [TaskGroup::close](/zh/docs/reference/task-group/close.html) --- 密封但不取消
 - [TaskGroup::awaitCompletion](/zh/docs/reference/task-group/await-completion.html) --- 等待完成
 - [TaskGroup::dispose](/zh/docs/reference/task-group/dispose.html) --- 释放组作用域

@@ -18,14 +18,14 @@ public TaskSet::awaitCompletion(): void
 
 Suspends the current coroutine until all tasks in the set are completed.
 
-The set **must** be sealed before calling this method.
+The set **must** be closed before calling this method.
 
 Unlike `joinAll()`, this method does not throw exceptions on task errors
 and does not return results.
 
 ## Errors
 
-Throws `Async\AsyncException` if the set is not sealed.
+Throws `Async\AsyncException` if the set is not closed.
 
 ## Examples
 
@@ -43,7 +43,7 @@ spawn(function() {
     $set->spawn(fn() => processFile("b.txt"));
     $set->spawn(fn() => throw new \RuntimeException("error"));
 
-    $set->seal();
+    $set->close();
     $set->awaitCompletion(); // Does not throw even if tasks failed
 
     echo "All tasks completed\n";

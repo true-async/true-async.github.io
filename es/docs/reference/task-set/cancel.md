@@ -17,7 +17,7 @@ public TaskSet::cancel(?Async\AsyncCancellation $cancellation = null): void
 ```
 
 Cancela todas las coroutines en ejecución y vacía la cola de tareas.
-Llama implícitamente a `seal()`.
+Llama implícitamente a `close()`.
 
 ## Parámetros
 
@@ -42,11 +42,11 @@ spawn(function() {
     // Cancelar todas las tareas
     $set->cancel();
 
-    echo $set->isSealed() ? "sealed\n" : "no\n"; // "sealed"
+    echo $set->isClosed() ? "sealed\n" : "no\n"; // "sealed"
 });
 ```
 
 ## Ver también
 
-- [TaskSet::seal](/es/docs/reference/task-set/seal.html) — Sellar el conjunto
+- [TaskSet::close](/es/docs/reference/task-set/close.html) — Sellar el conjunto
 - [TaskSet::dispose](/es/docs/reference/task-set/dispose.html) — Destruir el scope del conjunto

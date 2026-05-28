@@ -154,7 +154,7 @@ const i18n: Record<string, HomeI18n> = {
       items: [
         { title: 'Corrutinas', icon: 'coroutines', url: '/es/docs/components/coroutines.html', text: 'Corrutinas ligeras para una ejecución concurrente eficiente. Sin funciones <code>async</code> coloreadas. Simplemente haz <code>spawn()</code> y listo.' },
         { title: 'I/O no bloqueante', icon: 'io', url: '/es/docs/reference/supported-functions.html', text: '<code>fread</code>, <code>fwrite</code>, <code>file_get_contents</code>, <code>ob_start</code>, <code>curl</code>, <code>MySQL</code>, <code>PostgreSQL</code>. Las funciones habituales de PHP ahora funcionan de forma asíncrona sin esfuerzo adicional.' },
-        { title: 'Servidores Web asíncronos', icon: 'web-servers', url: '/es/docs/frankenphp.html', text: 'Soporte del modelo: múltiples solicitudes — un solo proceso PHP.' },
+        { title: 'TrueAsync Server', icon: 'web-servers', url: '/es/docs/server/index.html', text: 'Servidor web nativo en C con soporte para <code>HTTP/1.1</code>, <code>HTTP/2</code> y <code>HTTP/3</code>, directamente dentro del proceso PHP.' },
         { title: 'Cancelación cooperativa', icon: 'cancellation', url: '/es/docs/components/cancellation.html', text: '<code>API</code> simple y flexible para cancelar corrutinas. <code>Scope::cancel()</code>.' },
         { title: 'Concurrencia estructurada', icon: 'structured-concurrency', url: '/es/docs/components/scope.html', text: 'Control del ciclo de vida de las corrutinas mediante el sandbox <code>Scope</code>. Gestión de grupos de corrutinas con <code>TaskGroup</code>.' },
         { title: 'PDO Pool', icon: 'pdo-pool', url: '/es/docs/components/pdo-pool.html', text: 'Pool de conexiones integrado directamente en <code>PDO</code>. Gestión automática de conexiones para máximo rendimiento.' },
@@ -226,7 +226,7 @@ const i18n: Record<string, HomeI18n> = {
       items: [
         { title: 'Coroutine', icon: 'coroutines', url: '/it/docs/components/coroutines.html', text: 'Coroutine leggere per un\'esecuzione concorrente efficiente. Nessuna funzione <code>async</code> colorata. Basta fare <code>spawn()</code> e via!' },
         { title: 'I/O non bloccante', icon: 'io', url: '/it/docs/reference/supported-functions.html', text: '<code>fread</code>, <code>fwrite</code>, <code>file_get_contents</code>, <code>ob_start</code>, <code>curl</code>, <code>MySQL</code>, <code>PostgreSQL</code>. Le normali funzioni PHP ora funzionano in modo asincrono senza sforzo aggiuntivo.' },
-        { title: 'Web Server asincroni', icon: 'web-servers', url: '/it/docs/frankenphp.html', text: 'Supporto al modello: più richieste — un unico processo PHP.' },
+        { title: 'TrueAsync Server', icon: 'web-servers', url: '/it/docs/server/index.html', text: 'Web server nativo in C con supporto per <code>HTTP/1.1</code>, <code>HTTP/2</code> e <code>HTTP/3</code>, direttamente all\'interno del processo PHP.' },
         { title: 'Cancellazione cooperativa', icon: 'cancellation', url: '/it/docs/components/cancellation.html', text: '<code>API</code> semplice e flessibile per la cancellazione delle coroutine. <code>Scope::cancel()</code>.' },
         { title: 'Concorrenza strutturata', icon: 'structured-concurrency', url: '/it/docs/components/scope.html', text: 'Controllo del ciclo di vita delle coroutine tramite sandbox <code>Scope</code>. Gestione di gruppi di coroutine tramite <code>TaskGroup</code>.' },
         { title: 'PDO Pool', icon: 'pdo-pool', url: '/it/docs/components/pdo-pool.html', text: 'Pool di connessioni integrato direttamente in <code>PDO</code>. Gestione automatica delle connessioni per le massime prestazioni.' },
@@ -262,7 +262,7 @@ const i18n: Record<string, HomeI18n> = {
       items: [
         { title: '코루틴', icon: 'coroutines', url: '/ko/docs/components/coroutines.html', text: '효율적인 동시 실행을 위한 경량 코루틴. 컬러드 <code>async</code> 함수 없음. <code>spawn()</code>만 하면 됩니다!' },
         { title: '논블로킹 I/O', icon: 'io', url: '/ko/docs/reference/supported-functions.html', text: '<code>fread</code>, <code>fwrite</code>, <code>file_get_contents</code>, <code>ob_start</code>, <code>curl</code>, <code>MySQL</code>, <code>PostgreSQL</code>. 일반 PHP 함수가 추가 노력 없이 비동기로 작동합니다.' },
-        { title: '비동기 웹 서버', icon: 'web-servers', url: '/ko/docs/frankenphp.html', text: '여러 요청 — 하나의 PHP 프로세스 모델을 지원합니다.' },
+        { title: 'TrueAsync Server', icon: 'web-servers', url: '/ko/docs/server/index.html', text: 'C로 작성된 네이티브 웹 서버. <code>HTTP/1.1</code>, <code>HTTP/2</code>, <code>HTTP/3</code>을 PHP 프로세스 내부에서 직접 처리합니다.' },
         { title: '협력적 취소', icon: 'cancellation', url: '/ko/docs/components/cancellation.html', text: '코루틴 취소를 위한 간단하고 유연한 <code>API</code>. <code>Scope::cancel()</code>.' },
         { title: '구조적 동시성', icon: 'structured-concurrency', url: '/ko/docs/components/scope.html', text: '<code>Scope</code> 샌드박스로 코루틴 수명을 제어하세요. <code>TaskGroup</code>으로 코루틴 그룹을 관리하세요.' },
         { title: 'PDO Pool', icon: 'pdo-pool', url: '/ko/docs/components/pdo-pool.html', text: '<code>PDO</code>에 내장된 연결 풀링. 최대 성능을 위한 자동 연결 관리.' },
@@ -334,7 +334,7 @@ const i18n: Record<string, HomeI18n> = {
       items: [
         { title: '协程', icon: 'coroutines', url: '/zh/docs/components/coroutines.html', text: '轻量级协程，实现高效并发执行。没有带颜色的 <code>async</code> 函数。只需调用 <code>spawn()</code> 即可开始！' },
         { title: '非阻塞 I/O', icon: 'io', url: '/zh/docs/reference/supported-functions.html', text: '<code>fread</code>, <code>fwrite</code>, <code>file_get_contents</code>, <code>ob_start</code>, <code>curl</code>, <code>MySQL</code>, <code>PostgreSQL</code>. 普通 PHP 函数无需额外操作即可异步运行。' },
-        { title: '异步 Web 服务器', icon: 'web-servers', url: '/zh/docs/frankenphp.html', text: '支持多请求、单 PHP 进程的模型。' },
+        { title: 'TrueAsync Server', icon: 'web-servers', url: '/zh/docs/server/index.html', text: '使用 C 编写的原生 Web 服务器，直接在 PHP 进程内支持 <code>HTTP/1.1</code>、<code>HTTP/2</code> 与 <code>HTTP/3</code>。' },
         { title: '协作式取消', icon: 'cancellation', url: '/zh/docs/components/cancellation.html', text: '简单灵活的 <code>API</code>，用于取消协程。<code>Scope::cancel()</code>。' },
         { title: '结构化并发', icon: 'structured-concurrency', url: '/zh/docs/components/scope.html', text: '通过沙箱 <code>Scope</code> 控制协程的生命周期。通过 <code>TaskGroup</code> 管理协程组。' },
         { title: 'PDO 连接池', icon: 'pdo-pool', url: '/zh/docs/components/pdo-pool.html', text: '直接内置于 <code>PDO</code> 的连接池。自动管理连接以实现最佳性能。' },

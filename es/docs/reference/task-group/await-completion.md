@@ -68,7 +68,7 @@ spawn(function() {
     $group->spawn(fn() => "ok");
     $group->spawn(fn() => throw new \RuntimeException("fallo"));
 
-    $group->seal();
+    $group->close();
     $group->awaitCompletion();
 
     // Sin excepciones — verificar manualmente
@@ -84,4 +84,4 @@ spawn(function() {
 
 - [TaskGroup::all](/es/docs/reference/task-group/all.html) — Esperar todas las tareas y obtener resultados
 - [TaskGroup::cancel](/es/docs/reference/task-group/cancel.html) — Cancelar todas las tareas
-- [TaskGroup::seal](/es/docs/reference/task-group/seal.html) — Sellar el grupo
+- [TaskGroup::close](/es/docs/reference/task-group/close.html) — Sellar el grupo

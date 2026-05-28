@@ -31,7 +31,7 @@ Sinon, le callable avec ses arguments est place dans une file d'attente et demar
 
 ## Erreurs
 
-Lance `Async\AsyncException` si le groupe est scelle (`seal()`) ou annule (`cancel()`).
+Lance `Async\AsyncException` si le groupe est scelle (`close()`) ou annule (`cancel()`).
 
 ## Exemples
 
@@ -48,7 +48,7 @@ spawn(function() {
     $group->spawn(fn() => "first");
     $group->spawn(fn() => "second");
 
-    $group->seal();
+    $group->close();
     $results = $group->all();
 
     var_dump($results[0]); // string(5) "first"
@@ -70,7 +70,7 @@ spawn(function() {
         return "user:$id";
     }, 42);
 
-    $group->seal();
+    $group->close();
     $results = $group->all();
     var_dump($results[0]); // string(7) "user:42"
 });

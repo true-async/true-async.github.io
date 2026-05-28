@@ -79,23 +79,79 @@ e aggiunge solo overhead di cambio di contesto.
 ## Creazione di un pool
 
 ```php
+// autodetect dal numero di CPU
+$pool = new ThreadPool();
+
+// numero esplicito di worker
 $pool = new ThreadPool(workers: 4);
+
+// + dimensione della coda
 $pool = new ThreadPool(workers: 4, queueSize: 64);
+
+// + bootloader, eseguito una volta in ogni worker
+$pool = new ThreadPool(
+    workers: 4,
+    queueSize: 64,
+    bootloader: function () {
+        require __DIR__ . '/vendor/autoload.php';
+        Database::warmupPool();
+    },
+);
+
+// + modalità coroutine: ogni task parte come coroutine in uno scope del pool del worker
+$pool = new ThreadPool(workers: 4, coroutine: true);
 ```
 
-| Parametro    | Tipo  | Scopo                                                                | Predefinito       |
-|--------------|-------|----------------------------------------------------------------------|-------------------|
-| `$workers`   | `int` | Numero di thread worker. Tutti si avviano alla creazione del pool    | **obbligatorio**  |
-| `$queueSize` | `int` | Lunghezza massima della coda di attività in sospeso                  | `workers × 4`     |
+| Parametro      | Tipo          | Scopo                                                                | Predefinito         |
+|----------------|---------------|----------------------------------------------------------------------|---------------------|
+| `$workers`     | `int`         | Numero di thread worker. `0`: autodetect tramite `available_parallelism()` | `0`           |
+| `$queueSize`   | `int`         | Lunghezza massima della coda di attività in sospeso                  | `workers × 4`       |
+| `$bootloader`  | `?\Closure`   | Hook di startup per worker (vedi sotto)                              | `null`              |
+| `$coroutine`   | `bool`        | Esegue ogni task come coroutine (vedi sotto)                         | `false`             |
+| `$concurrency` | `int`         | Limite di coroutine concorrenti per worker (solo con `coroutine: true`) | `0` (nessun limite) |
 
-Tutti i thread worker si avviano **immediatamente alla creazione** del pool — `new ThreadPool(4)` crea
-quattro thread subito. Questo è un piccolo investimento iniziale, ma le successive chiamate `submit()`
-non hanno overhead di avvio del thread.
+Tutti i thread worker si avviano **immediatamente alla creazione** del pool. È un piccolo investimento
+iniziale, ma le successive chiamate `submit()` non hanno overhead di avvio del thread.
 
 `$queueSize` limita la dimensione della coda interna delle attività. Se la coda è piena (tutti i
 worker sono occupati e ci sono già `$queueSize` attività nella coda), il prossimo `submit()` **sospende
 la coroutine chiamante** finché un worker non diventa disponibile. Un valore pari a zero significa
 `workers × 4`.
+
+### Autodetect del numero di worker
+
+Quando `workers: 0` (o il parametro è omesso), il pool prende il valore da
+[`Async\available_parallelism()`](/it/docs/reference/available-parallelism.html). Questa funzione
+tiene conto delle quote `cgroup`, dell'affinity e dei limiti di container: in un pod Kubernetes con
+`cpu.max=2` ottieni 2, non il numero di core fisici dell'host.
+
+### Bootloader
+
+La closure `$bootloader` viene deep-copiata una volta ed eseguita in **ogni** worker prima del ciclo
+principale di gestione dei task. Posto ideale per autoload, riscaldamento dei pool di connessioni e
+precompilazione di opcache — tutto ciò che altrimenti partirebbe a ogni `submit()`.
+
+Se il bootloader lancia un'eccezione, l'intero pool è considerato non riuscito: il worker non parte
+e l'errore arriva al genitore.
+
+### Modalità coroutine
+
+Con `coroutine: true` ogni task viene eseguito **come coroutine** nel proprio scope figlio, a sua
+volta annidato nello scope comune del pool del worker. All'interno del task si possono usare `await`,
+`Channel`, IO e `spawn`, tutto senza bloccare il worker stesso.
+
+```php
+$pool = new ThreadPool(workers: 4, coroutine: true);
+
+$pool->submit(function () {
+    // le normali chiamate bloccanti in questa modalità parcheggiano correttamente la coroutine,
+    // invece di bloccare il thread OS
+    $rows = (new PDO('mysql:...'))->query('SELECT ...')->fetchAll();
+    return $rows;
+});
+```
+
+`$concurrency` limita il numero di coroutine vive contemporaneamente all'interno di **un** worker.
 
 ## Invio di attività
 

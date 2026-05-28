@@ -29,7 +29,7 @@ TaskGroup реалізує `IteratorAggregate`, тому можна викори
 - Ітерація завершується, коли група запечатана **і** всі задачі оброблені
 - Якщо група не запечатана, `foreach` призупиняється в очікуванні нових задач
 
-> **Важливо:** Без виклику `seal()` ітерація чекатиме нескінченно.
+> **Важливо:** Без виклику `close()` ітерація чекатиме нескінченно.
 
 ## Приклади
 
@@ -46,7 +46,7 @@ spawn(function() {
     for ($i = 0; $i < 10; $i++) {
         $group->spawn(fn() => fetchUrl($urls[$i]));
     }
-    $group->seal();
+    $group->close();
 
     foreach ($group as $key => [$result, $error]) {
         if ($error !== null) {
@@ -70,7 +70,7 @@ spawn(function() {
 
     $group->spawnWithKey('users', fn() => fetchUsers());
     $group->spawnWithKey('orders', fn() => fetchOrders());
-    $group->seal();
+    $group->close();
 
     foreach ($group as $key => [$result, $error]) {
         if ($error === null) {
@@ -82,6 +82,6 @@ spawn(function() {
 
 ## Дивіться також
 
-- [TaskGroup::seal](/uk/docs/reference/task-group/seal.html) --- Запечатати групу
+- [TaskGroup::close](/uk/docs/reference/task-group/close.html) --- Запечатати групу
 - [TaskGroup::all](/uk/docs/reference/task-group/all.html) --- Дочекатися всіх задач
 - [TaskGroup::getResults](/uk/docs/reference/task-group/get-results.html) --- Отримати масив результатів

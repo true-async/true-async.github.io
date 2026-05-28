@@ -402,14 +402,14 @@ const subPages: Record<string, { label: string; urlSuffix: string }[]> = {
   taskgroup: [
     { label: 'all()', urlSuffix: '/docs/reference/task-group/all.html' },
     { label: 'race()', urlSuffix: '/docs/reference/task-group/race.html' },
-    { label: 'seal()', urlSuffix: '/docs/reference/task-group/seal.html' },
+    { label: 'close()', urlSuffix: '/docs/reference/task-group/close.html' },
     { label: 'cancel()', urlSuffix: '/docs/reference/task-group/cancel.html' },
   ],
   taskset: [
     { label: 'joinNext()', urlSuffix: '/docs/reference/task-set/join-next.html' },
     { label: 'joinAny()', urlSuffix: '/docs/reference/task-set/join-any.html' },
     { label: 'joinAll()', urlSuffix: '/docs/reference/task-set/join-all.html' },
-    { label: 'seal()', urlSuffix: '/docs/reference/task-set/seal.html' },
+    { label: 'close()', urlSuffix: '/docs/reference/task-set/close.html' },
   ],
   pool: [{ label: 'Pool::tryAcquire()', urlSuffix: '/docs/components/pool.html' }],
   thread: [

@@ -32,7 +32,7 @@ y disminuyendo `count()`.
 - La iteración termina cuando el conjunto está sellado **y** todas las tareas han sido procesadas
 - Si el conjunto no está sellado, `foreach` se suspende esperando nuevas tareas
 
-> **Importante:** Sin llamar a `seal()`, la iteración esperará indefinidamente.
+> **Importante:** Sin llamar a `close()`, la iteración esperará indefinidamente.
 
 ## Ejemplos
 
@@ -49,7 +49,7 @@ spawn(function() {
     for ($i = 0; $i < 100; $i++) {
         $set->spawn(fn() => processItem($items[$i]));
     }
-    $set->seal();
+    $set->close();
 
     foreach ($set as $key => [$result, $error]) {
         if ($error !== null) {
@@ -76,7 +76,7 @@ spawn(function() {
 
     $set->spawnWithKey('users', fn() => fetchUsers());
     $set->spawnWithKey('orders', fn() => fetchOrders());
-    $set->seal();
+    $set->close();
 
     foreach ($set as $key => [$result, $error]) {
         if ($error === null) {
@@ -88,6 +88,6 @@ spawn(function() {
 
 ## Ver también
 
-- [TaskSet::seal](/es/docs/reference/task-set/seal.html) — Sellar el conjunto
+- [TaskSet::close](/es/docs/reference/task-set/close.html) — Sellar el conjunto
 - [TaskSet::joinAll](/es/docs/reference/task-set/join-all.html) — Esperar todas las tareas
 - [TaskSet::joinNext](/es/docs/reference/task-set/join-next.html) — Siguiente resultado

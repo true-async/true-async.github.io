@@ -19,7 +19,7 @@ public TaskGroup::finally(Closure $callback): void
 注册一个回调，当组被密封且所有任务完成时调用。
 回调接收 TaskGroup 作为参数。
 
-由于 `cancel()` 隐式调用 `seal()`，所以回调在取消时也会触发。
+由于 `cancel()` 隐式调用 `close()`，所以回调在取消时也会触发。
 
 如果组已经完成，回调会立即同步调用。
 
@@ -47,7 +47,7 @@ spawn(function() {
     $group->spawn(fn() => "a");
     $group->spawn(fn() => "b");
 
-    $group->seal();
+    $group->close();
     $group->all();
 });
 // 输出:
@@ -64,7 +64,7 @@ use Async\TaskGroup;
 spawn(function() {
     $group = new TaskGroup();
     $group->spawn(fn() => 1);
-    $group->seal();
+    $group->close();
     $group->all();
 
     // 组已经完成 --- 回调会同步立即调用
@@ -81,5 +81,5 @@ spawn(function() {
 
 ## 参见
 
-- [TaskGroup::seal](/zh/docs/reference/task-group/seal.html) --- 密封组
+- [TaskGroup::close](/zh/docs/reference/task-group/close.html) --- 密封组
 - [TaskGroup::cancel](/zh/docs/reference/task-group/cancel.html) --- 取消任务

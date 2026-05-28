@@ -43,7 +43,7 @@ spawn(function() {
     $set->spawn(fn() => processFile("b.txt"));
     $set->spawn(fn() => throw new \RuntimeException("ошибка"));
 
-    $set->seal();
+    $set->close();
     $set->awaitCompletion(); // Не бросает исключение, даже если задачи упали
 
     echo "Все задачи завершены\n";

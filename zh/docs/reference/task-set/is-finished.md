@@ -42,7 +42,7 @@ spawn(function() {
     $set->spawn(fn() => "задача");
     echo $set->isFinished() ? "да\n" : "нет\n"; // "нет"
 
-    $set->seal();
+    $set->close();
     $set->joinAll()->await();
     echo $set->isFinished() ? "да\n" : "нет\n"; // "да"
 });
@@ -50,5 +50,5 @@ spawn(function() {
 
 ## См. также
 
-- [TaskSet::isSealed](/zh/docs/reference/task-set/is-sealed.html) — Проверить, запечатан ли набор
+- [TaskSet::isClosed](/zh/docs/reference/task-set/is-closed.html) — Проверить, запечатан ли набор
 - [TaskSet::count](/zh/docs/reference/task-set/count.html) — Количество задач

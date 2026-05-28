@@ -40,7 +40,7 @@ spawn(function() {
     $group->spawnWithKey('user', fn() => ['name' => 'Alice']);
     $group->spawnWithKey('orders', fn() => [101, 102]);
 
-    $group->seal();
+    $group->close();
     $group->all();
 
     $results = $group->getResults();
@@ -62,7 +62,7 @@ spawn(function() {
     $group->spawn(function() { throw new \RuntimeException("fehlgeschlagen"); });
     $group->spawn(fn() => "auch ok");
 
-    $group->seal();
+    $group->close();
     $group->all(ignoreErrors: true);
 
     $results = $group->getResults();

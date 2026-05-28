@@ -29,10 +29,10 @@ and decreasing `count()`.
 - The value is an array `[mixed $result, ?Throwable $error]`:
   - Success: `[$result, null]`
   - Error: `[null, $error]`
-- Iteration ends when the set is sealed **and** all tasks have been processed
-- If the set is not sealed, `foreach` suspends waiting for new tasks
+- Iteration ends when the set is closed **and** all tasks have been processed
+- If the set is not closed, `foreach` suspends waiting for new tasks
 
-> **Important:** Without calling `seal()`, iteration will wait indefinitely.
+> **Important:** Without calling `close()`, iteration will wait indefinitely.
 
 ## Examples
 
@@ -49,7 +49,7 @@ spawn(function() {
     for ($i = 0; $i < 100; $i++) {
         $set->spawn(fn() => processItem($items[$i]));
     }
-    $set->seal();
+    $set->close();
 
     foreach ($set as $key => [$result, $error]) {
         if ($error !== null) {
@@ -76,7 +76,7 @@ spawn(function() {
 
     $set->spawnWithKey('users', fn() => fetchUsers());
     $set->spawnWithKey('orders', fn() => fetchOrders());
-    $set->seal();
+    $set->close();
 
     foreach ($set as $key => [$result, $error]) {
         if ($error === null) {
@@ -88,6 +88,6 @@ spawn(function() {
 
 ## See Also
 
-- [TaskSet::seal](/en/docs/reference/task-set/seal.html) — Seal the set
+- [TaskSet::close](/en/docs/reference/task-set/close.html) — Seal the set
 - [TaskSet::joinAll](/en/docs/reference/task-set/join-all.html) — Wait for all tasks
 - [TaskSet::joinNext](/en/docs/reference/task-set/join-next.html) — Next result

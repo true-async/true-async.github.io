@@ -297,13 +297,13 @@ var subPages = {
     'taskgroup':[
         {label:'all()',url:'/ko/docs/reference/task-group/all.html'},
         {label:'race()',url:'/ko/docs/reference/task-group/race.html'},
-        {label:'seal()',url:'/ko/docs/reference/task-group/seal.html'},
+        {label:'close()',url:'/ko/docs/reference/task-group/close.html'},
         {label:'cancel()',url:'/ko/docs/reference/task-group/cancel.html'}],
     'taskset':[
         {label:'joinNext()',url:'/ko/docs/reference/task-set/join-next.html'},
         {label:'joinAny()',url:'/ko/docs/reference/task-set/join-any.html'},
         {label:'joinAll()',url:'/ko/docs/reference/task-set/join-all.html'},
-        {label:'seal()',url:'/ko/docs/reference/task-set/seal.html'}],
+        {label:'close()',url:'/ko/docs/reference/task-set/close.html'}],
     'pool':[{label:'Pool::tryAcquire()',url:'/ko/docs/components/pool.html'}]
 };
 var dZones=[

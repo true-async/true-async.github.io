@@ -86,6 +86,7 @@ $pdo = new PDO($dsn, $user, $password, [
 | `POOL_MIN`                  | Numero minimo di connessioni mantenute aperte dal pool               | `0`         |
 | `POOL_MAX`                  | Numero massimo di connessioni simultanee                             | `10`        |
 | `POOL_HEALTHCHECK_INTERVAL` | Quanto spesso verificare che una connessione sia attiva (in secondi) | `0`         |
+| `POOL_STMT_CACHE_SIZE`      | Dimensione della cache di prepared statement per singola connessione fisica | `0` (off) |
 
 ## Associazione delle Connessioni alle Coroutine
 
@@ -115,6 +116,69 @@ $coro2 = spawn(function() use ($pdo) {
 
 Se una coroutine non sta più usando la connessione (nessuna transazione o statement attivo),
 il pool potrebbe restituirla prima -- senza attendere la fine della coroutine.
+
+## Cache di prepared statement
+
+Si attiva con l'attributo `PDO::ATTR_POOL_STMT_CACHE_SIZE => N` alla creazione del `PDO`. Il pool
+mantiene **per ogni connessione fisica** una cache LRU degli ultimi `N` statement preparati.
+Quando una coroutine richiama `prepare()` con lo stesso SQL, il pool restituisce uno statement
+**lato server** già preparato — senza round-trip al DB.
+
+```php
+$pdo = new PDO($dsn, $user, $password, [
+    PDO::ATTR_POOL_ENABLED         => true,
+    PDO::ATTR_POOL_MAX             => 10,
+    PDO::ATTR_POOL_STMT_CACHE_SIZE => 64,   // fino a 64 stmt per connessione
+]);
+
+spawn(function () use ($pdo) {
+    for ($i = 0; $i < 1000; $i++) {
+        // Prima chiamata: PREPARE reale sul server.
+        // Tutte le successive sulla stessa connessione: cache hit, zero traffico di rete.
+        $stmt = $pdo->prepare('SELECT name FROM users WHERE id = ?');
+        $stmt->execute([$i]);
+        $row = $stmt->fetch();
+    }
+});
+```
+
+Su un ciclo stretto `prepare → execute → fetch` questo porta circa a **~2.9×** di accelerazione
+(dipende dal driver e dal carico).
+
+### Driver supportati
+
+`pdo_pgsql`, `pdo_mysql`, `pdo_sqlite`.
+
+### Quando la cache non si applica
+
+La cache viene saltata automaticamente nei seguenti casi, per non alterare la semantica:
+
+- `PDO_CURSOR_SCROLL` — un cursore lato server di un result set scrollabile non si può riusare.
+- `PDO::ATTR_EMULATE_PREPARES = true` — le query emulate non hanno uno statement lato server.
+- `PGSQL_ATTR_DISABLE_PREPARES` — rifiuto esplicito del prepare nel driver PG.
+
+### Invalidazione della cache per cambi di schema / piano
+
+Se lo schema di una tabella cambia (`ALTER TABLE`), il piano lato server di uno statement vecchio
+può non essere più valido. Il pool riconosce questi errori e **riesegue trasparentemente** la query:
+lo statement vecchio viene rimosso dalla cache, ne viene fatto un nuovo `prepare` e il codice utente
+**riceve un risultato positivo al primo tentativo**.
+
+| Driver | Codici di errore che innescano il retry |
+|--------|-----------------------------------------|
+| PostgreSQL | SQLSTATE `0A000` (feature not supported, cached plan must not change result type), `26000` (invalid SQL statement name) |
+| MySQL | `1243` (unknown prepared statement handler), `1615` (prepared statement needs to be re-prepared), `2057` (statement has wrong column count) |
+
+### Quanto mettere
+
+L'LRU lavora **in modo indipendente per ogni connessione fisica**, quindi il consumo di memoria
+totale sul server DB è ≈ `POOL_MAX × POOL_STMT_CACHE_SIZE` statement preparati in un dato momento.
+
+Valori ragionevoli:
+
+- applicazione web con qualche decina di SQL unici: `16..32`;
+- servizio con molte query diverse: `64..256`;
+- se le query sono quasi sempre uniche, la cache è inutile: lascia `0`.
 
 ## Transazioni
 

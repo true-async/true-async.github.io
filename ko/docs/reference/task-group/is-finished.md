@@ -22,5 +22,5 @@ public TaskGroup::isFinished(): bool
 
 ## 참고
 
-- [TaskGroup::isSealed](/ko/docs/reference/task-group/is-sealed.html) --- 그룹이 봉인되었는지 확인
+- [TaskGroup::isClosed](/ko/docs/reference/task-group/is-closed.html) --- 그룹이 봉인되었는지 확인
 - [TaskGroup::awaitCompletion](/ko/docs/reference/task-group/await-completion.html) --- 완료 대기

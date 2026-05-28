@@ -17,7 +17,7 @@ public TaskGroup::cancel(?Async\AsyncCancellation $cancellation = null): void
 ```
 
 Cancella tutte le coroutine in esecuzione e i task in coda.
-Chiama implicitamente `seal()`. I task in coda non vengono mai avviati.
+Chiama implicitamente `close()`. I task in coda non vengono mai avviati.
 
 Le coroutine ricevono un `AsyncCancellation` e terminano.
 La cancellazione avviene in modo asincrono --- usa `awaitCompletion()` per garantire il completamento.
@@ -69,6 +69,6 @@ spawn(function() {
 
 ## Vedi anche
 
-- [TaskGroup::seal](/it/docs/reference/task-group/seal.html) --- Sigilla senza cancellazione
+- [TaskGroup::close](/it/docs/reference/task-group/close.html) --- Sigilla senza cancellazione
 - [TaskGroup::awaitCompletion](/it/docs/reference/task-group/await-completion.html) --- Attende il completamento
 - [TaskGroup::dispose](/it/docs/reference/task-group/dispose.html) --- Elimina lo scope del gruppo

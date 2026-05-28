@@ -16,10 +16,10 @@ description: "Зарегистрировать обработчик заверш
 public TaskSet::finally(Closure $callback): void
 ```
 
-Регистрирует callback, который вызывается когда набор запечатан и все задачи завершены.
+Регистрирует callback, который вызывается когда набор закрыт и все задачи завершены.
 Callback получает TaskSet в качестве параметра.
 
-Поскольку `cancel()` неявно вызывает `seal()`, обработчик срабатывает и при отмене.
+Поскольку `cancel()` неявно вызывает `close()`, обработчик срабатывает и при отмене.
 
 Если набор уже завершён — callback вызывается синхронно сразу.
 
@@ -47,7 +47,7 @@ spawn(function() {
     $set->spawn(fn() => "a");
     $set->spawn(fn() => "b");
 
-    $set->seal();
+    $set->close();
     $set->joinAll()->await();
 });
 // Вывод:
@@ -64,7 +64,7 @@ use Async\TaskSet;
 spawn(function() {
     $set = new TaskSet();
     $set->spawn(fn() => 1);
-    $set->seal();
+    $set->close();
     $set->joinAll()->await();
 
     // Набор уже завершён — callback вызывается синхронно
@@ -81,5 +81,5 @@ spawn(function() {
 
 ## См. также
 
-- [TaskSet::seal](/ru/docs/reference/task-set/seal.html) — Запечатать набор
+- [TaskSet::close](/ru/docs/reference/task-set/close.html) — Закрыть набор
 - [TaskSet::awaitCompletion](/ru/docs/reference/task-set/await-completion.html) — Дождаться завершения

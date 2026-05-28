@@ -26,10 +26,10 @@ TaskGroup реализует `IteratorAggregate`, поэтому можно ис
 - Значение — массив `[mixed $result, ?Throwable $error]`:
   - Успех: `[$result, null]`
   - Ошибка: `[null, $error]`
-- Итерация завершается, когда группа запечатана **и** все задачи обработаны
-- Если группа не запечатана — `foreach` приостанавливается в ожидании новых задач
+- Итерация завершается, когда группа закрыта **и** все задачи обработаны
+- Если группа не закрыта — `foreach` приостанавливается в ожидании новых задач
 
-> **Важно:** Без вызова `seal()` итерация будет ждать бесконечно.
+> **Важно:** Без вызова `close()` итерация будет ждать бесконечно.
 
 ## Примеры
 
@@ -46,7 +46,7 @@ spawn(function() {
     for ($i = 0; $i < 10; $i++) {
         $group->spawn(fn() => fetchUrl($urls[$i]));
     }
-    $group->seal();
+    $group->close();
 
     foreach ($group as $key => [$result, $error]) {
         if ($error !== null) {
@@ -70,7 +70,7 @@ spawn(function() {
 
     $group->spawnWithKey('users', fn() => fetchUsers());
     $group->spawnWithKey('orders', fn() => fetchOrders());
-    $group->seal();
+    $group->close();
 
     foreach ($group as $key => [$result, $error]) {
         if ($error === null) {
@@ -82,6 +82,6 @@ spawn(function() {
 
 ## См. также
 
-- [TaskGroup::seal](/ru/docs/reference/task-group/seal.html) — Запечатать группу
+- [TaskGroup::close](/ru/docs/reference/task-group/close.html) — Закрыть группу
 - [TaskGroup::all](/ru/docs/reference/task-group/all.html) — Дождаться всех задач
 - [TaskGroup::getResults](/ru/docs/reference/task-group/get-results.html) — Получить массив результатов

@@ -16,10 +16,10 @@ description: "Register a completion handler for the set."
 public TaskSet::finally(Closure $callback): void
 ```
 
-Registers a callback that is called when the set is sealed and all tasks are completed.
+Registers a callback that is called when the set is closed and all tasks are completed.
 The callback receives the TaskSet as a parameter.
 
-Since `cancel()` implicitly calls `seal()`, the handler also fires on cancellation.
+Since `cancel()` implicitly calls `close()`, the handler also fires on cancellation.
 
 If the set is already finished, the callback is called synchronously immediately.
 
@@ -47,7 +47,7 @@ spawn(function() {
     $set->spawn(fn() => "a");
     $set->spawn(fn() => "b");
 
-    $set->seal();
+    $set->close();
     $set->joinAll()->await();
 });
 // Output:
@@ -64,7 +64,7 @@ use Async\TaskSet;
 spawn(function() {
     $set = new TaskSet();
     $set->spawn(fn() => 1);
-    $set->seal();
+    $set->close();
     $set->joinAll()->await();
 
     // Set is already finished — callback is called synchronously
@@ -81,5 +81,5 @@ spawn(function() {
 
 ## See Also
 
-- [TaskSet::seal](/en/docs/reference/task-set/seal.html) — Seal the set
+- [TaskSet::close](/en/docs/reference/task-set/close.html) — Seal the set
 - [TaskSet::awaitCompletion](/en/docs/reference/task-set/await-completion.html) — Wait for completion

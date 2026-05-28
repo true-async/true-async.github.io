@@ -77,21 +77,77 @@ C 中的 `sysconf(_SC_NPROCESSORS_ONLN)`）。工作线程数超过核心数
 ## 创建池
 
 ```php
+// 按 CPU 数自动检测
+$pool = new ThreadPool();
+
+// 显式指定 worker 数
 $pool = new ThreadPool(workers: 4);
+
+// + 队列大小
 $pool = new ThreadPool(workers: 4, queueSize: 64);
+
+// + bootloader，每个 worker 一次性执行
+$pool = new ThreadPool(
+    workers: 4,
+    queueSize: 64,
+    bootloader: function () {
+        require __DIR__ . '/vendor/autoload.php';
+        Database::warmupPool();
+    },
+);
+
+// + 协程模式：任务作为协程在 per-worker 池 scope 内启动
+$pool = new ThreadPool(workers: 4, coroutine: true);
 ```
 
-| 参数         | 类型  | 用途                                                                 | 默认值            |
-|--------------|-------|----------------------------------------------------------------------|-------------------|
-| `$workers`   | `int` | 工作线程数。创建池时全部启动                                         | **必填**          |
-| `$queueSize` | `int` | 待处理任务队列的最大长度                                             | `workers × 4`     |
+| 参数          | 类型           | 用途                                                            | 默认值          |
+|---------------|----------------|-----------------------------------------------------------------|-----------------|
+| `$workers`    | `int`          | worker 线程数。`0` —— 通过 `available_parallelism()` 自动检测   | `0`             |
+| `$queueSize`  | `int`          | 待处理任务队列的最大长度                                        | `workers × 4`   |
+| `$bootloader` | `?\Closure`    | per-worker 启动钩子（见下文）                                   | `null`          |
+| `$coroutine`  | `bool`         | 是否把每个任务当作协程跑（见下文）                              | `false`         |
+| `$concurrency`| `int`          | 每个 worker 上同时存在的协程数上限（仅 `coroutine: true` 有效） | `0`（不限）     |
 
-所有工作线程在**创建池时立即启动**——`new ThreadPool(4)` 会立即创建四个线程。
-这是一笔小的"前期"投资，但后续的 `submit()` 调用不会有线程启动开销。
+所有 worker 线程在**创建池时立即启动**。这是一笔小的"前期"投资，
+但后续的 `submit()` 不会有线程启动开销。
 
-`$queueSize` 限制内部任务队列的大小。如果队列已满（所有工作线程都在忙，
-且队列中已有 `$queueSize` 个任务），下一次 `submit()` 将**暂停调用协程**，
-直到工作线程变为可用。值为零意味着 `workers × 4`。
+`$queueSize` 限制内部任务队列的大小。如果队列已满（所有 worker 都在忙，
+且队列中已有 `$queueSize` 个任务），下一次 `submit()` 会**挂起调用协程**，
+直到有 worker 空出来。值为零等价于 `workers × 4`。
+
+### worker 数自动检测
+
+当 `workers: 0`（或省略该参数）时，池会取
+[`Async\available_parallelism()`](/zh/docs/reference/available-parallelism.html) 的值。
+该函数考虑 `cgroup` 配额、affinity 和容器限制 —— 在 `cpu.max=2` 的 Kubernetes pod 里
+你拿到的是 2，而不是宿主机的物理核数。
+
+### Bootloader
+
+`$bootloader` 闭包会被 deep-copy 一次，并在**每个** worker 进入主任务循环之前执行。
+非常适合放 autoload、连接池预热和 opcache 预编译 —— 任何否则要在每次 `submit()` 里
+重复做的事。
+
+如果 bootloader 抛出异常，整个池视为创建失败：worker 不会启动，错误会冒泡到父协程。
+
+### 协程模式
+
+`coroutine: true` 时，每个任务作为**协程**运行在它自己的子 scope 里，
+该子 scope 又嵌套在 worker 的池 scope 之下。任务内部可以 `await`、使用 `Channel`、做 IO、
+`spawn` —— 全部不会阻塞 worker 本身。
+
+```php
+$pool = new ThreadPool(workers: 4, coroutine: true);
+
+$pool->submit(function () {
+    // 该模式下，常见的阻塞调用会正确地把协程 park 住，
+    // 而不是阻塞 OS 线程
+    $rows = (new PDO('mysql:...'))->query('SELECT ...')->fetchAll();
+    return $rows;
+});
+```
+
+`$concurrency` 限制**单个** worker 上同时存活的协程数量。
 
 ## 提交任务
 

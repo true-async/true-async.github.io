@@ -17,7 +17,7 @@ public TaskGroup::cancel(?Async\AsyncCancellation $cancellation = null): void
 ```
 
 실행 중인 모든 코루틴과 대기열의 태스크를 취소합니다.
-암묵적으로 `seal()`을 호출합니다. 대기열의 태스크는 시작되지 않습니다.
+암묵적으로 `close()`을 호출합니다. 대기열의 태스크는 시작되지 않습니다.
 
 코루틴은 `AsyncCancellation`을 수신하고 종료됩니다.
 취소는 비동기적으로 수행됩니다 --- 완료를 보장하려면 `awaitCompletion()`을 사용하세요.
@@ -69,6 +69,6 @@ spawn(function() {
 
 ## 참고
 
-- [TaskGroup::seal](/ko/docs/reference/task-group/seal.html) --- 취소 없이 봉인
+- [TaskGroup::close](/ko/docs/reference/task-group/close.html) --- 취소 없이 봉인
 - [TaskGroup::awaitCompletion](/ko/docs/reference/task-group/await-completion.html) --- 완료 대기
 - [TaskGroup::dispose](/ko/docs/reference/task-group/dispose.html) --- 그룹 스코프 해제

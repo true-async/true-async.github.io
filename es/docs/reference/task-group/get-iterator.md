@@ -29,7 +29,7 @@ TaskGroup implementa `IteratorAggregate`, por lo que puede usar `foreach` direct
 - La iteración termina cuando el grupo está sellado **y** todas las tareas han sido procesadas
 - Si el grupo no está sellado, `foreach` se suspende esperando nuevas tareas
 
-> **Importante:** Sin llamar a `seal()`, la iteración esperará indefinidamente.
+> **Importante:** Sin llamar a `close()`, la iteración esperará indefinidamente.
 
 ## Ejemplos
 
@@ -46,7 +46,7 @@ spawn(function() {
     for ($i = 0; $i < 10; $i++) {
         $group->spawn(fn() => fetchUrl($urls[$i]));
     }
-    $group->seal();
+    $group->close();
 
     foreach ($group as $key => [$result, $error]) {
         if ($error !== null) {
@@ -70,7 +70,7 @@ spawn(function() {
 
     $group->spawnWithKey('users', fn() => fetchUsers());
     $group->spawnWithKey('orders', fn() => fetchOrders());
-    $group->seal();
+    $group->close();
 
     foreach ($group as $key => [$result, $error]) {
         if ($error === null) {
@@ -82,6 +82,6 @@ spawn(function() {
 
 ## Ver también
 
-- [TaskGroup::seal](/es/docs/reference/task-group/seal.html) — Sellar el grupo
+- [TaskGroup::close](/es/docs/reference/task-group/close.html) — Sellar el grupo
 - [TaskGroup::all](/es/docs/reference/task-group/all.html) — Esperar todas las tareas
 - [TaskGroup::getResults](/es/docs/reference/task-group/get-results.html) — Obtener un array de resultados

@@ -31,7 +31,7 @@ public TaskGroup::spawn(callable $task, mixed ...$args): void
 
 ## 오류
 
-그룹이 봉인(`seal()`)되었거나 취소(`cancel()`)된 경우 `Async\AsyncException`을 발생시킵니다.
+그룹이 봉인(`close()`)되었거나 취소(`cancel()`)된 경우 `Async\AsyncException`을 발생시킵니다.
 
 ## 예제
 
@@ -48,7 +48,7 @@ spawn(function() {
     $group->spawn(fn() => "first");
     $group->spawn(fn() => "second");
 
-    $group->seal();
+    $group->close();
     $results = $group->all();
 
     var_dump($results[0]); // string(5) "first"
@@ -70,7 +70,7 @@ spawn(function() {
         return "user:$id";
     }, 42);
 
-    $group->seal();
+    $group->close();
     $results = $group->all();
     var_dump($results[0]); // string(7) "user:42"
 });

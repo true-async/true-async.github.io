@@ -17,7 +17,7 @@ public TaskGroup::cancel(?Async\AsyncCancellation $cancellation = null): void
 ```
 
 Cancels all running coroutines and queued tasks.
-Implicitly calls `seal()`. Queued tasks are never started.
+Implicitly calls `close()`. Queued tasks are never started.
 
 Coroutines receive an `AsyncCancellation` and terminate.
 Cancellation happens asynchronously --- use `awaitCompletion()` to guarantee completion.
@@ -69,6 +69,6 @@ spawn(function() {
 
 ## See Also
 
-- [TaskGroup::seal](/en/docs/reference/task-group/seal.html) --- Seal without cancellation
+- [TaskGroup::close](/en/docs/reference/task-group/close.html) --- Seal without cancellation
 - [TaskGroup::awaitCompletion](/en/docs/reference/task-group/await-completion.html) --- Wait for completion
 - [TaskGroup::dispose](/en/docs/reference/task-group/dispose.html) --- Dispose of the group scope

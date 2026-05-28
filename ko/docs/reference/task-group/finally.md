@@ -19,7 +19,7 @@ public TaskGroup::finally(Closure $callback): void
 그룹이 봉인되고 모든 태스크가 완료되었을 때 호출되는 콜백을 등록합니다.
 콜백은 TaskGroup을 매개변수로 받습니다.
 
-`cancel()`이 암묵적으로 `seal()`을 호출하므로, 취소 시에도 핸들러가 실행됩니다.
+`cancel()`이 암묵적으로 `close()`을 호출하므로, 취소 시에도 핸들러가 실행됩니다.
 
 그룹이 이미 완료된 경우 콜백은 즉시 동기적으로 호출됩니다.
 
@@ -47,7 +47,7 @@ spawn(function() {
     $group->spawn(fn() => "a");
     $group->spawn(fn() => "b");
 
-    $group->seal();
+    $group->close();
     $group->all();
 });
 // 출력:
@@ -64,7 +64,7 @@ use Async\TaskGroup;
 spawn(function() {
     $group = new TaskGroup();
     $group->spawn(fn() => 1);
-    $group->seal();
+    $group->close();
     $group->all();
 
     // 그룹이 이미 완료됨 — 콜백이 동기적으로 호출됩니다
@@ -81,5 +81,5 @@ spawn(function() {
 
 ## 참고
 
-- [TaskGroup::seal](/ko/docs/reference/task-group/seal.html) --- 그룹 봉인
+- [TaskGroup::close](/ko/docs/reference/task-group/close.html) --- 그룹 봉인
 - [TaskGroup::cancel](/ko/docs/reference/task-group/cancel.html) --- 태스크 취소

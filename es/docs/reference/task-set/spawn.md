@@ -31,7 +31,7 @@ De lo contrario, el callable con sus argumentos se coloca en una cola y se inici
 
 ## Errores
 
-Lanza `Async\AsyncException` si el conjunto está sellado (`seal()`) o cancelado (`cancel()`).
+Lanza `Async\AsyncException` si el conjunto está sellado (`close()`) o cancelado (`cancel()`).
 
 ## Ejemplos
 
@@ -48,7 +48,7 @@ spawn(function() {
     $set->spawn(fn() => "first");
     $set->spawn(fn() => "second");
 
-    $set->seal();
+    $set->close();
     $results = $set->joinAll()->await();
 
     var_dump($results[0]); // string(5) "first"
@@ -70,7 +70,7 @@ spawn(function() {
         return $a + $b;
     }, 10, 20);
 
-    $set->seal();
+    $set->close();
     $results = $set->joinAll()->await();
     var_dump($results[0]); // int(30)
 });

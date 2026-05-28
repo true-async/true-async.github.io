@@ -4,19 +4,19 @@ lang: ru
 path_key: "/docs/server/streaming.html"
 nav_active: docs
 permalink: /ru/docs/server/streaming.html
-page_title: "TrueAsync Server: стриминг запроса и ответа"
-description: "readBody(): pull-based стрим тела запроса. send()/sendable(): chunked стрим ответа с backpressure. Trailers HTTP/2."
+page_title: "TrueAsync Server: потоковая передача запроса и ответа"
+description: "readBody(): чтение тела запроса блоками. send()/sendable(): отправка ответа блоками с обратным давлением. HTTP/2 trailers."
 ---
 
-# Стриминг запроса и ответа
+# Потоковая передача запроса и ответа
 
 (PHP 8.6+, true_async_server 0.6+)
 
-## Стрим тела запроса: `readBody()`
+## Чтение тела запроса блоками: `readBody()`
 
 По умолчанию обработчик получает уже полностью прочитанное тело (`HttpRequest::getBody()`).
-С `HttpServerConfig::setBodyStreamingEnabled(true)` парсеры H1/H2 кладут DATA-чанки в per-request
-FIFO, и обработчик читает их по одному через `HttpRequest::readBody()`.
+С `HttpServerConfig::setBodyStreamingEnabled(true)` парсеры H1/H2 кладут DATA-блоки в очередь
+FIFO, привязанную к запросу, а обработчик забирает их по одному через `HttpRequest::readBody()`.
 
 ```php
 use TrueAsync\HttpServer;
@@ -46,37 +46,37 @@ $server->start();
 
 ### Семантика
 
-- Один вызов `readBody()` возвращает **один** parser-supplied chunk:
-  - H2 DATA-фрейм (по умолчанию до 16 KiB),
-  - llhttp `on_body` slice (ограничен read-buffer'ом H1 = 8 KiB).
-- При пустой очереди корутина паркуется на per-request trigger event.
-- На EOF возвращается `null` (идемпотентно).
-- При ошибке стрима (peer reset, превышение `max_body_size`) бросается `\Exception`.
-- Параметр `$maxLen` сейчас зарезервирован для будущего coalesce и игнорируется. Сигнатура держится
-  binary-compatible с грядущей доводкой (issue #26).
+- Один вызов `readBody()` возвращает **один** блок, полученный от парсера:
+  - DATA-фрейм H2 (по умолчанию до 16 KiB);
+  - срез из `on_body` llhttp (ограничен буфером чтения H1 = 8 KiB).
+- Когда очередь пуста, корутина приостанавливается на событии-триггере запроса.
+- По достижении конца потока возвращается `null` (идемпотентно).
+- При ошибке потока (peer reset, превышение `max_body_size`) бросается `\Exception`.
+- Параметр `$maxLen` сейчас зарезервирован для будущей склейки блоков и игнорируется. Сигнатура
+  держится бинарно-совместимой с предстоящей доводкой (issue #26).
 
 ### Когда включать
 
-- Большие uploads (логи, медиа, бэкапы)
-- Стриминг-парсинг (NDJSON, MessagePack stream)
-- Сервисы, где tail-latency деградирует от удержания тела в RAM
-- Multipart **всегда** стрим, независимо от `setBodyStreamingEnabled()`
+- Большие загрузки файлов (логи, медиа, бэкапы).
+- Потоковый парсинг (NDJSON, MessagePack stream).
+- Сервисы, у которых хвостовая задержка (p99) ухудшается от удержания тела в памяти.
+- Multipart **всегда** идёт потоком, независимо от `setBodyStreamingEnabled()`.
 
 Когда **не** включать: REST-эндпоинты, где тело компактное и удобнее работать с `getBody()`/`getPost()`/
-`getQuery()` целиком. Combined-mode (стрим только когда тело > X) не поддерживается;
-`getBody()` в streaming-режиме бросает `LogicException` (запланировано в roadmap).
+`getQuery()` целиком. Комбинированный режим (поток только когда тело > X) не поддерживается;
+`getBody()` в потоковом режиме бросает `LogicException` (запланировано в дорожной карте).
 
-### Memory footprint
+### Потребление памяти
 
-На 50 параллельных 20-MiB POST'ах (h2load, WSL2): peak RSS падает 1170 MiB → **197 MiB** (×6).
-Пропускная способность растёт 36 req/s → **100 req/s** (×2.7), потому что dispatch обработчика больше
-не ждёт полного тела.
+На 50 параллельных POST-запросах по 20 MiB (h2load, WSL2): пиковый RSS падает с 1170 MiB до
+**197 MiB** (в 6 раз). Пропускная способность растёт с 36 req/s до **100 req/s** (×2.7), потому что
+вызов обработчика больше не ждёт полного тела.
 
-## Стрим ответа: `send()` / `sendable()`
+## Отправка ответа блоками: `send()` / `sendable()`
 
-Простейший ответ через `setBody()` / `json()` / `html()` / `redirect()` отправляется одним куском.
+Простейший ответ через `setBody()` / `json()` / `html()` / `redirect()` уходит одним куском.
 
-Для стрим-ответа (chunked H1, DATA-фреймы H2) используется `send($chunk)`:
+Для потоковой отправки (chunked-передача в H1, DATA-фреймы в H2) используется `send($chunk)`:
 
 ```php
 $server->addHttpHandler(function ($req, $res) {
@@ -93,25 +93,25 @@ $server->addHttpHandler(function ($req, $res) {
 });
 ```
 
-### Backpressure
+### Обратное давление (backpressure)
 
-`send()` блокирует handler-корутину **только** под backpressure: per-stream staging buffer заполнен.
-В нормальном случае возвращается сразу.
+`send()` приостанавливает корутину обработчика **только** при обратном давлении: когда промежуточный
+буфер потока заполнен. В обычной ситуации функция возвращает управление сразу.
 
-HTTP/2: backpressure включается при заполнении ring-slot'ов **или** превышении
-`HttpServerConfig::setStreamWriteBufferBytes()` (дефолт 256 KiB).
-HTTP/1 chunked: использует kernel send-buffer.
+HTTP/2: давление включается при заполнении слотов кольцевого буфера **либо** при превышении
+`HttpServerConfig::setStreamWriteBufferBytes()` (по умолчанию 256 KiB).
+HTTP/1 chunked использует системный буфер отправки ядра.
 
 ### `sendable()`
 
-Advisory non-blocking проверка: вернёт `true`, если `send()` примет чанк без suspend'а корутины.
-`false` означает: `send()` заблокирует, либо response закрыт/sealed `sendFile()`'ом, либо это
-не streaming-capable тип ответа.
+Рекомендательная неблокирующая проверка: вернёт `true`, если `send()` примет блок без приостановки
+корутины. `false` означает одно из трёх: `send()` приостановится, ответ закрыт или запечатан вызовом
+`sendFile()`, либо это не тот тип ответа, который поддерживает потоковую передачу.
 
 ```php
 foreach ($events as $event) {
     if (!$res->sendable()) {
-        // не хочется ждать медленного клиента, займёмся другим
+        // не хочется ждать медленного клиента — займёмся другим
         $event->save();   // дописать в БД
         continue;
     }
@@ -119,8 +119,8 @@ foreach ($events as $event) {
 }
 ```
 
-`send()` **всегда** безопасно вызывать, независимо от `sendable()`. Последний просто даёт handler'у
-шанс заняться другой работой вместо блокировки на медленном peer'е.
+`send()` **всегда** безопасно вызывать, независимо от `sendable()`. Последний просто даёт обработчику
+шанс заняться другой работой вместо ожидания на медленном клиенте.
 
 ## HTTP/2 trailers
 
@@ -134,7 +134,7 @@ $res->setTrailer('grpc-status', '0');
 $res->setTrailer('grpc-message', 'OK');
 ```
 
-Bulk-set:
+Массовая установка:
 
 ```php
 $res->setTrailers(['grpc-status' => '0', 'grpc-message' => 'OK']);
@@ -142,10 +142,10 @@ $res->resetTrailers();   // снять все
 $res->getTrailers();
 ```
 
-На HTTP/1.1 значение **молча игнорируется**: chunked-encoding trailer emission не в области
-Step 5b.
+На HTTP/1.1 значение **молча игнорируется**: отправка trailer-ов в chunked-кодировании пока не
+реализована (Step 5b).
 
-> Имена trailers пишутся в lowercase (RFC 9113 §8.2.2); uppercase автоматически приводится.
+> Имена trailer-ов пишутся в нижнем регистре (RFC 9113 §8.2.2); верхний регистр приводится автоматически.
 
 ## См. также
 

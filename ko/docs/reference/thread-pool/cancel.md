@@ -19,8 +19,9 @@ public ThreadPool::cancel(): void
 풀의 강제 종료를 시작합니다. `cancel()`이 호출된 후:
 
 - 이후의 모든 `submit()` 호출은 즉시 `Async\ThreadPoolException`을 던집니다.
-- 큐에서 대기 중인 작업(아직 워커가 가져가지 않은)은 **즉시 거부**됩니다 — 해당하는 `Future` 객체는 `ThreadPoolException`과 함께 거부 상태로 전환됩니다.
-- 이미 워커 스레드에서 실행 중인 작업은 현재 작업의 완료까지 실행됩니다(스레드 내부의 PHP 코드를 강제로 중단하는 것은 불가능합니다).
+- 큐에서 대기 중인 작업(아직 워커가 가져가지 않은)은 **즉시 거부**됩니다 — 해당하는 `Future` 객체는 `ThreadPoolException`(코루틴 모드 `coroutine: true`에서는 `CancellationException`)과 함께 거부 상태로 전환됩니다.
+- **일반 모드**(`coroutine: false`)에서는 이미 워커 스레드에서 실행 중인 작업이 현재 작업의 완료까지 실행됩니다 — OS 스레드 내부의 PHP 코드를 강제로 중단하는 것은 불가능합니다.
+- **`coroutine: true` 모드**에서는 진행 중인 작업이 **실제로 cancel됩니다** (TrueAsync 0.7.0부터): 채널이 닫히기 전에 원자적 `cancel_requested` 플래그가 설정되고, 워커가 `ZEND_ASYNC_SCOPE_CANCEL(pool_scope, NULL, false, false)`을 호출하며, `AFTER_MAIN`이 실행 중인 모든 작업의 자식 scope를 연쇄적으로 cancel합니다.
 - 워커는 현재 작업을 마치는 즉시 중지하며 큐에서 새 작업을 가져오지 않습니다.
 
 큐에 있는 모든 작업이 완료될 때까지 기다리는 정상적인 종료를 원한다면 [`close()`](/ko/docs/reference/thread-pool/close.html)를 사용하세요.

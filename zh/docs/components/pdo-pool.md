@@ -84,6 +84,7 @@ $pdo = new PDO($dsn, $user, $password, [
 | `POOL_MIN`                  | 连接池保持打开的最小连接数                                           | `0`     |
 | `POOL_MAX`                  | 最大同时连接数                                                       | `10`    |
 | `POOL_HEALTHCHECK_INTERVAL` | 检查连接是否存活的频率（秒）                                         | `0`     |
+| `POOL_STMT_CACHE_SIZE`      | 每个物理连接上 prepared statement 的缓存大小                         | `0`（关）|
 
 ## 连接绑定到协程
 
@@ -113,6 +114,67 @@ $coro2 = spawn(function() use ($pdo) {
 
 如果协程不再使用连接（没有活跃的事务或语句），
 连接池可能会提前归还它 -- 无需等待协程结束。
+
+## Prepared statement 缓存
+
+通过创建 `PDO` 时的 `PDO::ATTR_POOL_STMT_CACHE_SIZE => N` 属性开启。连接池在
+**每个物理连接**上维护一个 LRU 缓存，最多存最近 `N` 个 prepared statement。
+当协程在同一连接上对相同 SQL 再次 `prepare()` 时，连接池返回已经准备好的**服务端** statement，
+省掉与数据库的一次往返。
+
+```php
+$pdo = new PDO($dsn, $user, $password, [
+    PDO::ATTR_POOL_ENABLED         => true,
+    PDO::ATTR_POOL_MAX             => 10,
+    PDO::ATTR_POOL_STMT_CACHE_SIZE => 64,   // 每条连接最多缓存 64 个 stmt
+]);
+
+spawn(function () use ($pdo) {
+    for ($i = 0; $i < 1000; $i++) {
+        // 首次：服务端真正 PREPARE。
+        // 同一连接上后续调用：命中缓存，无网络流量。
+        $stmt = $pdo->prepare('SELECT name FROM users WHERE id = ?');
+        $stmt->execute([$i]);
+        $row = $stmt->fetch();
+    }
+});
+```
+
+在紧密的 `prepare → execute → fetch` 循环上，这能带来 **~2.9×** 的加速（具体取决于驱动和负载）。
+
+### 支持的驱动
+
+`pdo_pgsql`、`pdo_mysql`、`pdo_sqlite`。
+
+### 何时不缓存
+
+为保证语义不变，下列情况会自动跳过缓存：
+
+- `PDO_CURSOR_SCROLL` —— 可滚动结果的服务端游标不能复用。
+- `PDO::ATTR_EMULATE_PREPARES = true` —— 模拟 prepare 不存在服务端 stmt。
+- `PGSQL_ATTR_DISABLE_PREPARES` —— PG 驱动显式禁止 prepare。
+
+### 表结构 / 计划变化时缓存失效
+
+当表结构发生变化（`ALTER TABLE`）时，旧 stmt 的服务端计划可能不再有效。
+连接池识别这类错误并**透明地重新执行**：旧 stmt 从缓存中剔除，重新 `prepare`，
+用户代码**首次调用就拿到成功结果**。
+
+| 驱动 | 触发 retry 的错误码 |
+|------|---------------------|
+| PostgreSQL | SQLSTATE `0A000`（feature not supported, cached plan must not change result type）、`26000`（invalid SQL statement name） |
+| MySQL | `1243`（unknown prepared statement handler）、`1615`（prepared statement needs to be re-prepared）、`2057`（statement has wrong column count） |
+
+### 该设多大
+
+LRU 在**每个物理连接上独立**工作，所以数据库服务器上同一时间持有的 prepared stmt 数
+≈ `POOL_MAX × POOL_STMT_CACHE_SIZE`。
+
+合理范围：
+
+- 只有几十种不同 SQL 的 web 应用 —— `16..32`；
+- SQL 种类繁多的服务 —— `64..256`；
+- SQL 几乎都不重复 —— 缓存无意义，留 `0`。
 
 ## 事务
 

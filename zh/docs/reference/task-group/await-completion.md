@@ -68,7 +68,7 @@ spawn(function() {
     $group->spawn(fn() => "ok");
     $group->spawn(fn() => throw new \RuntimeException("fail"));
 
-    $group->seal();
+    $group->close();
     $group->awaitCompletion();
 
     // 不会抛出异常 --- 手动检查
@@ -84,4 +84,4 @@ spawn(function() {
 
 - [TaskGroup::all](/zh/docs/reference/task-group/all.html) --- 等待所有任务并获取结果
 - [TaskGroup::cancel](/zh/docs/reference/task-group/cancel.html) --- 取消所有任务
-- [TaskGroup::seal](/zh/docs/reference/task-group/seal.html) --- 密封组
+- [TaskGroup::close](/zh/docs/reference/task-group/close.html) --- 密封组

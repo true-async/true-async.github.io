@@ -63,14 +63,14 @@ tutte le coroutine verranno automaticamente cancellate, garantendo una gestione 
 ## Sigillatura e Iterazione
 
 `TaskGroup` permette di aggiungere task dinamicamente, finché non viene
-sigillato usando il metodo `seal()`.
+sigillato usando il metodo `close()`.
 
 Il metodo `all()` restituisce un `Future` che si attiva quando tutti i task esistenti
 nella coda sono completati. Questo permette di usare `TaskGroup` in un ciclo, dove i task vengono aggiunti dinamicamente,
 e `all()` viene chiamato per ottenere i risultati dell'insieme corrente di task.
 
 `TaskGroup` supporta anche `foreach` per iterare sui risultati man mano che diventano pronti.
-In questo caso, `seal()` deve essere chiamato dopo aver aggiunto tutti i task per segnalare che
+In questo caso, `close()` deve essere chiamato dopo aver aggiunto tutti i task per segnalare che
 non ci saranno nuovi task, e `foreach` può terminare dopo aver elaborato tutti i risultati.
 
 ## Panoramica della Classe
@@ -92,14 +92,14 @@ final class Async\TaskGroup implements Async\Awaitable, Countable, IteratorAggre
     public awaitCompletion(): void
 
     /* Ciclo di vita */
-    public seal(): void
+    public close(): void
     public cancel(?Async\AsyncCancellation $cancellation = null): void
     public dispose(): void
     public finally(Closure $callback): void
 
     /* Stato */
     public isFinished(): bool
-    public isSealed(): bool
+    public isClosed(): bool
     public count(): int
 
     /* Risultati ed errori */
@@ -200,7 +200,7 @@ foreach ($imageFiles as $file) {
     $group->spawn(fn() => processImage($file));
 }
 
-$group->seal();
+$group->close();
 
 foreach ($group as $key => $result) {
     // I risultati arrivano man mano che diventano pronti, non nell'ordine in cui sono stati aggiunti
@@ -217,7 +217,7 @@ $group = new Async\TaskGroup();
 
 $group->spawn(fn() => slowApi()->fetchReport());
 $group->spawn(fn() => anotherApi()->fetchStats());
-$group->seal();
+$group->close();
 
 try {
     $results = $group->all()->await(Async\timeout(5.0));
@@ -230,7 +230,7 @@ try {
 
 | Capacità                | PHP `TaskGroup`                     | Python `asyncio.TaskGroup`      | Java `StructuredTaskScope`               | Kotlin `coroutineScope`   |
 |-------------------------|-------------------------------------|---------------------------------|------------------------------------------|---------------------------|
-| Concorrenza strutturata | `seal()` + `all()->await()`         | blocco `async with`             | `try-with-resources` + `join()`          | Automaticamente tramite scope |
+| Concorrenza strutturata | `close()` + `all()->await()`         | blocco `async with`             | `try-with-resources` + `join()`          | Automaticamente tramite scope |
 | Strategie di attesa     | `all()`, `race()`, `any()` -> Future | Solo all (tramite `async with`) | `ShutdownOnSuccess`, `ShutdownOnFailure` | `async`/`await`, `select` |
 | Limite di concorrenza   | `concurrency: N`                    | No (serve `Semaphore`)          | No                                       | No (serve `Semaphore`)    |
 | Iterazione dei risultati | `foreach` man mano che si completano | No                             | No                                       | `Channel`                 |
@@ -248,12 +248,12 @@ limitazione della concorrenza senza semaforo, strategie di attesa multiple in un
 - [TaskGroup::race](/it/docs/reference/task-group/race.html) -- Ottieni il risultato del primo task completato
 - [TaskGroup::any](/it/docs/reference/task-group/any.html) -- Ottieni il risultato del primo task riuscito
 - [TaskGroup::awaitCompletion](/it/docs/reference/task-group/await-completion.html) -- Attendi il completamento di tutti i task
-- [TaskGroup::seal](/it/docs/reference/task-group/seal.html) -- Sigilla il gruppo per nuovi task
+- [TaskGroup::close](/it/docs/reference/task-group/close.html) -- Sigilla il gruppo per nuovi task
 - [TaskGroup::cancel](/it/docs/reference/task-group/cancel.html) -- Cancella tutti i task
 - [TaskGroup::dispose](/it/docs/reference/task-group/dispose.html) -- Distruggi lo scope del gruppo
 - [TaskGroup::finally](/it/docs/reference/task-group/finally.html) -- Registra un handler di completamento
 - [TaskGroup::isFinished](/it/docs/reference/task-group/is-finished.html) -- Verifica se tutti i task sono terminati
-- [TaskGroup::isSealed](/it/docs/reference/task-group/is-sealed.html) -- Verifica se il gruppo è sigillato
+- [TaskGroup::isClosed](/it/docs/reference/task-group/is-closed.html) -- Verifica se il gruppo è sigillato
 - [TaskGroup::count](/it/docs/reference/task-group/count.html) -- Ottieni il numero di task
 - [TaskGroup::getResults](/it/docs/reference/task-group/get-results.html) -- Ottieni un array di risultati riusciti
 - [TaskGroup::getErrors](/it/docs/reference/task-group/get-errors.html) -- Ottieni un array di errori

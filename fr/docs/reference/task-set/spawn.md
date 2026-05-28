@@ -31,7 +31,7 @@ Sinon, le callable avec ses arguments est placé dans une file d'attente et dém
 
 ## Erreurs
 
-Lance `Async\AsyncException` si l'ensemble est scellé (`seal()`) ou annulé (`cancel()`).
+Lance `Async\AsyncException` si l'ensemble est scellé (`close()`) ou annulé (`cancel()`).
 
 ## Exemples
 
@@ -48,7 +48,7 @@ spawn(function() {
     $set->spawn(fn() => "first");
     $set->spawn(fn() => "second");
 
-    $set->seal();
+    $set->close();
     $results = $set->joinAll()->await();
 
     var_dump($results[0]); // string(5) "first"
@@ -70,7 +70,7 @@ spawn(function() {
         return $a + $b;
     }, 10, 20);
 
-    $set->seal();
+    $set->close();
     $results = $set->joinAll()->await();
     var_dump($results[0]); // int(30)
 });

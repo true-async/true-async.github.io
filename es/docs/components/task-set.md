@@ -51,7 +51,7 @@ $group = new Async\TaskGroup();
 $group->spawn(fn() => "alpha");
 $group->spawn(fn() => "beta");
 $group->spawn(fn() => "gamma");
-$group->seal();
+$group->close();
 
 // race() siempre devuelve la misma primera tarea completada
 $first  = $group->race()->await(); // "alpha"
@@ -87,7 +87,7 @@ $third  = $set->joinNext()->await(); // "gamma"
 echo $set->count(); // 0 — el conjunto está vacío
 
 // joinAll() tras consumo completo — array vacío
-$set->seal();
+$set->close();
 $rest = $set->joinAll()->await(); // [] — nada que devolver
 ```
 
@@ -99,7 +99,7 @@ $set = new Async\TaskSet();
 $set->spawn(fn() => "alpha");
 $set->spawn(fn() => "beta");
 $set->spawn(fn() => "gamma");
-$set->seal();
+$set->close();
 
 // El primer foreach consume todos los resultados
 foreach ($set as $key => [$result, $error]) {
@@ -155,7 +155,7 @@ $set = new Async\TaskSet();
 foreach ($urls as $url) {
     $set->spawn(fn() => fetch($url));
 }
-$set->seal();
+$set->close();
 
 foreach ($set as $key => [$result, $error]) {
     // $set->count() disminuye con cada iteración
@@ -195,14 +195,14 @@ final class Async\TaskSet implements Async\Awaitable, Countable, IteratorAggrega
     public joinAll(bool $ignoreErrors = false): Async\Future
 
     /* Ciclo de vida */
-    public seal(): void
+    public close(): void
     public cancel(?Async\AsyncCancellation $cancellation = null): void
     public dispose(): void
     public finally(Closure $callback): void
 
     /* Estado */
     public isFinished(): bool
-    public isSealed(): bool
+    public isClosed(): bool
     public count(): int
 
     /* Espera de finalización */
@@ -224,7 +224,7 @@ $set->spawnWithKey('user',    fn() => $db->query('SELECT * FROM users WHERE id =
 $set->spawnWithKey('orders',  fn() => $db->query('SELECT * FROM orders WHERE user_id = ?', [$id]));
 $set->spawnWithKey('reviews', fn() => $api->get("/users/{$id}/reviews"));
 
-$set->seal();
+$set->close();
 $data = $set->joinAll()->await();
 // $set->count() === 0, todas las entradas eliminadas
 
@@ -239,7 +239,7 @@ $set = new Async\TaskSet(concurrency: 5);
 foreach ($urls as $url) {
     $set->spawn(fn() => httpClient()->get($url)->getBody());
 }
-$set->seal();
+$set->close();
 
 while ($set->count() > 0) {
     $result = $set->joinNext()->await();
@@ -269,7 +269,7 @@ $set = new Async\TaskSet(concurrency: 20);
 foreach ($imageFiles as $file) {
     $set->spawn(fn() => processImage($file));
 }
-$set->seal();
+$set->close();
 
 foreach ($set as $key => [$result, $error]) {
     if ($error !== null) {
@@ -291,7 +291,7 @@ spawn(function() use ($set, $queue) {
     while ($message = $queue->receive()) {
         $set->spawn(fn() => processMessage($message));
     }
-    $set->seal();
+    $set->close();
 });
 
 // Otra procesa los resultados
@@ -321,12 +321,12 @@ spawn(function() use ($set) {
 - [TaskSet::joinNext](/es/docs/reference/task-set/join-next.html) — Obtener el resultado de la primera tarea completada
 - [TaskSet::joinAny](/es/docs/reference/task-set/join-any.html) — Obtener el resultado de la primera tarea exitosa
 - [TaskSet::joinAll](/es/docs/reference/task-set/join-all.html) — Esperar todas las tareas y obtener resultados
-- [TaskSet::seal](/es/docs/reference/task-set/seal.html) — Sellar el conjunto para nuevas tareas
+- [TaskSet::close](/es/docs/reference/task-set/close.html) — Sellar el conjunto para nuevas tareas
 - [TaskSet::cancel](/es/docs/reference/task-set/cancel.html) — Cancelar todas las tareas
 - [TaskSet::dispose](/es/docs/reference/task-set/dispose.html) — Destruir el scope del conjunto
 - [TaskSet::finally](/es/docs/reference/task-set/finally.html) — Registrar un handler de finalización
 - [TaskSet::isFinished](/es/docs/reference/task-set/is-finished.html) — Comprobar si todas las tareas han finalizado
-- [TaskSet::isSealed](/es/docs/reference/task-set/is-sealed.html) — Comprobar si el conjunto está sellado
+- [TaskSet::isClosed](/es/docs/reference/task-set/is-closed.html) — Comprobar si el conjunto está sellado
 - [TaskSet::count](/es/docs/reference/task-set/count.html) — Obtener el número de tareas no entregadas
 - [TaskSet::awaitCompletion](/es/docs/reference/task-set/await-completion.html) — Esperar a que todas las tareas se completen
 - [TaskSet::getIterator](/es/docs/reference/task-set/get-iterator.html) — Iterar sobre resultados con limpieza automática

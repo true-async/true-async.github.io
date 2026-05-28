@@ -48,7 +48,7 @@ $group = new Async\TaskGroup();
 $group->spawn(fn() => "alpha");
 $group->spawn(fn() => "beta");
 $group->spawn(fn() => "gamma");
-$group->seal();
+$group->close();
 
 // race()는 항상 동일한 첫 번째 완료된 작업을 반환
 $first  = $group->race()->await(); // "alpha"
@@ -82,7 +82,7 @@ $third  = $set->joinNext()->await(); // "gamma"
 echo $set->count(); // 0 — 세트가 비어 있음
 
 // 완전히 소비된 후 joinAll() — 빈 배열
-$set->seal();
+$set->close();
 $rest = $set->joinAll()->await(); // [] — 반환할 것이 없음
 ```
 
@@ -94,7 +94,7 @@ $set = new Async\TaskSet();
 $set->spawn(fn() => "alpha");
 $set->spawn(fn() => "beta");
 $set->spawn(fn() => "gamma");
-$set->seal();
+$set->close();
 
 // 첫 번째 foreach가 모든 결과를 소비
 foreach ($set as $key => [$result, $error]) {
@@ -150,7 +150,7 @@ $set = new Async\TaskSet();
 foreach ($urls as $url) {
     $set->spawn(fn() => fetch($url));
 }
-$set->seal();
+$set->close();
 
 foreach ($set as $key => [$result, $error]) {
     // $set->count()는 매 반복마다 감소
@@ -190,14 +190,14 @@ final class Async\TaskSet implements Async\Awaitable, Countable, IteratorAggrega
     public joinAll(bool $ignoreErrors = false): Async\Future
 
     /* 생명주기 */
-    public seal(): void
+    public close(): void
     public cancel(?Async\AsyncCancellation $cancellation = null): void
     public dispose(): void
     public finally(Closure $callback): void
 
     /* 상태 */
     public isFinished(): bool
-    public isSealed(): bool
+    public isClosed(): bool
     public count(): int
 
     /* 완료 대기 */
@@ -219,7 +219,7 @@ $set->spawnWithKey('user',    fn() => $db->query('SELECT * FROM users WHERE id =
 $set->spawnWithKey('orders',  fn() => $db->query('SELECT * FROM orders WHERE user_id = ?', [$id]));
 $set->spawnWithKey('reviews', fn() => $api->get("/users/{$id}/reviews"));
 
-$set->seal();
+$set->close();
 $data = $set->joinAll()->await();
 // $set->count() === 0, 모든 항목 제거됨
 
@@ -234,7 +234,7 @@ $set = new Async\TaskSet(concurrency: 5);
 foreach ($urls as $url) {
     $set->spawn(fn() => httpClient()->get($url)->getBody());
 }
-$set->seal();
+$set->close();
 
 while ($set->count() > 0) {
     $result = $set->joinNext()->await();
@@ -264,7 +264,7 @@ $set = new Async\TaskSet(concurrency: 20);
 foreach ($imageFiles as $file) {
     $set->spawn(fn() => processImage($file));
 }
-$set->seal();
+$set->close();
 
 foreach ($set as $key => [$result, $error]) {
     if ($error !== null) {
@@ -286,7 +286,7 @@ spawn(function() use ($set, $queue) {
     while ($message = $queue->receive()) {
         $set->spawn(fn() => processMessage($message));
     }
-    $set->seal();
+    $set->close();
 });
 
 // 다른 코루틴이 결과를 처리
@@ -316,12 +316,12 @@ spawn(function() use ($set) {
 - [TaskSet::joinNext](/ko/docs/reference/task-set/join-next.html) — 첫 번째 완료된 작업의 결과 가져오기
 - [TaskSet::joinAny](/ko/docs/reference/task-set/join-any.html) — 첫 번째 성공한 작업의 결과 가져오기
 - [TaskSet::joinAll](/ko/docs/reference/task-set/join-all.html) — 모든 작업을 기다리고 결과 가져오기
-- [TaskSet::seal](/ko/docs/reference/task-set/seal.html) — 새로운 작업에 대해 세트 봉인
+- [TaskSet::close](/ko/docs/reference/task-set/close.html) — 새로운 작업에 대해 세트 봉인
 - [TaskSet::cancel](/ko/docs/reference/task-set/cancel.html) — 모든 작업 취소
 - [TaskSet::dispose](/ko/docs/reference/task-set/dispose.html) — 세트의 scope 파괴
 - [TaskSet::finally](/ko/docs/reference/task-set/finally.html) — 완료 핸들러 등록
 - [TaskSet::isFinished](/ko/docs/reference/task-set/is-finished.html) — 모든 작업이 완료되었는지 확인
-- [TaskSet::isSealed](/ko/docs/reference/task-set/is-sealed.html) — 세트가 봉인되었는지 확인
+- [TaskSet::isClosed](/ko/docs/reference/task-set/is-closed.html) — 세트가 봉인되었는지 확인
 - [TaskSet::count](/ko/docs/reference/task-set/count.html) — 미전달 작업 수 가져오기
 - [TaskSet::awaitCompletion](/ko/docs/reference/task-set/await-completion.html) — 모든 작업 완료 대기
 - [TaskSet::getIterator](/ko/docs/reference/task-set/get-iterator.html) — 자동 정리를 포함한 결과 반복

@@ -17,7 +17,7 @@ public TaskGroup::cancel(?Async\AsyncCancellation $cancellation = null): void
 ```
 
 Bricht alle laufenden Coroutinen und Aufgaben in der Warteschlange ab.
-Ruft implizit `seal()` auf. Aufgaben in der Warteschlange werden nie gestartet.
+Ruft implizit `close()` auf. Aufgaben in der Warteschlange werden nie gestartet.
 
 Coroutinen erhalten eine `AsyncCancellation` und werden beendet.
 Der Abbruch erfolgt asynchron --- verwenden Sie `awaitCompletion()`, um den Abschluss zu garantieren.
@@ -69,6 +69,6 @@ spawn(function() {
 
 ## Siehe auch
 
-- [TaskGroup::seal](/de/docs/reference/task-group/seal.html) --- Versiegeln ohne Abbruch
+- [TaskGroup::close](/de/docs/reference/task-group/close.html) --- Versiegeln ohne Abbruch
 - [TaskGroup::awaitCompletion](/de/docs/reference/task-group/await-completion.html) --- Auf Abschluss warten
 - [TaskGroup::dispose](/de/docs/reference/task-group/dispose.html) --- Den Gruppen-Scope freigeben

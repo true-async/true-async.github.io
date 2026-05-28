@@ -16,10 +16,10 @@ description: "Зарегистрировать обработчик заверш
 public TaskGroup::finally(Closure $callback): void
 ```
 
-Регистрирует callback, который вызывается когда группа запечатана и все задачи завершены.
+Регистрирует callback, который вызывается когда группа закрыта и все задачи завершены.
 Callback получает TaskGroup в качестве параметра.
 
-Поскольку `cancel()` неявно вызывает `seal()`, обработчик срабатывает и при отмене.
+Поскольку `cancel()` неявно вызывает `close()`, обработчик срабатывает и при отмене.
 
 Если группа уже завершена — callback вызывается синхронно сразу.
 
@@ -47,7 +47,7 @@ spawn(function() {
     $group->spawn(fn() => "a");
     $group->spawn(fn() => "b");
 
-    $group->seal();
+    $group->close();
     $group->all();
 });
 // Вывод:
@@ -64,7 +64,7 @@ use Async\TaskGroup;
 spawn(function() {
     $group = new TaskGroup();
     $group->spawn(fn() => 1);
-    $group->seal();
+    $group->close();
     $group->all();
 
     // Группа уже завершена — callback вызывается синхронно
@@ -81,5 +81,5 @@ spawn(function() {
 
 ## См. также
 
-- [TaskGroup::seal](/ru/docs/reference/task-group/seal.html) — Запечатать группу
+- [TaskGroup::close](/ru/docs/reference/task-group/close.html) — Закрыть группу
 - [TaskGroup::cancel](/ru/docs/reference/task-group/cancel.html) — Отменить задачи

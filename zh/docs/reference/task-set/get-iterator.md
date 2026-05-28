@@ -32,7 +32,7 @@ TaskSet реализует `IteratorAggregate`, поэтому можно исп
 - Итерация завершается, когда набор запечатан **и** все задачи обработаны
 - Если набор не запечатан — `foreach` приостанавливается в ожидании новых задач
 
-> **Важно:** Без вызова `seal()` итерация будет ждать бесконечно.
+> **Важно:** Без вызова `close()` итерация будет ждать бесконечно.
 
 ## Примеры
 
@@ -49,7 +49,7 @@ spawn(function() {
     for ($i = 0; $i < 100; $i++) {
         $set->spawn(fn() => processItem($items[$i]));
     }
-    $set->seal();
+    $set->close();
 
     foreach ($set as $key => [$result, $error]) {
         if ($error !== null) {
@@ -76,7 +76,7 @@ spawn(function() {
 
     $set->spawnWithKey('users', fn() => fetchUsers());
     $set->spawnWithKey('orders', fn() => fetchOrders());
-    $set->seal();
+    $set->close();
 
     foreach ($set as $key => [$result, $error]) {
         if ($error === null) {
@@ -88,6 +88,6 @@ spawn(function() {
 
 ## См. также
 
-- [TaskSet::seal](/zh/docs/reference/task-set/seal.html) — Запечатать набор
+- [TaskSet::close](/zh/docs/reference/task-set/close.html) — Запечатать набор
 - [TaskSet::joinAll](/zh/docs/reference/task-set/join-all.html) — Дождаться всех задач
 - [TaskSet::joinNext](/zh/docs/reference/task-set/join-next.html) — Следующий результат

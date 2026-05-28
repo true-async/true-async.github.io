@@ -22,5 +22,5 @@ public TaskGroup::isFinished(): bool
 
 ## 参见
 
-- [TaskGroup::isSealed](/zh/docs/reference/task-group/is-sealed.html) --- 检查组是否已密封
+- [TaskGroup::isClosed](/zh/docs/reference/task-group/is-closed.html) --- 检查组是否已密封
 - [TaskGroup::awaitCompletion](/zh/docs/reference/task-group/await-completion.html) --- 等待完成

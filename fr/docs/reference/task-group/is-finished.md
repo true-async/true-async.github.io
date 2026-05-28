@@ -22,5 +22,5 @@ Cet etat peut etre temporaire : si le groupe n'est pas scelle, de nouvelles tach
 
 ## Voir aussi
 
-- [TaskGroup::isSealed](/fr/docs/reference/task-group/is-sealed.html) --- Verifier si le groupe est scelle
+- [TaskGroup::isClosed](/fr/docs/reference/task-group/is-closed.html) --- Verifier si le groupe est scelle
 - [TaskGroup::awaitCompletion](/fr/docs/reference/task-group/await-completion.html) --- Attendre la fin

@@ -72,7 +72,7 @@ spawn(function() {
     $set->spawn(fn() => throw new \RuntimeException("err 1"));
     $set->spawn(fn() => throw new \RuntimeException("err 2"));
 
-    $set->seal();
+    $set->close();
 
     try {
         $set->joinAny()->await();

@@ -17,7 +17,7 @@ public TaskSet::cancel(?Async\AsyncCancellation $cancellation = null): void
 ```
 
 Отменяет все работающие корутины и сбрасывает очередь задач.
-Неявно вызывает `seal()`.
+Неявно вызывает `close()`.
 
 ## Параметры
 
@@ -42,11 +42,11 @@ spawn(function() {
     // Отменяем все задачи
     $set->cancel();
 
-    echo $set->isSealed() ? "запечатан\n" : "нет\n"; // "запечатан"
+    echo $set->isClosed() ? "запечатан\n" : "нет\n"; // "запечатан"
 });
 ```
 
 ## См. также
 
-- [TaskSet::seal](/it/docs/reference/task-set/seal.html) — Запечатать набор
+- [TaskSet::close](/it/docs/reference/task-set/close.html) — Запечатать набор
 - [TaskSet::dispose](/it/docs/reference/task-set/dispose.html) — Уничтожить scope набора

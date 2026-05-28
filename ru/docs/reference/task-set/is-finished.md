@@ -18,7 +18,7 @@ public TaskSet::isFinished(): bool
 
 Возвращает `true`, если нет активных корутин и очередь задач пуста.
 
-Если набор не запечатан, это состояние может быть временным — новые задачи
+Если набор не закрыт, это состояние может быть временным — новые задачи
 могут быть добавлены через `spawn()`.
 
 ## Возвращаемое значение
@@ -42,7 +42,7 @@ spawn(function() {
     $set->spawn(fn() => "задача");
     echo $set->isFinished() ? "да\n" : "нет\n"; // "нет"
 
-    $set->seal();
+    $set->close();
     $set->joinAll()->await();
     echo $set->isFinished() ? "да\n" : "нет\n"; // "да"
 });
@@ -50,5 +50,5 @@ spawn(function() {
 
 ## См. также
 
-- [TaskSet::isSealed](/ru/docs/reference/task-set/is-sealed.html) — Проверить, запечатан ли набор
+- [TaskSet::isClosed](/ru/docs/reference/task-set/is-closed.html) — Проверить, закрыт ли набор
 - [TaskSet::count](/ru/docs/reference/task-set/count.html) — Количество задач

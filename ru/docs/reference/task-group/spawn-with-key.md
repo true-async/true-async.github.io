@@ -32,7 +32,7 @@ public TaskGroup::spawnWithKey(string|int $key, callable $task, mixed ...$args):
 
 ## Ошибки
 
-Бросает `Async\AsyncException`, если группа запечатана или ключ уже существует.
+Бросает `Async\AsyncException`, если группа закрыта или ключ уже существует.
 
 ## Примеры
 
@@ -49,7 +49,7 @@ spawn(function() {
     $group->spawnWithKey('profile', fn() => ['name' => 'John']);
     $group->spawnWithKey('orders', fn() => [101, 102, 103]);
 
-    $group->seal();
+    $group->close();
     $results = $group->all();
 
     var_dump($results['profile']); // array(1) { ["name"]=> string(4) "John" }

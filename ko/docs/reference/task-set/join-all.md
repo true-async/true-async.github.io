@@ -56,7 +56,7 @@ spawn(function() {
     $set->spawnWithKey('b', fn() => 20);
     $set->spawnWithKey('c', fn() => 30);
 
-    $set->seal();
+    $set->close();
     $results = $set->joinAll()->await();
 
     var_dump($results['a']); // int(10)
@@ -80,7 +80,7 @@ spawn(function() {
     $set->spawn(fn() => "ok");
     $set->spawn(fn() => throw new \RuntimeException("fail"));
 
-    $set->seal();
+    $set->close();
 
     try {
         $set->joinAll()->await();
@@ -105,7 +105,7 @@ spawn(function() {
     $set->spawn(fn() => "ok");
     $set->spawn(fn() => throw new \RuntimeException("fail"));
 
-    $set->seal();
+    $set->close();
 
     $results = $set->joinAll(ignoreErrors: true)->await();
     echo count($results) . "\n"; // 1
@@ -124,7 +124,7 @@ spawn(function() {
 
     $set->spawn(fn() => slowApi()->fetchReport());
     $set->spawn(fn() => anotherApi()->fetchStats());
-    $set->seal();
+    $set->close();
 
     try {
         $results = $set->joinAll()->await(Async\timeout(5.0));

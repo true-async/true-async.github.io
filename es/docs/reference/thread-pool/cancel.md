@@ -19,11 +19,12 @@ public ThreadPool::cancel(): void
 Inicia un apagado forzado del pool. Después de llamar a `cancel()`:
 
 - Cualquier llamada posterior a `submit()` lanza inmediatamente `Async\ThreadPoolException`.
-- Las tareas que esperan en la cola (aún no recogidas por un trabajador) son **rechazadas inmediatamente** — sus objetos `Future` correspondientes pasan al estado rechazado con una `ThreadPoolException`.
-- Las tareas que ya se están ejecutando en los hilos de trabajo se ejecutan hasta la finalización de la tarea actual (interrumpir forzosamente código PHP dentro de un hilo no es posible).
+- Las tareas que esperan en la cola (aún no recogidas por un trabajador) son **rechazadas inmediatamente** — sus objetos `Future` correspondientes pasan al estado rechazado con una `ThreadPoolException` (o, en modo `coroutine: true`, con una `CancellationException`).
+- En el **modo habitual** (`coroutine: false`), las tareas que ya se están ejecutando en los hilos de trabajo se llevan hasta el final de la tarea actual: interrumpir forzosamente código PHP dentro de un hilo del SO no es posible.
+- En el **modo `coroutine: true`**, las tareas in-flight **se cancelan de verdad** (desde TrueAsync 0.7.0): se activa el flag atómico `cancel_requested` antes de cerrar el canal, el worker invoca `ZEND_ASYNC_SCOPE_CANCEL(pool_scope, NULL, false, false)` y `AFTER_MAIN` cancela en cascada todos los child-scopes de las tareas en curso.
 - Los trabajadores se detienen tan pronto como terminan la tarea actual y no recogen ninguna tarea nueva de la cola.
 
-Para un apagado gracioso que permita que todas las tareas en cola finalicen, use [`close()`](/es/docs/reference/thread-pool/close.html) en su lugar.
+Para un apagado **gracioso** en el que todas las tareas en cola se ejecuten hasta el final, usa [`close()`](/es/docs/reference/thread-pool/close.html) en su lugar.
 
 ## Valor de retorno
 

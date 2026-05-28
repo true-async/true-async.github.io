@@ -86,6 +86,7 @@ $pdo = new PDO($dsn, $user, $password, [
 | `POOL_MIN`                  | 풀이 열어두는 최소 연결 수                                              | `0`     |
 | `POOL_MAX`                  | 최대 동시 연결 수                                                      | `10`    |
 | `POOL_HEALTHCHECK_INTERVAL` | 연결이 살아있는지 확인하는 빈도 (초 단위)                                | `0`     |
+| `POOL_STMT_CACHE_SIZE`      | 물리 연결당 prepared statement 캐시 크기                                | `0` (꺼짐) |
 
 ## 코루틴에 연결 바인딩
 
@@ -114,6 +115,68 @@ $coro2 = spawn(function() use ($pdo) {
 
 코루틴이 더 이상 연결을 사용하지 않는 경우(활성 트랜잭션이나 문이 없는 경우),
 풀이 코루틴이 끝나기를 기다리지 않고 더 일찍 반환할 수 있습니다.
+
+## Prepared statement 캐시
+
+`PDO` 생성 시 `PDO::ATTR_POOL_STMT_CACHE_SIZE => N` 속성으로 활성화됩니다. 풀은
+**각 물리 연결마다** 마지막 `N`개의 prepared statement의 LRU 캐시를 유지합니다.
+코루틴이 같은 SQL로 `prepare()`를 반복 호출하면, 풀은 이미 준비된 **서버 측** statement를
+반환합니다 — DB까지의 round-trip 없이.
+
+```php
+$pdo = new PDO($dsn, $user, $password, [
+    PDO::ATTR_POOL_ENABLED         => true,
+    PDO::ATTR_POOL_MAX             => 10,
+    PDO::ATTR_POOL_STMT_CACHE_SIZE => 64,   // 각 연결당 최대 64개의 stmt
+]);
+
+spawn(function () use ($pdo) {
+    for ($i = 0; $i < 1000; $i++) {
+        // 첫 호출: 서버에서 실제 PREPARE.
+        // 이 연결의 모든 후속 호출: 캐시 히트, wire 트래픽 0.
+        $stmt = $pdo->prepare('SELECT name FROM users WHERE id = ?');
+        $stmt->execute([$i]);
+        $row = $stmt->fetch();
+    }
+});
+```
+
+타이트한 `prepare → execute → fetch` 루프에서 **약 2.9×** 가속을 제공합니다 (드라이버와
+부하에 따라 다름).
+
+### 지원 드라이버
+
+`pdo_pgsql`, `pdo_mysql`, `pdo_sqlite`.
+
+### 캐시가 동작하지 않는 경우
+
+시맨틱을 깨지 않기 위해 다음 경우에는 캐시가 자동으로 건너뛰어집니다.
+
+- `PDO_CURSOR_SCROLL` — 스크롤 가능한 결과의 서버 측 cursor는 재사용할 수 없음.
+- `PDO::ATTR_EMULATE_PREPARES = true` — 에뮬레이션된 쿼리는 서버 측 stmt를 갖지 않음.
+- `PGSQL_ATTR_DISABLE_PREPARES` — PG 드라이버 측에서 prepare를 명시적으로 비활성화.
+
+### 스키마 / 플랜 변경 시 캐시 무효화
+
+테이블 스키마가 변경되면 (`ALTER TABLE`) 기존 stmt의 서버 측 plan이 유효하지 않을 수 있습니다.
+풀은 이러한 오류를 인식하고 쿼리를 **투명하게 재실행**합니다: 오래된 stmt가 캐시에서 제거되고,
+새 `prepare`가 수행되며, 사용자 코드는 **첫 시도에서 성공적인 결과**를 받습니다.
+
+| 드라이버 | retry를 유발하는 오류 코드 |
+|---------|-------------------------------|
+| PostgreSQL | SQLSTATE `0A000` (feature not supported, cached plan must not change result type), `26000` (invalid SQL statement name) |
+| MySQL | `1243` (unknown prepared statement handler), `1615` (prepared statement needs to be re-prepared), `2057` (statement has wrong column count) |
+
+### 얼마로 설정할까
+
+LRU는 **각 물리 연결마다 독립적으로** 동작하므로, DB 서버의 총 메모리 소비는 어느 시점에
+약 `POOL_MAX × POOL_STMT_CACHE_SIZE`개의 prepared stmt 정도입니다.
+
+합리적인 값:
+
+- 수십 개의 고유 SQL이 있는 웹 앱 — `16..32`;
+- 다양한 쿼리가 많은 서비스 — `64..256`;
+- SQL이 거의 항상 고유한 경우 — 캐시는 무용지물, `0`으로 두세요.
 
 ## 트랜잭션
 

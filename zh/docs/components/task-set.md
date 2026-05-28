@@ -49,7 +49,7 @@ $group = new Async\TaskGroup();
 $group->spawn(fn() => "alpha");
 $group->spawn(fn() => "beta");
 $group->spawn(fn() => "gamma");
-$group->seal();
+$group->close();
 
 // race() 始终返回相同的第一个完成的任务
 $first  = $group->race()->await(); // "alpha"
@@ -85,7 +85,7 @@ $third  = $set->joinNext()->await(); // "gamma"
 echo $set->count(); // 0 — 集合为空
 
 // 完全消费后调用 joinAll() — 空数组
-$set->seal();
+$set->close();
 $rest = $set->joinAll()->await(); // [] — 没有可返回的内容
 ```
 
@@ -97,7 +97,7 @@ $set = new Async\TaskSet();
 $set->spawn(fn() => "alpha");
 $set->spawn(fn() => "beta");
 $set->spawn(fn() => "gamma");
-$set->seal();
+$set->close();
 
 // 第一次 foreach 消费所有结果
 foreach ($set as $key => [$result, $error]) {
@@ -153,7 +153,7 @@ $set = new Async\TaskSet();
 foreach ($urls as $url) {
     $set->spawn(fn() => fetch($url));
 }
-$set->seal();
+$set->close();
 
 foreach ($set as $key => [$result, $error]) {
     // $set->count() 在每次迭代中递减
@@ -193,14 +193,14 @@ final class Async\TaskSet implements Async\Awaitable, Countable, IteratorAggrega
     public joinAll(bool $ignoreErrors = false): Async\Future
 
     /* 生命周期 */
-    public seal(): void
+    public close(): void
     public cancel(?Async\AsyncCancellation $cancellation = null): void
     public dispose(): void
     public finally(Closure $callback): void
 
     /* 状态 */
     public isFinished(): bool
-    public isSealed(): bool
+    public isClosed(): bool
     public count(): int
 
     /* 等待完成 */
@@ -222,7 +222,7 @@ $set->spawnWithKey('user',    fn() => $db->query('SELECT * FROM users WHERE id =
 $set->spawnWithKey('orders',  fn() => $db->query('SELECT * FROM orders WHERE user_id = ?', [$id]));
 $set->spawnWithKey('reviews', fn() => $api->get("/users/{$id}/reviews"));
 
-$set->seal();
+$set->close();
 $data = $set->joinAll()->await();
 // $set->count() === 0，所有条目已移除
 
@@ -237,7 +237,7 @@ $set = new Async\TaskSet(concurrency: 5);
 foreach ($urls as $url) {
     $set->spawn(fn() => httpClient()->get($url)->getBody());
 }
-$set->seal();
+$set->close();
 
 while ($set->count() > 0) {
     $result = $set->joinNext()->await();
@@ -267,7 +267,7 @@ $set = new Async\TaskSet(concurrency: 20);
 foreach ($imageFiles as $file) {
     $set->spawn(fn() => processImage($file));
 }
-$set->seal();
+$set->close();
 
 foreach ($set as $key => [$result, $error]) {
     if ($error !== null) {
@@ -289,7 +289,7 @@ spawn(function() use ($set, $queue) {
     while ($message = $queue->receive()) {
         $set->spawn(fn() => processMessage($message));
     }
-    $set->seal();
+    $set->close();
 });
 
 // 另一个协程处理结果
@@ -319,12 +319,12 @@ spawn(function() use ($set) {
 - [TaskSet::joinNext](/zh/docs/reference/task-set/join-next.html) — 获取第一个完成的任务的结果
 - [TaskSet::joinAny](/zh/docs/reference/task-set/join-any.html) — 获取第一个成功完成的任务的结果
 - [TaskSet::joinAll](/zh/docs/reference/task-set/join-all.html) — 等待所有任务并获取结果
-- [TaskSet::seal](/zh/docs/reference/task-set/seal.html) — 封闭集合以禁止新任务
+- [TaskSet::close](/zh/docs/reference/task-set/close.html) — 封闭集合以禁止新任务
 - [TaskSet::cancel](/zh/docs/reference/task-set/cancel.html) — 取消所有任务
 - [TaskSet::dispose](/zh/docs/reference/task-set/dispose.html) — 销毁集合的作用域
 - [TaskSet::finally](/zh/docs/reference/task-set/finally.html) — 注册完成回调
 - [TaskSet::isFinished](/zh/docs/reference/task-set/is-finished.html) — 检查所有任务是否已完成
-- [TaskSet::isSealed](/zh/docs/reference/task-set/is-sealed.html) — 检查集合是否已封闭
+- [TaskSet::isClosed](/zh/docs/reference/task-set/is-closed.html) — 检查集合是否已封闭
 - [TaskSet::count](/zh/docs/reference/task-set/count.html) — 获取未交付的任务数量
 - [TaskSet::awaitCompletion](/zh/docs/reference/task-set/await-completion.html) — 等待所有任务完成
 - [TaskSet::getIterator](/zh/docs/reference/task-set/get-iterator.html) — 以自动清理方式迭代结果

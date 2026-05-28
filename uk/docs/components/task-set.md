@@ -51,7 +51,7 @@ $group = new Async\TaskGroup();
 $group->spawn(fn() => "alpha");
 $group->spawn(fn() => "beta");
 $group->spawn(fn() => "gamma");
-$group->seal();
+$group->close();
 
 // race() завжди повертає ту саму першу завершену задачу
 $first  = $group->race()->await(); // "alpha"
@@ -87,7 +87,7 @@ $third  = $set->joinNext()->await(); // "gamma"
 echo $set->count(); // 0 — набір порожній
 
 // joinAll() після повного споживання — порожній масив
-$set->seal();
+$set->close();
 $rest = $set->joinAll()->await(); // [] — нічого повертати
 ```
 
@@ -99,7 +99,7 @@ $set = new Async\TaskSet();
 $set->spawn(fn() => "alpha");
 $set->spawn(fn() => "beta");
 $set->spawn(fn() => "gamma");
-$set->seal();
+$set->close();
 
 // Перший foreach споживає всі результати
 foreach ($set as $key => [$result, $error]) {
@@ -155,7 +155,7 @@ $set = new Async\TaskSet();
 foreach ($urls as $url) {
     $set->spawn(fn() => fetch($url));
 }
-$set->seal();
+$set->close();
 
 foreach ($set as $key => [$result, $error]) {
     // $set->count() зменшується з кожною ітерацією
@@ -195,14 +195,14 @@ final class Async\TaskSet implements Async\Awaitable, Countable, IteratorAggrega
     public joinAll(bool $ignoreErrors = false): Async\Future
 
     /* Життєвий цикл */
-    public seal(): void
+    public close(): void
     public cancel(?Async\AsyncCancellation $cancellation = null): void
     public dispose(): void
     public finally(Closure $callback): void
 
     /* Стан */
     public isFinished(): bool
-    public isSealed(): bool
+    public isClosed(): bool
     public count(): int
 
     /* Очікування завершення */
@@ -224,7 +224,7 @@ $set->spawnWithKey('user',    fn() => $db->query('SELECT * FROM users WHERE id =
 $set->spawnWithKey('orders',  fn() => $db->query('SELECT * FROM orders WHERE user_id = ?', [$id]));
 $set->spawnWithKey('reviews', fn() => $api->get("/users/{$id}/reviews"));
 
-$set->seal();
+$set->close();
 $data = $set->joinAll()->await();
 // $set->count() === 0, усі записи видалено
 
@@ -239,7 +239,7 @@ $set = new Async\TaskSet(concurrency: 5);
 foreach ($urls as $url) {
     $set->spawn(fn() => httpClient()->get($url)->getBody());
 }
-$set->seal();
+$set->close();
 
 while ($set->count() > 0) {
     $result = $set->joinNext()->await();
@@ -269,7 +269,7 @@ $set = new Async\TaskSet(concurrency: 20);
 foreach ($imageFiles as $file) {
     $set->spawn(fn() => processImage($file));
 }
-$set->seal();
+$set->close();
 
 foreach ($set as $key => [$result, $error]) {
     if ($error !== null) {
@@ -291,7 +291,7 @@ spawn(function() use ($set, $queue) {
     while ($message = $queue->receive()) {
         $set->spawn(fn() => processMessage($message));
     }
-    $set->seal();
+    $set->close();
 });
 
 // Інша обробляє результати
@@ -321,12 +321,12 @@ spawn(function() use ($set) {
 - [TaskSet::joinNext](/uk/docs/reference/task-set/join-next.html) — Отримати результат першого завершеного завдання
 - [TaskSet::joinAny](/uk/docs/reference/task-set/join-any.html) — Отримати результат першого успішного завдання
 - [TaskSet::joinAll](/uk/docs/reference/task-set/join-all.html) — Дочекатися всіх завдань та отримати результати
-- [TaskSet::seal](/uk/docs/reference/task-set/seal.html) — Запечатати набір для нових завдань
+- [TaskSet::close](/uk/docs/reference/task-set/close.html) — Запечатати набір для нових завдань
 - [TaskSet::cancel](/uk/docs/reference/task-set/cancel.html) — Скасувати всі завдання
 - [TaskSet::dispose](/uk/docs/reference/task-set/dispose.html) — Знищити scope набору
 - [TaskSet::finally](/uk/docs/reference/task-set/finally.html) — Зареєструвати обробник завершення
 - [TaskSet::isFinished](/uk/docs/reference/task-set/is-finished.html) — Перевірити, чи завершені всі завдання
-- [TaskSet::isSealed](/uk/docs/reference/task-set/is-sealed.html) — Перевірити, чи запечатаний набір
+- [TaskSet::isClosed](/uk/docs/reference/task-set/is-closed.html) — Перевірити, чи запечатаний набір
 - [TaskSet::count](/uk/docs/reference/task-set/count.html) — Отримати кількість недоставлених завдань
 - [TaskSet::awaitCompletion](/uk/docs/reference/task-set/await-completion.html) — Дочекатися завершення всіх завдань
 - [TaskSet::getIterator](/uk/docs/reference/task-set/get-iterator.html) — Ітерація по результатах з автоочищенням

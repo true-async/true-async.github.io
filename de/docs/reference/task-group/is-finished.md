@@ -22,5 +22,5 @@ Dieser Zustand kann voruebergehend sein: Wenn die Gruppe nicht versiegelt ist, k
 
 ## Siehe auch
 
-- [TaskGroup::isSealed](/de/docs/reference/task-group/is-sealed.html) --- Pruefen, ob die Gruppe versiegelt ist
+- [TaskGroup::isClosed](/de/docs/reference/task-group/is-closed.html) --- Pruefen, ob die Gruppe versiegelt ist
 - [TaskGroup::awaitCompletion](/de/docs/reference/task-group/await-completion.html) --- Auf Abschluss warten

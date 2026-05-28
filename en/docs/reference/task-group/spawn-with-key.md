@@ -32,7 +32,7 @@ The task result will be accessible by this key in `all()`, `getResults()`, and d
 
 ## Errors
 
-Throws `Async\AsyncException` if the group is sealed or the key already exists.
+Throws `Async\AsyncException` if the group is closed or the key already exists.
 
 ## Examples
 
@@ -49,7 +49,7 @@ spawn(function() {
     $group->spawnWithKey('profile', fn() => ['name' => 'John']);
     $group->spawnWithKey('orders', fn() => [101, 102, 103]);
 
-    $group->seal();
+    $group->close();
     $results = $group->all();
 
     var_dump($results['profile']); // array(1) { ["name"]=> string(4) "John" }

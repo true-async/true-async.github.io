@@ -38,7 +38,7 @@ spawn(function() {
     $group->spawn(function() { throw new \RuntimeException("Fehler 1"); });
     $group->spawn(function() { throw new \LogicException("Fehler 2"); });
 
-    $group->seal();
+    $group->close();
     $group->all(ignoreErrors: true);
 
     // Fehler manuell behandeln

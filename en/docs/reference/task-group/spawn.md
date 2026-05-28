@@ -31,7 +31,7 @@ Otherwise, the callable with its arguments is placed in a queue and started when
 
 ## Errors
 
-Throws `Async\AsyncException` if the group is sealed (`seal()`) or cancelled (`cancel()`).
+Throws `Async\AsyncException` if the group is closed (`close()`) or cancelled (`cancel()`).
 
 ## Examples
 
@@ -48,7 +48,7 @@ spawn(function() {
     $group->spawn(fn() => "first");
     $group->spawn(fn() => "second");
 
-    $group->seal();
+    $group->close();
     $results = $group->all();
 
     var_dump($results[0]); // string(5) "first"
@@ -70,7 +70,7 @@ spawn(function() {
         return "user:$id";
     }, 42);
 
-    $group->seal();
+    $group->close();
     $results = $group->all();
     var_dump($results[0]); // string(7) "user:42"
 });

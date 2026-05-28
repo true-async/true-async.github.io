@@ -31,7 +31,7 @@ public TaskSet::spawn(callable $task, mixed ...$args): void
 
 ## 오류
 
-세트가 봉인(`seal()`)되었거나 취소(`cancel()`)된 경우 `Async\AsyncException`을 발생시킵니다.
+세트가 봉인(`close()`)되었거나 취소(`cancel()`)된 경우 `Async\AsyncException`을 발생시킵니다.
 
 ## 예제
 
@@ -48,7 +48,7 @@ spawn(function() {
     $set->spawn(fn() => "first");
     $set->spawn(fn() => "second");
 
-    $set->seal();
+    $set->close();
     $results = $set->joinAll()->await();
 
     var_dump($results[0]); // string(5) "first"
@@ -70,7 +70,7 @@ spawn(function() {
         return $a + $b;
     }, 10, 20);
 
-    $set->seal();
+    $set->close();
     $results = $set->joinAll()->await();
     var_dump($results[0]); // int(30)
 });

@@ -19,7 +19,7 @@ public TaskGroup::finally(Closure $callback): void
 Registra un callback che viene invocato quando il gruppo è sigillato e tutti i task sono completati.
 Il callback riceve il TaskGroup come parametro.
 
-Poiché `cancel()` chiama implicitamente `seal()`, il gestore viene attivato anche in caso di cancellazione.
+Poiché `cancel()` chiama implicitamente `close()`, il gestore viene attivato anche in caso di cancellazione.
 
 Se il gruppo è già terminato, il callback viene chiamato immediatamente in modo sincrono.
 
@@ -47,7 +47,7 @@ spawn(function() {
     $group->spawn(fn() => "a");
     $group->spawn(fn() => "b");
 
-    $group->seal();
+    $group->close();
     $group->all();
 });
 // Output:
@@ -64,7 +64,7 @@ use Async\TaskGroup;
 spawn(function() {
     $group = new TaskGroup();
     $group->spawn(fn() => 1);
-    $group->seal();
+    $group->close();
     $group->all();
 
     // Il gruppo è già terminato — il callback viene chiamato in modo sincrono
@@ -81,5 +81,5 @@ spawn(function() {
 
 ## Vedi anche
 
-- [TaskGroup::seal](/it/docs/reference/task-group/seal.html) --- Sigilla il gruppo
+- [TaskGroup::close](/it/docs/reference/task-group/close.html) --- Sigilla il gruppo
 - [TaskGroup::cancel](/it/docs/reference/task-group/cancel.html) --- Cancella i task

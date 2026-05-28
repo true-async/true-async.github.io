@@ -32,7 +32,7 @@ and during iteration via `foreach`.
 
 ## Errors
 
-- Throws `Async\AsyncException` if the set is sealed or cancelled.
+- Throws `Async\AsyncException` if the set is closed or cancelled.
 - Throws `Async\AsyncException` if the key is already in use.
 
 ## Examples
@@ -50,7 +50,7 @@ spawn(function() {
     $set->spawnWithKey('user',   fn() => fetchUser($id));
     $set->spawnWithKey('orders', fn() => fetchOrders($id));
 
-    $set->seal();
+    $set->close();
     $data = $set->joinAll()->await();
 
     echo $data['user']['name'];
