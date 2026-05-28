@@ -80,23 +80,79 @@ nicht und erhöhen nur den Kontextwechsel-Overhead.
 ## Einen Pool erstellen
 
 ```php
+// Autodetect anhand der CPU-Zahl
+$pool = new ThreadPool();
+
+// Explizite Worker-Zahl
 $pool = new ThreadPool(workers: 4);
+
+// + Queue-Größe
 $pool = new ThreadPool(workers: 4, queueSize: 64);
+
+// + Bootloader, der in jedem Worker einmal ausgeführt wird
+$pool = new ThreadPool(
+    workers: 4,
+    queueSize: 64,
+    bootloader: function () {
+        require __DIR__ . '/vendor/autoload.php';
+        Database::warmupPool();
+    },
+);
+
+// + Coroutine-Mode: jeder Task läuft als Coroutine im Per-Worker Pool-Scope
+$pool = new ThreadPool(workers: 4, coroutine: true);
 ```
 
-| Parameter    | Typ   | Zweck                                                                | Standard          |
-|--------------|-------|----------------------------------------------------------------------|-------------------|
-| `$workers`   | `int` | Anzahl der Worker-Threads. Alle starten, wenn der Pool erstellt wird | **erforderlich**  |
-| `$queueSize` | `int` | Maximale Länge der ausstehenden Aufgaben-Warteschlange               | `workers × 4`     |
+| Parameter      | Typ         | Zweck                                                                                       | Standard          |
+|----------------|-------------|---------------------------------------------------------------------------------------------|-------------------|
+| `$workers`     | `int`       | Anzahl der Worker-Threads. `0` — Autodetect über `available_parallelism()`                  | `0`               |
+| `$queueSize`   | `int`       | Maximale Länge der ausstehenden Aufgaben-Warteschlange                                      | `workers × 4`     |
+| `$bootloader`  | `?\Closure` | Per-Worker-Startup-Hook (siehe unten)                                                       | `null`            |
+| `$coroutine`   | `bool`      | Jeden Task als Coroutine ausführen (siehe unten)                                            | `false`           |
+| `$concurrency` | `int`       | Limit gleichzeitig laufender Coroutinen pro Worker (nur bei `coroutine: true`)              | `0` (unbegrenzt)  |
 
-Alle Worker-Threads starten **sofort bei der Erstellung** des Pools — `new ThreadPool(4)` erstellt
-sofort vier Threads. Das ist eine kleine Vorausinvestition, aber nachfolgende `submit()`-Aufrufe
-haben keinen Thread-Start-Overhead.
+Alle Worker-Threads starten **sofort bei der Erstellung** des Pools. Das ist eine kleine
+Vorausinvestition, aber nachfolgende `submit()`-Aufrufe haben keinen Thread-Start-Overhead.
 
 `$queueSize` begrenzt die Größe der internen Aufgaben-Warteschlange. Wenn die Warteschlange voll
 ist (alle Worker sind beschäftigt und bereits `$queueSize` Aufgaben in der Warteschlange), **suspendiert**
 das nächste `submit()` **die aufrufende Coroutine**, bis ein Worker verfügbar wird. Ein Wert von
 null bedeutet `workers × 4`.
+
+### Autodetect der Worker-Zahl
+
+Bei `workers: 0` (oder weggelassenem Parameter) übernimmt der Pool den Wert aus
+[`Async\available_parallelism()`](/de/docs/reference/available-parallelism.html). Diese Funktion
+berücksichtigt cgroup-Quotas, Affinity und Container-Limits — auf einem Kubernetes-Pod mit
+`cpu.max=2` bekommen Sie 2, nicht die physische Kernzahl des Hosts.
+
+### Bootloader
+
+Die `$bootloader`-Closure wird einmal deep-copiert und in **jedem** Worker vor dem eigentlichen
+Task-Loop ausgeführt. Der ideale Ort für Autoload, Connection-Pool-Warmup und Opcache-Precompilation
+— alles, was sonst in jedem `submit()` aufs Neue laufen würde.
+
+Wirft der Bootloader eine Exception, gilt der Pool als nicht gestartet: der Worker kommt nicht hoch,
+und der Fehler wird an den Parent weitergereicht.
+
+### Coroutine-Modus
+
+Mit `coroutine: true` läuft jeder Task **als Coroutine** in einem eigenen Child-Scope, der in den
+gemeinsamen Pool-Scope des Workers eingebettet ist. Innerhalb des Tasks dürfen Sie `await` nutzen,
+mit `Channel`s, IO und `spawn` arbeiten — alles, ohne den Worker selbst zu blockieren.
+
+```php
+$pool = new ThreadPool(workers: 4, coroutine: true);
+
+$pool->submit(function () {
+    // Reguläre blockierende Aufrufe parken in diesem Modus die Coroutine korrekt,
+    // statt den OS-Thread zu blockieren
+    $rows = (new PDO('mysql:...'))->query('SELECT ...')->fetchAll();
+    return $rows;
+});
+```
+
+`$concurrency` begrenzt die Zahl gleichzeitig lebender Coroutinen innerhalb **eines** Workers.
 
 ## Aufgaben übermitteln
 

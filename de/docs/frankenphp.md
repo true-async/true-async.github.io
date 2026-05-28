@@ -10,6 +10,12 @@ description: "TrueAsync PHP mit FrankenPHP ausführen — Docker-Schnellstart, K
 
 # FrankenPHP + TrueAsync
 
+> **Es gibt eine native Alternative.** Seit 2026-05 hat TrueAsync einen eigenen Server —
+> [**TrueAsync Server**](/de/docs/server/index.html). Es ist eine PHP-Extension, die HTTP/1.1/2/3
+> direkt innerhalb des PHP-Prozesses bedient, ohne Go-Runtime und ohne Caddy. FrankenPHP bleibt
+> relevant, wenn Sie Caddy-Features (automatisches Let's Encrypt, Caddyfile-Routing) oder die
+> Integration in eine bestehende Caddy-Infrastruktur benötigen.
+
 [FrankenPHP](https://frankenphp.dev) ist ein PHP-Anwendungsserver, der auf [Caddy](https://caddyserver.com) aufbaut.
 Er bettet die PHP-Laufzeitumgebung direkt in einen Go-Prozess ein und eliminiert so den Overhead eines separaten FastCGI-Proxys.
 

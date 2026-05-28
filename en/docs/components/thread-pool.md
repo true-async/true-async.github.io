@@ -77,22 +77,78 @@ in C). More workers than cores does not speed up CPU-bound workloads and only ad
 ## Creating a pool
 
 ```php
+// autodetect by available CPUs
+$pool = new ThreadPool();
+
+// explicit worker count
 $pool = new ThreadPool(workers: 4);
+
+// + queue size
 $pool = new ThreadPool(workers: 4, queueSize: 64);
+
+// + bootloader, executed once in each worker
+$pool = new ThreadPool(
+    workers: 4,
+    queueSize: 64,
+    bootloader: function () {
+        require __DIR__ . '/vendor/autoload.php';
+        Database::warmupPool();
+    },
+);
+
+// + coroutine-mode: the task starts as a coroutine inside the per-worker pool scope
+$pool = new ThreadPool(workers: 4, coroutine: true);
 ```
 
-| Parameter    | Type  | Purpose                                                              | Default           |
-|--------------|-------|----------------------------------------------------------------------|-------------------|
-| `$workers`   | `int` | Number of worker threads. All start when the pool is created         | **required**      |
-| `$queueSize` | `int` | Maximum length of the pending task queue                             | `workers × 4`     |
+| Parameter      | Type          | Purpose                                                              | Default            |
+|----------------|---------------|----------------------------------------------------------------------|--------------------|
+| `$workers`     | `int`         | Number of worker threads. `0` — autodetect via `available_parallelism()` | `0`            |
+| `$queueSize`   | `int`         | Maximum length of the pending task queue                             | `workers × 4`      |
+| `$bootloader`  | `?\Closure`   | Per-worker startup hook (see below)                                  | `null`             |
+| `$coroutine`   | `bool`        | Run each task as a coroutine (see below)                             | `false`            |
+| `$concurrency` | `int`         | Limit of concurrent coroutines per worker (only with `coroutine: true`) | `0` (unlimited) |
 
-All worker threads start **immediately upon creation** of the pool — `new ThreadPool(4)` creates four
-threads right away. This is a small "upfront" investment, but subsequent `submit()` calls carry no
-thread-startup overhead.
+All worker threads start **immediately on pool creation**. This is a small "upfront" investment,
+but subsequent `submit()` calls carry no thread-startup overhead.
 
 `$queueSize` limits the size of the internal task queue. If the queue is full (all workers are busy
 and there are already `$queueSize` tasks in the queue), the next `submit()` **suspends the calling
 coroutine** until a worker becomes available. A value of zero means `workers × 4`.
+
+### Autodetecting the worker count
+
+When `workers: 0` (or the parameter is omitted), the pool takes its size from
+[`Async\available_parallelism()`](/en/docs/reference/available-parallelism.html). That function
+honours `cgroup` quotas, affinity, and container limits — on a Kubernetes pod with `cpu.max=2`
+you get 2, not the physical core count of the host.
+
+### Bootloader
+
+The `$bootloader` closure is deep-copied once and runs in **every** worker before the main task
+loop. It is the ideal place for autoload, connection-pool warmup, and opcache pre-compile —
+everything that would otherwise execute inside each `submit()`.
+
+If the bootloader throws, the entire pool is considered failed: the worker does not start and the
+error is raised in the parent.
+
+### Coroutine mode
+
+With `coroutine: true`, every task runs **as a coroutine** in its own child scope, which is
+nested inside the worker's shared pool scope. Inside the task you can `await`, use `Channel`s,
+do I/O, and `spawn` — all without blocking the worker itself.
+
+```php
+$pool = new ThreadPool(workers: 4, coroutine: true);
+
+$pool->submit(function () {
+    // ordinary blocking calls in this mode correctly park the coroutine
+    // rather than blocking the OS thread
+    $rows = (new PDO('mysql:...'))->query('SELECT ...')->fetchAll();
+    return $rows;
+});
+```
+
+`$concurrency` limits how many coroutines can be alive concurrently inside a **single** worker.
 
 ## Submitting tasks
 

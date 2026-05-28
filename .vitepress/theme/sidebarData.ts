@@ -297,9 +297,43 @@ export const docsSidebar: NavGroup[] = [
       { url: '/en/docs/reference/current-context.html', label: 'current_context()' },
       { url: '/en/docs/reference/coroutine-context.html', label: 'coroutine_context()' },
       { url: '/en/docs/reference/root-context.html', label: 'root_context()' },
+      { url: '/en/docs/reference/request-context.html', label: 'request_context()' },
       { url: '/en/docs/reference/get-coroutines.html', label: 'get_coroutines()' },
+      { url: '/en/docs/reference/available-parallelism.html', label: 'available_parallelism()' },
+      { url: '/en/docs/reference/cpu-usage.html', label: 'cpu_usage()' },
+      { url: '/en/docs/reference/cpu-snapshot.html', label: 'CpuSnapshot' },
+      { url: '/en/docs/reference/loadavg.html', label: 'loadavg()' },
       { url: '/en/docs/reference/signal.html', label: 'signal()' },
       { url: '/en/docs/reference/graceful-shutdown.html', label: 'graceful_shutdown()' },
+    ],
+  },
+  {
+    title: 'TrueAsync Server',
+    icon: 'server',
+    items: [
+      { url: '/en/docs/server/index.html', label: 'Overview', icon: 'eye' },
+      { url: '/en/docs/server/quickstart.html', label: 'Quick start', icon: 'section-rocket' },
+      { url: '/en/docs/server/configuration.html', label: 'Configuration', icon: 'section-settings' },
+      { url: '/en/docs/server/compression.html', label: 'Compression', icon: 'layers' },
+      { url: '/en/docs/server/static-files.html', label: 'Static and sendFile', icon: 'section-blocks' },
+      { url: '/en/docs/server/streaming.html', label: 'Streaming', icon: 'arrow-left-right' },
+      { url: '/en/docs/server/workers.html', label: 'Multi-worker', icon: 'cpu' },
+      { url: '/en/docs/server/examples.html', label: 'Examples', icon: 'section-code' },
+      {
+        url: '/en/docs/reference/server/http-server.html',
+        label: 'HttpServer',
+        icon: 'braces',
+        children: [
+          { url: '/en/docs/reference/server/http-server-config.html', label: 'HttpServerConfig' },
+          { url: '/en/docs/reference/server/http-request.html', label: 'HttpRequest' },
+          { url: '/en/docs/reference/server/http-response.html', label: 'HttpResponse' },
+          { url: '/en/docs/reference/server/static-handler.html', label: 'StaticHandler' },
+          { url: '/en/docs/reference/server/send-file-options.html', label: 'SendFileOptions' },
+          { url: '/en/docs/reference/server/uploaded-file.html', label: 'UploadedFile' },
+          { url: '/en/docs/reference/server/log-severity.html', label: 'LogSeverity' },
+          { url: '/en/docs/reference/server/exceptions.html', label: 'Exceptions' },
+        ],
+      },
     ],
   },
   {
@@ -351,6 +385,13 @@ export const architectureSidebar: NavGroup[] = [
     items: [
       { url: '/en/architecture/pool.html', label: 'Async\\Pool' },
       { url: '/en/architecture/pdo-pool.html', label: 'PDO Pool' },
+    ],
+  },
+  {
+    title: 'Server',
+    icon: 'section-puzzle',
+    items: [
+      { url: '/en/architecture/server.html', label: 'TrueAsync Server' },
     ],
   },
   {

@@ -286,9 +286,43 @@ export const docsSidebarUk: NavGroup[] = [
       { url: '/uk/docs/reference/current-context.html', label: 'current_context()' },
       { url: '/uk/docs/reference/coroutine-context.html', label: 'coroutine_context()' },
       { url: '/uk/docs/reference/root-context.html', label: 'root_context()' },
+      { url: '/uk/docs/reference/request-context.html', label: 'request_context()' },
       { url: '/uk/docs/reference/get-coroutines.html', label: 'get_coroutines()' },
+      { url: '/uk/docs/reference/available-parallelism.html', label: 'available_parallelism()' },
+      { url: '/uk/docs/reference/cpu-usage.html', label: 'cpu_usage()' },
+      { url: '/uk/docs/reference/cpu-snapshot.html', label: 'CpuSnapshot' },
+      { url: '/uk/docs/reference/loadavg.html', label: 'loadavg()' },
       { url: '/uk/docs/reference/signal.html', label: 'signal()' },
       { url: '/uk/docs/reference/graceful-shutdown.html', label: 'graceful_shutdown()' },
+    ],
+  },
+  {
+    title: 'TrueAsync Server',
+    icon: 'server',
+    items: [
+      { url: '/uk/docs/server/index.html', label: 'Огляд', icon: 'eye' },
+      { url: '/uk/docs/server/quickstart.html', label: 'Швидкий старт', icon: 'section-rocket' },
+      { url: '/uk/docs/server/configuration.html', label: 'Конфігурація', icon: 'section-settings' },
+      { url: '/uk/docs/server/compression.html', label: 'Стиснення', icon: 'layers' },
+      { url: '/uk/docs/server/static-files.html', label: 'Статичні файли і sendFile', icon: 'section-blocks' },
+      { url: '/uk/docs/server/streaming.html', label: 'Стрімінг', icon: 'arrow-left-right' },
+      { url: '/uk/docs/server/workers.html', label: 'Multi-worker', icon: 'cpu' },
+      { url: '/uk/docs/server/examples.html', label: 'Приклади', icon: 'section-code' },
+      {
+        url: '/uk/docs/reference/server/http-server.html',
+        label: 'HttpServer',
+        icon: 'braces',
+        children: [
+          { url: '/uk/docs/reference/server/http-server-config.html', label: 'HttpServerConfig' },
+          { url: '/uk/docs/reference/server/http-request.html', label: 'HttpRequest' },
+          { url: '/uk/docs/reference/server/http-response.html', label: 'HttpResponse' },
+          { url: '/uk/docs/reference/server/static-handler.html', label: 'StaticHandler' },
+          { url: '/uk/docs/reference/server/send-file-options.html', label: 'SendFileOptions' },
+          { url: '/uk/docs/reference/server/uploaded-file.html', label: 'UploadedFile' },
+          { url: '/uk/docs/reference/server/log-severity.html', label: 'LogSeverity' },
+          { url: '/uk/docs/reference/server/exceptions.html', label: 'Винятки' },
+        ],
+      },
     ],
   },
   {
@@ -340,6 +374,13 @@ export const architectureSidebarUk: NavGroup[] = [
     items: [
       { url: '/uk/architecture/pool.html', label: 'Async\\Pool' },
       { url: '/uk/architecture/pdo-pool.html', label: 'PDO Pool' },
+    ],
+  },
+  {
+    title: 'Сервер',
+    icon: 'section-puzzle',
+    items: [
+      { url: '/uk/architecture/server.html', label: 'TrueAsync Server' },
     ],
   },
   {

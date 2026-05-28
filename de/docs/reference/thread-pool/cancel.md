@@ -19,8 +19,9 @@ public ThreadPool::cancel(): void
 Leitet ein erzwungenes Herunterfahren des Pools ein. Nachdem `cancel()` aufgerufen wurde:
 
 - Jeder nachfolgende `submit()`-Aufruf wirft sofort `Async\ThreadPoolException`.
-- Aufgaben, die in der Warteschlange warten (noch nicht von einem Worker aufgenommen), werden **sofort abgelehnt** — ihre entsprechenden `Future`-Objekte wechseln in den abgelehnten Zustand mit einer `ThreadPoolException`.
-- Aufgaben, die bereits in Worker-Threads ausgeführt werden, laufen bis zum Abschluss der aktuellen Aufgabe (ein gewaltsames Unterbrechen von PHP-Code innerhalb eines Threads ist nicht möglich).
+- Aufgaben, die in der Warteschlange warten (noch nicht von einem Worker aufgenommen), werden **sofort abgelehnt** — ihre entsprechenden `Future`-Objekte wechseln in den abgelehnten Zustand mit einer `ThreadPoolException` (im Modus `coroutine: true` mit einer `CancellationException`).
+- Im **regulären Modus** (`coroutine: false`) laufen bereits in Worker-Threads ausgeführte Aufgaben bis zum Abschluss der aktuellen Aufgabe — ein gewaltsames Unterbrechen von PHP-Code innerhalb eines OS-Threads ist nicht möglich.
+- Im **Modus `coroutine: true`** werden in-flight Aufgaben **tatsächlich gecancelt** (ab TrueAsync 0.7.0): das atomare Flag `cancel_requested` wird vor dem Schließen des Kanals gesetzt, der Worker ruft `ZEND_ASYNC_SCOPE_CANCEL(pool_scope, NULL, false, false)`, und `AFTER_MAIN` cancelt kaskadiert alle Child-Scopes der laufenden Aufgaben.
 - Worker stoppen, sobald sie die aktuelle Aufgabe abgeschlossen haben, und nehmen keine neuen Aufgaben aus der Warteschlange an.
 
 Für ein geordnetes Herunterfahren, bei dem alle wartenden Aufgaben abgeschlossen werden, verwenden Sie stattdessen [`close()`](/de/docs/reference/thread-pool/close.html).

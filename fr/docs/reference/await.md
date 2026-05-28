@@ -49,6 +49,46 @@ Si la coroutine a été annulée, `Async\AsyncCancellation` sera levée.
 
 Si le jeton d'annulation (`$cancellation`) se déclenche, `Async\OperationCanceledException` sera levée. L'exception originale du jeton est disponible via `$e->getPrevious()`. Cela permet de distinguer le déclenchement du jeton d'une exception levée par l'objet awaitable lui-même.
 
+## Comment l'exception est transmise
+
+Lorsqu'une coroutine se termine sur une exception, **le résultat « se dépose » sur son handle**
+tant que personne ne le récupère. Le comportement est symétrique à `Async\Future` et dépend du
+fait que quelqu'un d'autre que le Scheduler retienne le handle de la coroutine :
+
+- **Le handle est retenu** (`$coro = spawn(...)`, la coroutine est rangée dans un tableau, passée
+  à `await_all()`, etc.) : l'exception est conservée sur le handle et attend. N'importe quel
+  `await($coro)` la recevra, même si la coroutine s'est terminée depuis longtemps.
+- **Le handle n'est retenu par personne** (fire-and-forget — `spawn(...)` sans conserver le
+  résultat) : l'exception remonte à la destruction du handle via le filet de sécurité
+  fire-and-forget.
+
+La conséquence pratique la plus importante : **`await` attrape l'exception même en cas de course**.
+
+```php
+use function Async\spawn;
+use function Async\await;
+
+$coro = spawn(function () {
+    throw new RuntimeException('boom');
+});
+
+// La coroutine peut se terminer avant qu'on arrive à await — c'est normal.
+// L'exception attendra tranquillement ici :
+try {
+    await($coro);
+} catch (RuntimeException $e) {
+    echo "attrapée : ", $e->getMessage(), "\n"; // attrapée : boom
+}
+```
+
+Il en va de même pour `await_all()`, `await_any_or_fail()` et les autres `await_*()` : on peut
+collecter des coroutines dans un tableau, les laisser travailler en parallèle, puis les attendre
+ensuite. Les exceptions sont collectées via `await`.
+
+> Quand un parent-scope meurt avant sa coroutine, les coroutines enfants reçoivent
+> `AsyncCancellation` conformément à la spec. Cette branche est traitée à part et ne dépend pas
+> de qui retient le handle.
+
 ## Exemples
 
 ### Exemple #1 Utilisation basique de await()

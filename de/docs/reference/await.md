@@ -49,6 +49,45 @@ Wenn die Coroutine abgebrochen wurde, wird `Async\AsyncCancellation` geworfen.
 
 Wenn der Abbruch-Token (`$cancellation`) ausgelöst wird, wird `Async\OperationCanceledException` ausgelöst. Die ursprüngliche Ausnahme des Tokens ist über `$e->getPrevious()` verfügbar. So lässt sich unterscheiden, ob der Token ausgelöst wurde oder das Awaitable-Objekt selbst eine Ausnahme geworfen hat.
 
+## Wie die Ausnahme zugestellt wird
+
+Wenn eine Coroutine mit einer Ausnahme endet, **bleibt das Ergebnis auf ihrem Handle liegen**, bis es
+jemand abholt. Das Verhalten ist symmetrisch zu `Async\Future` und hängt davon ab, ob außer dem
+Scheduler noch jemand das Coroutine-Handle hält:
+
+- **Das Handle wird gehalten** (`$coro = spawn(...)`, die Coroutine liegt in einem Array, wurde an
+  `await_all()` übergeben usw.) — die Ausnahme bleibt auf dem Handle und wartet. Jeder spätere
+  `await($coro)` bekommt sie, auch wenn die Coroutine längst beendet ist.
+- **Das Handle wird von niemandem gehalten** (Fire-and-Forget — `spawn(...)` ohne das Ergebnis zu
+  speichern) — die Ausnahme erscheint beim Zerstören des Handles über das Fire-and-Forget Safety Net.
+
+Die wichtigste praktische Konsequenz: **`await` fängt die Ausnahme auch bei einem Race**:
+
+```php
+use function Async\spawn;
+use function Async\await;
+
+$coro = spawn(function () {
+    throw new RuntimeException('boom');
+});
+
+// Die Coroutine darf früher fertig sein als wir am await ankommen — das ist okay.
+// Die Ausnahme wartet hier in Ruhe auf uns:
+try {
+    await($coro);
+} catch (RuntimeException $e) {
+    echo "gefangen: ", $e->getMessage(), "\n"; // gefangen: boom
+}
+```
+
+Dasselbe gilt für `await_all()`, `await_any_or_fail()` und andere `await_*()`: Sie können Coroutinen
+in einem Array sammeln, sie parallel arbeiten lassen und sie später abwarten. Die Ausnahmen werden
+über `await` eingesammelt.
+
+> Wenn ein Parent-Scope vor seinen Coroutinen stirbt, bekommen die Child-Coroutinen laut Spezifikation
+> eine `AsyncCancellation`. Dieser Pfad wird separat behandelt und hängt nicht davon ab, wer das
+> Handle hält.
+
 ## Beispiele
 
 ### Beispiel #1 Grundlegende Verwendung von await()

@@ -49,6 +49,44 @@ If the coroutine was cancelled, `Async\AsyncCancellation` will be thrown.
 
 If the cancellation token (`$cancellation`) triggered, `Async\OperationCanceledException` will be thrown. The original exception from the token is available via `$e->getPrevious()`. This allows you to distinguish a token trigger from an exception thrown by the awaitable object itself.
 
+## How the exception is delivered
+
+When a coroutine finishes with an exception, **the result "settles" on its handle** until someone
+picks it up. The behaviour is symmetric to `Async\Future` and depends on whether anyone besides
+the Scheduler is holding the coroutine handle:
+
+- **The handle is held** (`$coro = spawn(...)`, the coroutine is in an array, passed into
+  `await_all()`, etc.) — the exception stays on the handle and waits. Any `await($coro)` retrieves
+  it, even long after the coroutine has finished.
+- **No one holds the handle** (fire-and-forget — `spawn(...)` without saving the result) — the
+  exception surfaces when the handle is destroyed, through the fire-and-forget safety net.
+
+The key practical consequence — **`await` catches the exception even after a race**:
+
+```php
+use function Async\spawn;
+use function Async\await;
+
+$coro = spawn(function () {
+    throw new RuntimeException('boom');
+});
+
+// The coroutine may finish before we reach await — that's fine.
+// The exception will quietly wait for us here:
+try {
+    await($coro);
+} catch (RuntimeException $e) {
+    echo "caught: ", $e->getMessage(), "\n"; // caught: boom
+}
+```
+
+The same applies to `await_all()`, `await_any_or_fail()`, and other `await_*()` calls: you can
+collect coroutines into an array, let them run in parallel, and then await them. Exceptions are
+gathered through `await`.
+
+> When a parent scope dies before its coroutine, the child coroutines receive `AsyncCancellation`
+> per spec. That branch is handled separately and does not depend on who holds the handle.
+
 ## Examples
 
 ### Example #1 Basic usage of await()

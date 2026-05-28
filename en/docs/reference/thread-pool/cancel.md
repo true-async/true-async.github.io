@@ -19,8 +19,9 @@ public ThreadPool::cancel(): void
 Initiates a forced shutdown of the pool. After `cancel()` is called:
 
 - Any subsequent `submit()` call immediately throws `Async\ThreadPoolException`.
-- Tasks waiting in the queue (not yet picked up by a worker) are **immediately rejected** — their corresponding `Future` objects transition to the rejected state with a `ThreadPoolException`.
-- Tasks that are already executing in worker threads run to completion of the current task (forcibly interrupting PHP code inside a thread is not possible).
+- Tasks waiting in the queue (not yet picked up by a worker) are **immediately rejected** — their corresponding `Future` objects transition to the rejected state with a `ThreadPoolException` (or with a `CancellationException` in `coroutine: true` mode).
+- In **normal mode** (`coroutine: false`) tasks already executing in worker threads run to completion of the current task — forcibly interrupting PHP code inside an OS thread is not possible.
+- In **`coroutine: true` mode**, in-flight tasks are **actually cancelled** (since TrueAsync 0.7.0): the atomic `cancel_requested` flag is set before the channel is closed, the worker calls `ZEND_ASYNC_SCOPE_CANCEL(pool_scope, NULL, false, false)`, and `AFTER_MAIN` cascades cancellation to all child scopes of running tasks.
 - Workers stop as soon as they finish the current task and do not pick up any new tasks from the queue.
 
 For a graceful shutdown that lets all queued tasks finish, use [`close()`](/en/docs/reference/thread-pool/close.html) instead.

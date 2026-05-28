@@ -19,8 +19,9 @@ public ThreadPool::cancel(): void
 Initie un arrêt forcé du pool. Après l'appel à `cancel()` :
 
 - Tout appel ultérieur à `submit()` lève immédiatement une `Async\ThreadPoolException`.
-- Les tâches en attente dans la file (pas encore prises en charge par un worker) sont **immédiatement rejetées** — leurs objets `Future` correspondants passent à l'état rejeté avec une `ThreadPoolException`.
-- Les tâches déjà en cours d'exécution dans les threads de travail s'exécutent jusqu'à la fin de la tâche en cours (interrompre de force du code PHP dans un thread n'est pas possible).
+- Les tâches en attente dans la file (pas encore prises en charge par un worker) sont **immédiatement rejetées** — leurs objets `Future` correspondants passent à l'état rejeté avec une `ThreadPoolException` (ou une `CancellationException` en mode `coroutine: true`).
+- En **mode normal** (`coroutine: false`), les tâches déjà en cours d'exécution dans les threads de travail s'exécutent jusqu'à la fin de la tâche courante — interrompre de force du code PHP dans un thread OS n'est pas possible.
+- En **mode `coroutine: true`**, les tâches in-flight sont **réellement cancelées** (depuis TrueAsync 0.7.0) : le flag atomique `cancel_requested` est positionné avant la fermeture du canal, le worker appelle `ZEND_ASYNC_SCOPE_CANCEL(pool_scope, NULL, false, false)`, et `AFTER_MAIN` annule en cascade tous les scopes enfants des tâches lancées.
 - Les workers s'arrêtent dès qu'ils terminent la tâche en cours et ne prennent plus aucune nouvelle tâche dans la file.
 
 Pour un arrêt gracieux qui laisse toutes les tâches en file se terminer, utilisez plutôt [`close()`](/fr/docs/reference/thread-pool/close.html).

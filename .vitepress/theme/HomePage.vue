@@ -46,7 +46,7 @@ const i18n: Record<string, HomeI18n> = {
       items: [
         { title: 'Coroutines', icon: 'coroutines', url: '/en/docs/components/coroutines.html', text: 'Lightweight coroutines for efficient concurrent execution. No colored <code>async</code> functions. Just do <code>spawn()</code> and go!' },
         { title: 'Non-blocking I/O', icon: 'io', url: '/en/docs/reference/supported-functions.html', text: '<code>fread</code>, <code>fwrite</code>, <code>file_get_contents</code>, <code>ob_start</code>, <code>curl</code>, <code>MySQL</code>, <code>PostgreSQL</code>. Regular PHP functions now work asynchronously without extra effort.' },
-        { title: 'Async Web Servers', icon: 'web-servers', url: '/en/docs/frankenphp.html', text: 'Support for the model: multiple requests — one PHP process.' },
+        { title: 'TrueAsync Server', icon: 'web-servers', url: '/en/docs/server/index.html', text: 'Native <code>HTTP/1.1</code>, <code>HTTP/2</code>, and <code>HTTP/3</code> web server written in C, running directly inside the PHP process.' },
         { title: 'Cooperative Cancellation', icon: 'cancellation', url: '/en/docs/components/cancellation.html', text: 'Simple and flexible <code>API</code> for coroutine cancellation. <code>Scope::cancel()</code>.' },
         { title: 'Structured Concurrency', icon: 'structured-concurrency', url: '/en/docs/components/scope.html', text: 'Control coroutine lifetime with <code>Scope</code> sandbox. Manage groups of coroutines via <code>TaskGroup</code>.' },
         { title: 'PDO Pool', icon: 'pdo-pool', url: '/en/docs/components/pdo-pool.html', text: 'Connection pooling built right into <code>PDO</code>. Automatic connection management for maximum performance.' },
@@ -82,7 +82,7 @@ const i18n: Record<string, HomeI18n> = {
       items: [
         { title: 'Корутины', icon: 'coroutines', url: '/ru/docs/components/coroutines.html', text: 'Лёгкие корутины для эффективного конкурентного выполнения. Никаких цветных <code>async</code> функций. Просто делай <code>spawn()</code> и вперёд!' },
         { title: 'Неблокирующий I/O', icon: 'io', url: '/ru/docs/reference/supported-functions.html', text: '<code>fread</code>, <code>fwrite</code>, <code>file_get_contents</code>, <code>ob_start</code>, <code>curl</code>, <code>MySQL</code>, <code>PostgreSQL</code>. Обычные функции PHP теперь работают асинхронно без дополнительных усилий.' },
-        { title: 'Асинхронные Web-серверы', icon: 'web-servers', url: '/ru/docs/frankenphp.html', text: 'Поддержка модели: несколько запросов - один PHP-процесс.' },
+        { title: 'TrueAsync Server', icon: 'web-servers', url: '/ru/docs/server/index.html', text: 'Нативный Web-сервер на C с поддержкой <code>HTTP/1.1</code>, <code>HTTP/2</code> и <code>HTTP/3</code> прямо внутри PHP-процесса.' },
         { title: 'Корпоративная отмена', icon: 'cancellation', url: '/ru/docs/components/cancellation.html', text: 'Простой и гибкий <code>API</code> для отмены корутин. <code>Scope::cancel()</code>.' },
         { title: 'Структурная конкурентность', icon: 'structured-concurrency', url: '/ru/docs/components/scope.html', text: 'Контроль времени жизни корутин с помощью песочницы <code>Scope</code>. Управление группой корутин через <code>TaskGroup</code>' },
         { title: 'PDO Pool', icon: 'pdo-pool', url: '/ru/docs/components/pdo-pool.html', text: 'Поддержка пула соединений прямо в <code>PDO</code>. Автоматическое управление коннектами для максимальной производительности.' },
@@ -118,7 +118,7 @@ const i18n: Record<string, HomeI18n> = {
       items: [
         { title: 'Koroutinen', icon: 'coroutines', url: '/de/docs/components/coroutines.html', text: 'Leichtgewichtige Koroutinen für effiziente nebenläufige Ausführung. Keine gefärbten <code>async</code>-Funktionen. Einfach <code>spawn()</code> und los!' },
         { title: 'Nicht-blockierende I/O', icon: 'io', url: '/de/docs/reference/supported-functions.html', text: '<code>fread</code>, <code>fwrite</code>, <code>file_get_contents</code>, <code>ob_start</code>, <code>curl</code>, <code>MySQL</code>, <code>PostgreSQL</code>. Gewöhnliche PHP-Funktionen arbeiten jetzt asynchron ohne zusätzlichen Aufwand.' },
-        { title: 'Asynchrone Webserver', icon: 'web-servers', url: '/de/docs/frankenphp.html', text: 'Unterstützung des Modells: mehrere Anfragen — ein PHP-Prozess.' },
+        { title: 'TrueAsync Server', icon: 'web-servers', url: '/de/docs/server/index.html', text: 'Nativer Webserver in C mit Unterstützung für <code>HTTP/1.1</code>, <code>HTTP/2</code> und <code>HTTP/3</code>, direkt im PHP-Prozess.' },
         { title: 'Kooperative Abbruchsteuerung', icon: 'cancellation', url: '/de/docs/components/cancellation.html', text: 'Einfache und flexible <code>API</code> zum Abbrechen von Koroutinen. <code>Scope::cancel()</code>.' },
         { title: 'Strukturierte Nebenläufigkeit', icon: 'structured-concurrency', url: '/de/docs/components/scope.html', text: 'Kontrolle der Lebensdauer von Koroutinen mit der <code>Scope</code>-Sandbox. Verwaltung von Koroutinen-Gruppen über <code>TaskGroup</code>.' },
         { title: 'PDO Pool', icon: 'pdo-pool', url: '/de/docs/components/pdo-pool.html', text: 'Verbindungs-Pooling direkt in <code>PDO</code> eingebaut. Automatische Verbindungsverwaltung für maximale Leistung.' },
@@ -190,7 +190,7 @@ const i18n: Record<string, HomeI18n> = {
       items: [
         { title: 'Coroutines', icon: 'coroutines', url: '/fr/docs/components/coroutines.html', text: 'Des coroutines légères pour une exécution concurrente efficace. Pas de fonctions <code>async</code> colorées. Faites simplement <code>spawn()</code> et c\'est parti !' },
         { title: 'I/O non bloquante', icon: 'io', url: '/fr/docs/reference/supported-functions.html', text: '<code>fread</code>, <code>fwrite</code>, <code>file_get_contents</code>, <code>ob_start</code>, <code>curl</code>, <code>MySQL</code>, <code>PostgreSQL</code>. Les fonctions PHP classiques fonctionnent désormais de manière asynchrone sans effort supplémentaire.' },
-        { title: 'Serveurs Web asynchrones', icon: 'web-servers', url: '/fr/docs/frankenphp.html', text: 'Prise en charge du modèle : plusieurs requêtes — un seul processus PHP.' },
+        { title: 'TrueAsync Server', icon: 'web-servers', url: '/fr/docs/server/index.html', text: 'Serveur web natif en C avec prise en charge de <code>HTTP/1.1</code>, <code>HTTP/2</code> et <code>HTTP/3</code>, directement à l\'intérieur du processus PHP.' },
         { title: 'Annulation coopérative', icon: 'cancellation', url: '/fr/docs/components/cancellation.html', text: '<code>API</code> simple et flexible pour l\'annulation des coroutines. <code>Scope::cancel()</code>.' },
         { title: 'Concurrence structurée', icon: 'structured-concurrency', url: '/fr/docs/components/scope.html', text: 'Contrôle du cycle de vie des coroutines grâce au bac à sable <code>Scope</code>. Gestion de groupes de coroutines via <code>TaskGroup</code>.' },
         { title: 'PDO Pool', icon: 'pdo-pool', url: '/fr/docs/components/pdo-pool.html', text: 'Pool de connexions intégré directement dans <code>PDO</code>. Gestion automatique des connexions pour des performances maximales.' },
@@ -298,7 +298,7 @@ const i18n: Record<string, HomeI18n> = {
       items: [
         { title: 'Корутини', icon: 'coroutines', url: '/uk/docs/components/coroutines.html', text: 'Легкі корутини для ефективного конкурентного виконання. Жодних кольорових <code>async</code> функцій. Просто роби <code>spawn()</code> і вперед!' },
         { title: 'Неблокуючий I/O', icon: 'io', url: '/uk/docs/reference/supported-functions.html', text: '<code>fread</code>, <code>fwrite</code>, <code>file_get_contents</code>, <code>ob_start</code>, <code>curl</code>, <code>MySQL</code>, <code>PostgreSQL</code>. Звичайні функції PHP тепер працюють асинхронно без додаткових зусиль.' },
-        { title: 'Асинхронні Web-сервери', icon: 'web-servers', url: '/uk/docs/frankenphp.html', text: 'Підтримка моделі: декілька запитів — один PHP-процес.' },
+        { title: 'TrueAsync Server', icon: 'web-servers', url: '/uk/docs/server/index.html', text: 'Нативний Web-сервер на C з підтримкою <code>HTTP/1.1</code>, <code>HTTP/2</code> і <code>HTTP/3</code> прямо всередині PHP-процесу.' },
         { title: 'Кооперативне скасування', icon: 'cancellation', url: '/uk/docs/components/cancellation.html', text: 'Простий і гнучкий <code>API</code> для скасування корутин. <code>Scope::cancel()</code>.' },
         { title: 'Структурна конкурентність', icon: 'structured-concurrency', url: '/uk/docs/components/scope.html', text: 'Контроль часу життя корутин за допомогою пісочниці <code>Scope</code>. Керування групами корутин через <code>TaskGroup</code>.' },
         { title: 'PDO Pool', icon: 'pdo-pool', url: '/uk/docs/components/pdo-pool.html', text: 'Пул з\'єднань вбудований прямо в <code>PDO</code>. Автоматичне керування з\'єднаннями для максимальної продуктивності.' },
@@ -363,7 +363,7 @@ const cta = computed(() => t.value.cta)
 const milestones = [
   { version: '0.1', title: 'Foundation', date: '2024', status: 'done' },
   { version: '0.6', title: 'Complete Async API', date: '2026-03-14', status: 'done' },
-  { version: '0.7', title: 'Threads & Stabilization', date: 'Summer 2026', status: 'active', tag: 'In Development', tagStyle: 'highlight' },
+  { version: '0.7', title: 'Threads & Stabilization', date: 'Summer 2026', status: 'done' },
   { version: '0.8', title: 'Framework Adapters', date: 'Q3 2026', status: 'planned' },
   { version: '1.0-RC', title: 'Release Candidate', date: 'August 2026', status: 'planned', tag: 'RC' },
   { version: '1.0', title: 'Stable Release', date: 'November 2026', status: 'planned', tag: 'Target: PHP 8.6', tagStyle: 'highlight' },

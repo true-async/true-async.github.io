@@ -10,6 +10,12 @@ description: "Запуск TrueAsync PHP з FrankenPHP — швидкий ста
 
 # FrankenPHP + TrueAsync
 
+> **З'явилася нативна альтернатива.** З 2026-05 у TrueAsync є власний сервер —
+> [**TrueAsync Server**](/uk/docs/server/index.html). Це PHP-розширення, що піднімає HTTP/1.1/2/3
+> прямо всередині PHP-процесу, без Go-runtime і Caddy. FrankenPHP лишається актуальним, якщо вам потрібні
+> фічі Caddy (автоматичний Let's Encrypt, Caddyfile-маршрутизація) або інтеграція в наявну
+> Caddy-інфраструктуру.
+
 [FrankenPHP](https://frankenphp.dev) — це сервер PHP-застосунків, побудований на основі [Caddy](https://caddyserver.com).
 Він вбудовує середовище виконання PHP безпосередньо в Go-процес, усуваючи накладні витрати на окремий FastCGI-проксі.
 
