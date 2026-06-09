@@ -1,19 +1,19 @@
 {
   "dockerImages": [
     {
-      "tag": "trueasync/php-true-async:0.7.1-php8.6",
+      "tag": "trueasync/php-true-async:0.7.2-php8.6",
       "description": "Ubuntu 24.04 — CLI + FPM"
     },
     {
-      "tag": "trueasync/php-true-async:0.7.1-php8.6-alpine",
+      "tag": "trueasync/php-true-async:0.7.2-php8.6-alpine",
       "description": "Alpine 3.20 — CLI + FPM (lightweight)"
     },
     {
-      "tag": "trueasync/php-true-async:0.7.1-php8.6-debug",
+      "tag": "trueasync/php-true-async:0.7.2-php8.6-debug",
       "description": "Ubuntu 24.04 — CLI + FPM (debug symbols)"
     },
     {
-      "tag": "trueasync/php-true-async:0.7.1-php8.6-frankenphp",
+      "tag": "trueasync/php-true-async:0.7.2-php8.6-frankenphp",
       "description": "Ubuntu 24.04 — FrankenPHP (Caddy + async worker)"
     },
     {
@@ -31,11 +31,53 @@
   ],
   "versions": [
     {
+      "version": "0.7.2",
+      "date": "2026-06-09",
+      "php_requires": "PHP 8.6-dev (ZTS)",
+      "changelog_url": "https://github.com/true-async/releases/releases/tag/v0.7.2",
+      "old": false,
+      "platforms": [
+        {
+          "name": "Windows",
+          "files": [
+            {
+              "name": "php-trueasync-0.7.2-php8.6-windows-x64.zip",
+              "label": "Release",
+              "url": "https://github.com/true-async/releases/releases/download/v0.7.2/php-trueasync-0.7.2-php8.6-windows-x64.zip",
+              "size": "~38 MB",
+              "sha256": "see sha256sums.txt in release"
+            },
+            {
+              "name": "php-trueasync-0.7.2-php8.6-windows-x64-debug.zip",
+              "label": "Debug",
+              "url": "https://github.com/true-async/releases/releases/download/v0.7.2/php-trueasync-0.7.2-php8.6-windows-x64-debug.zip",
+              "size": "~36 MB",
+              "sha256": "see sha256sums.txt in release"
+            },
+            {
+              "name": "php-trueasync-0.7.2-php8.6-windows-x64-frankenphp.zip",
+              "label": "FrankenPHP",
+              "url": "https://github.com/true-async/releases/releases/download/v0.7.2/php-trueasync-0.7.2-php8.6-windows-x64-frankenphp.zip",
+              "size": "~19 MB",
+              "sha256": "see sha256sums.txt in release"
+            },
+            {
+              "name": "php-trueasync-0.7.2-php8.6-windows-x64-debug-frankenphp.zip",
+              "label": "FrankenPHP Debug",
+              "url": "https://github.com/true-async/releases/releases/download/v0.7.2/php-trueasync-0.7.2-php8.6-windows-x64-debug-frankenphp.zip",
+              "size": "~19 MB",
+              "sha256": "see sha256sums.txt in release"
+            }
+          ]
+        }
+      ]
+    },
+    {
       "version": "0.7.1",
       "date": "2026-06-09",
       "php_requires": "PHP 8.6-dev (ZTS)",
       "changelog_url": "https://github.com/true-async/releases/releases/tag/v0.7.1",
-      "old": false,
+      "old": true,
       "platforms": [
         {
           "name": "Windows",
