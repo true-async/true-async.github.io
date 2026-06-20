@@ -87,6 +87,12 @@ onMounted(() => {
   <div>
     <Navbar />
 
+    <!-- Dynamic region keyed by layout TYPE (not route): switching layouts does
+         a clean remount, which avoids a Vue v-if-chain patch crash on
+         heterogeneous branches; navigating within one layout patches in place so
+         the sidebar element persists and keeps its scroll position. -->
+    <div :key="layout">
+
     <!-- Page Header (docs, architecture, roadmap, download) -->
     <div v-if="['docs', 'architecture', 'roadmap'].includes(layout)" class="page-header">
       <div class="page-header-inner" :class="{ 'page-header-inner--narrow': layout === 'roadmap' }">
@@ -139,8 +145,11 @@ onMounted(() => {
       <DownloadPage />
     </main>
 
-    <!-- Page layout (contributing, motivation, rfc) -->
-    <template v-else-if="layout === 'page'">
+    <!-- Page layout (contributing, motivation, rfc).
+         A box-less wrapper (display:contents) instead of a <template> fragment:
+         keeps every v-if branch a SINGLE element so Vue's block patcher never
+         hits a null sibling anchor, while staying visually transparent. -->
+    <div v-else-if="layout === 'page'" style="display: contents">
       <div class="page-header">
         <div class="page-header-inner page-header-inner--narrow">
           <h1>{{ frontmatter.page_title || page.title }}</h1>
@@ -151,12 +160,13 @@ onMounted(() => {
         <Content />
         <DocFeedback />
       </main>
-    </template>
+    </div>
 
     <!-- Default layout -->
     <main v-else style="padding-top: 3.5rem;" :key="route.path">
       <Content />
     </main>
+    </div>
 
     <Footer />
   </div>
