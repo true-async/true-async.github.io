@@ -1,10 +1,29 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch, nextTick } from 'vue'
 import { useRoute } from 'vitepress'
 import { navIcons } from './navIcons'
 
 const route = useRoute()
 const searchQuery = ref('')
+
+// Preserve the sidebar scroll position across SPA navigation. Removing the
+// layout-level :key kept the <aside> element alive, but navigating still
+// re-expands/collapses sections, which reflows the content and resets
+// scrollTop. We snapshot the position when a link is clicked (before the
+// reflow) and restore it once the DOM has settled.
+const sidebarEl = ref<HTMLElement | null>(null)
+let savedScroll = 0
+
+function rememberScroll() {
+  if (sidebarEl.value) savedScroll = sidebarEl.value.scrollTop
+}
+
+watch(() => route.path, async () => {
+  await nextTick()
+  requestAnimationFrame(() => {
+    if (sidebarEl.value) sidebarEl.value.scrollTop = savedScroll
+  })
+})
 
 interface NavItem {
   url: string
@@ -20,6 +39,7 @@ interface NavGroup {
 
 const props = defineProps<{
   sidebar: NavGroup[]
+  open?: boolean
 }>()
 
 const expandedItems = ref<Set<string>>(new Set())
@@ -67,7 +87,7 @@ const filteredSidebar = computed(() => {
 </script>
 
 <template>
-  <aside class="docs-sidebar">
+  <aside class="docs-sidebar" :class="{ open }" ref="sidebarEl" @click.capture="rememberScroll">
     <div class="docs-search">
       <svg class="docs-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="11" cy="11" r="8"/>
