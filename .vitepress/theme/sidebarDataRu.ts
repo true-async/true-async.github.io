@@ -327,6 +327,19 @@ export const docsSidebarRu: NavGroup[] = [
     ],
   },
   {
+    title: 'ClickHouse',
+    icon: 'database',
+    items: [
+      { url: '/ru/docs/clickhouse/index.html', label: 'Обзор', icon: 'eye' },
+      { url: '/ru/docs/clickhouse/installation.html', label: 'Установка', icon: 'section-rocket' },
+      { url: '/ru/docs/clickhouse/configuration.html', label: 'Конфигурация', icon: 'section-settings' },
+      { url: '/ru/docs/clickhouse/usage.html', label: 'Использование', icon: 'section-code' },
+      { url: '/ru/docs/clickhouse/types.html', label: 'Маппинг типов', icon: 'shuffle' },
+      { url: '/ru/docs/clickhouse/pool.html', label: 'Пул соединений', icon: 'layers' },
+      { url: '/ru/docs/clickhouse/architecture.html', label: 'Архитектура', icon: 'braces' },
+    ],
+  },
+  {
     title: 'Интеграции',
     icon: 'section-puzzle',
     items: [
