@@ -26,11 +26,11 @@ optional **replicated worker pool** for horizontal scaling inside a single proce
             │   │                Event-loop thread #0                  │ │
             │   │                                                      │ │
             │   │   libuv ──► accept ──► parse ──► dispatch ──► send   │ │
-            │   │     ▲                                ▼                │ │
-            │   │     │     ┌──── PHP handler (coroutine) ────┐         │ │
-            │   │     │     │  user code, DB, HTTP client, …  │         │ │
-            │   │     │     └─────────────┬───────────────────┘         │ │
-            │   │     └──────── yield ────┘                             │ │
+            │   │     ▲                                ▼               │ │
+            │   │     │     ┌──── PHP handler (coroutine) ────┐        │ │
+            │   │     │     │  user code, DB, HTTP client, …  │        │ │
+            │   │     │     └─────────────┬───────────────────┘        │ │
+            │   │     └──────── yield ────┘                            │ │
             │   └──────────────────────────────────────────────────────┘ │
             │                                                            │
             │   ┌──────────────────────────────────────────────────────┐ │
