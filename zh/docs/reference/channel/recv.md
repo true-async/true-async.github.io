@@ -1,4 +1,4 @@
----
+﻿---
 layout: docs
 lang: zh
 path_key: "/docs/reference/channel/recv.html"
@@ -27,7 +27,7 @@ public Channel::recv(?Completable $cancellationToken = null): mixed
 **cancellationToken**
 : 取消令牌（`Completable`），允许根据任意条件中断等待。
   `null` — 无限等待（默认）。
-  当令牌完成时，操作将被中断并抛出 `CancelledException`。
+  当令牌完成时，操作将被中断并抛出 `AsyncCancellation`。
   如需按时间限制，可使用 `Async\timeout()`。
 
 ## 返回值
@@ -37,7 +37,7 @@ public Channel::recv(?Completable $cancellationToken = null): mixed
 ## 错误
 
 - 如果通道已关闭且缓冲区为空，抛出 `Async\ChannelException`。
-- 如果取消令牌已完成，抛出 `Async\CancelledException`。
+- 如果取消令牌已完成，抛出 `Async\AsyncCancellation`。
 
 ## 示例
 
@@ -82,7 +82,7 @@ spawn(function() use ($channel) {
     try {
         $value = $channel->recv(Async\timeout(2000));
         echo "接收到: $value\n";
-    } catch (\Async\CancelledException) {
+    } catch (\Async\AsyncCancellation) {
         echo "2 秒内未收到数据\n";
     }
 });
@@ -103,7 +103,7 @@ spawn(function() use ($channel, $cancel) {
     try {
         $value = $channel->recv($cancel);
         echo "接收到: $value\n";
-    } catch (\Async\CancelledException) {
+    } catch (\Async\AsyncCancellation) {
         echo "接收已取消\n";
     }
 });

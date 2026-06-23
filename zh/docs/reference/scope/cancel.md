@@ -1,4 +1,4 @@
----
+﻿---
 layout: docs
 lang: zh
 path_key: "/docs/reference/scope/cancel.html"
@@ -16,11 +16,11 @@ description: "取消作用域中的所有协程。"
 public function cancel(?AsyncCancellation $cancellationError = null): void
 ```
 
-取消属于给定作用域的所有协程。每个活跃协程将收到一个 `CancelledException`。如果指定了 `$cancellationError`，它将作为取消原因。
+取消属于给定作用域的所有协程。每个活跃协程将收到一个 `AsyncCancellation`。如果指定了 `$cancellationError`，它将作为取消原因。
 
 ## 参数
 
-`cancellationError` — 自定义取消异常。如果为 `null`，则使用标准的 `CancelledException`。
+`cancellationError` — 自定义取消异常。如果为 `null`，则使用标准的 `AsyncCancellation`。
 
 ## 返回值
 
@@ -40,7 +40,7 @@ $scope = new Scope();
 $scope->spawn(function() {
     try {
         \Async\delay(60_000); // Long operation
-    } catch (\Async\CancelledException $e) {
+    } catch (\Async\AsyncCancellation $e) {
         echo "Coroutine cancelled\n";
     }
 });
@@ -62,7 +62,7 @@ $scope = new Scope();
 $scope->spawn(function() {
     try {
         \Async\delay(60_000);
-    } catch (\Async\CancelledException $e) {
+    } catch (\Async\AsyncCancellation $e) {
         echo "Reason: " . $e->getMessage() . "\n";
     }
 });

@@ -1,4 +1,4 @@
----
+﻿---
 layout: docs
 lang: ko
 path_key: "/docs/reference/future/await.html"
@@ -20,7 +20,7 @@ public function await(?Completable $cancellation = null): mixed
 
 ## 매개변수
 
-`cancellation` — 대기 취소 객체. 제공된 경우 Future가 완료되기 전에 트리거되면 `CancelledException`가 발생합니다. 기본값은 `null`입니다.
+`cancellation` — 대기 취소 객체. 제공된 경우 Future가 완료되기 전에 트리거되면 `AsyncCancellation`가 발생합니다. 기본값은 `null`입니다.
 
 ## 반환값
 

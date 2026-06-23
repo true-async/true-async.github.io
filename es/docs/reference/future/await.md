@@ -1,4 +1,4 @@
----
+﻿---
 layout: docs
 lang: es
 path_key: "/docs/reference/future/await.html"
@@ -20,7 +20,7 @@ Espera la completitud del `Future` y devuelve su resultado. Bloquea la corrutina
 
 ## Parámetros
 
-`cancellation` — un objeto de cancelación de espera. Si se proporciona y se activa antes de que el Future se complete, se lanzará una `CancelledException`. Por defecto es `null`.
+`cancellation` — un objeto de cancelación de espera. Si se proporciona y se activa antes de que el Future se complete, se lanzará una `AsyncCancellation`. Por defecto es `null`.
 
 ## Valor de retorno
 

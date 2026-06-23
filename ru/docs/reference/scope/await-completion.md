@@ -1,4 +1,4 @@
----
+﻿---
 layout: docs
 lang: ru
 path_key: "/docs/reference/scope/await-completion.html"
@@ -69,7 +69,7 @@ $scope->spawn(function() {
 
 try {
     $scope->awaitCompletion(timeout(3000));
-} catch (\Async\CancelledException $e) {
+} catch (\Async\AsyncCancellation $e) {
     echo "Ожидание прервано по таймауту\n";
     $scope->cancel();
 }

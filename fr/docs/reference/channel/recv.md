@@ -1,4 +1,4 @@
----
+﻿---
 layout: docs
 lang: fr
 path_key: "/docs/reference/channel/recv.html"
@@ -27,7 +27,7 @@ Si le canal est fermé mais que des valeurs restent dans le tampon, elles seront
 **cancellationToken**
 : Jeton d'annulation (`Completable`) permettant d'interrompre l'attente selon une condition arbitraire.
   `null` — attente sans limite (par défaut).
-  Lorsque le jeton est complété, l'opération est interrompue et une `CancelledException` est levée.
+  Lorsque le jeton est complété, l'opération est interrompue et une `AsyncCancellation` est levée.
   Pour limiter l'attente dans le temps, vous pouvez utiliser `Async\timeout()`.
 
 ## Valeurs de retour
@@ -37,7 +37,7 @@ La prochaine valeur du canal (`mixed`).
 ## Erreurs
 
 - Lève `Async\ChannelException` si le canal est fermé et que le tampon est vide.
-- Lève `Async\CancelledException` si le jeton d'annulation a été complété.
+- Lève `Async\AsyncCancellation` si le jeton d'annulation a été complété.
 
 ## Exemples
 
@@ -82,7 +82,7 @@ spawn(function() use ($channel) {
     try {
         $value = $channel->recv(Async\timeout(2000));
         echo "Reçu : $value\n";
-    } catch (\Async\CancelledException) {
+    } catch (\Async\AsyncCancellation) {
         echo "Aucune donnée reçue dans les 2 secondes\n";
     }
 });
@@ -103,7 +103,7 @@ spawn(function() use ($channel, $cancel) {
     try {
         $value = $channel->recv($cancel);
         echo "Reçu : $value\n";
-    } catch (\Async\CancelledException) {
+    } catch (\Async\AsyncCancellation) {
         echo "Réception annulée\n";
     }
 });

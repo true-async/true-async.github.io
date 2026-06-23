@@ -1,4 +1,4 @@
----
+﻿---
 layout: docs
 lang: ko
 path_key: "/docs/reference/scope/await-after-cancellation.html"
@@ -77,7 +77,7 @@ $scope->spawn(function() {
     // 완료하는 데 오래 걸리는 좀비 코루틴
     try {
         \Async\delay(30_000);
-    } catch (\Async\CancelledException) {
+    } catch (\Async\AsyncCancellation) {
         // 리소스 정리
         \Async\delay(2000);
     }

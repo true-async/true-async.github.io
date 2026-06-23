@@ -1,4 +1,4 @@
----
+﻿---
 layout: docs
 lang: it
 path_key: "/docs/reference/future/cancel.html"
@@ -16,11 +16,11 @@ description: "Annulla il Future."
 public function cancel(?AsyncCancellation $cancellation = null): void
 ```
 
-Annulla il `Future`. Tutte le coroutine in attesa di questo Future tramite `await()` riceveranno una `CancelledException`. Se viene fornito il parametro `$cancellation`, verra' utilizzato come motivo dell'annullamento.
+Annulla il `Future`. Tutte le coroutine in attesa di questo Future tramite `await()` riceveranno una `AsyncCancellation`. Se viene fornito il parametro `$cancellation`, verra' utilizzato come motivo dell'annullamento.
 
 ## Parametri
 
-`cancellation` --- un'eccezione di annullamento personalizzata. Se `null`, viene utilizzata la `CancelledException` predefinita.
+`cancellation` --- un'eccezione di annullamento personalizzata. Se `null`, viene utilizzata la `AsyncCancellation` predefinita.
 
 ## Valore di ritorno
 
@@ -43,7 +43,7 @@ $future = new Future($state);
 \Async\async(function() use ($future) {
     try {
         $result = $future->await();
-    } catch (\Async\CancelledException $e) {
+    } catch (\Async\AsyncCancellation $e) {
         echo "Future cancelled\n";
     }
 });
@@ -67,7 +67,7 @@ $future = new Future($state);
 \Async\async(function() use ($future) {
     try {
         $future->await();
-    } catch (\Async\CancelledException $e) {
+    } catch (\Async\AsyncCancellation $e) {
         echo "Reason: " . $e->getMessage() . "\n";
         // Reason: Timeout exceeded
     }

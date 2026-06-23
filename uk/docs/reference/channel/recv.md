@@ -1,4 +1,4 @@
----
+﻿---
 layout: docs
 lang: uk
 path_key: "/docs/reference/channel/recv.html"
@@ -27,7 +27,7 @@ public Channel::recv(?Completable $cancellationToken = null): mixed
 **cancellationToken**
 : Токен скасування (`Completable`), що дає змогу перервати очікування за довільною умовою.
   `null` — очікування без обмежень (за замовчуванням).
-  Коли токен завершується, операція переривається і кидається `CancelledException`.
+  Коли токен завершується, операція переривається і кидається `AsyncCancellation`.
   Для обмеження за часом можна використовувати `Async\timeout()`.
 
 ## Значення, що повертаються
@@ -37,7 +37,7 @@ public Channel::recv(?Completable $cancellationToken = null): mixed
 ## Помилки
 
 - Кидає `Async\ChannelException`, якщо канал закрито і буфер порожній.
-- Кидає `Async\CancelledException`, якщо токен скасування було завершено.
+- Кидає `Async\AsyncCancellation`, якщо токен скасування було завершено.
 
 ## Приклади
 
@@ -82,7 +82,7 @@ spawn(function() use ($channel) {
     try {
         $value = $channel->recv(Async\timeout(2000));
         echo "Отримано: $value\n";
-    } catch (\Async\CancelledException) {
+    } catch (\Async\AsyncCancellation) {
         echo "Дані не надійшли протягом 2 секунд\n";
     }
 });
@@ -103,7 +103,7 @@ spawn(function() use ($channel, $cancel) {
     try {
         $value = $channel->recv($cancel);
         echo "Отримано: $value\n";
-    } catch (\Async\CancelledException) {
+    } catch (\Async\AsyncCancellation) {
         echo "Отримання скасовано\n";
     }
 });

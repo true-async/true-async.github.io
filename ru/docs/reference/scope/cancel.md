@@ -1,4 +1,4 @@
----
+﻿---
 layout: docs
 lang: ru
 path_key: "/docs/reference/scope/cancel.html"
@@ -16,11 +16,11 @@ description: "Отменяет все корутины scope."
 public function cancel(?AsyncCancellation $cancellationError = null): void
 ```
 
-Отменяет все корутины, принадлежащие данному scope. Каждая активная корутина получит исключение `CancelledException`. Если указан `$cancellationError`, он будет использован как причина отмены.
+Отменяет все корутины, принадлежащие данному scope. Каждая активная корутина получит исключение `AsyncCancellation`. Если указан `$cancellationError`, он будет использован как причина отмены.
 
 ## Параметры
 
-`cancellationError` — пользовательское исключение отмены. Если `null`, используется стандартное `CancelledException`.
+`cancellationError` — пользовательское исключение отмены. Если `null`, используется стандартное `AsyncCancellation`.
 
 ## Возвращаемое значение
 
@@ -40,7 +40,7 @@ $scope = new Scope();
 $scope->spawn(function() {
     try {
         \Async\delay(60_000); // Долгая операция
-    } catch (\Async\CancelledException $e) {
+    } catch (\Async\AsyncCancellation $e) {
         echo "Корутина отменена\n";
     }
 });
@@ -62,7 +62,7 @@ $scope = new Scope();
 $scope->spawn(function() {
     try {
         \Async\delay(60_000);
-    } catch (\Async\CancelledException $e) {
+    } catch (\Async\AsyncCancellation $e) {
         echo "Причина: " . $e->getMessage() . "\n";
     }
 });

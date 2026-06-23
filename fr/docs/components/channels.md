@@ -1,4 +1,4 @@
----
+﻿---
 layout: docs
 lang: fr
 path_key: "/docs/components/channels.html"
@@ -79,7 +79,7 @@ Les methodes `recv()` et `send()` acceptent un jeton d'annulation optionnel (`Co
 
 ```php
 use Async\Channel;
-use Async\CancelledException;
+use Async\AsyncCancellation;
 
 $ch = new Channel(0);
 
@@ -87,7 +87,7 @@ $ch = new Channel(0);
 spawn(function() use ($ch) {
     try {
         $ch->recv(Async\timeout(50)); // Attendre au maximum 50 ms
-    } catch (CancelledException $e) {
+    } catch (AsyncCancellation $e) {
         echo "Personne n'a envoye de donnees dans les 50 ms\n";
     }
 });
@@ -104,7 +104,7 @@ spawn(function() use ($ch) {
 
     try {
         $ch->send("data", $cancel);
-    } catch (CancelledException $e) {
+    } catch (AsyncCancellation $e) {
         echo "Personne n'a accepte les donnees -- operation annulee\n";
     }
 });

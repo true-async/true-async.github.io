@@ -1,4 +1,4 @@
----
+﻿---
 layout: docs
 lang: it
 path_key: "/docs/reference/scope/await-after-cancellation.html"
@@ -77,7 +77,7 @@ $scope->spawn(function() {
     // Coroutine zombie che impiega molto tempo a terminare
     try {
         \Async\delay(30_000);
-    } catch (\Async\CancelledException) {
+    } catch (\Async\AsyncCancellation) {
         // Pulizia delle risorse
         \Async\delay(2000);
     }

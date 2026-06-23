@@ -1,4 +1,4 @@
----
+﻿---
 layout: docs
 lang: it
 path_key: "/docs/reference/scope/dispose-after-timeout.html"
@@ -44,7 +44,7 @@ $scope->spawn(function() {
     try {
         // Operazione lunga
         \Async\delay(60_000);
-    } catch (\Async\CancelledException) {
+    } catch (\Async\AsyncCancellation) {
         echo "Task cancellato dal timeout dello scope\n";
     }
 });

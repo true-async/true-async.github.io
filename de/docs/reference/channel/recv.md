@@ -1,4 +1,4 @@
----
+﻿---
 layout: docs
 lang: de
 path_key: "/docs/reference/channel/recv.html"
@@ -27,7 +27,7 @@ Wenn der Channel geschlossen ist, aber noch Werte im Puffer sind, werden diese z
 **cancellationToken**
 : Abbruch-Token (`Completable`), das den Abbruch des Wartens nach beliebigen Bedingungen ermöglicht.
   `null` — unbegrenzt warten (Standard).
-  Wenn das Token abgeschlossen wird, wird die Operation abgebrochen und eine `CancelledException` ausgelöst.
+  Wenn das Token abgeschlossen wird, wird die Operation abgebrochen und eine `AsyncCancellation` ausgelöst.
   Für zeitbasierte Begrenzungen kann `Async\timeout()` verwendet werden.
 
 ## Rückgabewerte
@@ -37,7 +37,7 @@ Der nächste Wert aus dem Channel (`mixed`).
 ## Fehler
 
 - Löst `Async\ChannelException` aus, wenn der Channel geschlossen und der Puffer leer ist.
-- Löst `Async\CancelledException` aus, wenn das Abbruch-Token abgeschlossen wurde.
+- Löst `Async\AsyncCancellation` aus, wenn das Abbruch-Token abgeschlossen wurde.
 
 ## Beispiele
 
@@ -82,7 +82,7 @@ spawn(function() use ($channel) {
     try {
         $value = $channel->recv(Async\timeout(2000));
         echo "Empfangen: $value\n";
-    } catch (\Async\CancelledException) {
+    } catch (\Async\AsyncCancellation) {
         echo "Keine Daten innerhalb von 2 Sekunden empfangen\n";
     }
 });
@@ -103,7 +103,7 @@ spawn(function() use ($channel, $cancel) {
     try {
         $value = $channel->recv($cancel);
         echo "Empfangen: $value\n";
-    } catch (\Async\CancelledException) {
+    } catch (\Async\AsyncCancellation) {
         echo "Empfang abgebrochen\n";
     }
 });

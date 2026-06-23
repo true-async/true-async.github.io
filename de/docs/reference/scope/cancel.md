@@ -1,4 +1,4 @@
----
+﻿---
 layout: docs
 lang: de
 path_key: "/docs/reference/scope/cancel.html"
@@ -16,11 +16,11 @@ description: "Bricht alle Koroutinen im Scope ab."
 public function cancel(?AsyncCancellation $cancellationError = null): void
 ```
 
-Bricht alle Koroutinen ab, die zum angegebenen Scope gehoeren. Jede aktive Koroutine erhaelt eine `CancelledException`. Wenn `$cancellationError` angegeben wird, wird diese als Abbruchgrund verwendet.
+Bricht alle Koroutinen ab, die zum angegebenen Scope gehoeren. Jede aktive Koroutine erhaelt eine `AsyncCancellation`. Wenn `$cancellationError` angegeben wird, wird diese als Abbruchgrund verwendet.
 
 ## Parameter
 
-`cancellationError` — eine benutzerdefinierte Abbruch-Exception. Wenn `null`, wird die Standard-`CancelledException` verwendet.
+`cancellationError` — eine benutzerdefinierte Abbruch-Exception. Wenn `null`, wird die Standard-`AsyncCancellation` verwendet.
 
 ## Rueckgabewert
 
@@ -40,7 +40,7 @@ $scope = new Scope();
 $scope->spawn(function() {
     try {
         \Async\delay(60_000); // Lange Operation
-    } catch (\Async\CancelledException $e) {
+    } catch (\Async\AsyncCancellation $e) {
         echo "Koroutine abgebrochen\n";
     }
 });
@@ -62,7 +62,7 @@ $scope = new Scope();
 $scope->spawn(function() {
     try {
         \Async\delay(60_000);
-    } catch (\Async\CancelledException $e) {
+    } catch (\Async\AsyncCancellation $e) {
         echo "Grund: " . $e->getMessage() . "\n";
     }
 });

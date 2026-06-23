@@ -1,4 +1,4 @@
----
+﻿---
 layout: docs
 lang: ko
 path_key: "/docs/reference/future/cancel.html"
@@ -16,11 +16,11 @@ description: "Future를 취소합니다."
 public function cancel(?AsyncCancellation $cancellation = null): void
 ```
 
-`Future`를 취소합니다. `await()`를 통해 이 Future를 대기하는 모든 코루틴은 `CancelledException`를 수신합니다. `$cancellation` 매개변수가 제공된 경우, 취소 사유로 사용됩니다.
+`Future`를 취소합니다. `await()`를 통해 이 Future를 대기하는 모든 코루틴은 `AsyncCancellation`를 수신합니다. `$cancellation` 매개변수가 제공된 경우, 취소 사유로 사용됩니다.
 
 ## 매개변수
 
-`cancellation` — 사용자 정의 취소 예외. `null`인 경우 기본 `CancelledException`가 사용됩니다.
+`cancellation` — 사용자 정의 취소 예외. `null`인 경우 기본 `AsyncCancellation`가 사용됩니다.
 
 ## 반환값
 
@@ -43,7 +43,7 @@ $future = new Future($state);
 \Async\async(function() use ($future) {
     try {
         $result = $future->await();
-    } catch (\Async\CancelledException $e) {
+    } catch (\Async\AsyncCancellation $e) {
         echo "Future cancelled\n";
     }
 });
@@ -67,7 +67,7 @@ $future = new Future($state);
 \Async\async(function() use ($future) {
     try {
         $future->await();
-    } catch (\Async\CancelledException $e) {
+    } catch (\Async\AsyncCancellation $e) {
         echo "Reason: " . $e->getMessage() . "\n";
         // Reason: Timeout exceeded
     }

@@ -1,4 +1,4 @@
----
+﻿---
 layout: docs
 lang: zh
 path_key: "/docs/components/channels.html"
@@ -77,7 +77,7 @@ spawn(function() use ($ch) {
 
 ```php
 use Async\Channel;
-use Async\CancelledException;
+use Async\AsyncCancellation;
 
 $ch = new Channel(0);
 
@@ -85,7 +85,7 @@ $ch = new Channel(0);
 spawn(function() use ($ch) {
     try {
         $ch->recv(Async\timeout(50)); // 最多等待 50 毫秒
-    } catch (CancelledException $e) {
+    } catch (AsyncCancellation $e) {
         echo "50 毫秒内没有人发送数据\n";
     }
 });
@@ -102,7 +102,7 @@ spawn(function() use ($ch) {
 
     try {
         $ch->send("data", $cancel);
-    } catch (CancelledException $e) {
+    } catch (AsyncCancellation $e) {
         echo "没有人接收数据——操作已取消\n";
     }
 });

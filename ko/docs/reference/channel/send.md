@@ -1,4 +1,4 @@
----
+﻿---
 layout: docs
 lang: ko
 path_key: "/docs/reference/channel/send.html"
@@ -30,13 +30,13 @@ public Channel::send(mixed $value, ?Completable $cancellationToken = null): void
 **cancellationToken**
 : 취소 토큰(`Completable`)으로, 임의의 조건에 따라 대기를 중단할 수 있습니다.
   `null` — 무한 대기 (기본값).
-  토큰이 완료되면 연산이 중단되고 `CancelledException`이 발생합니다.
+  토큰이 완료되면 연산이 중단되고 `AsyncCancellation`이 발생합니다.
   시간 제한이 필요한 경우 `Async\timeout()`을 사용할 수 있습니다.
 
 ## 오류
 
 - 채널이 닫혀 있으면 `Async\ChannelException`을 발생시킵니다.
-- 취소 토큰이 완료되면 `Async\CancelledException`을 발생시킵니다.
+- 취소 토큰이 완료되면 `Async\AsyncCancellation`을 발생시킵니다.
 
 ## 예제
 
@@ -73,7 +73,7 @@ $channel = new Channel(0); // 랑데부
 spawn(function() use ($channel) {
     try {
         $channel->send('데이터', Async\timeout(1000));
-    } catch (\Async\CancelledException $e) {
+    } catch (\Async\AsyncCancellation $e) {
         echo "타임아웃: 1초 내에 아무도 값을 수신하지 않았습니다\n";
     }
 });
@@ -93,7 +93,7 @@ $cancel = new Future();
 spawn(function() use ($channel, $cancel) {
     try {
         $channel->send('데이터', $cancel);
-    } catch (\Async\CancelledException $e) {
+    } catch (\Async\AsyncCancellation $e) {
         echo "전송이 취소되었습니다\n";
     }
 });

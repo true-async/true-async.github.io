@@ -1,4 +1,4 @@
----
+﻿---
 layout: docs
 lang: ru
 path_key: "/docs/components/channels.html"
@@ -79,7 +79,7 @@ spawn(function() use ($ch) {
 
 ```php
 use Async\Channel;
-use Async\CancelledException;
+use Async\AsyncCancellation;
 
 $ch = new Channel(0);
 
@@ -87,7 +87,7 @@ $ch = new Channel(0);
 spawn(function() use ($ch) {
     try {
         $ch->recv(Async\timeout(50)); // Ждём не более 50 мс
-    } catch (CancelledException $e) {
+    } catch (AsyncCancellation $e) {
         echo "Никто не отправил данные за 50 мс\n";
     }
 });
@@ -104,7 +104,7 @@ spawn(function() use ($ch) {
 
     try {
         $ch->send("data", $cancel);
-    } catch (CancelledException $e) {
+    } catch (AsyncCancellation $e) {
         echo "Никто не принял данные — операция отменена\n";
     }
 });

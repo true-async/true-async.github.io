@@ -1,4 +1,4 @@
----
+﻿---
 layout: docs
 lang: de
 path_key: "/docs/reference/future/cancel.html"
@@ -16,11 +16,11 @@ description: "Das Future abbrechen."
 public function cancel(?AsyncCancellation $cancellation = null): void
 ```
 
-Bricht das `Future` ab. Alle Coroutinen, die dieses Future über `await()` abwarten, erhalten eine `CancelledException`. Wenn der Parameter `$cancellation` angegeben wird, wird er als Abbruchgrund verwendet.
+Bricht das `Future` ab. Alle Coroutinen, die dieses Future über `await()` abwarten, erhalten eine `AsyncCancellation`. Wenn der Parameter `$cancellation` angegeben wird, wird er als Abbruchgrund verwendet.
 
 ## Parameter
 
-`cancellation` — eine benutzerdefinierte Abbruch-Ausnahme. Wenn `null`, wird die Standard-`CancelledException` verwendet.
+`cancellation` — eine benutzerdefinierte Abbruch-Ausnahme. Wenn `null`, wird die Standard-`AsyncCancellation` verwendet.
 
 ## Rückgabewert
 
@@ -43,7 +43,7 @@ $future = new Future($state);
 \Async\async(function() use ($future) {
     try {
         $result = $future->await();
-    } catch (\Async\CancelledException $e) {
+    } catch (\Async\AsyncCancellation $e) {
         echo "Future abgebrochen\n";
     }
 });
@@ -67,7 +67,7 @@ $future = new Future($state);
 \Async\async(function() use ($future) {
     try {
         $future->await();
-    } catch (\Async\CancelledException $e) {
+    } catch (\Async\AsyncCancellation $e) {
         echo "Grund: " . $e->getMessage() . "\n";
         // Grund: Timeout überschritten
     }

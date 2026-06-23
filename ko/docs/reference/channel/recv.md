@@ -1,4 +1,4 @@
----
+﻿---
 layout: docs
 lang: ko
 path_key: "/docs/reference/channel/recv.html"
@@ -27,7 +27,7 @@ public Channel::recv(?Completable $cancellationToken = null): mixed
 **cancellationToken**
 : 취소 토큰(`Completable`)으로, 임의의 조건에 따라 대기를 중단할 수 있습니다.
   `null` — 무한 대기 (기본값).
-  토큰이 완료되면 연산이 중단되고 `CancelledException`이 발생합니다.
+  토큰이 완료되면 연산이 중단되고 `AsyncCancellation`이 발생합니다.
   시간 제한이 필요한 경우 `Async\timeout()`을 사용할 수 있습니다.
 
 ## 반환값
@@ -37,7 +37,7 @@ public Channel::recv(?Completable $cancellationToken = null): mixed
 ## 오류
 
 - 채널이 닫혀 있고 버퍼가 비어있으면 `Async\ChannelException`을 발생시킵니다.
-- 취소 토큰이 완료되면 `Async\CancelledException`을 발생시킵니다.
+- 취소 토큰이 완료되면 `Async\AsyncCancellation`을 발생시킵니다.
 
 ## 예제
 
@@ -82,7 +82,7 @@ spawn(function() use ($channel) {
     try {
         $value = $channel->recv(Async\timeout(2000));
         echo "수신됨: $value\n";
-    } catch (\Async\CancelledException) {
+    } catch (\Async\AsyncCancellation) {
         echo "2초 내에 데이터가 도착하지 않았습니다\n";
     }
 });
@@ -103,7 +103,7 @@ spawn(function() use ($channel, $cancel) {
     try {
         $value = $channel->recv($cancel);
         echo "수신됨: $value\n";
-    } catch (\Async\CancelledException) {
+    } catch (\Async\AsyncCancellation) {
         echo "수신이 취소되었습니다\n";
     }
 });

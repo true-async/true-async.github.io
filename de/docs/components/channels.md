@@ -1,4 +1,4 @@
----
+﻿---
 layout: docs
 lang: de
 path_key: "/docs/components/channels.html"
@@ -79,7 +79,7 @@ Die Methoden `recv()` und `send()` akzeptieren ein optionales Abbruch-Token (`Co
 
 ```php
 use Async\Channel;
-use Async\CancelledException;
+use Async\AsyncCancellation;
 
 $ch = new Channel(0);
 
@@ -87,7 +87,7 @@ $ch = new Channel(0);
 spawn(function() use ($ch) {
     try {
         $ch->recv(Async\timeout(50)); // Maximal 50 ms warten
-    } catch (CancelledException $e) {
+    } catch (AsyncCancellation $e) {
         echo "Niemand hat Daten innerhalb von 50 ms gesendet\n";
     }
 });
@@ -104,7 +104,7 @@ spawn(function() use ($ch) {
 
     try {
         $ch->send("data", $cancel);
-    } catch (CancelledException $e) {
+    } catch (AsyncCancellation $e) {
         echo "Niemand hat die Daten empfangen — Operation abgebrochen\n";
     }
 });

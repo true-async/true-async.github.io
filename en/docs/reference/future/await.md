@@ -1,4 +1,4 @@
----
+﻿---
 layout: docs
 lang: en
 path_key: "/docs/reference/future/await.html"
@@ -20,7 +20,7 @@ Awaits the completion of the `Future` and returns its result. Blocks the current
 
 ## Parameters
 
-`cancellation` — a wait cancellation object. If provided and triggered before the Future completes, a `CancelledException` will be thrown. Defaults to `null`.
+`cancellation` — a wait cancellation object. If provided and triggered before the Future completes, a `AsyncCancellation` will be thrown. Defaults to `null`.
 
 ## Return value
 

@@ -1,4 +1,4 @@
----
+﻿---
 layout: docs
 lang: uk
 path_key: "/docs/reference/future/cancel.html"
@@ -16,11 +16,11 @@ description: "Скасування Future."
 public function cancel(?AsyncCancellation $cancellation = null): void
 ```
 
-Скасовує `Future`. Усі корутини, що очікують цей Future через `await()`, отримають `CancelledException`. Якщо передано параметр `$cancellation`, він буде використаний як причина скасування.
+Скасовує `Future`. Усі корутини, що очікують цей Future через `await()`, отримають `AsyncCancellation`. Якщо передано параметр `$cancellation`, він буде використаний як причина скасування.
 
 ## Параметри
 
-`cancellation` — користувацький виняток скасування. Якщо `null`, використовується стандартний `CancelledException`.
+`cancellation` — користувацький виняток скасування. Якщо `null`, використовується стандартний `AsyncCancellation`.
 
 ## Значення, що повертається
 
@@ -43,7 +43,7 @@ $future = new Future($state);
 \Async\async(function() use ($future) {
     try {
         $result = $future->await();
-    } catch (\Async\CancelledException $e) {
+    } catch (\Async\AsyncCancellation $e) {
         echo "Future cancelled\n";
     }
 });
@@ -67,7 +67,7 @@ $future = new Future($state);
 \Async\async(function() use ($future) {
     try {
         $future->await();
-    } catch (\Async\CancelledException $e) {
+    } catch (\Async\AsyncCancellation $e) {
         echo "Reason: " . $e->getMessage() . "\n";
         // Reason: Timeout exceeded
     }

@@ -1,4 +1,4 @@
----
+﻿---
 layout: docs
 lang: zh
 path_key: "/docs/reference/future/cancel.html"
@@ -16,11 +16,11 @@ description: "取消 Future。"
 public function cancel(?AsyncCancellation $cancellation = null): void
 ```
 
-取消 `Future`。所有通过 `await()` 等待此 Future 的协程将收到 `CancelledException`。如果提供了 `$cancellation` 参数，它将作为取消原因。
+取消 `Future`。所有通过 `await()` 等待此 Future 的协程将收到 `AsyncCancellation`。如果提供了 `$cancellation` 参数，它将作为取消原因。
 
 ## 参数
 
-`cancellation` — 自定义取消异常。如果为 `null`，则使用默认的 `CancelledException`。
+`cancellation` — 自定义取消异常。如果为 `null`，则使用默认的 `AsyncCancellation`。
 
 ## 返回值
 
@@ -43,7 +43,7 @@ $future = new Future($state);
 \Async\async(function() use ($future) {
     try {
         $result = $future->await();
-    } catch (\Async\CancelledException $e) {
+    } catch (\Async\AsyncCancellation $e) {
         echo "Future cancelled\n";
     }
 });
@@ -67,7 +67,7 @@ $future = new Future($state);
 \Async\async(function() use ($future) {
     try {
         $future->await();
-    } catch (\Async\CancelledException $e) {
+    } catch (\Async\AsyncCancellation $e) {
         echo "Reason: " . $e->getMessage() . "\n";
         // Reason: Timeout exceeded
     }

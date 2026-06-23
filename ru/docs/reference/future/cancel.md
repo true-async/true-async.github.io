@@ -1,4 +1,4 @@
----
+﻿---
 layout: docs
 lang: ru
 path_key: "/docs/reference/future/cancel.html"
@@ -16,11 +16,11 @@ description: "Отменяет Future."
 public function cancel(?AsyncCancellation $cancellation = null): void
 ```
 
-Отменяет `Future`. Все корутины, ожидающие этот Future через `await()`, получат исключение `CancelledException`. Если указан параметр `$cancellation`, он будет использован как причина отмены.
+Отменяет `Future`. Все корутины, ожидающие этот Future через `await()`, получат исключение `AsyncCancellation`. Если указан параметр `$cancellation`, он будет использован как причина отмены.
 
 ## Параметры
 
-`cancellation` — пользовательское исключение отмены. Если `null`, используется стандартное `CancelledException`.
+`cancellation` — пользовательское исключение отмены. Если `null`, используется стандартное `AsyncCancellation`.
 
 ## Возвращаемое значение
 
@@ -43,7 +43,7 @@ $future = new Future($state);
 \Async\async(function() use ($future) {
     try {
         $result = $future->await();
-    } catch (\Async\CancelledException $e) {
+    } catch (\Async\AsyncCancellation $e) {
         echo "Future отменён\n";
     }
 });
@@ -67,7 +67,7 @@ $future = new Future($state);
 \Async\async(function() use ($future) {
     try {
         $future->await();
-    } catch (\Async\CancelledException $e) {
+    } catch (\Async\AsyncCancellation $e) {
         echo "Причина: " . $e->getMessage() . "\n";
         // Причина: Превышен таймаут
     }

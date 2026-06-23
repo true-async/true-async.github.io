@@ -1,4 +1,4 @@
----
+﻿---
 layout: docs
 lang: fr
 path_key: "/docs/reference/channel/send.html"
@@ -30,13 +30,13 @@ Pour un **canal avec tampon**, l'expéditeur attend uniquement lorsque le tampon
 **cancellationToken**
 : Jeton d'annulation (`Completable`) permettant d'interrompre l'attente selon une condition arbitraire.
   `null` — attente sans limite (par défaut).
-  Lorsque le jeton est complété, l'opération est interrompue et une `CancelledException` est levée.
+  Lorsque le jeton est complété, l'opération est interrompue et une `AsyncCancellation` est levée.
   Pour limiter l'attente dans le temps, vous pouvez utiliser `Async\timeout()`.
 
 ## Erreurs
 
 - Lève `Async\ChannelException` si le canal est fermé.
-- Lève `Async\CancelledException` si le jeton d'annulation a été complété.
+- Lève `Async\AsyncCancellation` si le jeton d'annulation a été complété.
 
 ## Exemples
 
@@ -73,7 +73,7 @@ $channel = new Channel(0); // rendez-vous
 spawn(function() use ($channel) {
     try {
         $channel->send('data', Async\timeout(1000));
-    } catch (\Async\CancelledException $e) {
+    } catch (\Async\AsyncCancellation $e) {
         echo "Délai dépassé : personne n'a accepté la valeur en 1 seconde\n";
     }
 });
@@ -93,7 +93,7 @@ $cancel = new Future();
 spawn(function() use ($channel, $cancel) {
     try {
         $channel->send('data', $cancel);
-    } catch (\Async\CancelledException $e) {
+    } catch (\Async\AsyncCancellation $e) {
         echo "Envoi annulé\n";
     }
 });

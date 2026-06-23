@@ -1,4 +1,4 @@
----
+﻿---
 layout: docs
 lang: ko
 path_key: "/docs/components/channels.html"
@@ -79,7 +79,7 @@ spawn(function() use ($ch) {
 
 ```php
 use Async\Channel;
-use Async\CancelledException;
+use Async\AsyncCancellation;
 
 $ch = new Channel(0);
 
@@ -87,7 +87,7 @@ $ch = new Channel(0);
 spawn(function() use ($ch) {
     try {
         $ch->recv(Async\timeout(50)); // 최대 50ms 대기
-    } catch (CancelledException $e) {
+    } catch (AsyncCancellation $e) {
         echo "50ms 내에 아무도 데이터를 보내지 않았습니다\n";
     }
 });
@@ -104,7 +104,7 @@ spawn(function() use ($ch) {
 
     try {
         $ch->send("data", $cancel);
-    } catch (CancelledException $e) {
+    } catch (AsyncCancellation $e) {
         echo "아무도 데이터를 수신하지 않았습니다 — 연산이 취소되었습니다\n";
     }
 });

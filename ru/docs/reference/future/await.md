@@ -1,4 +1,4 @@
----
+﻿---
 layout: docs
 lang: ru
 path_key: "/docs/reference/future/await.html"
@@ -20,7 +20,7 @@ public function await(?Completable $cancellation = null): mixed
 
 ## Параметры
 
-`cancellation` — объект отмены ожидания. Если указан и сработает до завершения Future, будет выброшено `CancelledException`. По умолчанию `null`.
+`cancellation` — объект отмены ожидания. Если указан и сработает до завершения Future, будет выброшено `AsyncCancellation`. По умолчанию `null`.
 
 ## Возвращаемое значение
 

@@ -1,4 +1,4 @@
----
+﻿---
 layout: docs
 lang: en
 path_key: "/docs/reference/scope/cancel.html"
@@ -16,11 +16,11 @@ description: "Cancels all coroutines in the scope."
 public function cancel(?AsyncCancellation $cancellationError = null): void
 ```
 
-Cancels all coroutines belonging to the given scope. Each active coroutine will receive a `CancelledException`. If `$cancellationError` is specified, it will be used as the cancellation reason.
+Cancels all coroutines belonging to the given scope. Each active coroutine will receive a `AsyncCancellation`. If `$cancellationError` is specified, it will be used as the cancellation reason.
 
 ## Parameters
 
-`cancellationError` — a custom cancellation exception. If `null`, the standard `CancelledException` is used.
+`cancellationError` — a custom cancellation exception. If `null`, the standard `AsyncCancellation` is used.
 
 ## Return Value
 
@@ -40,7 +40,7 @@ $scope = new Scope();
 $scope->spawn(function() {
     try {
         \Async\delay(60_000); // Long operation
-    } catch (\Async\CancelledException $e) {
+    } catch (\Async\AsyncCancellation $e) {
         echo "Coroutine cancelled\n";
     }
 });
@@ -62,7 +62,7 @@ $scope = new Scope();
 $scope->spawn(function() {
     try {
         \Async\delay(60_000);
-    } catch (\Async\CancelledException $e) {
+    } catch (\Async\AsyncCancellation $e) {
         echo "Reason: " . $e->getMessage() . "\n";
     }
 });

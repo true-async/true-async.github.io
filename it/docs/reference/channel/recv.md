@@ -1,4 +1,4 @@
----
+﻿---
 layout: docs
 lang: it
 path_key: "/docs/reference/channel/recv.html"
@@ -27,7 +27,7 @@ Se il canale e' chiuso ma ci sono ancora valori nel buffer, questi verranno rest
 **cancellationToken**
 : Token di cancellazione (`Completable`) che consente di interrompere l'attesa in base a una condizione arbitraria.
   `null` — attesa senza limiti (predefinito).
-  Quando il token viene completato, l'operazione viene interrotta e viene lanciata una `CancelledException`.
+  Quando il token viene completato, l'operazione viene interrotta e viene lanciata una `AsyncCancellation`.
   Per limitare il tempo di attesa si puo' utilizzare `Async\timeout()`.
 
 ## Valori di ritorno
@@ -37,7 +37,7 @@ Il prossimo valore dal canale (`mixed`).
 ## Errori
 
 - Lancia `Async\ChannelException` se il canale e' chiuso e il buffer e' vuoto.
-- Lancia `Async\CancelledException` se il token di cancellazione e' stato completato.
+- Lancia `Async\AsyncCancellation` se il token di cancellazione e' stato completato.
 
 ## Esempi
 
@@ -82,7 +82,7 @@ spawn(function() use ($channel) {
     try {
         $value = $channel->recv(Async\timeout(2000));
         echo "Ricevuto: $value\n";
-    } catch (\Async\CancelledException) {
+    } catch (\Async\AsyncCancellation) {
         echo "Nessun dato ricevuto entro 2 secondi\n";
     }
 });
@@ -103,7 +103,7 @@ spawn(function() use ($channel, $cancel) {
     try {
         $value = $channel->recv($cancel);
         echo "Ricevuto: $value\n";
-    } catch (\Async\CancelledException) {
+    } catch (\Async\AsyncCancellation) {
         echo "Ricezione cancellata\n";
     }
 });

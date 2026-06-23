@@ -1,4 +1,4 @@
----
+﻿---
 layout: docs
 lang: ru
 path_key: "/docs/reference/channel/send.html"
@@ -30,13 +30,13 @@ public Channel::send(mixed $value, ?Completable $cancellationToken = null): void
 **cancellationToken**
 : Токен отмены (`Completable`), позволяющий прервать ожидание по произвольному условию.
   `null` — ожидание без ограничений (по умолчанию).
-  Когда токен завершается, операция прерывается и выбрасывается `CancelledException`.
+  Когда токен завершается, операция прерывается и выбрасывается `AsyncCancellation`.
   Для ограничения по времени можно использовать `Async\timeout()`.
 
 ## Ошибки
 
 - Выбрасывает `Async\ChannelException`, если канал закрыт.
-- Выбрасывает `Async\CancelledException`, если токен отмены был завершён.
+- Выбрасывает `Async\AsyncCancellation`, если токен отмены был завершён.
 
 ## Примеры
 
@@ -73,7 +73,7 @@ $channel = new Channel(0); // рандеву
 spawn(function() use ($channel) {
     try {
         $channel->send('данные', Async\timeout(1000));
-    } catch (\Async\CancelledException $e) {
+    } catch (\Async\AsyncCancellation $e) {
         echo "Таймаут: никто не принял значение за 1 секунду\n";
     }
 });
@@ -93,7 +93,7 @@ $cancel = new Future();
 spawn(function() use ($channel, $cancel) {
     try {
         $channel->send('данные', $cancel);
-    } catch (\Async\CancelledException $e) {
+    } catch (\Async\AsyncCancellation $e) {
         echo "Отправка отменена\n";
     }
 });

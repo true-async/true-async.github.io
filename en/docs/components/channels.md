@@ -1,4 +1,4 @@
----
+﻿---
 layout: docs
 lang: en
 path_key: "/docs/components/channels.html"
@@ -79,7 +79,7 @@ The `recv()` and `send()` methods accept an optional cancellation token (`Comple
 
 ```php
 use Async\Channel;
-use Async\CancelledException;
+use Async\AsyncCancellation;
 
 $ch = new Channel(0);
 
@@ -87,7 +87,7 @@ $ch = new Channel(0);
 spawn(function() use ($ch) {
     try {
         $ch->recv(Async\timeout(50)); // Wait no more than 50 ms
-    } catch (CancelledException $e) {
+    } catch (AsyncCancellation $e) {
         echo "Nobody sent data within 50 ms\n";
     }
 });
@@ -104,7 +104,7 @@ spawn(function() use ($ch) {
 
     try {
         $ch->send("data", $cancel);
-    } catch (CancelledException $e) {
+    } catch (AsyncCancellation $e) {
         echo "Nobody received the data -- operation cancelled\n";
     }
 });

@@ -1,4 +1,4 @@
----
+﻿---
 layout: docs
 lang: de
 path_key: "/docs/reference/future/await.html"
@@ -20,7 +20,7 @@ Wartet auf die Fertigstellung des `Future` und gibt dessen Ergebnis zurück. Blo
 
 ## Parameter
 
-`cancellation` — ein Objekt zum Abbruch des Wartens. Wenn angegeben und ausgelöst, bevor das Future abgeschlossen ist, wird eine `CancelledException` geworfen. Standardwert ist `null`.
+`cancellation` — ein Objekt zum Abbruch des Wartens. Wenn angegeben und ausgelöst, bevor das Future abgeschlossen ist, wird eine `AsyncCancellation` geworfen. Standardwert ist `null`.
 
 ## Rückgabewert
 

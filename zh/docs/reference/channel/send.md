@@ -1,4 +1,4 @@
----
+﻿---
 layout: docs
 lang: zh
 path_key: "/docs/reference/channel/send.html"
@@ -30,13 +30,13 @@ public Channel::send(mixed $value, ?Completable $cancellationToken = null): void
 **cancellationToken**
 : 取消令牌（`Completable`），允许根据任意条件中断等待。
   `null` — 无限等待（默认）。
-  当令牌完成时，操作将被中断并抛出 `CancelledException`。
+  当令牌完成时，操作将被中断并抛出 `AsyncCancellation`。
   如需按时间限制，可使用 `Async\timeout()`。
 
 ## 错误
 
 - 如果通道已关闭，抛出 `Async\ChannelException`。
-- 如果取消令牌已完成，抛出 `Async\CancelledException`。
+- 如果取消令牌已完成，抛出 `Async\AsyncCancellation`。
 
 ## 示例
 
@@ -73,7 +73,7 @@ $channel = new Channel(0); // 会合
 spawn(function() use ($channel) {
     try {
         $channel->send('data', Async\timeout(1000));
-    } catch (\Async\CancelledException $e) {
+    } catch (\Async\AsyncCancellation $e) {
         echo "超时：1 秒内没有人接受该值\n";
     }
 });
@@ -93,7 +93,7 @@ $cancel = new Future();
 spawn(function() use ($channel, $cancel) {
     try {
         $channel->send('data', $cancel);
-    } catch (\Async\CancelledException $e) {
+    } catch (\Async\AsyncCancellation $e) {
         echo "发送已取消\n";
     }
 });

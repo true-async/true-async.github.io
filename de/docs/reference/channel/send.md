@@ -1,4 +1,4 @@
----
+﻿---
 layout: docs
 lang: de
 path_key: "/docs/reference/channel/send.html"
@@ -30,13 +30,13 @@ Bei einem **gepufferten Channel** wartet der Sender nur, wenn der Puffer voll is
 **cancellationToken**
 : Abbruch-Token (`Completable`), das den Abbruch des Wartens nach beliebigen Bedingungen ermöglicht.
   `null` — unbegrenzt warten (Standard).
-  Wenn das Token abgeschlossen wird, wird die Operation abgebrochen und eine `CancelledException` ausgelöst.
+  Wenn das Token abgeschlossen wird, wird die Operation abgebrochen und eine `AsyncCancellation` ausgelöst.
   Für zeitbasierte Begrenzungen kann `Async\timeout()` verwendet werden.
 
 ## Fehler
 
 - Löst `Async\ChannelException` aus, wenn der Channel geschlossen ist.
-- Löst `Async\CancelledException` aus, wenn das Abbruch-Token abgeschlossen wurde.
+- Löst `Async\AsyncCancellation` aus, wenn das Abbruch-Token abgeschlossen wurde.
 
 ## Beispiele
 
@@ -73,7 +73,7 @@ $channel = new Channel(0); // Rendezvous
 spawn(function() use ($channel) {
     try {
         $channel->send('data', Async\timeout(1000));
-    } catch (\Async\CancelledException $e) {
+    } catch (\Async\AsyncCancellation $e) {
         echo "Timeout: Niemand hat den Wert innerhalb von 1 Sekunde angenommen\n";
     }
 });
@@ -93,7 +93,7 @@ $cancel = new Future();
 spawn(function() use ($channel, $cancel) {
     try {
         $channel->send('data', $cancel);
-    } catch (\Async\CancelledException $e) {
+    } catch (\Async\AsyncCancellation $e) {
         echo "Senden abgebrochen\n";
     }
 });

@@ -1,4 +1,4 @@
----
+﻿---
 layout: docs
 lang: it
 path_key: "/docs/reference/channel/send.html"
@@ -30,13 +30,13 @@ Per un **canale bufferizzato**, il mittente attende solo quando il buffer e' pie
 **cancellationToken**
 : Token di cancellazione (`Completable`) che consente di interrompere l'attesa in base a una condizione arbitraria.
   `null` — attesa senza limiti (predefinito).
-  Quando il token viene completato, l'operazione viene interrotta e viene lanciata una `CancelledException`.
+  Quando il token viene completato, l'operazione viene interrotta e viene lanciata una `AsyncCancellation`.
   Per limitare il tempo di attesa si puo' utilizzare `Async\timeout()`.
 
 ## Errori
 
 - Lancia `Async\ChannelException` se il canale e' chiuso.
-- Lancia `Async\CancelledException` se il token di cancellazione e' stato completato.
+- Lancia `Async\AsyncCancellation` se il token di cancellazione e' stato completato.
 
 ## Esempi
 
@@ -73,7 +73,7 @@ $channel = new Channel(0); // rendezvous
 spawn(function() use ($channel) {
     try {
         $channel->send('data', Async\timeout(1000));
-    } catch (\Async\CancelledException $e) {
+    } catch (\Async\AsyncCancellation $e) {
         echo "Timeout: nessuno ha accettato il valore entro 1 secondo\n";
     }
 });
@@ -93,7 +93,7 @@ $cancel = new Future();
 spawn(function() use ($channel, $cancel) {
     try {
         $channel->send('data', $cancel);
-    } catch (\Async\CancelledException $e) {
+    } catch (\Async\AsyncCancellation $e) {
         echo "Invio cancellato\n";
     }
 });

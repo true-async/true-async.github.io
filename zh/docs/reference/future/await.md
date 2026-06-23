@@ -1,4 +1,4 @@
----
+﻿---
 layout: docs
 lang: zh
 path_key: "/docs/reference/future/await.html"
@@ -20,7 +20,7 @@ public function await(?Completable $cancellation = null): mixed
 
 ## 参数
 
-`cancellation` — 等待取消对象。如果提供了该参数并且在 Future 完成之前被触发，将抛出 `CancelledException`。默认为 `null`。
+`cancellation` — 等待取消对象。如果提供了该参数并且在 Future 完成之前被触发，将抛出 `AsyncCancellation`。默认为 `null`。
 
 ## 返回值
 

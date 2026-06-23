@@ -1,4 +1,4 @@
----
+﻿---
 layout: docs
 lang: it
 path_key: "/docs/reference/future/await.html"
@@ -20,7 +20,7 @@ Attende il completamento del `Future` e restituisce il suo risultato. Blocca la 
 
 ## Parametri
 
-`cancellation` --- un oggetto di annullamento dell'attesa. Se fornito e attivato prima del completamento del Future, viene lanciata una `CancelledException`. Il valore predefinito e' `null`.
+`cancellation` --- un oggetto di annullamento dell'attesa. Se fornito e attivato prima del completamento del Future, viene lanciata una `AsyncCancellation`. Il valore predefinito e' `null`.
 
 ## Valore di ritorno
 
