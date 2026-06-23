@@ -227,7 +227,7 @@ spawn(function() {
 
     $child = spawn(function() {
         echo "Kind-Coroutine laeuft\n";
-        Async\sleep(1000);
+        Async\delay(1000);
         return "Ergebnis vom Kind";
     });
 

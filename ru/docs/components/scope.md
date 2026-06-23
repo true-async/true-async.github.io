@@ -146,7 +146,7 @@ $scope->spawn(function() {
     try {
         while (true) {
             echo "Работаю...\n";
-            Async\sleep(1000);
+            Async\delay(1000);
         }
     } catch (Async\AsyncCancellation $e) {
         echo "Меня отменили!\n";
@@ -157,7 +157,7 @@ $scope->spawn(function() {
     try {
         while (true) {
             echo "Тоже работаю...\n";
-            Async\sleep(1000);
+            Async\delay(1000);
         }
     } catch (Async\AsyncCancellation $e) {
         echo "И меня тоже!\n";
@@ -165,7 +165,7 @@ $scope->spawn(function() {
 });
 
 // Работает 3 секунды
-Async\sleep(3000);
+Async\delay(3000);
 
 // Отменяем ВСЕ корутины в scope
 $scope->cancel();
@@ -211,7 +211,7 @@ $scope = new Async\Scope();
 $scope->spawn(function() {
     try {
         echo "Начинаю работу\n";
-        Async\sleep(10000); // Долгая операция
+        Async\delay(10000); // Долгая операция
         echo "Закончил\n"; // Не выполнится
     } finally {
         // Это ГАРАНТИРОВАННО выполнится
@@ -220,7 +220,7 @@ $scope->spawn(function() {
     }
 });
 
-Async\sleep(1000);
+Async\delay(1000);
 $scope->cancel(); // Отменяем через секунду
 
 // Вывод:

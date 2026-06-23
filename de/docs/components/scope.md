@@ -146,7 +146,7 @@ $scope->spawn(function() {
     try {
         while (true) {
             echo "Arbeite...\n";
-            Async\sleep(1000);
+            Async\delay(1000);
         }
     } catch (Async\AsyncCancellation $e) {
         echo "Ich wurde abgebrochen!\n";
@@ -157,7 +157,7 @@ $scope->spawn(function() {
     try {
         while (true) {
             echo "Arbeite ebenfalls...\n";
-            Async\sleep(1000);
+            Async\delay(1000);
         }
     } catch (Async\AsyncCancellation $e) {
         echo "Ich auch!\n";
@@ -165,7 +165,7 @@ $scope->spawn(function() {
 });
 
 // Arbeitet 3 Sekunden lang
-Async\sleep(3000);
+Async\delay(3000);
 
 // Bricht ALLE Coroutinen im Scope ab
 $scope->cancel();
@@ -211,7 +211,7 @@ $scope = new Async\Scope();
 $scope->spawn(function() {
     try {
         echo "Starte Arbeit\n";
-        Async\sleep(10000); // Lange Operation
+        Async\delay(10000); // Lange Operation
         echo "Fertig\n"; // Wird nicht ausgeführt
     } finally {
         // Dies wird GARANTIERT ausgeführt
@@ -220,7 +220,7 @@ $scope->spawn(function() {
     }
 });
 
-Async\sleep(1000);
+Async\delay(1000);
 $scope->cancel(); // Abbruch nach einer Sekunde
 
 // Ausgabe:

@@ -146,7 +146,7 @@ $scope->spawn(function() {
     try {
         while (true) {
             echo "Trabajando...\n";
-            Async\sleep(1000);
+            Async\delay(1000);
         }
     } catch (Async\AsyncCancellation $e) {
         echo "Fui cancelado!\n";
@@ -157,7 +157,7 @@ $scope->spawn(function() {
     try {
         while (true) {
             echo "Tambien trabajando...\n";
-            Async\sleep(1000);
+            Async\delay(1000);
         }
     } catch (Async\AsyncCancellation $e) {
         echo "Yo tambien!\n";
@@ -165,7 +165,7 @@ $scope->spawn(function() {
 });
 
 // Funciona por 3 segundos
-Async\sleep(3000);
+Async\delay(3000);
 
 // Cancelar TODAS las corrutinas en el scope
 $scope->cancel();
@@ -211,7 +211,7 @@ $scope = new Async\Scope();
 $scope->spawn(function() {
     try {
         echo "Iniciando trabajo\n";
-        Async\sleep(10000); // Operacion larga
+        Async\delay(10000); // Operacion larga
         echo "Terminado\n"; // No se ejecutara
     } finally {
         // Esto esta GARANTIZADO que se ejecutara
@@ -220,7 +220,7 @@ $scope->spawn(function() {
     }
 });
 
-Async\sleep(1000);
+Async\delay(1000);
 $scope->cancel(); // Cancelar despues de un segundo
 
 // Salida:

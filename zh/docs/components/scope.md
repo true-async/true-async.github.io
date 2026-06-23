@@ -146,7 +146,7 @@ $scope->spawn(function() {
     try {
         while (true) {
             echo "Working...\n";
-            Async\sleep(1000);
+            Async\delay(1000);
         }
     } catch (Async\AsyncCancellation $e) {
         echo "I was cancelled!\n";
@@ -157,7 +157,7 @@ $scope->spawn(function() {
     try {
         while (true) {
             echo "Also working...\n";
-            Async\sleep(1000);
+            Async\delay(1000);
         }
     } catch (Async\AsyncCancellation $e) {
         echo "Me too!\n";
@@ -165,7 +165,7 @@ $scope->spawn(function() {
 });
 
 // 工作 3 秒
-Async\sleep(3000);
+Async\delay(3000);
 
 // 取消 scope 中的所有协程
 $scope->cancel();
@@ -211,7 +211,7 @@ $scope = new Async\Scope();
 $scope->spawn(function() {
     try {
         echo "Starting work\n";
-        Async\sleep(10000); // 长时间操作
+        Async\delay(10000); // 长时间操作
         echo "Finished\n"; // 不会执行
     } finally {
         // 这是保证执行的
@@ -220,7 +220,7 @@ $scope->spawn(function() {
     }
 });
 
-Async\sleep(1000);
+Async\delay(1000);
 $scope->cancel(); // 1 秒后取消
 
 // 输出：

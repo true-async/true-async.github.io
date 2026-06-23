@@ -146,7 +146,7 @@ $scope->spawn(function() {
     try {
         while (true) {
             echo "작업 중...\n";
-            Async\sleep(1000);
+            Async\delay(1000);
         }
     } catch (Async\AsyncCancellation $e) {
         echo "취소되었습니다!\n";
@@ -157,7 +157,7 @@ $scope->spawn(function() {
     try {
         while (true) {
             echo "역시 작업 중...\n";
-            Async\sleep(1000);
+            Async\delay(1000);
         }
     } catch (Async\AsyncCancellation $e) {
         echo "저도요!\n";
@@ -165,7 +165,7 @@ $scope->spawn(function() {
 });
 
 // 3초 동안 작업
-Async\sleep(3000);
+Async\delay(3000);
 
 // scope 내의 모든 코루틴 취소
 $scope->cancel();
@@ -211,7 +211,7 @@ $scope = new Async\Scope();
 $scope->spawn(function() {
     try {
         echo "작업 시작\n";
-        Async\sleep(10000); // 긴 작업
+        Async\delay(10000); // 긴 작업
         echo "완료\n"; // 실행되지 않음
     } finally {
         // 이것은 반드시 실행됩니다
@@ -220,7 +220,7 @@ $scope->spawn(function() {
     }
 });
 
-Async\sleep(1000);
+Async\delay(1000);
 $scope->cancel(); // 1초 후 취소
 
 // 출력:

@@ -225,7 +225,7 @@ spawn(function() {
 
     $child = spawn(function() {
         echo "Дочерняя корутина работает\n";
-        Async\sleep(1000);
+        Async\delay(1000);
         return "Результат от дочерней";
     });
 

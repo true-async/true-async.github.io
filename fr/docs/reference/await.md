@@ -228,7 +228,7 @@ spawn(function() {
 
     $child = spawn(function() {
         echo "Child coroutine running\n";
-        Async\sleep(1000);
+        Async\delay(1000);
         return "Result from child";
     });
 

@@ -204,7 +204,7 @@ spawn(function() use (&$ready) {
 
 spawn(function() use (&$ready) {
     echo "Preparazione...\n";
-    Async\sleep(2000);
+    Async\delay(2000);
     $ready = true;
     echo "Pronto!\n";
 });

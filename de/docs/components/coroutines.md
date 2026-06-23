@@ -163,7 +163,7 @@ $coro = spawn(function() {
         echo "Starte lange Arbeit\n";
 
         for ($i = 0; $i < 100; $i++) {
-            Async\sleep(100); // 100ms schlafen
+            Async\delay(100); // 100ms schlafen
             echo "Iteration $i\n";
         }
 
@@ -174,7 +174,7 @@ $coro = spawn(function() {
 });
 
 // Coroutine 1 Sekunde arbeiten lassen
-Async\sleep(1000);
+Async\delay(1000);
 
 // Abbrechen
 $coro->cancel();
@@ -246,7 +246,7 @@ Eine Coroutine ist ein vollwertiges PHP-Objekt. Sie können sie überall hin üb
 function startBackgroundTask(): Async\Coroutine {
     return spawn(function() {
         // Lange Arbeit
-        Async\sleep(10000);
+        Async\delay(10000);
         return "Ergebnis";
     });
 }

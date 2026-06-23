@@ -162,7 +162,7 @@ $coro = spawn(function() {
         echo "Starting long work\n";
 
         for ($i = 0; $i < 100; $i++) {
-            Async\sleep(100); // 休眠 100 毫秒
+            Async\delay(100); // 休眠 100 毫秒
             echo "Iteration $i\n";
         }
 
@@ -173,7 +173,7 @@ $coro = spawn(function() {
 });
 
 // 让协程工作 1 秒
-Async\sleep(1000);
+Async\delay(1000);
 
 // 取消它
 $coro->cancel();
@@ -245,7 +245,7 @@ try {
 function startBackgroundTask(): Async\Coroutine {
     return spawn(function() {
         // 长时间工作
-        Async\sleep(10000);
+        Async\delay(10000);
         return "Result";
     });
 }

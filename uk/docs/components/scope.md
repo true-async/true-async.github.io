@@ -146,7 +146,7 @@ $scope->spawn(function() {
     try {
         while (true) {
             echo "Working...\n";
-            Async\sleep(1000);
+            Async\delay(1000);
         }
     } catch (Async\AsyncCancellation $e) {
         echo "I was cancelled!\n";
@@ -157,7 +157,7 @@ $scope->spawn(function() {
     try {
         while (true) {
             echo "Also working...\n";
-            Async\sleep(1000);
+            Async\delay(1000);
         }
     } catch (Async\AsyncCancellation $e) {
         echo "Me too!\n";
@@ -165,7 +165,7 @@ $scope->spawn(function() {
 });
 
 // Працює 3 секунди
-Async\sleep(3000);
+Async\delay(3000);
 
 // Скасовуємо ВСІ корутини в scope
 $scope->cancel();
@@ -211,7 +211,7 @@ $scope = new Async\Scope();
 $scope->spawn(function() {
     try {
         echo "Starting work\n";
-        Async\sleep(10000); // Довга операція
+        Async\delay(10000); // Довга операція
         echo "Finished\n"; // Не виконається
     } finally {
         // Це ГАРАНТОВАНО виконається
@@ -220,7 +220,7 @@ $scope->spawn(function() {
     }
 });
 
-Async\sleep(1000);
+Async\delay(1000);
 $scope->cancel(); // Скасовуємо через одну секунду
 
 // Виведе:

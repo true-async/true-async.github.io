@@ -228,7 +228,7 @@ spawn(function() {
 
     $child = spawn(function() {
         echo "Corrutina hija ejecutándose\n";
-        Async\sleep(1000);
+        Async\delay(1000);
         return "Resultado de la hija";
     });
 
