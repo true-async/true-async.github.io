@@ -61,7 +61,7 @@ const roadmaps = ref([
         version: '0.8',
         title: 'Framework Adapters',
         date: 'Q3 2026',
-        status: 'planned',
+        status: 'active',
         features: [
           { name: 'Framework integration layer', status: 'planned' },
           { name: 'Laravel / Symfony adapters', status: 'planned' },

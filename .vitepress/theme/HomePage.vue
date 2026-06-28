@@ -364,7 +364,7 @@ const milestones = [
   { version: '0.1', title: 'Foundation', date: '2024', status: 'done' },
   { version: '0.6', title: 'Complete Async API', date: '2026-03-14', status: 'done' },
   { version: '0.7', title: 'Threads & Stabilization', date: 'Summer 2026', status: 'done' },
-  { version: '0.8', title: 'Framework Adapters', date: 'Q3 2026', status: 'planned' },
+  { version: '0.8', title: 'Framework Adapters', date: 'Q3 2026', status: 'active' },
   { version: '1.0-RC', title: 'Release Candidate', date: 'August 2026', status: 'planned', tag: 'RC' },
   { version: '1.0', title: 'Stable Release', date: 'November 2026', status: 'planned', tag: 'Target: PHP 8.6', tagStyle: 'highlight' },
 ]
