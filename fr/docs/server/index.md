@@ -19,8 +19,9 @@ Il prend en charge dès l'installation **HTTP/1.1 et HTTP/2 sur le même port TC
 protocole se fait par négociation ALPN (en TLS) ou via HTTP Upgrade. HTTP/3 fonctionne sur le même
 port UDP (QUIC) et est annoncé aux clients via l'en-tête `Alt-Svc`.
 
-WebSocket, SSE et gRPC sont déjà conçus pour le même modèle d'un unique listener avec détection
-de protocole, mais sont encore en développement (voir [Roadmap](#fonctionnalités)).
+WebSocket et SSE sont déjà terminés et fonctionnent sur le même modèle d'un unique listener avec
+détection de protocole. gRPC sur HTTP/2 est encore en développement (voir
+[Roadmap](#fonctionnalités)).
 
 ```php
 use TrueAsync\HttpServer;
@@ -71,8 +72,8 @@ du `start()`.
 | ✅ | **Per-request scope** | Chaque handler dans son propre scope ; `Async\request_context()` fournit un contexte commun à toute l'arborescence de coroutines de la requête |
 | ✅ | **Coroutines natives** | Intégration profonde avec TrueAsync : toute E/S bloquante dans le handler suspend la coroutine, pas le thread |
 | ✅ | **Zero-copy** | Allocations minimales sur le chemin chaud |
-| 📋 | **WebSocket** | RFC 6455, Upgrade depuis HTTP/1.1 et HTTP/2 |
-| 📋 | **SSE** | Server-Sent Events |
+| ✅ | **WebSocket** | RFC 6455, Upgrade depuis HTTP/1.1 et HTTP/2 (RFC 8441 Extended CONNECT), `wss://`, permessage-deflate (RFC 7692), full-duplex, backpressure, les 246 tests Autobahn|Testsuite |
+| ✅ | **SSE** | `text/event-stream` sur HTTP/1.1, HTTP/2 et HTTP/3, le même handler quel que soit le protocole |
 | 📋 | **gRPC** | Au-dessus de HTTP/2, unary et streaming |
 
 ## Architecture : event loop mono-thread
@@ -113,6 +114,8 @@ Aucun shared state, aucun verrou global.
 - [Compression](/fr/docs/server/compression.html) : gzip / brotli / zstd, négociation, BREACH
 - [Fichiers statiques et sendFile](/fr/docs/server/static-files.html) : `StaticHandler`, sidecars précompressés, Range
 - [Streaming](/fr/docs/server/streaming.html) : streaming du corps de requête et streaming de la réponse
+- [SSE](/fr/docs/server/sse.html) : Server-Sent Events, `sseEvent()`, reconnexion, heartbeat
+- [WebSocket](/fr/docs/server/websocket.html) : connexions full-duplex, backpressure, keepalive
 - [Multi-worker](/fr/docs/server/workers.html) : `setWorkers(N)`, bootloader, per-request scope
 - [Exemples](/fr/docs/server/examples.html) : JSON-API, statique, fan-out, multipart upload
 - [Architecture](/fr/architecture/server.html) : internes
@@ -123,6 +126,7 @@ Aucun shared state, aucun verrou global.
 - [`TrueAsync\HttpServerConfig`](/fr/docs/reference/server/http-server-config.html)
 - [`TrueAsync\HttpRequest`](/fr/docs/reference/server/http-request.html)
 - [`TrueAsync\HttpResponse`](/fr/docs/reference/server/http-response.html)
+- [`TrueAsync\WebSocket`](/fr/docs/reference/server/websocket.html)
 - [`TrueAsync\StaticHandler`](/fr/docs/reference/server/static-handler.html)
 - [`TrueAsync\SendFileOptions`](/fr/docs/reference/server/send-file-options.html)
 - [`TrueAsync\UploadedFile`](/fr/docs/reference/server/uploaded-file.html)

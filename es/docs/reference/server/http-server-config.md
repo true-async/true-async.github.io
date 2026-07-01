@@ -260,6 +260,71 @@ Máximo del cuerpo de solicitud (H1 y H2). H1: 413 + close; H2: `RST_STREAM(INTE
 
 Default 10_485_760 (10 MiB). Rango 1_024..17_179_869_184 (16 GiB).
 
+## WebSocket {#websocket}
+
+(true_async_server 0.9+). Guía: [WebSocket](/es/docs/server/websocket.html).
+
+### setWsMaxMessageSize / getWsMaxMessageSize
+
+```php
+public HttpServerConfig::setWsMaxMessageSize(int $bytes): static
+public HttpServerConfig::getWsMaxMessageSize(): int
+```
+
+Tamaño máximo de un mensaje WebSocket reensamblado. Un conjunto de frames cuyo payload combinado
+supere el límite cierra la conexión con `1009 Message Too Big` de RFC 6455 §7.4.1.
+
+Default 1_048_576 (1 MiB). Rango 128..268_435_456 (256 MiB).
+
+### setWsMaxFrameSize / getWsMaxFrameSize
+
+```php
+public HttpServerConfig::setWsMaxFrameSize(int $bytes): static
+public HttpServerConfig::getWsMaxFrameSize(): int
+```
+
+Payload máximo para un solo frame. Protege contra ataques de avalancha de fragmentos, donde el
+cliente envía millones de fragmentos diminutos.
+
+Default 1_048_576 (1 MiB). Mismo rango que `setWsMaxMessageSize`.
+
+### setWsPingIntervalMs / getWsPingIntervalMs
+
+```php
+public HttpServerConfig::setWsPingIntervalMs(int $ms): static
+public HttpServerConfig::getWsPingIntervalMs(): int
+```
+
+Cada cuánto el servidor hace ping a una conexión inactiva por lo demás. El peer debe responder
+con PONG dentro de `WsPongTimeoutMs`, o la conexión se cierra con el código `1001 GoingAway`.
+
+Default 30_000 (30 s). `0` desactiva el ping automático.
+
+### setWsPongTimeoutMs / getWsPongTimeoutMs
+
+```php
+public HttpServerConfig::setWsPongTimeoutMs(int $ms): static
+public HttpServerConfig::getWsPongTimeoutMs(): int
+```
+
+El deadline del PONG: cuánto espera el servidor tras un PING antes de declarar la conexión
+muerta.
+
+Default 60_000 (60 s). `0` desactiva el timeout.
+
+### setWsPermessageDeflate / getWsPermessageDeflate
+
+```php
+public HttpServerConfig::setWsPermessageDeflate(bool $enabled): static
+public HttpServerConfig::getWsPermessageDeflate(): bool
+```
+
+Activa permessage-deflate de RFC 7692 (compresión a nivel de mensaje). Desactivado por defecto:
+es un opt-in, porque la compresión cuesta CPU y amplía la superficie de ataque de bombas de
+descompresión. Se negocia solo cuando el cliente ofrece la extensión; el tope del mensaje
+reensamblado se comprueba tanto antes como después de la descompresión. Requiere una build con
+zlib (compresión HTTP).
+
 ## Knobs HTTP/3
 
 ### setHttp3IdleTimeoutMs / getHttp3IdleTimeoutMs
@@ -426,6 +491,12 @@ Tamaño del write-buffer.
 | `enableWebSocket(bool)` / `isWebSocketEnabled(): bool` | toggle WS (TODO) |
 | `enableProtocolDetection(bool)` / `isProtocolDetectionEnabled(): bool` | autodetección de protocolo en el listener |
 
+> `enableWebSocket()` es un interruptor aparte, todavía no implementado. WebSocket en sí ya
+> funciona por completo mediante
+> [`addWebSocketHandler()`](/es/docs/reference/server/http-server.html#addwebsockethandler) y la
+> configuración de la [sección WebSocket](#websocket) de arriba; los dos flags no están
+> relacionados.
+
 ## TLS
 
 | Método | Propósito |
@@ -526,4 +597,5 @@ con `HttpServerRuntimeException`.
 
 - [Configuración](/es/docs/server/configuration.html), guía paso a paso
 - [`TrueAsync\HttpServer`](/es/docs/reference/server/http-server.html)
+- [`TrueAsync\WebSocket`](/es/docs/reference/server/websocket.html)
 - [`TrueAsync\LogSeverity`](/es/docs/reference/server/log-severity.html)

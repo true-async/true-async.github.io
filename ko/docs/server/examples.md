@@ -164,20 +164,72 @@ $server->addHttpHandler(function ($req, $res) {
         $res->setStatusCode(404); return;
     }
 
-    $res
-        ->setStatusCode(200)
-        ->setHeader('Content-Type', 'text/event-stream')
-        ->setHeader('Cache-Control', 'no-store')
-        ->setHeader('X-Accel-Buffering', 'no')   // nginx-friendly
-        ->setNoCompression();                      // SSE: 이벤트는 즉시 클라이언트에 도달해야 함
-
     for ($i = 0; $i < 60; $i++) {
-        $payload = json_encode(['t' => time(), 'i' => $i]);
-        $res->send("data: $payload\n\n");
+        $res->sseEvent(json_encode(['t' => time(), 'i' => $i]));
+
+        if (!$res->sendable()) {
+            break;   // 클라이언트가 사라짐, 기다릴 필요 없음
+        }
+
         \Async\delay(1000);
+    }
+
+    $res->end();
+});
+```
+
+[SSE 가이드](/ko/docs/server/sse.html)에서 모든 메서드에 대한 전체 설명을 참고하세요.
+
+## WebSocket (echo 서버)
+
+```php
+use TrueAsync\HttpServer;
+use TrueAsync\HttpServerConfig;
+use TrueAsync\WebSocket;
+
+$server = new HttpServer(
+    (new HttpServerConfig())
+        ->addListener('0.0.0.0', 8080)
+);
+
+$server->addWebSocketHandler(function (WebSocket $ws) {
+    foreach ($ws as $msg) {
+        if ($msg->binary) {
+            $ws->sendBinary($msg->data);
+        } else {
+            $ws->send('echo: ' . $msg->data);
+        }
+    }
+});
+
+$server->start();
+```
+
+느린 클라이언트를 기다리지 않고 여러 클라이언트에 브로드캐스트하기:
+
+```php
+/** @var WebSocket[] $clients */
+$clients = [];
+
+$server->addWebSocketHandler(function (WebSocket $ws) use (&$clients) {
+    $clients[spl_object_id($ws)] = $ws;
+
+    try {
+        foreach ($ws as $msg) {
+            foreach ($clients as $peer) {
+                if ($peer !== $ws) {
+                    $peer->trySend($msg->data);   // 비블로킹, 느린 클라이언트가 나머지를 막지 않음
+                }
+            }
+        }
+    } finally {
+        unset($clients[spl_object_id($ws)]);
     }
 });
 ```
+
+[WebSocket 가이드](/ko/docs/server/websocket.html)에서 모든 메서드에 대한 전체 설명을
+참고하세요.
 
 ## auth가 있는 파일 다운로드
 

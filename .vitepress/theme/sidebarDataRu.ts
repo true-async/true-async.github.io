@@ -307,6 +307,8 @@ export const docsSidebarRu: NavGroup[] = [
       { url: '/ru/docs/server/compression.html', label: 'Компрессия', icon: 'layers' },
       { url: '/ru/docs/server/static-files.html', label: 'Статика и sendFile', icon: 'section-blocks' },
       { url: '/ru/docs/server/streaming.html', label: 'Стриминг', icon: 'arrow-left-right' },
+      { url: '/ru/docs/server/sse.html', label: 'SSE', icon: 'zap' },
+      { url: '/ru/docs/server/websocket.html', label: 'WebSocket', icon: 'shuffle' },
       { url: '/ru/docs/server/workers.html', label: 'Multi-worker', icon: 'cpu' },
       { url: '/ru/docs/server/examples.html', label: 'Примеры', icon: 'section-code' },
       {
@@ -317,6 +319,7 @@ export const docsSidebarRu: NavGroup[] = [
           { url: '/ru/docs/reference/server/http-server-config.html', label: 'HttpServerConfig' },
           { url: '/ru/docs/reference/server/http-request.html', label: 'HttpRequest' },
           { url: '/ru/docs/reference/server/http-response.html', label: 'HttpResponse' },
+          { url: '/ru/docs/reference/server/websocket.html', label: 'WebSocket' },
           { url: '/ru/docs/reference/server/static-handler.html', label: 'StaticHandler' },
           { url: '/ru/docs/reference/server/send-file-options.html', label: 'SendFileOptions' },
           { url: '/ru/docs/reference/server/uploaded-file.html', label: 'UploadedFile' },
@@ -324,6 +327,13 @@ export const docsSidebarRu: NavGroup[] = [
           { url: '/ru/docs/reference/server/exceptions.html', label: 'Исключения' },
         ],
       },
+    ],
+  },
+  {
+    title: 'TrueAsync Mobile',
+    icon: 'mobile',
+    items: [
+      { url: '/ru/docs/mobile/index.html', label: 'Обзор', icon: 'eye' },
     ],
   },
   {

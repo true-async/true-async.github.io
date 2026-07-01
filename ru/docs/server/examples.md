@@ -164,20 +164,71 @@ $server->addHttpHandler(function ($req, $res) {
         $res->setStatusCode(404); return;
     }
 
-    $res
-        ->setStatusCode(200)
-        ->setHeader('Content-Type', 'text/event-stream')
-        ->setHeader('Cache-Control', 'no-store')
-        ->setHeader('X-Accel-Buffering', 'no')   // nginx-friendly
-        ->setNoCompression();                      // SSE: события должны достигать клиента сразу
-
     for ($i = 0; $i < 60; $i++) {
-        $payload = json_encode(['t' => time(), 'i' => $i]);
-        $res->send("data: $payload\n\n");
+        $res->sseEvent(json_encode(['t' => time(), 'i' => $i]));
+
+        if (!$res->sendable()) {
+            break;   // клиент отвалился, незачем ждать зря
+        }
+
         \Async\delay(1000);
+    }
+
+    $res->end();
+});
+```
+
+Подробности и разбор всех методов смотрите в [руководстве по SSE](/ru/docs/server/sse.html).
+
+## WebSocket (echo-сервер)
+
+```php
+use TrueAsync\HttpServer;
+use TrueAsync\HttpServerConfig;
+use TrueAsync\WebSocket;
+
+$server = new HttpServer(
+    (new HttpServerConfig())
+        ->addListener('0.0.0.0', 8080)
+);
+
+$server->addWebSocketHandler(function (WebSocket $ws) {
+    foreach ($ws as $msg) {
+        if ($msg->binary) {
+            $ws->sendBinary($msg->data);
+        } else {
+            $ws->send('echo: ' . $msg->data);
+        }
+    }
+});
+
+$server->start();
+```
+
+Broadcast нескольким клиентам, без ожидания медленных:
+
+```php
+/** @var WebSocket[] $clients */
+$clients = [];
+
+$server->addWebSocketHandler(function (WebSocket $ws) use (&$clients) {
+    $clients[spl_object_id($ws)] = $ws;
+
+    try {
+        foreach ($ws as $msg) {
+            foreach ($clients as $peer) {
+                if ($peer !== $ws) {
+                    $peer->trySend($msg->data);   // неблокирующе, медленный клиент не стопорит остальных
+                }
+            }
+        }
+    } finally {
+        unset($clients[spl_object_id($ws)]);
     }
 });
 ```
+
+Подробности и разбор всех методов смотрите в [руководстве по WebSocket](/ru/docs/server/websocket.html).
 
 ## Скачивание файла с auth
 

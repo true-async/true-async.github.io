@@ -24,7 +24,7 @@ final class HttpServer
 
     public function addHttpHandler(callable $handler): static;
     public function addStaticHandler(StaticHandler $handler): static;
-    public function addWebSocketHandler(callable $handler): static;   // TODO
+    public function addWebSocketHandler(callable $handler): static;
     public function addHttp2Handler(callable $handler): static;       // TODO
     public function addGrpcHandler(callable $handler): static;        // TODO
 
@@ -84,7 +84,22 @@ public HttpServer::addStaticHandler(StaticHandler $handler): static
 public HttpServer::addWebSocketHandler(callable $handler): static
 ```
 
-📋 规划中。RFC 6455，从 HTTP/1.1 和 HTTP/2 升级。
+注册一个基于 RFC 6455 的全双工 WebSocket 连接处理程序。接受来自 HTTP/1.1 的升级，
+也接受来自 HTTP/2（RFC 8441 Extended CONNECT）的升级，此外还支持基于 TLS 的
+`wss://` 和 permessage-deflate（RFC 7692）。每个连接由自己的协程处理。
+
+支持两种签名；服务器会检测处理程序声明的参数数量：
+
+```php
+function (WebSocket $ws): void
+function (WebSocket $ws, HttpRequest $req, WebSocketUpgrade $upgrade): void
+```
+
+两参数形式（仅 `$ws`）以默认设置接受升级。三参数形式则可以访问
+`WebSocketUpgrade`：子协议协商，以及在 `101` 响应发出之前拒绝升级的能力。
+
+参见 [WebSocket 指南](/zh/docs/server/websocket.html)和
+[`WebSocket` 类参考](/zh/docs/reference/server/websocket.html)。
 
 ### addHttp2Handler
 
@@ -229,4 +244,5 @@ $server->start();
 - [`TrueAsync\HttpServerConfig`](/zh/docs/reference/server/http-server-config.html)
 - [`TrueAsync\HttpRequest`](/zh/docs/reference/server/http-request.html)
 - [`TrueAsync\HttpResponse`](/zh/docs/reference/server/http-response.html)
+- [`TrueAsync\WebSocket`](/zh/docs/reference/server/websocket.html)
 - [快速开始](/zh/docs/server/quickstart.html)

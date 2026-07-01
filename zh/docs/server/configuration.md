@@ -163,6 +163,32 @@ $config
 
 连接级的 `initial_max_data` 会按 `window × max_concurrent_streams` 推导（参考 nginx 的做法）。
 
+## WebSocket
+
+```php
+$config
+    ->setWsMaxMessageSize(1024 * 1024)   // 1 MiB，范围 128 .. 256 MiB
+    ->setWsMaxFrameSize(1024 * 1024)     // 1 MiB，范围相同
+    ->setWsPingIntervalMs(30_000)        // 空闲时的 keepalive PING
+    ->setWsPongTimeoutMs(60_000)         // 等待 PONG 回复的截止时间
+    ->setWsPermessageDeflate(false);     // RFC 7692，默认关闭
+```
+
+- **`setWsMaxMessageSize($bytes)`** —— 重组后消息的最大大小。超出会产生
+  `1009 Message Too Big` 并关闭连接（RFC 6455 §7.4.1）。
+- **`setWsMaxFrameSize($bytes)`** —— 单个帧的最大大小。防止客户端发送
+  大量微小分片造成的洪泛攻击。
+- **`setWsPingIntervalMs($ms)`** —— 服务器自动 ping 空闲连接的频率。
+  `0` 表示禁用自动 ping。
+- **`setWsPongTimeoutMs($ms)`** —— 在把连接视为已死并以代码 `1001 GoingAway`
+  关闭之前，等待 PONG 的时长。`0` 表示禁用该超时。
+- **`setWsPermessageDeflate($bool)`** —— RFC 7692，消息级压缩。默认关闭：
+  这是有意的主动开启项，因为压缩要消耗 CPU，并且会扩大解压炸弹攻击面。
+  仅当客户端自己提供该扩展时才会协商启用；需要带 zlib 的构建。
+
+详见 [WebSocket 指南](/zh/docs/server/websocket.html)以及连接 API 本身的
+[参考文档](/zh/docs/reference/server/websocket.html)。
+
 ## 流式请求体
 
 启用 pull-based 的请求体流式读取（issue #26）：H1/H2 解析器把 chunk 放入队列，处理程序通过

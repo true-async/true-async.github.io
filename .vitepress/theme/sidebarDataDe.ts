@@ -306,6 +306,8 @@ export const docsSidebarDe: NavGroup[] = [
       { url: '/de/docs/server/compression.html', label: 'Komprimierung', icon: 'layers' },
       { url: '/de/docs/server/static-files.html', label: 'Statische Dateien und sendFile', icon: 'section-blocks' },
       { url: '/de/docs/server/streaming.html', label: 'Streaming', icon: 'arrow-left-right' },
+      { url: '/de/docs/server/sse.html', label: 'SSE', icon: 'zap' },
+      { url: '/de/docs/server/websocket.html', label: 'WebSocket', icon: 'shuffle' },
       { url: '/de/docs/server/workers.html', label: 'Multi-Worker', icon: 'cpu' },
       { url: '/de/docs/server/examples.html', label: 'Beispiele', icon: 'section-code' },
       {
@@ -316,6 +318,7 @@ export const docsSidebarDe: NavGroup[] = [
           { url: '/de/docs/reference/server/http-server-config.html', label: 'HttpServerConfig' },
           { url: '/de/docs/reference/server/http-request.html', label: 'HttpRequest' },
           { url: '/de/docs/reference/server/http-response.html', label: 'HttpResponse' },
+          { url: '/de/docs/reference/server/websocket.html', label: 'WebSocket' },
           { url: '/de/docs/reference/server/static-handler.html', label: 'StaticHandler' },
           { url: '/de/docs/reference/server/send-file-options.html', label: 'SendFileOptions' },
           { url: '/de/docs/reference/server/uploaded-file.html', label: 'UploadedFile' },
@@ -323,6 +326,13 @@ export const docsSidebarDe: NavGroup[] = [
           { url: '/de/docs/reference/server/exceptions.html', label: 'Ausnahmen' },
         ],
       },
+    ],
+  },
+  {
+    title: 'TrueAsync Mobile',
+    icon: 'mobile',
+    items: [
+      { url: '/de/docs/mobile/index.html', label: 'Übersicht', icon: 'eye' },
     ],
   },
   {

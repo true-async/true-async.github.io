@@ -166,6 +166,33 @@ $config
 
 Connection-level `initial_max_data` выводится как `window × max_concurrent_streams` (паттерн nginx).
 
+## WebSocket
+
+```php
+$config
+    ->setWsMaxMessageSize(1024 * 1024)   // 1 MiB, 128 .. 256 MiB
+    ->setWsMaxFrameSize(1024 * 1024)     // 1 MiB, тот же диапазон
+    ->setWsPingIntervalMs(30_000)        // keepalive PING на простое
+    ->setWsPongTimeoutMs(60_000)         // деадлайн на ответный PONG
+    ->setWsPermessageDeflate(false);     // RFC 7692, выключено по умолчанию
+```
+
+- **`setWsMaxMessageSize($bytes)`** — максимум на пересобранное сообщение. Превышение даёт
+  `1009 Message Too Big` и разрыв соединения (RFC 6455 §7.4.1).
+- **`setWsMaxFrameSize($bytes)`** — максимум на один фрейм. Защищает от fragment-flood, когда
+  клиент шлёт миллионы крошечных фрагментов.
+- **`setWsPingIntervalMs($ms)`** — как часто сервер сам шлёт PING на простаивающих соединениях.
+  `0` отключает автоматический ping.
+- **`setWsPongTimeoutMs($ms)`** — сколько ждать PONG после PING, прежде чем считать соединение
+  мёртвым и закрыть его кодом `1001 GoingAway`. `0` отключает таймаут.
+- **`setWsPermessageDeflate($bool)`** — RFC 7692, сжатие на уровне сообщений. Выключено по
+  умолчанию: это осознанный opt-in, потому что сжатие стоит CPU и расширяет поверхность
+  decompression-bomb атак. Согласовывается только когда клиент сам предлагает это расширение;
+  требует сборки с zlib.
+
+Подробности API соединения смотрите в [руководстве по WebSocket](/ru/docs/server/websocket.html) и
+[справочнике](/ru/docs/reference/server/websocket.html).
+
 ## Body streaming
 
 Включает pull-based стрим тела запроса (issue #26): парсеры H1/H2 кладут чанки в очередь, обработчик

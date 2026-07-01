@@ -164,20 +164,71 @@ $server->addHttpHandler(function ($req, $res) {
         $res->setStatusCode(404); return;
     }
 
-    $res
-        ->setStatusCode(200)
-        ->setHeader('Content-Type', 'text/event-stream')
-        ->setHeader('Cache-Control', 'no-store')
-        ->setHeader('X-Accel-Buffering', 'no')   // 对 nginx 友好
-        ->setNoCompression();                      // SSE：事件要立刻送达客户端
-
     for ($i = 0; $i < 60; $i++) {
-        $payload = json_encode(['t' => time(), 'i' => $i]);
-        $res->send("data: $payload\n\n");
+        $res->sseEvent(json_encode(['t' => time(), 'i' => $i]));
+
+        if (!$res->sendable()) {
+            break;   // 客户端已断开，没必要再等
+        }
+
         \Async\delay(1000);
+    }
+
+    $res->end();
+});
+```
+
+详见 [SSE 指南](/zh/docs/server/sse.html)，了解每个方法的完整用法。
+
+## WebSocket（echo 服务器）
+
+```php
+use TrueAsync\HttpServer;
+use TrueAsync\HttpServerConfig;
+use TrueAsync\WebSocket;
+
+$server = new HttpServer(
+    (new HttpServerConfig())
+        ->addListener('0.0.0.0', 8080)
+);
+
+$server->addWebSocketHandler(function (WebSocket $ws) {
+    foreach ($ws as $msg) {
+        if ($msg->binary) {
+            $ws->sendBinary($msg->data);
+        } else {
+            $ws->send('echo: ' . $msg->data);
+        }
+    }
+});
+
+$server->start();
+```
+
+向多个客户端广播，且不等待慢客户端：
+
+```php
+/** @var WebSocket[] $clients */
+$clients = [];
+
+$server->addWebSocketHandler(function (WebSocket $ws) use (&$clients) {
+    $clients[spl_object_id($ws)] = $ws;
+
+    try {
+        foreach ($ws as $msg) {
+            foreach ($clients as $peer) {
+                if ($peer !== $ws) {
+                    $peer->trySend($msg->data);   // 非阻塞，一个慢客户端不会拖慢其他人
+                }
+            }
+        }
+    } finally {
+        unset($clients[spl_object_id($ws)]);
     }
 });
 ```
+
+详见 [WebSocket 指南](/zh/docs/server/websocket.html)，了解每个方法的完整用法。
 
 ## 带鉴权的文件下载
 

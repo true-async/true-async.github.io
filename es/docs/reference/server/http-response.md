@@ -63,6 +63,13 @@ final class HttpResponse
     // envío / estado
     public function end(?string $data = null): void;
     public function sendFile(string $path, ?SendFileOptions $options = null): void;
+
+    // Server-Sent Events (text/event-stream)
+    public function sseStart(): static;
+    public function sseEvent(?string $data = null, ?string $event = null, ?string $id = null, ?int $retry = null): static;
+    public function sseComment(string $text = ""): static;
+    public function sseRetry(int $milliseconds): static;
+
     public function isHeadersSent(): bool;
     public function isClosed(): bool;
 }
@@ -311,6 +318,79 @@ El middleware de compresión se omite para los bodies de sendFile (pipeline de e
 
 Véase [`SendFileOptions`](/es/docs/reference/server/send-file-options.html).
 
+## Server-Sent Events (text/event-stream)
+
+(true_async_server 0.8+). Guía con ejemplos: [SSE](/es/docs/server/sse.html).
+
+### sseStart
+
+```php
+public HttpResponse::sseStart(): static
+```
+
+Cambia la respuesta a modo SSE y fija las cabeceras: `Content-Type: text/event-stream`,
+`Cache-Control: no-cache, no-transform`, `X-Accel-Buffering: no`, y marca la respuesta como no
+comprimible. La respuesta entra en modo streaming de la misma forma que lo haría el primer
+`send()`: el status y las cabeceras quedan confirmados y ya no pueden cambiar, pero el payload
+del evento en sí todavía no está en el cable.
+
+La llamada es opcional: el primer `sseEvent()`/`sseComment()` también inicia el stream por su
+cuenta. `sseStart()` por sí sola **no** envía la línea de estado ni las cabeceras: el commit es
+diferido y ocurre en el primer `sseEvent()`/`sseComment()`/`sseRetry()` (si nunca se llama a
+ninguno, se envía un `200 text/event-stream` vacío cuando termina la respuesta). Para abrir el
+stream de inmediato, por ejemplo para desbloquear el `onopen` del navegador antes de que haya
+un evento real listo, envía un `sseComment()` inicial.
+
+Lanza `HttpServerInvalidArgumentException` si el manejador ya había establecido un
+`Content-Type` distinto de `text/event-stream`, y `HttpServerRuntimeException` si la respuesta
+ya está en streaming, cerrada, u ocupada con `sendFile()`.
+
+### sseEvent
+
+```php
+public HttpResponse::sseEvent(
+    ?string $data = null,
+    ?string $event = null,
+    ?string $id = null,
+    ?int $retry = null
+): static
+```
+
+Formatea y envía un evento SSE, iniciando el stream si hace falta. El `$data` multilínea se
+divide por `\n`/`\r\n`/`\r` y se envía como varios campos `data:` (WHATWG §9.2). `$event`, `$id`
+y `$retry` se incluyen solo cuando no son `null`. El registro termina con una línea en blanco
+para que el navegador despache el evento de inmediato.
+
+`$event` y `$id` no deben contener `\r`/`\n` (de lo contrario el parser los leería como
+separador de campo/registro), y `$id` no debe contener NUL: las violaciones lanzan
+`HttpServerInvalidArgumentException`. `$retry` debe ser no negativo.
+
+`$data === ""` también es un valor válido, despacha un `MessageEvent` vacío. Los cuatro
+argumentos en `null` no hacen nada; el parser de `EventSource` ignora un evento sin `data` ni
+`retry`.
+
+### sseComment
+
+```php
+public HttpResponse::sseComment(string $text = ""): static
+```
+
+Envía una línea de comentario (un registro que empieza con `:`). Los navegadores ignoran los
+comentarios, pero mantienen la conexión viva ante los timeouts de inactividad de los proxies
+intermedios (`proxy_read_timeout` de nginx, 60s por defecto). El payload canónico es una cadena
+vacía (`:\n\n` en el cable). `$text` no debe contener `\r`/`\n`. Inicia el stream si aún no está
+en marcha.
+
+### sseRetry
+
+```php
+public HttpResponse::sseRetry(int $milliseconds): static
+```
+
+Envía una directiva `retry:` sola indicando al navegador cuántos milisegundos esperar antes de
+reconectar tras la caída del stream. Azúcar sintáctico para `sseEvent(retry: $milliseconds)` sin
+payload. Inicia el stream si aún no está en marcha.
+
 ## Estado
 
 ### isHeadersSent
@@ -335,15 +415,10 @@ use TrueAsync\SendFileDisposition;
 $server->addHttpHandler(function ($req, HttpResponse $res) {
     // SSE
     if ($req->getPath() === '/events') {
-        $res
-            ->setStatusCode(200)
-            ->setHeader('Content-Type', 'text/event-stream')
-            ->setHeader('Cache-Control', 'no-store')
-            ->setNoCompression();
-
         foreach (loadEvents() as $event) {
-            $res->send("data: " . json_encode($event) . "\n\n");
+            $res->sseEvent(json_encode($event));
         }
+        $res->end();
         return;
     }
 
@@ -365,5 +440,6 @@ $server->addHttpHandler(function ($req, HttpResponse $res) {
 
 - [`TrueAsync\HttpRequest`](/es/docs/reference/server/http-request.html)
 - [`TrueAsync\SendFileOptions`](/es/docs/reference/server/send-file-options.html)
+- [SSE](/es/docs/server/sse.html)
 - [Streaming](/es/docs/server/streaming.html)
 - [Compresión](/es/docs/server/compression.html)

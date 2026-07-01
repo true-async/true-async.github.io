@@ -255,6 +255,69 @@ public HttpServerConfig::getMaxBodySize(): int
 
 Дефолт 10_485_760 (10 MiB). Діапазон 1_024..17_179_869_184 (16 GiB).
 
+## WebSocket {#websocket}
+
+(true_async_server 0.9+). Керівництво: [WebSocket](/uk/docs/server/websocket.html).
+
+### setWsMaxMessageSize / getWsMaxMessageSize
+
+```php
+public HttpServerConfig::setWsMaxMessageSize(int $bytes): static
+public HttpServerConfig::getWsMaxMessageSize(): int
+```
+
+Максимум на пересібране WebSocket-повідомлення. Фрейм(и), чий сумарний payload перевищує ліміт,
+закривають з'єднання за RFC 6455 §7.4.1 `1009 Message Too Big`.
+
+Дефолт 1_048_576 (1 MiB). Діапазон 128..268_435_456 (256 MiB).
+
+### setWsMaxFrameSize / getWsMaxFrameSize
+
+```php
+public HttpServerConfig::setWsMaxFrameSize(int $bytes): static
+public HttpServerConfig::getWsMaxFrameSize(): int
+```
+
+Максимум payload на один фрейм. Захист від fragment-flood атак, коли клієнт шле мільйони крихітних
+фрагментів.
+
+Дефолт 1_048_576 (1 MiB). Той самий діапазон, що у `setWsMaxMessageSize`.
+
+### setWsPingIntervalMs / getWsPingIntervalMs
+
+```php
+public HttpServerConfig::setWsPingIntervalMs(int $ms): static
+public HttpServerConfig::getWsPingIntervalMs(): int
+```
+
+Частота серверного PING на з'єднаннях, що простоюють. Клієнт зобов'язаний відповісти PONG протягом
+`WsPongTimeoutMs`, інакше з'єднання рветься кодом `1001 GoingAway`.
+
+Дефолт 30_000 (30 с). `0` вимикає автоматичний ping.
+
+### setWsPongTimeoutMs / getWsPongTimeoutMs
+
+```php
+public HttpServerConfig::setWsPongTimeoutMs(int $ms): static
+public HttpServerConfig::getWsPongTimeoutMs(): int
+```
+
+Дедлайн на PONG: скільки сервер чекає після PING, перш ніж вважати з'єднання мертвим.
+
+Дефолт 60_000 (60 с). `0` вимикає таймаут.
+
+### setWsPermessageDeflate / getWsPermessageDeflate
+
+```php
+public HttpServerConfig::setWsPermessageDeflate(bool $enabled): static
+public HttpServerConfig::getWsPermessageDeflate(): bool
+```
+
+Вмикає RFC 7692 permessage-deflate (стиснення на рівні повідомлень). Вимкнено за замовчуванням,
+це свідомий opt-in, бо стиснення коштує CPU і розширює поверхню атак decompression-bomb.
+Узгоджується лише коли клієнт сам пропонує розширення; ліміт на пересібране повідомлення
+перевіряється і до, і після inflate. Потребує збірки з zlib (HTTP-компресія).
+
 ## HTTP/3 knobs
 
 ### setHttp3IdleTimeoutMs / getHttp3IdleTimeoutMs
@@ -417,6 +480,10 @@ public HttpServerConfig::getWriteBufferSize(): int
 | `enableWebSocket(bool)` / `isWebSocketEnabled(): bool` | toggle WS (TODO) |
 | `enableProtocolDetection(bool)` / `isProtocolDetectionEnabled(): bool` | автодетект протоколу на listener'і |
 
+> `enableWebSocket()`: це окремий, поки не реалізований toggle. Сам WebSocket уже повністю працює
+> через [`addWebSocketHandler()`](/uk/docs/reference/server/http-server.html#addwebsockethandler)
+> і параметри з [розділу WebSocket](#websocket) вище, ці два прапорці один від одного не залежать.
+
 ## TLS
 
 | Метод | Призначення |
@@ -512,4 +579,5 @@ public HttpServerConfig::isLocked(): bool
 
 - [Конфігурація](/uk/docs/server/configuration.html) — покроковий гайд
 - [`TrueAsync\HttpServer`](/uk/docs/reference/server/http-server.html)
+- [`TrueAsync\WebSocket`](/uk/docs/reference/server/websocket.html)
 - [`TrueAsync\LogSeverity`](/uk/docs/reference/server/log-severity.html)

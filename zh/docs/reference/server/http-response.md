@@ -62,6 +62,13 @@ final class HttpResponse
     // 发送 / 状态
     public function end(?string $data = null): void;
     public function sendFile(string $path, ?SendFileOptions $options = null): void;
+
+    // Server-Sent Events (text/event-stream)
+    public function sseStart(): static;
+    public function sseEvent(?string $data = null, ?string $event = null, ?string $id = null, ?int $retry = null): static;
+    public function sseComment(string $text = ""): static;
+    public function sseRetry(int $milliseconds): static;
+
     public function isHeadersSent(): bool;
     public function isClosed(): bool;
 }
@@ -302,6 +309,73 @@ conditional GET、预压缩 sidecar）。
 
 参见 [`SendFileOptions`](/zh/docs/reference/server/send-file-options.html)。
 
+## Server-Sent Events（text/event-stream）
+
+(true_async_server 0.8+)。带示例的指南：[SSE](/zh/docs/server/sse.html)。
+
+### sseStart
+
+```php
+public HttpResponse::sseStart(): static
+```
+
+将响应切换到 SSE 模式并锁定头部：`Content-Type: text/event-stream`、
+`Cache-Control: no-cache, no-transform`、`X-Accel-Buffering: no`，并将响应标记为不可压缩。
+响应会以第一次 `send()` 同样的方式进入流式模式：状态码和头部被提交、不能再变，
+但事件负载本身还没有发到线路上。
+
+这次调用是可选的：第一次 `sseEvent()`/`sseComment()` 也会自行启动流。`sseStart()`
+本身**不会**刷新状态行和头部：提交是惰性的，发生在第一次
+`sseEvent()`/`sseComment()`/`sseRetry()` 调用时（如果一次都没调用过，
+响应结束时会刷出一个空的 `200 text/event-stream`）。要立刻打开流，例如在真正的事件
+就绪之前先解除浏览器 `onopen` 的阻塞，可以先发送一个初始的 `sseComment()`。
+
+如果处理程序已经设置了非 `text/event-stream` 的 `Content-Type`，会抛出
+`HttpServerInvalidArgumentException`；如果响应已经在流式传输、已关闭，
+或正忙于 `sendFile()`，则抛出 `HttpServerRuntimeException`。
+
+### sseEvent
+
+```php
+public HttpResponse::sseEvent(
+    ?string $data = null,
+    ?string $event = null,
+    ?string $id = null,
+    ?int $retry = null
+): static
+```
+
+格式化并发送一个 SSE 事件，如有需要会启动流。多行的 `$data` 会按
+`\n`/`\r\n`/`\r` 拆分，并作为多个 `data:` 字段发送（WHATWG §9.2）。`$event`、`$id`
+和 `$retry` 仅在非 `null` 时才会包含在记录中。记录以空行结束，这样浏览器会立刻
+派发该事件。
+
+`$event` 和 `$id` 不能包含 `\r`/`\n`（否则解析器会把它们当成字段/记录分隔符），
+`$id` 也不能包含 NUL：违反会抛出 `HttpServerInvalidArgumentException`。`$retry`
+必须是非负数。
+
+`$data === ""` 也是合法值，会派发一个空的 `MessageEvent`。四个参数全部设为 `null`
+是空操作；`EventSource` 解析器会跳过既没有 `data` 也没有 `retry` 的事件。
+
+### sseComment
+
+```php
+public HttpResponse::sseComment(string $text = ""): static
+```
+
+发送一行注释（以 `:` 开头的记录）。浏览器会忽略注释，但它们能让连接在中间代理的
+空闲超时（nginx 的 `proxy_read_timeout`，默认 60 秒）之下保持存活。标准的负载是
+空字符串（线路上是 `:\n\n`）。`$text` 不能包含 `\r`/`\n`。如果流还没运行，会启动它。
+
+### sseRetry
+
+```php
+public HttpResponse::sseRetry(int $milliseconds): static
+```
+
+发送一个裸的 `retry:` 指令，告诉浏览器在流断开后要等多少毫秒才重连。相当于不带负载、
+只调用 `sseEvent(retry: $milliseconds)` 的语法糖。如果流还没运行，会启动它。
+
 ## 状态
 
 ### isHeadersSent
@@ -326,15 +400,10 @@ use TrueAsync\SendFileDisposition;
 $server->addHttpHandler(function ($req, HttpResponse $res) {
     // SSE
     if ($req->getPath() === '/events') {
-        $res
-            ->setStatusCode(200)
-            ->setHeader('Content-Type', 'text/event-stream')
-            ->setHeader('Cache-Control', 'no-store')
-            ->setNoCompression();
-
         foreach (loadEvents() as $event) {
-            $res->send("data: " . json_encode($event) . "\n\n");
+            $res->sseEvent(json_encode($event));
         }
+        $res->end();
         return;
     }
 
@@ -356,5 +425,6 @@ $server->addHttpHandler(function ($req, HttpResponse $res) {
 
 - [`TrueAsync\HttpRequest`](/zh/docs/reference/server/http-request.html)
 - [`TrueAsync\SendFileOptions`](/zh/docs/reference/server/send-file-options.html)
+- [SSE](/zh/docs/server/sse.html)
 - [流式传输](/zh/docs/server/streaming.html)
 - [压缩](/zh/docs/server/compression.html)

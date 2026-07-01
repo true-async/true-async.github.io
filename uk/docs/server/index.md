@@ -19,8 +19,8 @@ description: "TrueAsync Server — нативне PHP-розширення, що
 через ALPN-negotiation (для TLS) або HTTP Upgrade. HTTP/3 працює на тому самому UDP-порту
 (QUIC) і анонсується клієнтам через заголовок `Alt-Svc`.
 
-WebSocket, SSE і gRPC уже спроєктовані під ту саму модель одного listener'а з детектом
-протоколу, але поки ще в роботі (див. [Можливості](#можливості)).
+WebSocket і SSE уже готові й працюють через ту саму модель одного listener'а з детектом
+протоколу. gRPC поверх HTTP/2 поки в роботі (див. [Можливості](#можливості)).
 
 ```php
 use TrueAsync\HttpServer;
@@ -70,8 +70,8 @@ cold-start платиться один раз — на `start()`.
 | ✅ | **Per-request scope** | Кожен обробник у власному scope; `Async\request_context()` дає спільний контекст по всьому дереву корутин запиту |
 | ✅ | **Native coroutines** | Глибока інтеграція з TrueAsync: будь-який блокуючий I/O в обробнику паркує корутину, а не потік |
 | ✅ | **Zero-copy** | Мінімум алокацій на гарячому шляху |
-| 📋 | **WebSocket** | RFC 6455, Upgrade з HTTP/1.1 і HTTP/2 |
-| 📋 | **SSE** | Server-Sent Events |
+| ✅ | **WebSocket** | RFC 6455, Upgrade з HTTP/1.1 і HTTP/2 (RFC 8441 Extended CONNECT), `wss://`, permessage-deflate (RFC 7692), full-duplex, backpressure, усі 246 тестів Autobahn\|Testsuite |
+| ✅ | **SSE** | `text/event-stream` поверх HTTP/1.1, HTTP/2 і HTTP/3: той самий обробник незалежно від протоколу |
 | 📋 | **gRPC** | поверх HTTP/2, unary і streaming |
 
 ## Архітектура: single-threaded event loop
@@ -111,6 +111,8 @@ accept ─►  parse  ─►  dispatch  ─►  respond      │
 - [Стиснення](/uk/docs/server/compression.html): gzip / brotli / zstd, переговори, BREACH
 - [Статичні файли і sendFile](/uk/docs/server/static-files.html): `StaticHandler`, precompressed sidecars, Range
 - [Стрімінг](/uk/docs/server/streaming.html): стрім тіла запиту і стрім відповіді
+- [SSE](/uk/docs/server/sse.html): Server-Sent Events, `sseEvent()`, перепідключення, heartbeat
+- [WebSocket](/uk/docs/server/websocket.html): full-duplex з'єднання, backpressure, keepalive
 - [Multi-worker](/uk/docs/server/workers.html): `setWorkers(N)`, bootloader, per-request scope
 - [Приклади](/uk/docs/server/examples.html): JSON-API, статика, fan-out, multipart upload
 - [Архітектура](/uk/architecture/server.html): внутрішня будова
@@ -121,6 +123,7 @@ accept ─►  parse  ─►  dispatch  ─►  respond      │
 - [`TrueAsync\HttpServerConfig`](/uk/docs/reference/server/http-server-config.html)
 - [`TrueAsync\HttpRequest`](/uk/docs/reference/server/http-request.html)
 - [`TrueAsync\HttpResponse`](/uk/docs/reference/server/http-response.html)
+- [`TrueAsync\WebSocket`](/uk/docs/reference/server/websocket.html)
 - [`TrueAsync\StaticHandler`](/uk/docs/reference/server/static-handler.html)
 - [`TrueAsync\SendFileOptions`](/uk/docs/reference/server/send-file-options.html)
 - [`TrueAsync\UploadedFile`](/uk/docs/reference/server/uploaded-file.html)

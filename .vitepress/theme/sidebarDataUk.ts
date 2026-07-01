@@ -306,6 +306,8 @@ export const docsSidebarUk: NavGroup[] = [
       { url: '/uk/docs/server/compression.html', label: 'Стиснення', icon: 'layers' },
       { url: '/uk/docs/server/static-files.html', label: 'Статичні файли і sendFile', icon: 'section-blocks' },
       { url: '/uk/docs/server/streaming.html', label: 'Стрімінг', icon: 'arrow-left-right' },
+      { url: '/uk/docs/server/sse.html', label: 'SSE', icon: 'zap' },
+      { url: '/uk/docs/server/websocket.html', label: 'WebSocket', icon: 'shuffle' },
       { url: '/uk/docs/server/workers.html', label: 'Multi-worker', icon: 'cpu' },
       { url: '/uk/docs/server/examples.html', label: 'Приклади', icon: 'section-code' },
       {
@@ -316,6 +318,7 @@ export const docsSidebarUk: NavGroup[] = [
           { url: '/uk/docs/reference/server/http-server-config.html', label: 'HttpServerConfig' },
           { url: '/uk/docs/reference/server/http-request.html', label: 'HttpRequest' },
           { url: '/uk/docs/reference/server/http-response.html', label: 'HttpResponse' },
+          { url: '/uk/docs/reference/server/websocket.html', label: 'WebSocket' },
           { url: '/uk/docs/reference/server/static-handler.html', label: 'StaticHandler' },
           { url: '/uk/docs/reference/server/send-file-options.html', label: 'SendFileOptions' },
           { url: '/uk/docs/reference/server/uploaded-file.html', label: 'UploadedFile' },
@@ -323,6 +326,13 @@ export const docsSidebarUk: NavGroup[] = [
           { url: '/uk/docs/reference/server/exceptions.html', label: 'Винятки' },
         ],
       },
+    ],
+  },
+  {
+    title: 'TrueAsync Mobile',
+    icon: 'mobile',
+    items: [
+      { url: '/uk/docs/mobile/index.html', label: 'Огляд', icon: 'eye' },
     ],
   },
   {

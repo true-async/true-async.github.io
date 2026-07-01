@@ -253,6 +253,69 @@ stream을 위해 유지).
 
 기본 10_485_760 (10 MiB). 범위 1_024..17_179_869_184 (16 GiB).
 
+## WebSocket {#websocket}
+
+(true_async_server 0.9+). 가이드: [WebSocket](/ko/docs/server/websocket.html).
+
+### setWsMaxMessageSize / getWsMaxMessageSize
+
+```php
+public HttpServerConfig::setWsMaxMessageSize(int $bytes): static
+public HttpServerConfig::getWsMaxMessageSize(): int
+```
+
+재조립된 WebSocket 메시지의 최대 크기. 합산된 payload가 한도를 초과하는 프레임 집합은
+RFC 6455 §7.4.1의 `1009 Message Too Big`으로 연결을 닫습니다.
+
+기본 1_048_576 (1 MiB). 범위 128..268_435_456 (256 MiB).
+
+### setWsMaxFrameSize / getWsMaxFrameSize
+
+```php
+public HttpServerConfig::setWsMaxFrameSize(int $bytes): static
+public HttpServerConfig::getWsMaxFrameSize(): int
+```
+
+단일 프레임의 최대 payload. 클라이언트가 수백만 개의 작은 조각을 보내는 fragment-flood
+공격을 방어합니다.
+
+기본 1_048_576 (1 MiB). `setWsMaxMessageSize`와 같은 범위.
+
+### setWsPingIntervalMs / getWsPingIntervalMs
+
+```php
+public HttpServerConfig::setWsPingIntervalMs(int $ms): static
+public HttpServerConfig::getWsPingIntervalMs(): int
+```
+
+서버가 그 외에는 idle 상태인 연결에 ping을 보내는 주기. 상대는 `WsPongTimeoutMs` 내에
+PONG으로 응답해야 하며, 그렇지 않으면 연결이 코드 `1001 GoingAway`로 닫힙니다.
+
+기본 30_000 (30초). `0`은 자동 ping을 비활성화합니다.
+
+### setWsPongTimeoutMs / getWsPongTimeoutMs
+
+```php
+public HttpServerConfig::setWsPongTimeoutMs(int $ms): static
+public HttpServerConfig::getWsPongTimeoutMs(): int
+```
+
+PONG 데드라인: PING 이후 서버가 연결을 죽었다고 선언하기까지 얼마나 기다리는지.
+
+기본 60_000 (60초). `0`은 타임아웃을 비활성화합니다.
+
+### setWsPermessageDeflate / getWsPermessageDeflate
+
+```php
+public HttpServerConfig::setWsPermessageDeflate(bool $enabled): static
+public HttpServerConfig::getWsPermessageDeflate(): bool
+```
+
+RFC 7692 permessage-deflate(메시지 단위 압축)를 활성화합니다. 기본값은 off입니다: 압축은
+CPU 비용이 들고 압축 폭탄 공격 표면을 넓히기 때문에 opt-in입니다. 클라이언트가 이 확장을
+제안할 때만 협상되며, 재조립된 메시지 한도는 inflate 전후 모두 확인됩니다. zlib이 포함된
+빌드가 필요합니다(HTTP 압축).
+
 ## HTTP/3 knob
 
 ### setHttp3IdleTimeoutMs / getHttp3IdleTimeoutMs
@@ -413,6 +476,11 @@ public HttpServerConfig::getWriteBufferSize(): int
 | `enableWebSocket(bool)` / `isWebSocketEnabled(): bool` | WS toggle (TODO) |
 | `enableProtocolDetection(bool)` / `isProtocolDetectionEnabled(): bool` | 리스너 프로토콜 자동 감지 |
 
+> `enableWebSocket()`은 아직 구현되지 않은 별도의 toggle입니다. WebSocket 자체는 이미
+> [`addWebSocketHandler()`](/ko/docs/reference/server/http-server.html#addwebsockethandler)와
+> 위의 [WebSocket 섹션](#websocket)의 설정을 통해 완전히 동작합니다. 두 플래그는 서로
+> 무관합니다.
+
 ## TLS
 
 | 메서드 | 용도 |
@@ -509,4 +577,5 @@ config를 `new HttpServer()`에 전달한 후 `true`. locked config는 모든 se
 
 - [구성](/ko/docs/server/configuration.html) — 단계별 가이드
 - [`TrueAsync\HttpServer`](/ko/docs/reference/server/http-server.html)
+- [`TrueAsync\WebSocket`](/ko/docs/reference/server/websocket.html)
 - [`TrueAsync\LogSeverity`](/ko/docs/reference/server/log-severity.html)

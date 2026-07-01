@@ -122,14 +122,55 @@ const roadmaps = ref([
         ],
       },
       {
+        version: '0.8',
+        title: 'Server-Sent Events',
+        date: '2026-06-27',
+        status: 'done',
+        features: [
+          { name: 'sseStart() / sseEvent() / sseComment() / sseRetry()', status: 'done' },
+          { name: 'Same handler works over HTTP/1.1, HTTP/2 and HTTP/3', status: 'done' },
+          { name: 'WHATWG-compliant event-stream framing', status: 'done' },
+        ],
+      },
+      {
+        version: '0.9',
+        title: 'WebSocket',
+        date: '2026-07-01',
+        status: 'done',
+        features: [
+          { name: 'RFC 6455 upgrade from HTTP/1.1 and HTTP/2 (RFC 8441)', status: 'done' },
+          { name: 'wss:// and permessage-deflate (RFC 7692)', status: 'done' },
+          { name: 'Full-duplex send/recv, backpressure, keepalive ping/pong', status: 'done' },
+          { name: 'Subprotocol negotiation (WebSocketUpgrade)', status: 'done' },
+          { name: 'Autobahn|Testsuite conformance: 246/246', status: 'done' },
+        ],
+      },
+      {
         version: 'Next',
         title: 'Protocols on the same listener',
         status: 'planned',
         features: [
-          { name: 'WebSocket (RFC 6455)', status: 'planned' },
-          { name: 'Server-Sent Events', status: 'planned' },
           { name: 'gRPC (over HTTP/2)', status: 'planned' },
           { name: 'Cross-thread stop()', status: 'planned' },
+        ],
+      },
+    ],
+  },
+  {
+    section: 'TrueAsync Mobile',
+    sectionSubtitle: 'Persistent PHP runtime bridge for native mobile apps.',
+    milestones: [
+      {
+        version: '0.1',
+        title: 'Android via native-bridge',
+        status: 'active',
+        features: [
+          { name: 'Persistent PHP runtime on a background thread (JNI)', status: 'done' },
+          { name: 'Two-way event bridge (Android events → PHP, PHP → UI)', status: 'done' },
+          { name: 'Codegen: PHP #[BridgeModule] spec → PHP/Kotlin/C glue', status: 'done' },
+          { name: '#[FastPath] direct JNI calls for hot paths', status: 'done' },
+          { name: 'Demo Android Studio app + Docker build', status: 'done' },
+          { name: 'iOS support', status: 'planned' },
         ],
       },
     ],

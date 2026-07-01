@@ -24,7 +24,7 @@ final class HttpServer
 
     public function addHttpHandler(callable $handler): static;
     public function addStaticHandler(StaticHandler $handler): static;
-    public function addWebSocketHandler(callable $handler): static;   // TODO
+    public function addWebSocketHandler(callable $handler): static;
     public function addHttp2Handler(callable $handler): static;       // TODO
     public function addGrpcHandler(callable $handler): static;        // TODO
 
@@ -86,7 +86,23 @@ public HttpServer::addStaticHandler(StaticHandler $handler): static
 public HttpServer::addWebSocketHandler(callable $handler): static
 ```
 
-📋 예정. RFC 6455, HTTP/1.1과 HTTP/2에서의 upgrade.
+전이중 WebSocket 연결(RFC 6455)을 위한 핸들러를 등록합니다. Upgrade는 HTTP/1.1과 HTTP/2
+(RFC 8441 Extended CONNECT)에서, 그리고 TLS 위의 `wss://`와 permessage-deflate(RFC 7692)로도
+받아들여집니다. 각 연결은 자체 코루틴으로 서비스됩니다.
+
+두 가지 시그니처를 지원하며, 서버는 핸들러가 선언한 매개변수 개수를 확인합니다:
+
+```php
+function (WebSocket $ws): void
+function (WebSocket $ws, HttpRequest $req, WebSocketUpgrade $upgrade): void
+```
+
+두 매개변수 형식(`$ws`만)은 기본 설정으로 upgrade를 수락합니다. 세 매개변수 형식은
+`WebSocketUpgrade`에 접근할 수 있게 해 줍니다: 서브프로토콜 협상과 `101` 응답이 나가기 전에
+upgrade를 거부하는 기능입니다.
+
+[WebSocket 가이드](/ko/docs/server/websocket.html)와
+[`WebSocket` 클래스 레퍼런스](/ko/docs/reference/server/websocket.html)를 참고하세요.
 
 ### addHttp2Handler
 
@@ -233,4 +249,5 @@ $server->start();
 - [`TrueAsync\HttpServerConfig`](/ko/docs/reference/server/http-server-config.html)
 - [`TrueAsync\HttpRequest`](/ko/docs/reference/server/http-request.html)
 - [`TrueAsync\HttpResponse`](/ko/docs/reference/server/http-response.html)
+- [`TrueAsync\WebSocket`](/ko/docs/reference/server/websocket.html)
 - [빠른 시작](/ko/docs/server/quickstart.html)

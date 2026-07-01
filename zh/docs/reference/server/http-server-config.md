@@ -250,6 +250,67 @@ public HttpServerConfig::getMaxBodySize(): int
 
 默认 10_485_760（10 MiB）。范围 1_024..17_179_869_184（16 GiB）。
 
+## WebSocket {#websocket}
+
+(true_async_server 0.9+)。指南：[WebSocket](/zh/docs/server/websocket.html)。
+
+### setWsMaxMessageSize / getWsMaxMessageSize
+
+```php
+public HttpServerConfig::setWsMaxMessageSize(int $bytes): static
+public HttpServerConfig::getWsMaxMessageSize(): int
+```
+
+重组后 WebSocket 消息的最大大小。一组帧的合并负载超过该限额时，会以
+RFC 6455 §7.4.1 的 `1009 Message Too Big` 关闭连接。
+
+默认 1_048_576（1 MiB）。范围 128..268_435_456（256 MiB）。
+
+### setWsMaxFrameSize / getWsMaxFrameSize
+
+```php
+public HttpServerConfig::setWsMaxFrameSize(int $bytes): static
+public HttpServerConfig::getWsMaxFrameSize(): int
+```
+
+单个帧的最大负载。防止分片洪泛攻击，即客户端发送大量微小分片。
+
+默认 1_048_576（1 MiB）。范围与 `setWsMaxMessageSize` 相同。
+
+### setWsPingIntervalMs / getWsPingIntervalMs
+
+```php
+public HttpServerConfig::setWsPingIntervalMs(int $ms): static
+public HttpServerConfig::getWsPingIntervalMs(): int
+```
+
+服务器 ping 一个原本空闲连接的频率。对端必须在 `WsPongTimeoutMs` 之内回复 PONG，
+否则连接会以代码 `1001 GoingAway` 关闭。
+
+默认 30_000（30 秒）。`0` 禁用自动 ping。
+
+### setWsPongTimeoutMs / getWsPongTimeoutMs
+
+```php
+public HttpServerConfig::setWsPongTimeoutMs(int $ms): static
+public HttpServerConfig::getWsPongTimeoutMs(): int
+```
+
+PONG 截止时间：服务器在 PING 之后等待多久才宣告连接已死。
+
+默认 60_000（60 秒）。`0` 禁用该超时。
+
+### setWsPermessageDeflate / getWsPermessageDeflate
+
+```php
+public HttpServerConfig::setWsPermessageDeflate(bool $enabled): static
+public HttpServerConfig::getWsPermessageDeflate(): bool
+```
+
+启用 RFC 7692 permessage-deflate（消息级压缩）。默认关闭：这是一个需要主动开启的选项，
+因为压缩要消耗 CPU，并且会扩大解压炸弹攻击面。仅当客户端提供该扩展时才会协商启用；
+重组后消息的上限检查会在 inflate 之前和之后都执行。需要带 zlib 的构建（HTTP 压缩）。
+
 ## HTTP/3 调优
 
 ### setHttp3IdleTimeoutMs / getHttp3IdleTimeoutMs
@@ -409,6 +470,10 @@ public HttpServerConfig::getWriteBufferSize(): int
 | `enableWebSocket(bool)` / `isWebSocketEnabled(): bool` | toggle WS（TODO） |
 | `enableProtocolDetection(bool)` / `isProtocolDetectionEnabled(): bool` | listener 上的协议自动检测 |
 
+> `enableWebSocket()` 是一个独立的、尚未实现的开关。WebSocket 本身已经通过
+> [`addWebSocketHandler()`](/zh/docs/reference/server/http-server.html#addwebsockethandler)
+> 以及上面 [WebSocket 一节](#websocket)中的设置完全可用；这两个开关互不相关。
+
 ## TLS
 
 | 方法 | 作用 |
@@ -502,4 +567,5 @@ public HttpServerConfig::isLocked(): bool
 
 - [配置](/zh/docs/server/configuration.html) —— 按步骤的指南
 - [`TrueAsync\HttpServer`](/zh/docs/reference/server/http-server.html)
+- [`TrueAsync\WebSocket`](/zh/docs/reference/server/websocket.html)
 - [`TrueAsync\LogSeverity`](/zh/docs/reference/server/log-severity.html)

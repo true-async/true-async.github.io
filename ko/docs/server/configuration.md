@@ -165,6 +165,32 @@ $config
 
 Connection-level `initial_max_data`는 `window × max_concurrent_streams`로 산출됩니다 (nginx 패턴).
 
+## WebSocket
+
+```php
+$config
+    ->setWsMaxMessageSize(1024 * 1024)   // 1 MiB, 128 .. 256 MiB
+    ->setWsMaxFrameSize(1024 * 1024)     // 1 MiB, 같은 범위
+    ->setWsPingIntervalMs(30_000)        // idle 상태의 keepalive PING
+    ->setWsPongTimeoutMs(60_000)         // PONG 응답 데드라인
+    ->setWsPermessageDeflate(false);     // RFC 7692, 기본값 off
+```
+
+- **`setWsMaxMessageSize($bytes)`** — 재조립된 메시지의 최대 크기. 초과하면
+  `1009 Message Too Big`이 발생하고 연결이 닫힙니다(RFC 6455 §7.4.1).
+- **`setWsMaxFrameSize($bytes)`** — 단일 프레임의 최대 크기. 클라이언트가 수백만 개의 작은
+  조각을 보내는 fragment-flood를 방어합니다.
+- **`setWsPingIntervalMs($ms)`** — 서버가 idle 연결에 자체적으로 ping을 보내는 주기. `0`은
+  자동 ping을 비활성화합니다.
+- **`setWsPongTimeoutMs($ms)`** — PING 이후 PONG을 얼마나 기다릴지, 그 이후에는 연결을
+  죽었다고 판단하고 코드 `1001 GoingAway`로 닫습니다. `0`은 타임아웃을 비활성화합니다.
+- **`setWsPermessageDeflate($bool)`** — RFC 7692, 메시지 단위 압축. 기본값은 off입니다:
+  압축은 CPU 비용이 들고 압축 폭탄 공격 표면을 넓히기 때문에 의도적인 opt-in입니다.
+  클라이언트가 이 확장을 직접 제안할 때만 협상되며, zlib이 포함된 빌드가 필요합니다.
+
+연결 API 자체는 [WebSocket 가이드](/ko/docs/server/websocket.html)와
+[레퍼런스](/ko/docs/reference/server/websocket.html)를 참고하세요.
+
 ## Body streaming
 
 요청 본문의 pull 기반 스트림을 활성화합니다 (issue #26): H1/H2 파서가 chunk를 큐에 넣고,

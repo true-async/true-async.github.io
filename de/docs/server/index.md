@@ -19,8 +19,8 @@ Standardmäßig werden **HTTP/1.1 und HTTP/2 auf demselben TCP-Port** unterstüt
 erfolgt über ALPN-Negotiation (bei TLS) oder HTTP Upgrade. HTTP/3 läuft über denselben UDP-Port
 (QUIC) und wird Clients per `Alt-Svc`-Header angekündigt.
 
-WebSocket, SSE und gRPC sind bereits für dasselbe Single-Listener-Modell mit Protokollerkennung
-entworfen, befinden sich aber noch in Arbeit (siehe [Roadmap](#funktionen)).
+WebSocket und SSE sind bereits fertig und laufen auf demselben Single-Listener-Modell mit
+Protokollerkennung. gRPC über HTTP/2 befindet sich noch in Arbeit (siehe [Roadmap](#funktionen)).
 
 ```php
 use TrueAsync\HttpServer;
@@ -70,8 +70,8 @@ Anfragen warm, der Cold-Start fällt einmal bei `start()` an.
 | ✅ | **Per-Request Scope** | Jeder Handler in eigenem Scope; `Async\request_context()` liefert gemeinsamen Kontext für den gesamten Coroutine-Baum der Anfrage |
 | ✅ | **Native Coroutinen** | Tiefe Integration mit TrueAsync: jedes blockierende I/O im Handler suspendiert die Coroutine, nicht den Thread |
 | ✅ | **Zero-Copy** | Minimale Allokationen auf dem Hot Path |
-| 📋 | **WebSocket** | RFC 6455, Upgrade von HTTP/1.1 und HTTP/2 |
-| 📋 | **SSE** | Server-Sent Events |
+| ✅ | **WebSocket** | RFC 6455, Upgrade von HTTP/1.1 und HTTP/2 (RFC 8441 Extended CONNECT), `wss://`, permessage-deflate (RFC 7692), Full-Duplex, Backpressure, alle 246 Autobahn|Testsuite-Tests |
+| ✅ | **SSE** | `text/event-stream` über HTTP/1.1, HTTP/2 und HTTP/3, derselbe Handler unabhängig vom Protokoll |
 | 📋 | **gRPC** | über HTTP/2, unary und streaming |
 
 ## Architektur: Single-Threaded Event Loop
@@ -111,6 +111,8 @@ Kein Shared State, keine globalen Locks.
 - [Komprimierung](/de/docs/server/compression.html): gzip / Brotli / zstd, Aushandlung, BREACH
 - [Statische Dateien und sendFile](/de/docs/server/static-files.html): `StaticHandler`, precompressed Sidecars, Range
 - [Streaming](/de/docs/server/streaming.html): Request-Body-Stream und Response-Stream
+- [SSE](/de/docs/server/sse.html): Server-Sent Events, `sseEvent()`, Reconnection, Heartbeat
+- [WebSocket](/de/docs/server/websocket.html): Full-Duplex-Verbindungen, Backpressure, Keepalive
 - [Multi-Worker](/de/docs/server/workers.html): `setWorkers(N)`, Bootloader, Per-Request Scope
 - [Beispiele](/de/docs/server/examples.html): JSON-API, Statik, Fan-Out, Multipart Upload
 - [Architektur](/de/architecture/server.html): Interna
@@ -121,6 +123,7 @@ Kein Shared State, keine globalen Locks.
 - [`TrueAsync\HttpServerConfig`](/de/docs/reference/server/http-server-config.html)
 - [`TrueAsync\HttpRequest`](/de/docs/reference/server/http-request.html)
 - [`TrueAsync\HttpResponse`](/de/docs/reference/server/http-response.html)
+- [`TrueAsync\WebSocket`](/de/docs/reference/server/websocket.html)
 - [`TrueAsync\StaticHandler`](/de/docs/reference/server/static-handler.html)
 - [`TrueAsync\SendFileOptions`](/de/docs/reference/server/send-file-options.html)
 - [`TrueAsync\UploadedFile`](/de/docs/reference/server/uploaded-file.html)

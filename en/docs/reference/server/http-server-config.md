@@ -256,6 +256,69 @@ connection stays open for other streams).
 
 Default 10_485_760 (10 MiB). Range 1_024..17_179_869_184 (16 GiB).
 
+## WebSocket {#websocket}
+
+(true_async_server 0.9+). Guide: [WebSocket](/en/docs/server/websocket.html).
+
+### setWsMaxMessageSize / getWsMaxMessageSize
+
+```php
+public HttpServerConfig::setWsMaxMessageSize(int $bytes): static
+public HttpServerConfig::getWsMaxMessageSize(): int
+```
+
+Maximum reassembled WebSocket message size. A frame set whose combined payload exceeds the
+limit closes the connection with RFC 6455 §7.4.1 `1009 Message Too Big`.
+
+Default 1_048_576 (1 MiB). Range 128..268_435_456 (256 MiB).
+
+### setWsMaxFrameSize / getWsMaxFrameSize
+
+```php
+public HttpServerConfig::setWsMaxFrameSize(int $bytes): static
+public HttpServerConfig::getWsMaxFrameSize(): int
+```
+
+Maximum payload for a single frame. Guards against fragment-flood attacks, where the client
+sends millions of tiny fragments.
+
+Default 1_048_576 (1 MiB). Same range as `setWsMaxMessageSize`.
+
+### setWsPingIntervalMs / getWsPingIntervalMs
+
+```php
+public HttpServerConfig::setWsPingIntervalMs(int $ms): static
+public HttpServerConfig::getWsPingIntervalMs(): int
+```
+
+How often the server pings an otherwise idle connection. The peer must reply with PONG within
+`WsPongTimeoutMs`, or the connection is closed with code `1001 GoingAway`.
+
+Default 30_000 (30 s). `0` disables the automatic ping.
+
+### setWsPongTimeoutMs / getWsPongTimeoutMs
+
+```php
+public HttpServerConfig::setWsPongTimeoutMs(int $ms): static
+public HttpServerConfig::getWsPongTimeoutMs(): int
+```
+
+The PONG deadline: how long the server waits after a PING before declaring the connection dead.
+
+Default 60_000 (60 s). `0` disables the timeout.
+
+### setWsPermessageDeflate / getWsPermessageDeflate
+
+```php
+public HttpServerConfig::setWsPermessageDeflate(bool $enabled): static
+public HttpServerConfig::getWsPermessageDeflate(): bool
+```
+
+Enables RFC 7692 permessage-deflate (message-level compression). Off by default: it's an
+opt-in, because compression costs CPU and widens the decompression-bomb attack surface.
+Negotiated only when the client offers the extension; the reassembled-message cap is checked
+both before and after inflate. Requires a build with zlib (HTTP compression).
+
 ## HTTP/3 knobs
 
 ### setHttp3IdleTimeoutMs / getHttp3IdleTimeoutMs
@@ -422,6 +485,10 @@ Write-buffer size.
 | `enableWebSocket(bool)` / `isWebSocketEnabled(): bool` | toggle WS (TODO) |
 | `enableProtocolDetection(bool)` / `isProtocolDetectionEnabled(): bool` | auto-detect protocol on the listener |
 
+> `enableWebSocket()` is a separate, not-yet-implemented toggle. WebSocket itself already works
+> fully through [`addWebSocketHandler()`](/en/docs/reference/server/http-server.html#addwebsockethandler)
+> and the settings in the [WebSocket section](#websocket) above; the two flags are unrelated.
+
 ## TLS
 
 | Method | Purpose |
@@ -520,4 +587,5 @@ with `HttpServerRuntimeException`.
 
 - [Configuration](/en/docs/server/configuration.html) — step-by-step guide
 - [`TrueAsync\HttpServer`](/en/docs/reference/server/http-server.html)
+- [`TrueAsync\WebSocket`](/en/docs/reference/server/websocket.html)
 - [`TrueAsync\LogSeverity`](/en/docs/reference/server/log-severity.html)

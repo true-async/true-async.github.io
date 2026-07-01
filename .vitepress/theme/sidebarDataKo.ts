@@ -306,6 +306,8 @@ export const docsSidebarKo: NavGroup[] = [
       { url: '/ko/docs/server/compression.html', label: '압축', icon: 'layers' },
       { url: '/ko/docs/server/static-files.html', label: '정적 파일과 sendFile', icon: 'section-blocks' },
       { url: '/ko/docs/server/streaming.html', label: '스트리밍', icon: 'arrow-left-right' },
+      { url: '/ko/docs/server/sse.html', label: 'SSE', icon: 'zap' },
+      { url: '/ko/docs/server/websocket.html', label: 'WebSocket', icon: 'shuffle' },
       { url: '/ko/docs/server/workers.html', label: 'Multi-worker', icon: 'cpu' },
       { url: '/ko/docs/server/examples.html', label: '예제', icon: 'section-code' },
       {
@@ -316,6 +318,7 @@ export const docsSidebarKo: NavGroup[] = [
           { url: '/ko/docs/reference/server/http-server-config.html', label: 'HttpServerConfig' },
           { url: '/ko/docs/reference/server/http-request.html', label: 'HttpRequest' },
           { url: '/ko/docs/reference/server/http-response.html', label: 'HttpResponse' },
+          { url: '/ko/docs/reference/server/websocket.html', label: 'WebSocket' },
           { url: '/ko/docs/reference/server/static-handler.html', label: 'StaticHandler' },
           { url: '/ko/docs/reference/server/send-file-options.html', label: 'SendFileOptions' },
           { url: '/ko/docs/reference/server/uploaded-file.html', label: 'UploadedFile' },
@@ -323,6 +326,13 @@ export const docsSidebarKo: NavGroup[] = [
           { url: '/ko/docs/reference/server/exceptions.html', label: '예외' },
         ],
       },
+    ],
+  },
+  {
+    title: 'TrueAsync Mobile',
+    icon: 'mobile',
+    items: [
+      { url: '/ko/docs/mobile/index.html', label: '개요', icon: 'eye' },
     ],
   },
   {

@@ -24,7 +24,7 @@ final class HttpServer
 
     public function addHttpHandler(callable $handler): static;
     public function addStaticHandler(StaticHandler $handler): static;
-    public function addWebSocketHandler(callable $handler): static;   // TODO
+    public function addWebSocketHandler(callable $handler): static;
     public function addHttp2Handler(callable $handler): static;       // TODO
     public function addGrpcHandler(callable $handler): static;        // TODO
 
@@ -86,7 +86,23 @@ Siehe [`StaticHandler`](/de/docs/reference/server/static-handler.html).
 public HttpServer::addWebSocketHandler(callable $handler): static
 ```
 
-📋 Geplant. RFC 6455, Upgrade von HTTP/1.1 und HTTP/2.
+Registriert einen Handler für Full-Duplex-WebSocket-Verbindungen (RFC 6455). Das Upgrade wird von
+HTTP/1.1 und von HTTP/2 (RFC 8441 Extended CONNECT) akzeptiert, außerdem `wss://` über TLS und
+permessage-deflate (RFC 7692). Jede Verbindung wird von ihrer eigenen Coroutine bedient.
+
+Zwei Signaturen werden unterstützt; der Server prüft, wie viele Parameter der Handler deklariert:
+
+```php
+function (WebSocket $ws): void
+function (WebSocket $ws, HttpRequest $req, WebSocketUpgrade $upgrade): void
+```
+
+Die Zwei-Parameter-Form (nur `$ws`) akzeptiert das Upgrade mit Standardeinstellungen. Die
+Drei-Parameter-Form gibt Zugriff auf `WebSocketUpgrade`: Subprotokoll-Aushandlung und die
+Möglichkeit, das Upgrade abzulehnen, bevor die `101`-Antwort hinausgeht.
+
+Siehe den [WebSocket-Guide](/de/docs/server/websocket.html) und die
+[`WebSocket`-Klassenreferenz](/de/docs/reference/server/websocket.html).
 
 ### addHttp2Handler
 
@@ -234,4 +250,5 @@ $server->start();
 - [`TrueAsync\HttpServerConfig`](/de/docs/reference/server/http-server-config.html)
 - [`TrueAsync\HttpRequest`](/de/docs/reference/server/http-request.html)
 - [`TrueAsync\HttpResponse`](/de/docs/reference/server/http-response.html)
+- [`TrueAsync\WebSocket`](/de/docs/reference/server/websocket.html)
 - [Schnellstart](/de/docs/server/quickstart.html)

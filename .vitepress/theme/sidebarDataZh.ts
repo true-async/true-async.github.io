@@ -307,6 +307,8 @@ export const docsSidebarZh: NavGroup[] = [
       { url: '/zh/docs/server/compression.html', label: '压缩', icon: 'layers' },
       { url: '/zh/docs/server/static-files.html', label: '静态文件与 sendFile', icon: 'section-blocks' },
       { url: '/zh/docs/server/streaming.html', label: '流式传输', icon: 'arrow-left-right' },
+      { url: '/zh/docs/server/sse.html', label: 'SSE', icon: 'zap' },
+      { url: '/zh/docs/server/websocket.html', label: 'WebSocket', icon: 'shuffle' },
       { url: '/zh/docs/server/workers.html', label: 'Multi-worker', icon: 'cpu' },
       { url: '/zh/docs/server/examples.html', label: '示例', icon: 'section-code' },
       {
@@ -317,6 +319,7 @@ export const docsSidebarZh: NavGroup[] = [
           { url: '/zh/docs/reference/server/http-server-config.html', label: 'HttpServerConfig' },
           { url: '/zh/docs/reference/server/http-request.html', label: 'HttpRequest' },
           { url: '/zh/docs/reference/server/http-response.html', label: 'HttpResponse' },
+          { url: '/zh/docs/reference/server/websocket.html', label: 'WebSocket' },
           { url: '/zh/docs/reference/server/static-handler.html', label: 'StaticHandler' },
           { url: '/zh/docs/reference/server/send-file-options.html', label: 'SendFileOptions' },
           { url: '/zh/docs/reference/server/uploaded-file.html', label: 'UploadedFile' },
@@ -324,6 +327,13 @@ export const docsSidebarZh: NavGroup[] = [
           { url: '/zh/docs/reference/server/exceptions.html', label: '异常' },
         ],
       },
+    ],
+  },
+  {
+    title: 'TrueAsync Mobile',
+    icon: 'mobile',
+    items: [
+      { url: '/zh/docs/mobile/index.html', label: '概述', icon: 'eye' },
     ],
   },
   {

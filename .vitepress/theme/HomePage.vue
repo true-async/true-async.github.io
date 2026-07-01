@@ -52,7 +52,7 @@ const i18n: Record<string, HomeI18n> = {
         { title: 'PDO Pool', icon: 'pdo-pool', url: '/en/docs/components/pdo-pool.html', text: 'Connection pooling built right into <code>PDO</code>. Automatic connection management for maximum performance.' },
         { title: 'Channel · ThreadPool', icon: 'channel', url: '/en/docs/components/channels.html', text: 'Data exchange between coroutines. Buffered and unbuffered channels for producer/consumer patterns. Cross-thread via <code>ThreadChannel</code>; parallel CPU tasks via <code>Thread</code> and <code>ThreadPool</code>.' },
         { title: 'Futures', icon: 'futures', url: '/en/docs/components/future.html', text: 'Deferred results for asynchronous computations. Composition via <code>await_all</code>, <code>await_first</code>.' },
-        { title: 'Context', icon: 'context', url: '/en/docs/components/context.html', text: 'Data associated with a coroutine. Easy adaptation of code with global variables via <code>Context</code>.' },
+        { title: 'PHP Mobile', icon: 'mobile', url: '/en/docs/mobile/index.html', text: 'Android support at the PHP core level: an asynchronous runtime inside a native app via <code>native-bridge</code>.' },
       ],
     },
     cta: {
@@ -88,7 +88,7 @@ const i18n: Record<string, HomeI18n> = {
         { title: 'PDO Pool', icon: 'pdo-pool', url: '/ru/docs/components/pdo-pool.html', text: 'Поддержка пула соединений прямо в <code>PDO</code>. Автоматическое управление коннектами для максимальной производительности.' },
         { title: 'Channel · ThreadPool', icon: 'channel', url: '/ru/docs/components/channels.html', text: 'Обмен данными между корутинами. Буферизованные и небуферизованные каналы. Межпотоковая передача через <code>ThreadChannel</code>; параллельные CPU-задачи через <code>Thread</code> и <code>ThreadPool</code>.' },
         { title: 'Futures', icon: 'futures', url: '/ru/docs/components/future.html', text: 'Отложенные результаты для асинхронных вычислений. Композиция через <code>await_all</code>, <code>await_first</code>.' },
-        { title: 'Context', icon: 'context', url: '/ru/docs/components/context.html', text: 'Данные, связанные с корутиной. Простая адаптация кода с глобальными переменными через <code>Context</code>.' },
+        { title: 'PHP Mobile', icon: 'mobile', url: '/ru/docs/mobile/index.html', text: 'Поддержка Android на уровне ядра PHP: асинхронный рантайм внутри нативного приложения через <code>native-bridge</code>.' },
       ],
     },
     cta: {
@@ -124,7 +124,7 @@ const i18n: Record<string, HomeI18n> = {
         { title: 'PDO Pool', icon: 'pdo-pool', url: '/de/docs/components/pdo-pool.html', text: 'Verbindungs-Pooling direkt in <code>PDO</code> eingebaut. Automatische Verbindungsverwaltung für maximale Leistung.' },
         { title: 'Channel · ThreadPool', icon: 'channel', url: '/de/docs/components/channels.html', text: 'Datenaustausch zwischen Koroutinen. Gepufferte und ungepufferte Kanäle für Producer/Consumer-Muster. Thread-übergreifend via <code>ThreadChannel</code>; parallele CPU-Aufgaben via <code>Thread</code> und <code>ThreadPool</code>.' },
         { title: 'Futures', icon: 'futures', url: '/de/docs/components/future.html', text: 'Verzögerte Ergebnisse für asynchrone Berechnungen. Komposition über <code>await_all</code>, <code>await_first</code>.' },
-        { title: 'Context', icon: 'context', url: '/de/docs/components/context.html', text: 'Daten, die mit einer Koroutine verknüpft sind. Einfache Anpassung von Code mit globalen Variablen über <code>Context</code>.' },
+        { title: 'PHP Mobile', icon: 'mobile', url: '/de/roadmap.html', text: 'Android-Unterstützung auf PHP-Kernebene: ein asynchroner Runtime innerhalb einer nativen App über <code>native-bridge</code>.' },
       ],
     },
     cta: {
@@ -160,7 +160,7 @@ const i18n: Record<string, HomeI18n> = {
         { title: 'PDO Pool', icon: 'pdo-pool', url: '/es/docs/components/pdo-pool.html', text: 'Pool de conexiones integrado directamente en <code>PDO</code>. Gestión automática de conexiones para máximo rendimiento.' },
         { title: 'Channel · ThreadPool', icon: 'channel', url: '/es/docs/components/channels.html', text: 'Intercambio de datos entre corrutinas. Canales con y sin búfer para patrones producer/consumer. Entre hilos via <code>ThreadChannel</code>; tareas CPU paralelas con <code>Thread</code> y <code>ThreadPool</code>.' },
         { title: 'Futures', icon: 'futures', url: '/es/docs/components/future.html', text: 'Resultados diferidos para cálculos asíncronos. Composición mediante <code>await_all</code>, <code>await_first</code>.' },
-        { title: 'Context', icon: 'context', url: '/es/docs/components/context.html', text: 'Datos asociados a una corrutina. Fácil adaptación de código con variables globales mediante <code>Context</code>.' },
+        { title: 'PHP Mobile', icon: 'mobile', url: '/es/roadmap.html', text: 'Soporte de Android a nivel del núcleo de PHP: un runtime asíncrono dentro de una app nativa mediante <code>native-bridge</code>.' },
       ],
     },
     cta: {
@@ -196,7 +196,7 @@ const i18n: Record<string, HomeI18n> = {
         { title: 'PDO Pool', icon: 'pdo-pool', url: '/fr/docs/components/pdo-pool.html', text: 'Pool de connexions intégré directement dans <code>PDO</code>. Gestion automatique des connexions pour des performances maximales.' },
         { title: 'Channel · ThreadPool', icon: 'channel', url: '/fr/docs/components/channels.html', text: 'Échange de données entre coroutines. Canaux avec et sans tampon pour les patrons producteur/consommateur. Entre threads via <code>ThreadChannel</code> ; tâches CPU parallèles via <code>Thread</code> et <code>ThreadPool</code>.' },
         { title: 'Futures', icon: 'futures', url: '/fr/docs/components/future.html', text: 'Résultats différés pour les calculs asynchrones. Composition via <code>await_all</code>, <code>await_first</code>.' },
-        { title: 'Context', icon: 'context', url: '/fr/docs/components/context.html', text: 'Données associées à une coroutine. Adaptation facile du code avec des variables globales via <code>Context</code>.' },
+        { title: 'PHP Mobile', icon: 'mobile', url: '/fr/roadmap.html', text: 'Prise en charge d\'Android au niveau du cœur de PHP : un runtime asynchrone au sein d\'une application native via <code>native-bridge</code>.' },
       ],
     },
     cta: {
@@ -232,7 +232,7 @@ const i18n: Record<string, HomeI18n> = {
         { title: 'PDO Pool', icon: 'pdo-pool', url: '/it/docs/components/pdo-pool.html', text: 'Pool di connessioni integrato direttamente in <code>PDO</code>. Gestione automatica delle connessioni per le massime prestazioni.' },
         { title: 'Channel · ThreadPool', icon: 'channel', url: '/it/docs/components/channels.html', text: 'Scambio di dati tra coroutine. Canali bufferizzati e non bufferizzati per pattern producer/consumer. Tra thread via <code>ThreadChannel</code>; task CPU paralleli con <code>Thread</code> e <code>ThreadPool</code>.' },
         { title: 'Futures', icon: 'futures', url: '/it/docs/components/future.html', text: 'Risultati differiti per calcoli asincroni. Composizione tramite <code>await_all</code>, <code>await_first</code>.' },
-        { title: 'Context', icon: 'context', url: '/it/docs/components/context.html', text: 'Dati associati a una coroutine. Facile adattamento del codice con variabili globali tramite <code>Context</code>.' },
+        { title: 'PHP Mobile', icon: 'mobile', url: '/it/roadmap.html', text: 'Supporto Android a livello del core di PHP: un runtime asincrono all\'interno di un\'app nativa tramite <code>native-bridge</code>.' },
       ],
     },
     cta: {
@@ -268,7 +268,7 @@ const i18n: Record<string, HomeI18n> = {
         { title: 'PDO Pool', icon: 'pdo-pool', url: '/ko/docs/components/pdo-pool.html', text: '<code>PDO</code>에 내장된 연결 풀링. 최대 성능을 위한 자동 연결 관리.' },
         { title: 'Channel · ThreadPool', icon: 'channel', url: '/ko/docs/components/channels.html', text: '코루틴 간의 데이터 교환. 생산자/소비자 패턴을 위한 버퍼링 및 비버퍼링 채널. <code>ThreadChannel</code>로 OS 스레드 간 통신, <code>Thread</code>·<code>ThreadPool</code>로 병렬 CPU 작업.' },
         { title: 'Futures', icon: 'futures', url: '/ko/docs/components/future.html', text: '비동기 계산을 위한 지연 결과. <code>await_all</code>, <code>await_first</code>를 통한 조합.' },
-        { title: 'Context', icon: 'context', url: '/ko/docs/components/context.html', text: '코루틴에 연결된 데이터. <code>Context</code>를 통한 전역 변수 코드의 쉬운 적응.' },
+        { title: 'PHP Mobile', icon: 'mobile', url: '/ko/roadmap.html', text: 'PHP 코어 수준의 Android 지원: <code>native-bridge</code>를 통해 네이티브 앱 내부에서 실행되는 비동기 런타임.' },
       ],
     },
     cta: {
@@ -304,7 +304,7 @@ const i18n: Record<string, HomeI18n> = {
         { title: 'PDO Pool', icon: 'pdo-pool', url: '/uk/docs/components/pdo-pool.html', text: 'Пул з\'єднань вбудований прямо в <code>PDO</code>. Автоматичне керування з\'єднаннями для максимальної продуктивності.' },
         { title: 'Channel · ThreadPool', icon: 'channel', url: '/uk/docs/components/channels.html', text: 'Обмін даними між корутинами. Буферизовані та небуферизовані канали. Між потоками через <code>ThreadChannel</code>; паралельні CPU-задачі через <code>Thread</code> і <code>ThreadPool</code>.' },
         { title: 'Futures', icon: 'futures', url: '/uk/docs/components/future.html', text: 'Відкладені результати для асинхронних обчислень. Композиція через <code>await_all</code>, <code>await_first</code>.' },
-        { title: 'Context', icon: 'context', url: '/uk/docs/components/context.html', text: 'Дані, пов\'язані з корутиною. Легка адаптація коду з глобальними змінними через <code>Context</code>.' },
+        { title: 'PHP Mobile', icon: 'mobile', url: '/uk/roadmap.html', text: 'Підтримка Android на рівні ядра PHP: асинхронний рантайм всередині нативного застосунку через <code>native-bridge</code>.' },
       ],
     },
     cta: {
@@ -340,7 +340,7 @@ const i18n: Record<string, HomeI18n> = {
         { title: 'PDO 连接池', icon: 'pdo-pool', url: '/zh/docs/components/pdo-pool.html', text: '直接内置于 <code>PDO</code> 的连接池。自动管理连接以实现最佳性能。' },
         { title: '通道 · ThreadPool', icon: 'channel', url: '/zh/docs/components/channels.html', text: '协程之间的数据交换。缓冲和非缓冲通道支持生产者/消费者模式。跨线程通过 <code>ThreadChannel</code>；并行 CPU 任务通过 <code>Thread</code> 和 <code>ThreadPool</code>。' },
         { title: 'Futures', icon: 'futures', url: '/zh/docs/components/future.html', text: '异步计算的延迟结果。通过 <code>await_all</code>, <code>await_first</code> 进行组合。' },
-        { title: '上下文', icon: 'context', url: '/zh/docs/components/context.html', text: '与协程关联的数据。通过 <code>Context</code> 轻松适配使用全局变量的代码。' },
+        { title: 'PHP Mobile', icon: 'mobile', url: '/zh/roadmap.html', text: '在 PHP 核心层面支持 Android:通过 <code>native-bridge</code> 在原生应用内运行异步运行时。' },
       ],
     },
     cta: {
@@ -379,7 +379,7 @@ const iconSvgs: Record<string, string> = {
   'pdo-pool': '<ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>',
   'channel': '<line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>',
   'futures': '<polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>',
-  'context': '<polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>',
+  'mobile': '<rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/>',
 
 }
 </script>

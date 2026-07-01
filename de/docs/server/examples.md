@@ -164,20 +164,72 @@ $server->addHttpHandler(function ($req, $res) {
         $res->setStatusCode(404); return;
     }
 
-    $res
-        ->setStatusCode(200)
-        ->setHeader('Content-Type', 'text/event-stream')
-        ->setHeader('Cache-Control', 'no-store')
-        ->setHeader('X-Accel-Buffering', 'no')   // nginx-freundlich
-        ->setNoCompression();                      // SSE: Events sollen den Client sofort erreichen
-
     for ($i = 0; $i < 60; $i++) {
-        $payload = json_encode(['t' => time(), 'i' => $i]);
-        $res->send("data: $payload\n\n");
+        $res->sseEvent(json_encode(['t' => time(), 'i' => $i]));
+
+        if (!$res->sendable()) {
+            break;   // der Client ist weg, warten lohnt sich nicht
+        }
+
         \Async\delay(1000);
+    }
+
+    $res->end();
+});
+```
+
+Siehe den [SSE-Guide](/de/docs/server/sse.html) für den vollständigen Durchlauf jeder Methode.
+
+## WebSocket (Echo-Server)
+
+```php
+use TrueAsync\HttpServer;
+use TrueAsync\HttpServerConfig;
+use TrueAsync\WebSocket;
+
+$server = new HttpServer(
+    (new HttpServerConfig())
+        ->addListener('0.0.0.0', 8080)
+);
+
+$server->addWebSocketHandler(function (WebSocket $ws) {
+    foreach ($ws as $msg) {
+        if ($msg->binary) {
+            $ws->sendBinary($msg->data);
+        } else {
+            $ws->send('echo: ' . $msg->data);
+        }
+    }
+});
+
+$server->start();
+```
+
+Broadcasting an mehrere Clients, ohne auf die langsamen zu warten:
+
+```php
+/** @var WebSocket[] $clients */
+$clients = [];
+
+$server->addWebSocketHandler(function (WebSocket $ws) use (&$clients) {
+    $clients[spl_object_id($ws)] = $ws;
+
+    try {
+        foreach ($ws as $msg) {
+            foreach ($clients as $peer) {
+                if ($peer !== $ws) {
+                    $peer->trySend($msg->data);   // nicht-blockierend, ein langsamer Client blockiert nicht die anderen
+                }
+            }
+        }
+    } finally {
+        unset($clients[spl_object_id($ws)]);
     }
 });
 ```
+
+Siehe den [WebSocket-Guide](/de/docs/server/websocket.html) für den vollständigen Durchlauf jeder
+Methode.
 
 ## Datei-Download mit Auth
 

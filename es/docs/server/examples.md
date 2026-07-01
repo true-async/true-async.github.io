@@ -164,20 +164,72 @@ $server->addHttpHandler(function ($req, $res) {
         $res->setStatusCode(404); return;
     }
 
-    $res
-        ->setStatusCode(200)
-        ->setHeader('Content-Type', 'text/event-stream')
-        ->setHeader('Cache-Control', 'no-store')
-        ->setHeader('X-Accel-Buffering', 'no')   // nginx-friendly
-        ->setNoCompression();                      // SSE: los eventos deben llegar al cliente de inmediato
-
     for ($i = 0; $i < 60; $i++) {
-        $payload = json_encode(['t' => time(), 'i' => $i]);
-        $res->send("data: $payload\n\n");
+        $res->sseEvent(json_encode(['t' => time(), 'i' => $i]));
+
+        if (!$res->sendable()) {
+            break;   // el cliente ya no está, no tiene sentido esperar
+        }
+
         \Async\delay(1000);
+    }
+
+    $res->end();
+});
+```
+
+Véase la [guía de SSE](/es/docs/server/sse.html) para el recorrido completo de todos los métodos.
+
+## WebSocket (servidor eco)
+
+```php
+use TrueAsync\HttpServer;
+use TrueAsync\HttpServerConfig;
+use TrueAsync\WebSocket;
+
+$server = new HttpServer(
+    (new HttpServerConfig())
+        ->addListener('0.0.0.0', 8080)
+);
+
+$server->addWebSocketHandler(function (WebSocket $ws) {
+    foreach ($ws as $msg) {
+        if ($msg->binary) {
+            $ws->sendBinary($msg->data);
+        } else {
+            $ws->send('echo: ' . $msg->data);
+        }
+    }
+});
+
+$server->start();
+```
+
+Broadcast a varios clientes sin esperar a los lentos:
+
+```php
+/** @var WebSocket[] $clients */
+$clients = [];
+
+$server->addWebSocketHandler(function (WebSocket $ws) use (&$clients) {
+    $clients[spl_object_id($ws)] = $ws;
+
+    try {
+        foreach ($ws as $msg) {
+            foreach ($clients as $peer) {
+                if ($peer !== $ws) {
+                    $peer->trySend($msg->data);   // no bloqueante, un cliente lento no frena al resto
+                }
+            }
+        }
+    } finally {
+        unset($clients[spl_object_id($ws)]);
     }
 });
 ```
+
+Véase la [guía de WebSocket](/es/docs/server/websocket.html) para el recorrido completo de todos
+los métodos.
 
 ## Descarga de archivo con auth
 
