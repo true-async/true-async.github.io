@@ -163,7 +163,7 @@ onMounted(() => {
     </div>
 
     <!-- Default layout -->
-    <main v-else style="padding-top: 3.5rem;" :key="route.path">
+    <main v-else style="padding-top: var(--navbar-h);" :key="route.path">
       <Content />
     </main>
     </div>

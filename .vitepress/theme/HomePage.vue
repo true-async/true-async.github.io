@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useRoute } from 'vitepress'
 
 const route = useRoute()
@@ -10,39 +10,43 @@ const currentLang = computed(() => {
 })
 
 interface HeroButton {
-  label: string; url: string; style: string; external?: boolean
+  label: string; url: string; style: string; external?: boolean; icon?: string
 }
 interface Feature {
   title: string; icon: string; url: string; text: string
 }
-interface CtaData {
-  title: string; description: string; buttons: HeroButton[]
-}
 interface HeroData {
-  badge: string; title: string; description: string; buttons: HeroButton[]
+  badge: string; title: string; slogan?: string; description: string; buttons: HeroButton[]
 }
 interface FeaturesData {
-  title: string; items: Feature[]
+  title: string; heading?: string; items: Feature[]
+}
+interface Lesson {
+  tag: string; tagColor: string; time: string; title: string; body: string; url: string
+}
+interface GuidesData {
+  title: string; heading?: string; description: string; readMore: string; items: Lesson[]
 }
 interface HomeI18n {
-  hero: HeroData; features: FeaturesData; cta: CtaData
+  hero: HeroData; features: FeaturesData; guides: GuidesData
 }
 
 const i18n: Record<string, HomeI18n> = {
   en: {
     hero: {
-      badge: 'Experimental Version',
-      title: 'True Asynchronous inside PHP',
-      description: 'Imagine PHP with coroutines, where familiar functions support concurrent I/O. Build high-performance concurrent applications with clean, readable code and minimal changes!',
+      badge: 'Experimental Core · v0.7.7',
+      title: 'True Asynchronous inside <span class="hero-accent">PHP</span>',
+      slogan: 'Write sync. Run async.',
+      description: 'Coroutines, non-blocking I/O, and structured concurrency, built into the language core. Write high-performance concurrent code with familiar functions and minimal changes.',
       buttons: [
-        { label: 'Get Started', url: '/en/docs.html', style: 'primary' },
+        { label: 'Get Started', url: '/en/docs.html', style: 'primary', icon: 'arrow' },
         { label: 'How Coroutines Work', url: '/en/interactive/coroutine-demo.html', style: 'secondary', external: true },
-        { label: 'Download', url: '/en/download.html', style: 'secondary' },
-        { label: 'Discord', url: 'https://discord.gg/yqBQPBHKp5', style: 'secondary', external: true },
+        { label: 'Download', url: '/en/download.html', style: 'accent', icon: 'download' },
       ],
     },
     features: {
       title: 'Key Features',
+      heading: 'Production-ready API',
       items: [
         { title: 'Coroutines', icon: 'coroutines', url: '/en/docs/components/coroutines.html', text: 'Lightweight coroutines for efficient concurrent execution. No colored <code>async</code> functions. Just do <code>spawn()</code> and go!' },
         { title: 'Non-blocking I/O', icon: 'io', url: '/en/docs/reference/supported-functions.html', text: '<code>fread</code>, <code>fwrite</code>, <code>file_get_contents</code>, <code>ob_start</code>, <code>curl</code>, <code>MySQL</code>, <code>PostgreSQL</code>. Regular PHP functions now work asynchronously without extra effort.' },
@@ -55,13 +59,18 @@ const i18n: Record<string, HomeI18n> = {
         { title: 'PHP Mobile', icon: 'mobile', url: '/en/docs/mobile/index.html', text: 'Android support at the PHP core level: an asynchronous runtime inside a native app via <code>native-bridge</code>.' },
       ],
     },
-    cta: {
-      title: 'Ready to Build Async PHP Applications?',
-      description: 'Get started with TrueAsync in minutes. Install via Composer and start writing concurrent code today.',
-      buttons: [
-        { label: 'Read the Docs', url: '/en/docs.html', style: 'primary' },
-        { label: 'View on GitHub', url: 'https://github.com/true-async', style: 'secondary', external: true },
-        { label: 'Chat on Discord', url: 'https://discord.gg/yqBQPBHKp5', style: 'secondary', external: true },
+    guides: {
+      title: 'Guides & Articles',
+      heading: 'Learn TrueAsync in practice',
+      description: 'Hands-on guides, from your first coroutine to structured concurrency and the built-in server.',
+      readMore: 'Read article',
+      items: [
+        { tag: 'Core', tagColor: 'purple', time: '6 min', title: 'Your first coroutine', body: 'Install the extension, spawn() a coroutine and see cooperative scheduling in action.', url: '/en/docs/components/coroutines.html' },
+        { tag: 'Core', tagColor: 'purple', time: '9 min', title: 'Non-blocking I/O', body: 'Turn ordinary fread, curl and PDO calls into concurrent work without callbacks.', url: '/en/docs/reference/supported-functions.html' },
+        { tag: 'Core', tagColor: 'purple', time: '8 min', title: 'Structured concurrency', body: 'Control coroutine lifetime with a Scope sandbox and manage groups via TaskGroup.', url: '/en/docs/components/scope.html' },
+        { tag: 'Server', tagColor: 'teal', time: '10 min', title: 'The TrueAsync web server', body: 'Run a native HTTP/1.1, HTTP/2 and HTTP/3 server directly inside the PHP process.', url: '/en/docs/server/index.html' },
+        { tag: 'Core', tagColor: 'orange', time: '7 min', title: 'PDO connection pool', body: 'Automatic, coroutine-safe connection pooling built right into PDO.', url: '/en/docs/components/pdo-pool.html' },
+        { tag: 'Core', tagColor: 'blue', time: '9 min', title: 'Channels & ThreadPool', body: 'Producer/consumer patterns with buffered channels, plus real parallel CPU work via ThreadPool.', url: '/en/docs/components/channels.html' },
       ],
     },
   },
@@ -91,13 +100,17 @@ const i18n: Record<string, HomeI18n> = {
         { title: 'PHP Mobile', icon: 'mobile', url: '/ru/docs/mobile/index.html', text: 'Поддержка Android на уровне ядра PHP: асинхронный рантайм внутри нативного приложения через <code>native-bridge</code>.' },
       ],
     },
-    cta: {
-      title: 'Готовы создавать асинхронные PHP-приложения?',
-      description: 'Начните работу с TrueAsync за несколько минут. Установите через Composer и пишите конкурентный код уже сегодня.',
-      buttons: [
-        { label: 'Читать документацию', url: '/ru/docs.html', style: 'primary' },
-        { label: 'Смотреть на GitHub', url: 'https://github.com/true-async', style: 'secondary', external: true },
-        { label: 'Чат в Discord', url: 'https://discord.gg/yqBQPBHKp5', style: 'secondary', external: true },
+    guides: {
+      title: 'Руководства и статьи',
+      description: 'Практические материалы: от первой корутины до структурной конкурентности и встроенного сервера.',
+      readMore: 'Читать статью',
+      items: [
+        { tag: 'Основы', tagColor: 'purple', time: '6 мин', title: 'Первая корутина', body: 'Установите расширение, запустите корутину через spawn() и посмотрите на кооперативный планировщик в действии.', url: '/ru/docs/components/coroutines.html' },
+        { tag: 'Основы', tagColor: 'purple', time: '9 мин', title: 'Неблокирующий I/O', body: 'Обычные fread, curl и запросы PDO начинают работать конкурентно без коллбэков.', url: '/ru/docs/reference/supported-functions.html' },
+        { tag: 'Основы', tagColor: 'purple', time: '8 мин', title: 'Структурная конкурентность', body: 'Контролируйте время жизни корутин с помощью песочницы Scope и управляйте группами через TaskGroup.', url: '/ru/docs/components/scope.html' },
+        { tag: 'Сервер', tagColor: 'teal', time: '10 мин', title: 'Веб-сервер TrueAsync', body: 'Нативный сервер HTTP/1.1, HTTP/2 и HTTP/3 прямо внутри процесса PHP.', url: '/ru/docs/server/index.html' },
+        { tag: 'Основы', tagColor: 'orange', time: '7 мин', title: 'Пул соединений PDO', body: 'Автоматический пул соединений, безопасный для корутин, встроенный прямо в PDO.', url: '/ru/docs/components/pdo-pool.html' },
+        { tag: 'Основы', tagColor: 'blue', time: '9 мин', title: 'Каналы и ThreadPool', body: 'Паттерн производитель-потребитель на буферизованных каналах и параллельные вычисления через ThreadPool.', url: '/ru/docs/components/channels.html' },
       ],
     },
   },
@@ -127,13 +140,17 @@ const i18n: Record<string, HomeI18n> = {
         { title: 'PHP Mobile', icon: 'mobile', url: '/de/roadmap.html', text: 'Android-Unterstützung auf PHP-Kernebene: ein asynchroner Runtime innerhalb einer nativen App über <code>native-bridge</code>.' },
       ],
     },
-    cta: {
-      title: 'Bereit, asynchrone PHP-Anwendungen zu erstellen?',
-      description: 'Starten Sie mit TrueAsync in wenigen Minuten. Installieren Sie es über Composer und schreiben Sie noch heute nebenläufigen Code.',
-      buttons: [
-        { label: 'Dokumentation lesen', url: '/de/docs.html', style: 'primary' },
-        { label: 'Auf GitHub ansehen', url: 'https://github.com/true-async', style: 'secondary', external: true },
-        { label: 'Discord-Chat', url: 'https://discord.gg/yqBQPBHKp5', style: 'secondary', external: true },
+    guides: {
+      title: 'Guides & Articles',
+      description: 'Hands-on guides — from your first coroutine to structured concurrency and the built-in server.',
+      readMore: 'Read article',
+      items: [
+        { tag: 'Core', tagColor: 'purple', time: '6 min', title: 'Your first coroutine', body: 'Install the extension, spawn() a coroutine and see cooperative scheduling in action.', url: '/de/docs/components/coroutines.html' },
+        { tag: 'Core', tagColor: 'purple', time: '9 min', title: 'Non-blocking I/O', body: 'Turn ordinary fread, curl and PDO calls into concurrent work without callbacks.', url: '/de/docs/reference/supported-functions.html' },
+        { tag: 'Core', tagColor: 'purple', time: '8 min', title: 'Structured concurrency', body: 'Control coroutine lifetime with a Scope sandbox and manage groups via TaskGroup.', url: '/de/docs/components/scope.html' },
+        { tag: 'Server', tagColor: 'teal', time: '10 min', title: 'The TrueAsync web server', body: 'Run a native HTTP/1.1, HTTP/2 and HTTP/3 server directly inside the PHP process.', url: '/de/docs/server/index.html' },
+        { tag: 'Core', tagColor: 'orange', time: '7 min', title: 'PDO connection pool', body: 'Automatic, coroutine-safe connection pooling built right into PDO.', url: '/de/docs/components/pdo-pool.html' },
+        { tag: 'Core', tagColor: 'blue', time: '9 min', title: 'Channels & ThreadPool', body: 'Producer/consumer patterns with buffered channels, plus real parallel CPU work via ThreadPool.', url: '/de/docs/components/channels.html' },
       ],
     },
   },
@@ -163,13 +180,17 @@ const i18n: Record<string, HomeI18n> = {
         { title: 'PHP Mobile', icon: 'mobile', url: '/es/roadmap.html', text: 'Soporte de Android a nivel del núcleo de PHP: un runtime asíncrono dentro de una app nativa mediante <code>native-bridge</code>.' },
       ],
     },
-    cta: {
-      title: '¿Listo para crear aplicaciones PHP asíncronas?',
-      description: 'Comienza con TrueAsync en minutos. Instálalo con Composer y escribe código concurrente hoy mismo.',
-      buttons: [
-        { label: 'Leer la documentación', url: '/es/docs.html', style: 'primary' },
-        { label: 'Ver en GitHub', url: 'https://github.com/true-async', style: 'secondary', external: true },
-        { label: 'Chat en Discord', url: 'https://discord.gg/yqBQPBHKp5', style: 'secondary', external: true },
+    guides: {
+      title: 'Guides & Articles',
+      description: 'Hands-on guides — from your first coroutine to structured concurrency and the built-in server.',
+      readMore: 'Read article',
+      items: [
+        { tag: 'Core', tagColor: 'purple', time: '6 min', title: 'Your first coroutine', body: 'Install the extension, spawn() a coroutine and see cooperative scheduling in action.', url: '/es/docs/components/coroutines.html' },
+        { tag: 'Core', tagColor: 'purple', time: '9 min', title: 'Non-blocking I/O', body: 'Turn ordinary fread, curl and PDO calls into concurrent work without callbacks.', url: '/es/docs/reference/supported-functions.html' },
+        { tag: 'Core', tagColor: 'purple', time: '8 min', title: 'Structured concurrency', body: 'Control coroutine lifetime with a Scope sandbox and manage groups via TaskGroup.', url: '/es/docs/components/scope.html' },
+        { tag: 'Server', tagColor: 'teal', time: '10 min', title: 'The TrueAsync web server', body: 'Run a native HTTP/1.1, HTTP/2 and HTTP/3 server directly inside the PHP process.', url: '/es/docs/server/index.html' },
+        { tag: 'Core', tagColor: 'orange', time: '7 min', title: 'PDO connection pool', body: 'Automatic, coroutine-safe connection pooling built right into PDO.', url: '/es/docs/components/pdo-pool.html' },
+        { tag: 'Core', tagColor: 'blue', time: '9 min', title: 'Channels & ThreadPool', body: 'Producer/consumer patterns with buffered channels, plus real parallel CPU work via ThreadPool.', url: '/es/docs/components/channels.html' },
       ],
     },
   },
@@ -199,13 +220,17 @@ const i18n: Record<string, HomeI18n> = {
         { title: 'PHP Mobile', icon: 'mobile', url: '/fr/roadmap.html', text: 'Prise en charge d\'Android au niveau du cœur de PHP : un runtime asynchrone au sein d\'une application native via <code>native-bridge</code>.' },
       ],
     },
-    cta: {
-      title: 'Prêt à créer des applications PHP asynchrones ?',
-      description: 'Démarrez avec TrueAsync en quelques minutes. Installez via Composer et écrivez du code concurrent dès aujourd\'hui.',
-      buttons: [
-        { label: 'Lire la documentation', url: '/fr/docs.html', style: 'primary' },
-        { label: 'Voir sur GitHub', url: 'https://github.com/true-async', style: 'secondary', external: true },
-        { label: 'Chat sur Discord', url: 'https://discord.gg/yqBQPBHKp5', style: 'secondary', external: true },
+    guides: {
+      title: 'Guides & Articles',
+      description: 'Hands-on guides — from your first coroutine to structured concurrency and the built-in server.',
+      readMore: 'Read article',
+      items: [
+        { tag: 'Core', tagColor: 'purple', time: '6 min', title: 'Your first coroutine', body: 'Install the extension, spawn() a coroutine and see cooperative scheduling in action.', url: '/fr/docs/components/coroutines.html' },
+        { tag: 'Core', tagColor: 'purple', time: '9 min', title: 'Non-blocking I/O', body: 'Turn ordinary fread, curl and PDO calls into concurrent work without callbacks.', url: '/fr/docs/reference/supported-functions.html' },
+        { tag: 'Core', tagColor: 'purple', time: '8 min', title: 'Structured concurrency', body: 'Control coroutine lifetime with a Scope sandbox and manage groups via TaskGroup.', url: '/fr/docs/components/scope.html' },
+        { tag: 'Server', tagColor: 'teal', time: '10 min', title: 'The TrueAsync web server', body: 'Run a native HTTP/1.1, HTTP/2 and HTTP/3 server directly inside the PHP process.', url: '/fr/docs/server/index.html' },
+        { tag: 'Core', tagColor: 'orange', time: '7 min', title: 'PDO connection pool', body: 'Automatic, coroutine-safe connection pooling built right into PDO.', url: '/fr/docs/components/pdo-pool.html' },
+        { tag: 'Core', tagColor: 'blue', time: '9 min', title: 'Channels & ThreadPool', body: 'Producer/consumer patterns with buffered channels, plus real parallel CPU work via ThreadPool.', url: '/fr/docs/components/channels.html' },
       ],
     },
   },
@@ -235,13 +260,17 @@ const i18n: Record<string, HomeI18n> = {
         { title: 'PHP Mobile', icon: 'mobile', url: '/it/roadmap.html', text: 'Supporto Android a livello del core di PHP: un runtime asincrono all\'interno di un\'app nativa tramite <code>native-bridge</code>.' },
       ],
     },
-    cta: {
-      title: 'Pronto a creare applicazioni PHP asincrone?',
-      description: 'Inizia a lavorare con TrueAsync in pochi minuti. Installa tramite Composer e scrivi codice concorrente già oggi.',
-      buttons: [
-        { label: 'Leggi la documentazione', url: '/it/docs.html', style: 'primary' },
-        { label: 'Visualizza su GitHub', url: 'https://github.com/true-async', style: 'secondary', external: true },
-        { label: 'Chat su Discord', url: 'https://discord.gg/yqBQPBHKp5', style: 'secondary', external: true },
+    guides: {
+      title: 'Guides & Articles',
+      description: 'Hands-on guides — from your first coroutine to structured concurrency and the built-in server.',
+      readMore: 'Read article',
+      items: [
+        { tag: 'Core', tagColor: 'purple', time: '6 min', title: 'Your first coroutine', body: 'Install the extension, spawn() a coroutine and see cooperative scheduling in action.', url: '/it/docs/components/coroutines.html' },
+        { tag: 'Core', tagColor: 'purple', time: '9 min', title: 'Non-blocking I/O', body: 'Turn ordinary fread, curl and PDO calls into concurrent work without callbacks.', url: '/it/docs/reference/supported-functions.html' },
+        { tag: 'Core', tagColor: 'purple', time: '8 min', title: 'Structured concurrency', body: 'Control coroutine lifetime with a Scope sandbox and manage groups via TaskGroup.', url: '/it/docs/components/scope.html' },
+        { tag: 'Server', tagColor: 'teal', time: '10 min', title: 'The TrueAsync web server', body: 'Run a native HTTP/1.1, HTTP/2 and HTTP/3 server directly inside the PHP process.', url: '/it/docs/server/index.html' },
+        { tag: 'Core', tagColor: 'orange', time: '7 min', title: 'PDO connection pool', body: 'Automatic, coroutine-safe connection pooling built right into PDO.', url: '/it/docs/components/pdo-pool.html' },
+        { tag: 'Core', tagColor: 'blue', time: '9 min', title: 'Channels & ThreadPool', body: 'Producer/consumer patterns with buffered channels, plus real parallel CPU work via ThreadPool.', url: '/it/docs/components/channels.html' },
       ],
     },
   },
@@ -271,13 +300,17 @@ const i18n: Record<string, HomeI18n> = {
         { title: 'PHP Mobile', icon: 'mobile', url: '/ko/roadmap.html', text: 'PHP 코어 수준의 Android 지원: <code>native-bridge</code>를 통해 네이티브 앱 내부에서 실행되는 비동기 런타임.' },
       ],
     },
-    cta: {
-      title: '비동기 PHP 애플리케이션을 구축할 준비가 되셨나요?',
-      description: '몇 분 안에 TrueAsync를 시작하세요. Composer로 설치하고 오늘부터 동시성 코드를 작성하세요.',
-      buttons: [
-        { label: '문서 읽기', url: '/ko/docs.html', style: 'primary' },
-        { label: 'GitHub에서 보기', url: 'https://github.com/true-async', style: 'secondary', external: true },
-        { label: 'Discord에서 채팅', url: 'https://discord.gg/yqBQPBHKp5', style: 'secondary', external: true },
+    guides: {
+      title: 'Guides & Articles',
+      description: 'Hands-on guides — from your first coroutine to structured concurrency and the built-in server.',
+      readMore: 'Read article',
+      items: [
+        { tag: 'Core', tagColor: 'purple', time: '6 min', title: 'Your first coroutine', body: 'Install the extension, spawn() a coroutine and see cooperative scheduling in action.', url: '/ko/docs/components/coroutines.html' },
+        { tag: 'Core', tagColor: 'purple', time: '9 min', title: 'Non-blocking I/O', body: 'Turn ordinary fread, curl and PDO calls into concurrent work without callbacks.', url: '/ko/docs/reference/supported-functions.html' },
+        { tag: 'Core', tagColor: 'purple', time: '8 min', title: 'Structured concurrency', body: 'Control coroutine lifetime with a Scope sandbox and manage groups via TaskGroup.', url: '/ko/docs/components/scope.html' },
+        { tag: 'Server', tagColor: 'teal', time: '10 min', title: 'The TrueAsync web server', body: 'Run a native HTTP/1.1, HTTP/2 and HTTP/3 server directly inside the PHP process.', url: '/ko/docs/server/index.html' },
+        { tag: 'Core', tagColor: 'orange', time: '7 min', title: 'PDO connection pool', body: 'Automatic, coroutine-safe connection pooling built right into PDO.', url: '/ko/docs/components/pdo-pool.html' },
+        { tag: 'Core', tagColor: 'blue', time: '9 min', title: 'Channels & ThreadPool', body: 'Producer/consumer patterns with buffered channels, plus real parallel CPU work via ThreadPool.', url: '/ko/docs/components/channels.html' },
       ],
     },
   },
@@ -307,13 +340,17 @@ const i18n: Record<string, HomeI18n> = {
         { title: 'PHP Mobile', icon: 'mobile', url: '/uk/roadmap.html', text: 'Підтримка Android на рівні ядра PHP: асинхронний рантайм всередині нативного застосунку через <code>native-bridge</code>.' },
       ],
     },
-    cta: {
-      title: 'Готові створювати асинхронні PHP-застосунки?',
-      description: 'Почніть роботу з TrueAsync за кілька хвилин. Встановіть через Composer і пишіть конкурентний код вже сьогодні.',
-      buttons: [
-        { label: 'Читати документацію', url: '/uk/docs.html', style: 'primary' },
-        { label: 'Дивитися на GitHub', url: 'https://github.com/true-async', style: 'secondary', external: true },
-        { label: 'Чат у Discord', url: 'https://discord.gg/yqBQPBHKp5', style: 'secondary', external: true },
+    guides: {
+      title: 'Guides & Articles',
+      description: 'Hands-on guides — from your first coroutine to structured concurrency and the built-in server.',
+      readMore: 'Read article',
+      items: [
+        { tag: 'Core', tagColor: 'purple', time: '6 min', title: 'Your first coroutine', body: 'Install the extension, spawn() a coroutine and see cooperative scheduling in action.', url: '/uk/docs/components/coroutines.html' },
+        { tag: 'Core', tagColor: 'purple', time: '9 min', title: 'Non-blocking I/O', body: 'Turn ordinary fread, curl and PDO calls into concurrent work without callbacks.', url: '/uk/docs/reference/supported-functions.html' },
+        { tag: 'Core', tagColor: 'purple', time: '8 min', title: 'Structured concurrency', body: 'Control coroutine lifetime with a Scope sandbox and manage groups via TaskGroup.', url: '/uk/docs/components/scope.html' },
+        { tag: 'Server', tagColor: 'teal', time: '10 min', title: 'The TrueAsync web server', body: 'Run a native HTTP/1.1, HTTP/2 and HTTP/3 server directly inside the PHP process.', url: '/uk/docs/server/index.html' },
+        { tag: 'Core', tagColor: 'orange', time: '7 min', title: 'PDO connection pool', body: 'Automatic, coroutine-safe connection pooling built right into PDO.', url: '/uk/docs/components/pdo-pool.html' },
+        { tag: 'Core', tagColor: 'blue', time: '9 min', title: 'Channels & ThreadPool', body: 'Producer/consumer patterns with buffered channels, plus real parallel CPU work via ThreadPool.', url: '/uk/docs/components/channels.html' },
       ],
     },
   },
@@ -343,13 +380,17 @@ const i18n: Record<string, HomeI18n> = {
         { title: 'PHP Mobile', icon: 'mobile', url: '/zh/roadmap.html', text: '在 PHP 核心层面支持 Android:通过 <code>native-bridge</code> 在原生应用内运行异步运行时。' },
       ],
     },
-    cta: {
-      title: '准备好构建异步 PHP 应用程序了吗？',
-      description: '几分钟内即可开始使用 TrueAsync。通过 Composer 安装，立即编写并发代码。',
-      buttons: [
-        { label: '阅读文档', url: '/zh/docs.html', style: 'primary' },
-        { label: '在 GitHub 上查看', url: 'https://github.com/true-async', style: 'secondary', external: true },
-        { label: 'Discord 聊天', url: 'https://discord.gg/yqBQPBHKp5', style: 'secondary', external: true },
+    guides: {
+      title: 'Guides & Articles',
+      description: 'Hands-on guides — from your first coroutine to structured concurrency and the built-in server.',
+      readMore: 'Read article',
+      items: [
+        { tag: 'Core', tagColor: 'purple', time: '6 min', title: 'Your first coroutine', body: 'Install the extension, spawn() a coroutine and see cooperative scheduling in action.', url: '/zh/docs/components/coroutines.html' },
+        { tag: 'Core', tagColor: 'purple', time: '9 min', title: 'Non-blocking I/O', body: 'Turn ordinary fread, curl and PDO calls into concurrent work without callbacks.', url: '/zh/docs/reference/supported-functions.html' },
+        { tag: 'Core', tagColor: 'purple', time: '8 min', title: 'Structured concurrency', body: 'Control coroutine lifetime with a Scope sandbox and manage groups via TaskGroup.', url: '/zh/docs/components/scope.html' },
+        { tag: 'Server', tagColor: 'teal', time: '10 min', title: 'The TrueAsync web server', body: 'Run a native HTTP/1.1, HTTP/2 and HTTP/3 server directly inside the PHP process.', url: '/zh/docs/server/index.html' },
+        { tag: 'Core', tagColor: 'orange', time: '7 min', title: 'PDO connection pool', body: 'Automatic, coroutine-safe connection pooling built right into PDO.', url: '/zh/docs/components/pdo-pool.html' },
+        { tag: 'Core', tagColor: 'blue', time: '9 min', title: 'Channels & ThreadPool', body: 'Producer/consumer patterns with buffered channels, plus real parallel CPU work via ThreadPool.', url: '/zh/docs/components/channels.html' },
       ],
     },
   },
@@ -358,7 +399,62 @@ const i18n: Record<string, HomeI18n> = {
 const t = computed(() => i18n[currentLang.value] || i18n.en)
 const hero = computed(() => t.value.hero)
 const features = computed(() => t.value.features)
-const cta = computed(() => t.value.cta)
+const guides = computed(() => t.value.guides)
+
+// Hero demo panel — code is language-neutral, same across locales
+interface DemoTab {
+  key: string; label: string; icon: string; filename: string; code: string
+}
+const demoTabs: DemoTab[] = [
+  {
+    key: 'io', label: 'Concurrent I/O', filename: 'concurrent-io.php',
+    icon: '<path d="M18 4l3 3-3 3M21 7H9a5 5 0 0 0-5 5M6 20l-3-3 3-3M3 17h12a5 5 0 0 0 5-5"/>',
+    code: `<span class="tok-c">// three coroutines run at the same time</span>
+<span class="tok-var">$page</span> = <span class="tok-fn">spawn</span>(<span class="tok-kw">fn</span>() => <span class="tok-fn">file_get_contents</span>(<span class="tok-prop">$url</span>));
+<span class="tok-var">$rows</span> = <span class="tok-fn">spawn</span>(<span class="tok-kw">fn</span>() => <span class="tok-prop">$pdo</span>-><span class="tok-fn">query</span>(<span class="tok-prop">$sql</span>));
+<span class="tok-var">$tick</span> = <span class="tok-fn">spawn</span>(<span class="tok-kw">fn</span>() => <span class="tok-fn">delay</span>(<span class="tok-prop">200</span>)); <span class="tok-c">// timeout guard</span>
+
+<span class="tok-c">// suspend until all three finish</span>
+[<span class="tok-var">$html</span>, <span class="tok-var">$data</span>] = <span class="tok-fn">await_all</span>([<span class="tok-prop">$page</span>, <span class="tok-prop">$rows</span>], <span class="tok-prop">$tick</span>);`,
+  },
+  {
+    key: 'pdo', label: 'PDO Pool', filename: 'pdo-pool.php',
+    icon: '<path d="M12 3c4.5 0 8 1.3 8 3s-3.5 3-8 3-8-1.3-8-3 3.5-3 8-3zM4 6v12c0 1.7 3.5 3 8 3s8-1.3 8-3V6M4 12c0 1.7 3.5 3 8 3s8-1.3 8-3"/>',
+    code: `<span class="tok-c">// pooled connections, reused across coroutines</span>
+<span class="tok-var">$pool</span> = <span class="tok-kw">new</span> <span class="tok-cls">Async\\Pdo\\Pool</span>(<span class="tok-prop">$dsn</span>, size: <span class="tok-prop">8</span>);
+
+<span class="tok-var">$users</span> = <span class="tok-fn">spawn</span>(<span class="tok-kw">fn</span>() => <span class="tok-prop">$pool</span>-><span class="tok-fn">query</span>(<span class="tok-str">'SELECT * FROM users'</span>));
+<span class="tok-var">$stats</span> = <span class="tok-fn">spawn</span>(<span class="tok-kw">fn</span>() => <span class="tok-prop">$pool</span>-><span class="tok-fn">query</span>(<span class="tok-str">'SELECT * FROM stats'</span>));
+
+<span class="tok-c">// each coroutine borrows a free connection</span>
+[<span class="tok-var">$u</span>, <span class="tok-var">$s</span>] = <span class="tok-fn">await_all</span>([<span class="tok-prop">$users</span>, <span class="tok-prop">$stats</span>]);`,
+  },
+  {
+    key: 'threads', label: 'Threads', filename: 'threads.php',
+    icon: '<path d="M4 5h16M4 12h16M4 19h16"/>',
+    code: `<span class="tok-c">// offload CPU-bound work to a thread pool</span>
+<span class="tok-var">$pool</span> = <span class="tok-kw">new</span> <span class="tok-cls">Async\\ThreadPool</span>(<span class="tok-prop">4</span>);
+
+<span class="tok-var">$hash</span> = <span class="tok-prop">$pool</span>-><span class="tok-fn">submit</span>(<span class="tok-kw">fn</span>() => <span class="tok-fn">password_hash</span>(<span class="tok-prop">$pw</span>, <span class="tok-cls">PASSWORD_ARGON2ID</span>));
+<span class="tok-var">$img</span>  = <span class="tok-prop">$pool</span>-><span class="tok-fn">submit</span>(<span class="tok-kw">fn</span>() => <span class="tok-fn">resize_image</span>(<span class="tok-prop">$file</span>));
+
+<span class="tok-c">// runs on real OS threads, in parallel</span>
+[<span class="tok-var">$h</span>, <span class="tok-var">$i</span>] = <span class="tok-fn">await_all</span>([<span class="tok-prop">$hash</span>, <span class="tok-prop">$img</span>]);`,
+  },
+  {
+    key: 'server', label: 'Web Server', filename: 'server.php',
+    icon: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 010 18M12 3a14 14 0 000 18"/>',
+    code: `<span class="tok-c">// non-blocking HTTP server in pure PHP</span>
+<span class="tok-var">$server</span> = <span class="tok-kw">new</span> <span class="tok-cls">Async\\Http\\Server</span>(<span class="tok-str">'0.0.0.0'</span>, <span class="tok-prop">8080</span>);
+
+<span class="tok-prop">$server</span>-><span class="tok-fn">on</span>(<span class="tok-str">'request'</span>, <span class="tok-kw">fn</span>(<span class="tok-prop">$req</span>, <span class="tok-prop">$res</span>) =>
+    <span class="tok-prop">$res</span>-><span class="tok-fn">end</span>(<span class="tok-str">"Hello from coroutine #"</span> . <span class="tok-fn">coroutine_id</span>()));
+
+<span class="tok-c">// each request runs in its own coroutine</span>
+<span class="tok-prop">$server</span>-><span class="tok-fn">listen</span>();`,
+  },
+]
+const activeDemoTab = ref(0)
 
 const milestones = [
   { version: '0.1', title: 'Foundation', date: '2024', status: 'done' },
@@ -387,31 +483,66 @@ const iconSvgs: Record<string, string> = {
 <template>
   <!-- Hero -->
   <section class="hero">
-    <div class="hero-bg"></div>
-    <div class="hero-content">
-      <div class="hero-badge">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>
-        {{ hero.badge }}
+    <div class="hero-glow"></div>
+    <div class="hero-lines" aria-hidden="true">
+      <span class="hero-line hero-line--1"></span>
+      <span class="hero-line hero-line--2"></span>
+      <span class="hero-line hero-line--3"></span>
+    </div>
+    <div class="hero-grid">
+      <div class="hero-content">
+        <div class="hero-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6M10 3v5.5L4.8 17.4A2 2 0 0 0 6.5 20.5h11a2 2 0 0 0 1.7-3.1L14 8.5V3M7.5 14h9"/></svg>
+          {{ hero.badge }}
+        </div>
+        <h1 v-html="hero.title"></h1>
+        <p v-if="hero.slogan" class="hero-slogan">{{ hero.slogan }}</p>
+        <p class="hero-description">{{ hero.description }}</p>
+        <div class="hero-actions">
+          <a
+            v-for="btn in hero.buttons"
+            :key="btn.label"
+            :href="btn.url"
+            :class="['btn', `btn-${btn.style}`, 'btn-lg']"
+            :target="btn.external ? '_blank' : undefined"
+            :rel="btn.external ? 'noopener' : undefined"
+          >
+            <svg v-if="btn.icon === 'download'" class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>
+            {{ btn.label }}
+            <svg v-if="btn.icon === 'arrow'" class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </a>
+        </div>
       </div>
-      <h1>{{ hero.title }}</h1>
-      <p class="hero-description">{{ hero.description }}</p>
-      <div class="hero-actions">
-        <a
-          v-for="btn in hero.buttons"
-          :key="btn.label"
-          :href="btn.url"
-          :class="['btn', `btn-${btn.style}`, 'btn-lg']"
-          :target="btn.external ? '_blank' : undefined"
-          :rel="btn.external ? 'noopener' : undefined"
-        >{{ btn.label }}</a>
+
+      <div class="hero-panel">
+        <div class="hero-panel-titlebar">
+          <span class="hero-panel-dot hero-panel-dot--red"></span>
+          <span class="hero-panel-dot hero-panel-dot--yellow"></span>
+          <span class="hero-panel-dot hero-panel-dot--green"></span>
+          <span class="hero-panel-filename">{{ demoTabs[activeDemoTab].filename }}</span>
+        </div>
+        <pre class="hero-panel-code"><code v-html="demoTabs[activeDemoTab].code"></code></pre>
+        <div class="hero-panel-tabs">
+          <button
+            v-for="(tab, i) in demoTabs"
+            :key="tab.key"
+            type="button"
+            :class="['hero-panel-tab', { 'hero-panel-tab--active': i === activeDemoTab }]"
+            @click="activeDemoTab = i"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" v-html="tab.icon"></svg>
+            {{ tab.label }}
+          </button>
+        </div>
       </div>
     </div>
   </section>
 
   <!-- Features -->
-  <section class="features">
+  <section id="features" class="features">
     <div class="features-header">
-      <h2>{{ features.title }}</h2>
+      <div v-if="features.heading" class="section-eyebrow">{{ features.title }}</div>
+      <h2>{{ features.heading || features.title }}</h2>
     </div>
     <div class="features-grid">
       <a
@@ -420,36 +551,54 @@ const iconSvgs: Record<string, string> = {
         :href="feature.url"
         class="feature-card feature-card--link"
       >
-        <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" v-html="iconSvgs[feature.icon]"></svg>
-        <h3>{{ feature.title }}</h3>
+        <div class="feature-card-glow"></div>
+        <div class="feature-card-head">
+          <div class="feature-icon-box">
+            <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" v-html="iconSvgs[feature.icon]"></svg>
+          </div>
+          <h3>{{ feature.title }}</h3>
+        </div>
         <p v-html="feature.text"></p>
       </a>
     </div>
   </section>
 
-  <!-- CTA -->
-  <section class="cta-section">
-    <div class="cta-content">
-      <svg class="cta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
-      <h2>{{ cta.title }}</h2>
-      <p>{{ cta.description }}</p>
-      <div class="cta-actions">
-        <a
-          v-for="btn in cta.buttons"
-          :key="btn.label"
-          :href="btn.url"
-          :class="['btn', `btn-${btn.style}`, 'btn-lg']"
-          :target="btn.external ? '_blank' : undefined"
-          :rel="btn.external ? 'noopener' : undefined"
-        >{{ btn.label }}</a>
-      </div>
+  <!-- Guides & Articles -->
+  <section class="guides">
+    <div class="guides-header">
+      <div v-if="guides.heading" class="section-eyebrow">{{ guides.title }}</div>
+      <h2>{{ guides.heading || guides.title }}</h2>
+      <p>{{ guides.description }}</p>
+    </div>
+    <div class="guides-grid">
+      <a
+        v-for="lesson in guides.items"
+        :key="lesson.title"
+        :href="lesson.url"
+        class="lesson-card"
+      >
+        <div class="lesson-card-glow"></div>
+        <div class="lesson-card-meta">
+          <span :class="['lesson-tag', `lesson-tag--${lesson.tagColor}`]">{{ lesson.tag }}</span>
+          <span class="lesson-time">{{ lesson.time }}</span>
+        </div>
+        <h3>{{ lesson.title }}</h3>
+        <p>{{ lesson.body }}</p>
+        <div class="lesson-read-more">
+          {{ guides.readMore }}
+          <svg class="lesson-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </div>
+      </a>
     </div>
   </section>
 
   <!-- Roadmap -->
   <section class="home-roadmap">
     <div class="home-roadmap-inner">
-      <h2>Roadmap</h2>
+      <div class="home-roadmap-header">
+        <h2>Roadmap</h2>
+        <span class="home-roadmap-comment">// current release: v0.7.7</span>
+      </div>
       <div class="home-roadmap-timeline">
         <div
           v-for="m in milestones"
@@ -457,8 +606,11 @@ const iconSvgs: Record<string, string> = {
           :class="['home-roadmap-item', `home-roadmap-item--${m.status}`]"
         >
           <div class="home-roadmap-dot"></div>
-          <div class="home-roadmap-content">
-            <span class="home-roadmap-version">v{{ m.version }}</span>
+          <div class="home-roadmap-card">
+            <div class="home-roadmap-card-head">
+              <span class="home-roadmap-version">v{{ m.version }}</span>
+              <span class="home-roadmap-status">{{ m.status === 'done' ? 'Shipped' : m.status === 'active' ? 'Current' : 'Planned' }}</span>
+            </div>
             <span class="home-roadmap-title">{{ m.title }}</span>
             <span v-if="m.date" class="home-roadmap-date">{{ m.date }}</span>
             <span v-if="m.tag" :class="['home-roadmap-tag', m.tagStyle ? `home-roadmap-tag--${m.tagStyle}` : '']">{{ m.tag }}</span>
