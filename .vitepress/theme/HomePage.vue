@@ -564,7 +564,7 @@ const iconSvgs: Record<string, string> = {
   </section>
 
   <!-- Guides & Articles -->
-  <section class="guides">
+  <section id="tutorial" class="guides">
     <div class="guides-header">
       <div v-if="guides.heading" class="section-eyebrow">{{ guides.title }}</div>
       <h2>{{ guides.heading || guides.title }}</h2>

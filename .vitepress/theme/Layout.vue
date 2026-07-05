@@ -9,6 +9,7 @@ import RoadmapPage from './RoadmapPage.vue'
 import DownloadPage from './DownloadPage.vue'
 import DocFeedback from './DocFeedback.vue'
 import LearningMap from './LearningMap.vue'
+import CodeTooltips from './CodeTooltips.vue'
 import { docsSidebar, architectureSidebar } from './sidebarData'
 import { docsSidebarRu, architectureSidebarRu } from './sidebarDataRu'
 import { docsSidebarDe, architectureSidebarDe } from './sidebarDataDe'
@@ -169,5 +170,6 @@ onMounted(() => {
     </div>
 
     <Footer />
+    <CodeTooltips />
   </div>
 </template>

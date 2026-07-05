@@ -24,7 +24,7 @@ const footerLabels: Record<string, Record<string, string>> = {
   en: {
     about: 'Write sync. Run async.',
     project: 'Project', community: 'Community', resources: 'Resources',
-    home: 'Home', docs: 'Documentation', download: 'Download',
+    home: 'Home', docs: 'Documentation', download: 'Download', architecture: 'Architecture',
     issues: 'Issues', discussions: 'Discussions',
     getting_started: 'Getting Started', api_reference: 'API Reference', examples: 'Examples',
     license: 'MIT License.',
@@ -32,7 +32,7 @@ const footerLabels: Record<string, Record<string, string>> = {
   ru: {
     about: 'Настоящее асинхронное программирование для PHP. Встроено в ядро языка.',
     project: 'Проект', community: 'Сообщество', resources: 'Ресурсы',
-    home: 'Главная', docs: 'Документация', download: 'Скачать',
+    home: 'Главная', docs: 'Документация', download: 'Скачать', architecture: 'Архитектура',
     issues: 'Проблемы', discussions: 'Обсуждения',
     getting_started: 'Начало работы', api_reference: 'Справочник API', examples: 'Примеры',
     license: 'Лицензия MIT.',
@@ -40,7 +40,7 @@ const footerLabels: Record<string, Record<string, string>> = {
   de: {
     about: 'Echte asynchrone Primitive für PHP',
     project: 'Projekt', community: 'Community', resources: 'Ressourcen',
-    home: 'Startseite', docs: 'Dokumentation', download: 'Download',
+    home: 'Startseite', docs: 'Dokumentation', download: 'Download', architecture: 'Architektur',
     issues: 'Fehlermeldungen', discussions: 'Diskussionen',
     getting_started: 'Erste Schritte', api_reference: 'API-Referenz', examples: 'Beispiele',
     license: 'Veröffentlicht unter der MIT-Lizenz.',
@@ -48,7 +48,7 @@ const footerLabels: Record<string, Record<string, string>> = {
   es: {
     about: 'Primitivas verdaderamente asíncronas para PHP',
     project: 'Proyecto', community: 'Comunidad', resources: 'Recursos',
-    home: 'Inicio', docs: 'Documentación', download: 'Descargar',
+    home: 'Inicio', docs: 'Documentación', download: 'Descargar', architecture: 'Arquitectura',
     issues: 'Incidencias', discussions: 'Discusiones',
     getting_started: 'Primeros pasos', api_reference: 'Referencia API', examples: 'Ejemplos',
     license: 'Publicado bajo la licencia MIT.',
@@ -56,7 +56,7 @@ const footerLabels: Record<string, Record<string, string>> = {
   fr: {
     about: 'De veritables primitives asynchrones pour PHP',
     project: 'Projet', community: 'Communaute', resources: 'Ressources',
-    home: 'Accueil', docs: 'Documentation', download: 'Telecharger',
+    home: 'Accueil', docs: 'Documentation', download: 'Telecharger', architecture: 'Architecture',
     issues: 'Problemes', discussions: 'Discussions',
     getting_started: 'Premiers pas', api_reference: 'Reference API', examples: 'Exemples',
     license: 'Publie sous licence MIT.',
@@ -64,7 +64,7 @@ const footerLabels: Record<string, Record<string, string>> = {
   it: {
     about: 'Primitive asincrone native per PHP',
     project: 'Progetto', community: 'Comunità', resources: 'Risorse',
-    home: 'Home', docs: 'Documentazione', download: 'Download',
+    home: 'Home', docs: 'Documentazione', download: 'Download', architecture: 'Architettura',
     issues: 'Segnalazioni', discussions: 'Discussioni',
     getting_started: 'Per iniziare', api_reference: 'Riferimento API', examples: 'Esempi',
     license: 'Rilasciato sotto licenza MIT.',
@@ -72,7 +72,7 @@ const footerLabels: Record<string, Record<string, string>> = {
   uk: {
     about: 'Справжні асинхронні примітиви для PHP',
     project: 'Проєкт', community: 'Спільнота', resources: 'Ресурси',
-    home: 'Головна', docs: 'Документація', download: 'Завантажити',
+    home: 'Головна', docs: 'Документація', download: 'Завантажити', architecture: 'Архітектура',
     issues: 'Проблеми', discussions: 'Обговорення',
     getting_started: 'Початок роботи', api_reference: 'Довідник API', examples: 'Приклади',
     license: 'Випущено під ліцензією MIT.',
@@ -80,7 +80,7 @@ const footerLabels: Record<string, Record<string, string>> = {
   zh: {
     about: 'PHP 的真正异步原语',
     project: '项目', community: '社区', resources: '资源',
-    home: '首页', docs: '文档', download: '下载',
+    home: '首页', docs: '文档', download: '下载', architecture: '架构',
     issues: '问题跟踪', discussions: '讨论',
     getting_started: '快速开始', api_reference: 'API 参考', examples: '示例',
     license: '基于 MIT 许可证发布。',
@@ -88,7 +88,7 @@ const footerLabels: Record<string, Record<string, string>> = {
   ko: {
     about: 'PHP를 위한 진정한 비동기 프리미티브',
     project: '프로젝트', community: '커뮤니티', resources: '리소스',
-    home: '홈', docs: '문서', download: '다운로드',
+    home: '홈', docs: '문서', download: '다운로드', architecture: '아키텍처',
     issues: '이슈', discussions: '토론',
     getting_started: '시작하기', api_reference: 'API 레퍼런스', examples: '예제',
     license: 'MIT 라이선스에 따라 배포됩니다.',
@@ -127,6 +127,7 @@ function t(key: string): string {
               <li><a :href="`/${getCurrentLang()}/`">{{ t('home') }}</a></li>
               <li><a :href="`/${getCurrentLang()}/docs.html`">{{ t('docs') }}</a></li>
               <li><a :href="`/${getCurrentLang()}/download.html`">{{ t('download') }}</a></li>
+              <li><a :href="`/${getCurrentLang()}/architecture.html`">{{ t('architecture') }}</a></li>
               <li><a :href="`/${getCurrentLang()}/roadmap.html`">Roadmap</a></li>
             </ul>
           </div>

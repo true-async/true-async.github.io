@@ -19,81 +19,177 @@
     --vp-font-family-base: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
 }
 
-/* ---- VitePress Local Search Overrides ---- */
+/* ---- VitePress Local Search (mockup-styled) ---- */
 .VPLocalSearchBox {
-    --vp-backdrop-bg-color: rgba(0, 0, 0, 0.5);
-    --vp-local-search-bg: #ffffff;
-    --vp-local-search-result-bg: #ffffff;
-    --vp-local-search-result-border: #E5E7EB;
-    --vp-local-search-result-selected-bg: #F3F4F6;
-    --vp-local-search-result-selected-border: #6B58FF;
-    --vp-local-search-highlight-bg: rgba(107, 88, 255, 0.2);
-    --vp-local-search-highlight-text: #6B58FF;
+    --vp-local-search-highlight-bg: rgba(139, 123, 255, 0.22);
+    --vp-local-search-highlight-text: var(--nav-accent);
 }
 .VPLocalSearchBox .backdrop {
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
 }
 .VPLocalSearchBox .shell {
-    background: var(--vp-c-bg);
-    border: 1px solid var(--vp-c-divider);
-    border-radius: 12px;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
-    max-width: 640px;
-    margin: 64px auto;
+    background: var(--nav-dropdown-bg);
+    border: 1px solid var(--nav-dropdown-border);
+    border-radius: 18px;
+    box-shadow: 0 32px 80px -20px rgba(0, 0, 0, 0.6);
+    max-width: 720px;
+    margin: 72px auto;
+    max-height: min(78vh, 720px);
     overflow: hidden;
 }
+
+/* Search bar */
 .VPLocalSearchBox .search-bar {
-    background: var(--vp-c-bg);
-    border-bottom: 1px solid var(--vp-c-divider);
-    padding: 8px 12px;
-}
-.VPLocalSearchBox .search-bar input[type='search'] {
     background: transparent;
-    color: var(--vp-c-text-1);
+    border-bottom: 1px solid var(--color-border);
+    padding: 6px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.VPLocalSearchBox .search-icon {
+    color: var(--nav-primary);
+}
+.VPLocalSearchBox .search-icon.local-search-icon {
+    width: 22px;
+    height: 22px;
+}
+.VPLocalSearchBox #localsearch-label {
+    display: flex;
+    align-items: center;
+}
+.VPLocalSearchBox .search-bar input[type='search'],
+.VPLocalSearchBox #localsearch-input {
+    background: transparent;
+    color: var(--color-text);
     border: none;
     outline: none;
     font-family: var(--font-sans);
-    font-size: 1rem;
+    font-size: 1.125rem;
     width: 100%;
+    height: 56px;
 }
+.VPLocalSearchBox #localsearch-input::placeholder {
+    color: var(--color-text-muted);
+}
+.VPLocalSearchBox .search-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.VPLocalSearchBox .search-actions button {
+    color: var(--color-text-muted);
+    border-radius: 8px;
+    padding: 4px;
+    transition: color 0.2s ease, background-color 0.2s ease;
+}
+.VPLocalSearchBox .search-actions button:hover {
+    color: var(--color-text);
+    background: var(--nav-panel-hover);
+}
+
+/* Results list */
 .VPLocalSearchBox .results {
-    background: var(--vp-c-bg);
+    background: transparent;
     max-height: 60vh;
     overflow-y: auto;
+    padding: 8px;
 }
 .VPLocalSearchBox .result {
-    border-bottom: 1px solid var(--vp-c-divider);
+    margin-bottom: 2px;
+    border: none;
+    border-radius: 12px;
 }
-.VPLocalSearchBox .result.selected,
-.VPLocalSearchBox .result:hover {
-    background: var(--vp-c-bg-soft);
+.VPLocalSearchBox .result.selected {
+    background: var(--nav-dropdown-active);
+    outline: 1px solid var(--nav-dropdown-border);
 }
 .VPLocalSearchBox .result a {
-    color: var(--vp-c-text-1);
+    color: var(--color-text);
     text-decoration: none;
-    display: block;
-    padding: 8px 14px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 14px;
+    border: none;
+}
+.VPLocalSearchBox .result .titles {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 8px;
+    padding-left: 0;
+    z-index: 1;
+}
+/* the '#' rendered as a rounded icon box */
+.VPLocalSearchBox .result .title-icon {
+    flex-shrink: 0;
+    width: 46px;
+    height: 46px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--nav-icon-bg);
+    border: 1px solid var(--nav-border);
+    border-radius: 12px;
+    color: var(--nav-accent);
+    font-family: var(--font-mono);
+    font-size: 1.05rem;
+    opacity: 1;
+    margin-right: 2px;
 }
 .VPLocalSearchBox .result .title {
+    color: var(--color-text-secondary);
+    font-size: 0.9rem;
+    font-weight: 500;
+    line-height: 1.3;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.VPLocalSearchBox .result .title.main {
+    color: var(--color-text);
+    font-size: 1.0625rem;
     font-weight: 600;
-    color: var(--vp-c-text-1);
+    width: 100%;
+    order: -1;
 }
-.VPLocalSearchBox .result .excerpt {
-    color: var(--vp-c-text-2);
-    font-size: 0.85em;
+.VPLocalSearchBox .result .title .text {
+    color: inherit;
 }
+.VPLocalSearchBox .result .title .local-search-icon {
+    color: var(--color-text-muted);
+    opacity: 0.7;
+}
+.VPLocalSearchBox .result .excerpt-wrapper {
+    display: none;
+}
+
+/* Keyboard shortcuts footer */
 .VPLocalSearchBox .search-keyboard-shortcuts {
-    background: var(--vp-c-bg-alt);
-    border-top: 1px solid var(--vp-c-divider);
-    padding: 6px 14px;
+    background: transparent;
+    border-top: 1px solid var(--color-border);
+    padding: 10px 16px;
     font-size: 0.8em;
-    color: var(--vp-c-text-3);
+    color: var(--color-text-muted);
+}
+.VPLocalSearchBox .search-keyboard-shortcuts kbd {
+    background: var(--nav-panel);
+    border: 1px solid var(--nav-border);
+    border-radius: 6px;
+    color: var(--color-text-secondary);
 }
 .VPLocalSearchBox mark {
-    background: rgba(107, 88, 255, 0.2);
-    color: var(--vp-c-brand-1);
-    border-radius: 2px;
-    padding: 0 1px;
+    background: var(--vp-local-search-highlight-bg);
+    color: var(--nav-accent);
+    border-radius: 3px;
+    padding: 0 2px;
+}
+.VPLocalSearchBox .no-results {
+    color: var(--color-text-muted);
+    padding: 2rem;
+    text-align: center;
 }
 
 /* ---- VitePress Icon System (for search shortcuts) ---- */
@@ -171,6 +267,7 @@
     --nav-dropdown-border: #E4E0F0;
     --nav-dropdown-active: #EEE9FA;
     --nav-icon-bg: #F2F0F9;
+    --scrollbar-hover: #C9C3DD;
     --navbar-h: 78px;
 
     --font-sans: 'Space Grotesk', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -209,6 +306,7 @@
     --nav-dropdown-border: #332D4E;
     --nav-dropdown-active: #241E40;
     --nav-icon-bg: #1D1A2E;
+    --scrollbar-hover: #463E68;
 
     --vp-c-brand-1: #8B7BFF;
     --vp-c-brand-2: #6A54F5;
@@ -221,6 +319,29 @@
     --vp-c-text-3: #6C6A7B;
     --vp-c-divider: #2E2846;
     --vp-c-white: #17142B;
+}
+
+/* ---- Global scrollbars (mockup-exact) ---- */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--nav-dropdown-border) transparent;
+}
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: var(--nav-dropdown-border);
+    border-radius: 8px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-hover);
+    background-clip: padding-box;
 }
 
 [data-theme="dark"] .nav-icon--section {
@@ -839,19 +960,21 @@ h1, h2, h3, h4, h5, h6 {
     font-size: 0.84rem;
     color: var(--color-text-secondary);
     border-radius: var(--radius-md);
-    transition: all 0.1s ease;
+    border-left: 2px solid transparent;
+    transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
     margin-bottom: 0.0625rem;
     text-decoration: none;
 }
 
 .docs-nav a:hover {
     color: var(--color-text);
-    background: var(--color-bg-subtle);
+    background: var(--nav-panel-hover);
 }
 
 .docs-nav a.active {
-    color: var(--color-primary);
-    background: rgba(107, 88, 255, 0.06);
+    color: var(--nav-accent);
+    background: var(--nav-panel-hover);
+    border-left-color: var(--nav-primary);
     font-weight: 500;
 }
 
@@ -889,18 +1012,20 @@ h1, h2, h3, h4, h5, h6 {
     font-size: 0.84rem;
     color: var(--color-text-secondary);
     border-radius: var(--radius-md);
-    transition: all 0.1s ease;
+    border-left: 2px solid transparent;
+    transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
     text-decoration: none;
 }
 
 .docs-nav-item-parent > a:hover {
     color: var(--color-text);
-    background: var(--color-bg-subtle);
+    background: var(--nav-panel-hover);
 }
 
 .docs-nav-item-parent > a.active {
-    color: var(--color-primary);
-    background: rgba(107, 88, 255, 0.06);
+    color: var(--nav-accent);
+    background: var(--nav-panel-hover);
+    border-left-color: var(--nav-primary);
     font-weight: 500;
 }
 
@@ -3082,4 +3207,66 @@ a.feature-card--link:hover .feature-card-glow {
     .release-file-hash {
         font-size: 0.625rem;
     }
+}
+
+/* ---- API hover tooltips in code blocks ---- */
+.api-term {
+    cursor: help;
+    border-radius: 3px;
+    text-decoration: underline dotted var(--nav-accent);
+    text-underline-offset: 3px;
+    transition: background-color 0.15s ease;
+}
+.api-term:hover {
+    background: rgba(139, 123, 255, 0.22);
+}
+
+.api-tooltip {
+    position: fixed;
+    z-index: 300;
+    width: 360px;
+    max-width: calc(100vw - 24px);
+    padding: 16px 18px;
+    background: var(--nav-dropdown-bg);
+    border: 1px solid var(--nav-dropdown-border);
+    border-radius: 14px;
+    box-shadow: 0 24px 60px -18px rgba(0, 0, 0, 0.65);
+    animation: apiTipIn 0.14s ease;
+}
+.api-tooltip--up {
+    transform: translateY(-100%);
+}
+@keyframes apiTipIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+.api-tooltip-sig {
+    font-family: var(--font-mono);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--color-text);
+    line-height: 1.45;
+    margin-bottom: 10px;
+}
+.api-tooltip-desc {
+    font-size: 0.875rem;
+    line-height: 1.55;
+    color: var(--color-text-secondary);
+    margin-bottom: 14px;
+}
+.api-tooltip-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--nav-primary);
+    text-decoration: none;
+}
+.api-tooltip-link:hover {
+    color: var(--nav-accent);
+}
+.api-tooltip-link svg {
+    width: 14px;
+    height: 14px;
 }

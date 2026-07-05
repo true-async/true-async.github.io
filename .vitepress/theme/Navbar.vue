@@ -67,19 +67,19 @@ const navItems = [
   { key: 'docs', path: '/docs.html', icon: '<path d="M6.5 3H20v18H6.5A2.5 2.5 0 0 1 4 18.5v-13A2.5 2.5 0 0 1 6.5 3zM4 18.5A2.5 2.5 0 0 1 6.5 16H20"/>' },
   { key: 'download', path: '/download.html', icon: '<path d="M12 3v12M7 10l5 5 5-5M5 21h14"/>' },
   { key: 'rfc', path: '/rfc.html', icon: '<path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9zM14 3v6h6M9 13h6M9 17h6"/>' },
-  { key: 'architecture', path: '/architecture.html', icon: '<path d="M12 2l9 5-9 5-9-5zM3 12l9 5 9-5M3 17l9 5 9-5"/>' },
+  { key: 'tutorial', path: '/#tutorial', icon: '<path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1 2.7 2.5 6 2.5s6-1.5 6-2.5v-5"/><path d="M22 10v6"/>' },
 ]
 
 const navLabels: Record<string, Record<string, string>> = {
-  en: { home: 'Home', docs: 'Documentation', download: 'Download', rfc: 'RFC', motivation: 'Motivation', architecture: 'Architecture', contributing: 'Contributing' },
-  ru: { home: 'Главная', docs: 'Документация', download: 'Скачать', rfc: 'RFC', motivation: 'Мотивация', architecture: 'Архитектура', contributing: 'Участие' },
-  de: { home: 'Startseite', docs: 'Dokumentation', download: 'Download', rfc: 'RFC', motivation: 'Motivation', architecture: 'Architektur', contributing: 'Mitmachen' },
-  fr: { home: 'Accueil', docs: 'Documentation', download: 'Telecharger', rfc: 'RFC', motivation: 'Motivation', architecture: 'Architecture', contributing: 'Contribuer' },
-  es: { home: 'Inicio', docs: 'Documentación', download: 'Descargar', rfc: 'RFC', motivation: 'Motivación', architecture: 'Arquitectura', contributing: 'Contribuir' },
-  it: { home: 'Home', docs: 'Documentazione', download: 'Download', rfc: 'RFC', motivation: 'Motivazione', architecture: 'Architettura', contributing: 'Contribuire' },
-  uk: { home: 'Головна', docs: 'Документація', download: 'Завантажити', rfc: 'RFC', motivation: 'Мотивація', architecture: 'Архітектура', contributing: 'Участь' },
-  zh: { home: '首页', docs: '文档', download: '下载', rfc: 'RFC', motivation: '动机', architecture: '架构', contributing: '参与贡献' },
-  ko: { home: '홈', docs: '문서', download: '다운로드', rfc: 'RFC', motivation: '동기', architecture: '아키텍처', contributing: '기여하기' },
+  en: { home: 'Home', docs: 'Documentation', download: 'Download', rfc: 'RFC', tutorial: 'Tutorial', motivation: 'Motivation', architecture: 'Architecture', contributing: 'Contributing' },
+  ru: { home: 'Главная', docs: 'Документация', download: 'Скачать', rfc: 'RFC', tutorial: 'Туториал', motivation: 'Мотивация', architecture: 'Архитектура', contributing: 'Участие' },
+  de: { home: 'Startseite', docs: 'Dokumentation', download: 'Download', rfc: 'RFC', tutorial: 'Tutorial', motivation: 'Motivation', architecture: 'Architektur', contributing: 'Mitmachen' },
+  fr: { home: 'Accueil', docs: 'Documentation', download: 'Telecharger', rfc: 'RFC', tutorial: 'Tutoriel', motivation: 'Motivation', architecture: 'Architecture', contributing: 'Contribuer' },
+  es: { home: 'Inicio', docs: 'Documentación', download: 'Descargar', rfc: 'RFC', tutorial: 'Tutorial', motivation: 'Motivación', architecture: 'Arquitectura', contributing: 'Contribuir' },
+  it: { home: 'Home', docs: 'Documentazione', download: 'Download', rfc: 'RFC', tutorial: 'Tutorial', motivation: 'Motivazione', architecture: 'Architettura', contributing: 'Contribuire' },
+  uk: { home: 'Головна', docs: 'Документація', download: 'Завантажити', rfc: 'RFC', tutorial: 'Туторіал', motivation: 'Мотивація', architecture: 'Архітектура', contributing: 'Участь' },
+  zh: { home: '首页', docs: '文档', download: '下载', rfc: 'RFC', tutorial: '教程', motivation: '动机', architecture: '架构', contributing: '参与贡献' },
+  ko: { home: '홈', docs: '문서', download: '다운로드', rfc: 'RFC', tutorial: '튜토리얼', motivation: '동기', architecture: '아키텍처', contributing: '기여하기' },
 }
 
 function getCurrentLang(): string {
