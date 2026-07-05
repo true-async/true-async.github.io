@@ -267,6 +267,7 @@
     --nav-dropdown-border: #E4E0F0;
     --nav-dropdown-active: #EEE9FA;
     --nav-icon-bg: #F2F0F9;
+    --chip-text: #6A4BEA;
     --scrollbar-hover: #C9C3DD;
     --navbar-h: 78px;
 
@@ -306,6 +307,7 @@
     --nav-dropdown-border: #332D4E;
     --nav-dropdown-active: #241E40;
     --nav-icon-bg: #1D1A2E;
+    --chip-text: #C4B9FF;
     --scrollbar-hover: #463E68;
 
     --vp-c-brand-1: #8B7BFF;
@@ -3209,29 +3211,51 @@ a.feature-card--link:hover .feature-card-glow {
     }
 }
 
-/* ---- API hover tooltips in code blocks ---- */
+/* ---- API hover tooltips in code blocks (mockup-exact) ---- */
 .api-term {
-    cursor: help;
+    position: relative;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: background-color 0.15s ease, filter 0.15s ease;
+}
+.api-term::after {
+    content: '?';
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 13px;
+    height: 13px;
+    font-size: 9px;
+    line-height: 1;
+    vertical-align: super;
+    margin-left: 2.5px;
+    opacity: 0.85;
+    background: rgba(120, 116, 140, 0.14);
+    color: #6b6780;
     border-radius: 3px;
-    text-decoration: underline dotted var(--nav-accent);
-    text-underline-offset: 3px;
-    transition: background-color 0.15s ease;
+    font-family: var(--font-sans);
+    font-weight: 700;
 }
 .api-term:hover {
-    background: rgba(139, 123, 255, 0.22);
+    background: rgba(139, 123, 255, 0.14);
+    filter: brightness(1.18);
+}
+.api-term:hover::after {
+    background: rgba(120, 116, 140, 0.22);
+    opacity: 0.9;
 }
 
 .api-tooltip {
     position: fixed;
     z-index: 300;
-    width: 360px;
+    width: 300px;
     max-width: calc(100vw - 24px);
-    padding: 16px 18px;
     background: var(--nav-dropdown-bg);
     border: 1px solid var(--nav-dropdown-border);
-    border-radius: 14px;
-    box-shadow: 0 24px 60px -18px rgba(0, 0, 0, 0.65);
-    animation: apiTipIn 0.14s ease;
+    border-radius: 12px;
+    box-shadow: 0 22px 54px -16px rgba(0, 0, 0, 0.78);
+    overflow: hidden;
+    animation: apiTipIn 0.16s ease;
 }
 .api-tooltip--up {
     transform: translateY(-100%);
@@ -3242,31 +3266,36 @@ a.feature-card--link:hover .feature-card-glow {
 }
 .api-tooltip-sig {
     font-family: var(--font-mono);
-    font-size: 0.9375rem;
-    font-weight: 500;
-    color: var(--color-text);
-    line-height: 1.45;
-    margin-bottom: 10px;
+    font-size: 12.5px;
+    color: var(--chip-text);
+    padding: 12px 15px 9px;
+    border-bottom: 1px solid var(--nav-border);
+    word-break: break-word;
+    line-height: 1.4;
+}
+.api-tooltip-body {
+    padding: 11px 15px 13px;
 }
 .api-tooltip-desc {
-    font-size: 0.875rem;
+    font-size: 13px;
     line-height: 1.55;
     color: var(--color-text-secondary);
-    margin-bottom: 14px;
 }
 .api-tooltip-link {
     display: inline-flex;
     align-items: center;
-    gap: 7px;
-    font-size: 0.8125rem;
+    gap: 6px;
+    margin-top: 10px;
+    font-size: 11.5px;
     font-weight: 600;
-    color: var(--nav-primary);
+    letter-spacing: 0.02em;
+    color: var(--nav-accent);
     text-decoration: none;
 }
 .api-tooltip-link:hover {
-    color: var(--nav-accent);
+    color: var(--nav-primary);
 }
 .api-tooltip-link svg {
-    width: 14px;
-    height: 14px;
+    width: 13px;
+    height: 13px;
 }
