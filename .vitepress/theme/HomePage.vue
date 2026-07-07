@@ -76,23 +76,24 @@ const i18n: Record<string, HomeI18n> = {
   },
   ru: {
     hero: {
-      badge: 'Экспериментальная версия',
-      title: 'Настоящая асинхронность для PHP',
+      badge: 'Экспериментальное ядро · v0.7.7',
+      title: 'Настоящая асинхронность внутри <span class="hero-accent">PHP</span>',
+      slogan: 'Пиши синхронно. Выполняй асинхронно.',
       description: 'Представьте PHP с корутинами, где знакомые функции поддерживают конкурентный ввод вывод. Создавайте высокопроизводительные конкурентные приложения с чистым, читаемым кодом и минимумом изменений!',
       buttons: [
-        { label: 'Начать работу', url: '/ru/docs.html', style: 'primary' },
+        { label: 'Начать работу', url: '/ru/docs.html', style: 'primary', icon: 'arrow' },
         { label: 'Как работают корутины', url: '/ru/interactive/coroutine-demo.html', style: 'secondary', external: true },
-        { label: 'Скачать', url: '/ru/download.html', style: 'secondary' },
-        { label: 'Discord', url: 'https://discord.gg/yqBQPBHKp5', style: 'secondary', external: true },
+        { label: 'Скачать', url: '/ru/download.html', style: 'accent', icon: 'download' },
       ],
     },
     features: {
       title: 'Ключевые возможности',
+      heading: 'API, готовый к продакшену',
       items: [
         { title: 'Корутины', icon: 'coroutines', url: '/ru/docs/components/coroutines.html', text: 'Лёгкие корутины для эффективного конкурентного выполнения. Никаких цветных <code>async</code> функций. Просто делай <code>spawn()</code> и вперёд!' },
         { title: 'Неблокирующий I/O', icon: 'io', url: '/ru/docs/reference/supported-functions.html', text: '<code>fread</code>, <code>fwrite</code>, <code>file_get_contents</code>, <code>ob_start</code>, <code>curl</code>, <code>MySQL</code>, <code>PostgreSQL</code>. Обычные функции PHP теперь работают асинхронно без дополнительных усилий.' },
         { title: 'TrueAsync Server', icon: 'web-servers', url: '/ru/docs/server/index.html', text: 'Нативный Web-сервер на C с поддержкой <code>HTTP/1.1</code>, <code>HTTP/2</code> и <code>HTTP/3</code> прямо внутри PHP-процесса.' },
-        { title: 'Корпоративная отмена', icon: 'cancellation', url: '/ru/docs/components/cancellation.html', text: 'Простой и гибкий <code>API</code> для отмены корутин. <code>Scope::cancel()</code>.' },
+        { title: 'Кооперативная отмена', icon: 'cancellation', url: '/ru/docs/components/cancellation.html', text: 'Простой и гибкий <code>API</code> для отмены корутин. <code>Scope::cancel()</code>.' },
         { title: 'Структурная конкурентность', icon: 'structured-concurrency', url: '/ru/docs/components/scope.html', text: 'Контроль времени жизни корутин с помощью песочницы <code>Scope</code>. Управление группой корутин через <code>TaskGroup</code>' },
         { title: 'PDO Pool', icon: 'pdo-pool', url: '/ru/docs/components/pdo-pool.html', text: 'Поддержка пула соединений прямо в <code>PDO</code>. Автоматическое управление коннектами для максимальной производительности.' },
         { title: 'Channel · ThreadPool', icon: 'channel', url: '/ru/docs/components/channels.html', text: 'Обмен данными между корутинами. Буферизованные и небуферизованные каналы. Межпотоковая передача через <code>ThreadChannel</code>; параллельные CPU-задачи через <code>Thread</code> и <code>ThreadPool</code>.' },
@@ -102,6 +103,7 @@ const i18n: Record<string, HomeI18n> = {
     },
     guides: {
       title: 'Руководства и статьи',
+      heading: 'Осваивайте TrueAsync на практике',
       description: 'Практические материалы: от первой корутины до структурной конкурентности и встроенного сервера.',
       readMore: 'Читать статью',
       items: [

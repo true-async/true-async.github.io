@@ -42,6 +42,40 @@ const props = defineProps<{
   open?: boolean
 }>()
 
+const emit = defineEmits<{ (e: 'close'): void }>()
+
+// Swipe-left-to-dismiss for the open mobile drawer (touch or held-mouse drag).
+// The drawer slides in from the left, so a leftward swipe pushes it back out.
+let swStartX = 0
+let swStartY = 0
+let swTracking = false
+
+function onSbPointerDown(e: PointerEvent) {
+  if (!props.open) return
+  if (e.pointerType === 'mouse' && e.button !== 0) return
+  swStartX = e.clientX
+  swStartY = e.clientY
+  swTracking = true
+}
+
+function onSbPointerMove(e: PointerEvent) {
+  if (!swTracking) return
+  if (e.pointerType === 'mouse' && !(e.buttons & 1)) {
+    swTracking = false
+    return
+  }
+  const dx = e.clientX - swStartX
+  const dy = e.clientY - swStartY
+  if (dx < -50 && Math.abs(dx) > Math.abs(dy)) {
+    emit('close')
+    swTracking = false
+  }
+}
+
+function onSbPointerEnd() {
+  swTracking = false
+}
+
 const expandedItems = ref<Set<string>>(new Set())
 
 function isChildActive(item: NavItem): boolean {
@@ -87,7 +121,16 @@ const filteredSidebar = computed(() => {
 </script>
 
 <template>
-  <aside class="docs-sidebar" :class="{ open }" ref="sidebarEl" @click.capture="rememberScroll">
+  <aside
+    class="docs-sidebar"
+    :class="{ open }"
+    ref="sidebarEl"
+    @click.capture="rememberScroll"
+    @pointerdown="onSbPointerDown"
+    @pointermove="onSbPointerMove"
+    @pointerup="onSbPointerEnd"
+    @pointercancel="onSbPointerEnd"
+  >
     <div class="docs-search">
       <svg class="docs-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="11" cy="11" r="8"/>

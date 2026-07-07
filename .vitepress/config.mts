@@ -1,4 +1,38 @@
 import { defineConfig } from 'vitepress'
+import { readdirSync, statSync, existsSync } from 'node:fs'
+import { join, sep } from 'node:path'
+import { fileURLToPath } from 'node:url'
+
+// Collect every real page URL per locale at config time. The language switcher
+// uses this to fall back to the locale home when a page has no translation,
+// instead of navigating to a non-existent path. Works in dev and prod alike
+// (unlike VitePress' prod-only __VP_HASH_MAP__).
+const LOCALES = ['en', 'ru', 'de', 'fr', 'es', 'it', 'uk', 'zh', 'ko']
+const projectRoot = fileURLToPath(new URL('..', import.meta.url))
+
+function collectLocaleRoutes(): string[] {
+  const routes: string[] = []
+  for (const loc of LOCALES) {
+    const dir = join(projectRoot, loc)
+    if (!existsSync(dir)) continue
+    const stack = [dir]
+    while (stack.length) {
+      const cur = stack.pop() as string
+      for (const name of readdirSync(cur)) {
+        const full = join(cur, name)
+        if (statSync(full).isDirectory()) { stack.push(full); continue }
+        if (!name.endsWith('.md')) continue
+        const rel = full.slice(projectRoot.length).split(sep).join('/')
+        if (rel === `${loc}/docs.md`) continue // srcExcluded, served via rewrite
+        routes.push('/' + rel.replace(/\.md$/, '.html'))
+      }
+    }
+    routes.push(`/${loc}/docs.html`) // provided by the vitepress-docs rewrite
+  }
+  return routes
+}
+
+const localeRoutes = collectLocaleRoutes()
 
 // Custom Shiki themes matching the TrueAsync mockup code palette
 // (purple variables, purple functions, teal keywords/classes, orange strings).
@@ -75,6 +109,9 @@ export default defineConfig({
   ignoreDeadLinks: true,
 
   head: [
+    // Apply the saved/system theme synchronously, before first paint, so the
+    // page never flashes light-then-dark on reload (no FOUC).
+    ['script', {}, "(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||(!t&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.setAttribute('data-theme','dark');}}catch(e){}})();"],
     ['link', { rel: 'preconnect', href: 'https://fonts.googleapis.com' }],
     ['link', { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' }],
     ['link', { href: 'https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap', rel: 'stylesheet' }],
@@ -111,6 +148,7 @@ export default defineConfig({
     search: {
       provider: 'local',
     },
+    localeRoutes,
   },
 
   locales: {

@@ -256,12 +256,18 @@
     --color-border: #E6E2F1;
     --color-card-border: rgba(0, 0, 0, 0.05);
     --color-code-bg: #F0EDF9;
+    /* Inline code (Variant A — lilac tint, borderless) */
+    --code-inline-bg: #EAE6FB;
+    --code-inline-text: #5333C9;
 
     /* Navbar (mockup-exact) */
     --nav-primary: #6A54F5;
     --nav-accent: #8B7BFF;
     --nav-panel: #FFFFFF;
     --nav-panel-hover: #F0EDF9;
+    /* Docs sidebar active item (Variant 1 — filled lilac pill) */
+    --nav-active-bg: #EEEDFE;
+    --nav-active-text: #3C3489;
     --nav-border: #DCD7EC;
     --nav-dropdown-bg: #FFFFFF;
     --nav-dropdown-border: #E4E0F0;
@@ -303,12 +309,18 @@
     --color-border: #2E2846;
     --color-card-border: rgba(255, 255, 255, 0.08);
     --color-code-bg: #28223F;
+    /* Inline code (Variant A — lilac tint, borderless) */
+    --code-inline-bg: #2B2551;
+    --code-inline-text: #CFC5F5;
 
     /* Navbar (mockup-exact) */
     --nav-primary: #6A54F5;
     --nav-accent: #8B7BFF;
     --nav-panel: #221C3B;
     --nav-panel-hover: #28223F;
+    /* Docs sidebar active item (Variant 1 — filled lilac pill) */
+    --nav-active-bg: #2C2551;
+    --nav-active-text: #CFC7FF;
     --nav-border: #2C2940;
     --nav-dropdown-bg: #1A1630;
     --nav-dropdown-border: #332D4E;
@@ -383,9 +395,9 @@
 
 [data-theme="dark"] .docs-content code,
 [data-theme="dark"] .page-content code {
-    background: #2d2848;
-    color: #d4d0f0;
-    border: 1px solid rgba(155, 143, 255, 0.15);
+    background: var(--code-inline-bg);
+    color: var(--code-inline-text);
+    border: none;
 }
 
 [data-theme="dark"] .docs-content pre code,
@@ -501,22 +513,17 @@ h1, h2, h3, h4, h5, h6 {
     height: var(--navbar-h);
 }
 
+/* Single frame width shared by the navbar, the homepage sections and the docs
+   grid, so the logo sits at the same spot on every page (no horizontal jump)
+   and lines up with the content's left edge. */
 .navbar-inner {
-    max-width: 1240px;
+    max-width: 90rem;
     margin: 0 auto;
-    padding: 0 32px;
+    padding: 0 1.75rem;
     display: flex;
     align-items: center;
     height: 100%;
     gap: 24px;
-}
-
-/* On docs/architecture pages the navbar aligns to the wider docs grid so the
-   logo lines up with the sidebar's left edge. */
-[data-page-layout="docs"] .navbar-inner,
-[data-page-layout="architecture"] .navbar-inner {
-    max-width: 90rem;
-    padding: 0 1.75rem;
 }
 
 .navbar-brand {
@@ -540,6 +547,13 @@ h1, h2, h3, h4, h5, h6 {
 .navbar-brand:hover img {
     animation: logoPlasma 1.8s linear infinite;
 }
+
+/* Theme-aware logo toggled purely by CSS via the data-theme attribute (set in a
+   <head> script before first paint), so the correct variant shows immediately
+   with no reload flash. Applies to both the navbar and footer brand marks. */
+.brand-logo--dark { display: none; }
+[data-theme="dark"] .brand-logo--light { display: none; }
+[data-theme="dark"] .brand-logo--dark { display: block; }
 
 @keyframes logoPlasma {
     0% { filter: hue-rotate(0deg); }
@@ -869,11 +883,15 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .docs-sidebar {
-    padding: 1.75rem 0.5rem 3rem 0;
+    padding: 1rem 0.6rem 1.25rem;
     position: sticky;
-    top: var(--navbar-h);
-    height: calc(100vh - var(--navbar-h));
+    top: calc(var(--navbar-h) + 1.25rem);
+    height: calc(100vh - var(--navbar-h) - 2.5rem);
+    margin-top: 1.25rem;
     overflow-y: auto;
+    background: var(--nav-panel);
+    border: 1px solid var(--color-border);
+    border-radius: 14px;
     scrollbar-width: thin;
     scrollbar-color: var(--nav-dropdown-border) transparent;
 }
@@ -1054,8 +1072,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .docs-nav a.active {
-    color: var(--nav-accent);
-    background: var(--nav-panel-hover);
+    color: var(--nav-active-text);
+    background: var(--nav-active-bg);
     border-left-color: var(--nav-primary);
     font-weight: 500;
 }
@@ -1105,8 +1123,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .docs-nav-item-parent > a.active {
-    color: var(--nav-accent);
-    background: var(--nav-panel-hover);
+    color: var(--nav-active-text);
+    background: var(--nav-active-bg);
     border-left-color: var(--nav-primary);
     font-weight: 500;
 }
@@ -1164,8 +1182,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .docs-nav-sub a.active {
-    color: var(--nav-accent);
-    background: var(--nav-panel-hover);
+    color: var(--nav-active-text);
+    background: var(--nav-active-bg);
     border-left-color: var(--nav-primary);
     font-weight: 500;
 }
@@ -1337,10 +1355,9 @@ h1, h2, h3, h4, h5, h6 {
 .docs-content code {
     font-family: var(--font-mono);
     font-size: 0.8125rem;
-    color: var(--chip-text);
-    background: var(--nav-panel);
-    border: 1px solid var(--nav-border);
-    padding: 1px 6px;
+    color: var(--code-inline-text);
+    background: var(--code-inline-bg);
+    padding: 2px 6px;
     border-radius: 5px;
 }
 
@@ -1756,18 +1773,22 @@ mjx-container[display="true"] {
     display: none;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.75rem 1rem;
-    background: var(--color-bg-subtle);
-    border-bottom: 1px solid var(--color-border);
-    font-size: 0.875rem;
+    padding: 0.5rem 0.95rem;
+    background: var(--nav-active-bg);
+    border: 1px solid rgba(106, 84, 245, 0.22);
+    border-radius: 999px;
+    font-size: 0.85rem;
     font-weight: 500;
-    color: var(--color-text-secondary);
+    color: var(--nav-active-text);
     cursor: pointer;
-    width: 100%;
+    width: auto;
+    justify-self: start;
+    margin-bottom: 1rem;
     text-align: left;
-    border: none;
     font-family: var(--font-sans);
 }
+
+.docs-sidebar-toggle svg { color: var(--color-primary); }
 
 .docs-sidebar-backdrop { display: none; }
 
@@ -1788,16 +1809,28 @@ mjx-container[display="true"] {
     .navbar-menu {
         display: none;
         position: fixed;
-        inset: 0;
         top: var(--navbar-h);
-        background: var(--color-bg);
+        left: 0;
+        right: 0;
+        bottom: auto;
+        background: color-mix(in srgb, var(--color-bg) 82%, transparent);
+        -webkit-backdrop-filter: blur(12px);
+        backdrop-filter: blur(12px);
         border-top: 1px solid var(--color-border);
+        border-bottom: 1px solid var(--color-border);
         flex-direction: column;
         padding: 1rem;
         gap: 0;
         z-index: 99;
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        max-height: calc(100vh - var(--navbar-h));
         overflow-y: auto;
+    }
+
+    /* Dark theme: push transparency further so the frosted-glass reads
+       against dark-on-dark content behind the panel. */
+    [data-theme="dark"] .navbar-menu {
+        background: color-mix(in srgb, var(--color-bg) 66%, transparent);
     }
 
     .navbar-menu.open { display: flex; }
@@ -1840,7 +1873,12 @@ mjx-container[display="true"] {
         bottom: 0;
         width: 17rem;
         max-width: 85vw;
+        height: auto;
+        margin-top: 0;
         background: var(--color-bg);
+        border: none;
+        border-right: 1px solid var(--color-border);
+        border-radius: 0;
         z-index: 50;
         box-shadow: 4px 0 16px rgba(0, 0, 0, 0.1);
         padding: 1rem 0.75rem;
@@ -1898,7 +1936,7 @@ mjx-container[display="true"] {
 .page-content ul { list-style: disc; }
 .page-content ol { list-style: decimal; }
 .page-content li { margin-bottom: 0.375rem; line-height: 1.7; color: var(--color-text-secondary); }
-.page-content code { background: var(--color-code-bg); padding: 0.125rem 0.375rem; border-radius: var(--radius-md); font-size: 0.8125rem; }
+.page-content code { background: var(--code-inline-bg); color: var(--code-inline-text); padding: 2px 6px; border-radius: 5px; font-size: 0.8125rem; }
 .page-content pre code { background: none; padding: 0; }
 .page-content a { color: var(--color-primary); text-decoration: underline; text-decoration-color: rgba(107, 88, 255, 0.3); text-underline-offset: 2px; }
 .page-content a:hover { text-decoration-color: var(--color-primary); }
@@ -1983,7 +2021,7 @@ mjx-container[display="true"] {
 
 .hero {
     position: relative;
-    padding: calc(var(--navbar-h) + 4.25rem) 2rem 4.75rem;
+    padding: calc(var(--navbar-h) + 4.25rem) 0 4.75rem;
     overflow: hidden;
     background: var(--color-bg);
     border-bottom: 1px solid var(--color-border);
@@ -2077,8 +2115,9 @@ mjx-container[display="true"] {
 .hero-grid {
     position: relative;
     z-index: 1;
-    max-width: 1240px;
+    max-width: 90rem;
     margin: 0 auto;
+    padding: 0 1.75rem;
     display: grid;
     grid-template-columns: 1fr;
     gap: 2.5rem;
@@ -2341,7 +2380,7 @@ mjx-container[display="true"] {
 .features {
     position: relative;
     z-index: 10;
-    padding: 3rem 1rem 4rem;
+    padding: 3rem 0 4rem;
 }
 
 .section-eyebrow {
@@ -2355,8 +2394,9 @@ mjx-container[display="true"] {
 
 .features-header {
     text-align: center;
-    max-width: 80rem;
+    max-width: 90rem;
     margin: 0 auto 3rem;
+    padding: 0 1.75rem;
 }
 
 .features-header h2 {
@@ -2368,8 +2408,9 @@ mjx-container[display="true"] {
 .features-grid {
     display: grid;
     gap: 1rem;
-    max-width: 80rem;
+    max-width: 90rem;
     margin: 0 auto;
+    padding: 0 1.75rem;
     grid-template-columns: 1fr;
 }
 
@@ -2481,7 +2522,7 @@ a.feature-card--link:hover .feature-card-glow {
 .guides {
     position: relative;
     z-index: 10;
-    padding: 4rem 1rem;
+    padding: 4rem 0;
     border-top: 1px solid var(--color-border);
 }
 
@@ -2489,6 +2530,7 @@ a.feature-card--link:hover .feature-card-glow {
     text-align: center;
     max-width: 40rem;
     margin: 0 auto 3rem;
+    padding: 0 1.75rem;
 }
 
 .guides-header h2 {
@@ -2507,8 +2549,9 @@ a.feature-card--link:hover .feature-card-glow {
 .guides-grid {
     display: grid;
     gap: 1rem;
-    max-width: 80rem;
+    max-width: 90rem;
     margin: 0 auto;
+    padding: 0 1.75rem;
     grid-template-columns: 1fr;
 }
 
@@ -2622,13 +2665,14 @@ a.feature-card--link:hover .feature-card-glow {
 /* ---- Home Roadmap ---- */
 
 .home-roadmap {
-    padding: 4rem 1.5rem;
+    padding: 4rem 0;
     border-top: 1px solid var(--color-border);
 }
 
 .home-roadmap-inner {
-    max-width: 80rem;
+    max-width: 90rem;
     margin: 0 auto;
+    padding: 0 1.75rem;
     text-align: center;
 }
 
@@ -2882,7 +2926,7 @@ a.feature-card--link:hover .feature-card-glow {
 
 @media (max-width: 767px) {
     .hero {
-        padding: calc(var(--navbar-h) + 2rem) 1.25rem 3rem;
+        padding: calc(var(--navbar-h) + 2rem) 0 3rem;
     }
 }
 

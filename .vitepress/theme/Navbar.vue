@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { ref, watch, defineAsyncComponent, onMounted, onUnmounted } from 'vue'
-import { useRoute } from 'vitepress'
+import { useRoute, useData } from 'vitepress'
 
 const VPLocalSearchBox = defineAsyncComponent(() =>
   import('vitepress/dist/client/theme-default/components/VPLocalSearchBox.vue')
 )
 
 const route = useRoute()
+const { theme } = useData()
 const menuOpen = ref(false)
 const langOpen = ref(false)
 const showSearch = ref(false)
@@ -102,13 +103,59 @@ function isActive(key: string): boolean {
 }
 
 function langPath(code: string): string {
-  const path = route.path
   const lang = getCurrentLang()
-  return path.replace(`/${lang}/`, `/${code}/`)
+  const target = route.path.replace(`/${lang}/`, `/${code}/`)
+  const routes: string[] = (theme.value as any).localeRoutes || []
+  if (routes.length === 0) return target // no route data — fall back to naive swap
+  // Match the target against known pages, tolerating the "/" vs "/index.html" forms.
+  const candidates = [target]
+  if (target.endsWith('/')) candidates.push(target + 'index.html')
+  if (target.endsWith('/index.html')) candidates.push(target.slice(0, -'index.html'.length))
+  if (candidates.some((c) => routes.includes(c))) return target
+  // No translation for this page — send the user to the target locale's home.
+  return `/${code}/`
 }
 
 function toggleMenu() {
   menuOpen.value = !menuOpen.value
+}
+
+// Swipe-up-to-dismiss for the open mobile menu (touch or held-mouse drag).
+const menuEl = ref<HTMLElement | null>(null)
+let swipeStartY = 0
+let swipeStartX = 0
+let swipeTracking = false
+
+function onMenuPointerDown(e: PointerEvent) {
+  if (e.pointerType === 'mouse' && e.button !== 0) return
+  swipeStartY = e.clientY
+  swipeStartX = e.clientX
+  swipeTracking = true
+}
+
+function onMenuPointerMove(e: PointerEvent) {
+  if (!swipeTracking) return
+  // A mouse gesture requires the primary button held down.
+  if (e.pointerType === 'mouse' && !(e.buttons & 1)) {
+    swipeTracking = false
+    return
+  }
+  const dy = e.clientY - swipeStartY
+  const dx = e.clientX - swipeStartX
+  // Decisive, mostly-vertical upward swipe.
+  if (dy < -55 && Math.abs(dy) > Math.abs(dx)) {
+    // If the menu can still scroll down, let native scrolling win instead.
+    const el = menuEl.value
+    const atBottom = !el || el.scrollTop + el.clientHeight >= el.scrollHeight - 1
+    if (atBottom) {
+      menuOpen.value = false
+      swipeTracking = false
+    }
+  }
+}
+
+function onMenuPointerEnd() {
+  swipeTracking = false
 }
 
 function toggleLang(e: Event) {
@@ -133,7 +180,8 @@ onUnmounted(() => {
   <nav class="navbar">
     <div class="navbar-inner">
       <a :href="`/${getCurrentLang()}/`" class="navbar-brand">
-        <img :src="isDark ? '/assets/TrueAsync-flame.svg' : '/assets/TrueAsync-flame-light.svg'" alt="TrueAsync" width="34" height="34">
+        <img class="brand-logo brand-logo--light" src="/assets/TrueAsync-flame-light.svg" alt="TrueAsync" width="34" height="34">
+        <img class="brand-logo brand-logo--dark" src="/assets/TrueAsync-flame.svg" alt="" aria-hidden="true" width="34" height="34">
         <span>TrueAsync</span>
       </a>
 
@@ -145,7 +193,15 @@ onUnmounted(() => {
         </svg>
       </button>
 
-      <div class="navbar-menu" :class="{ open: menuOpen }">
+      <div
+        class="navbar-menu"
+        :class="{ open: menuOpen }"
+        ref="menuEl"
+        @pointerdown="onMenuPointerDown"
+        @pointermove="onMenuPointerMove"
+        @pointerup="onMenuPointerEnd"
+        @pointercancel="onMenuPointerEnd"
+      >
         <ul class="navbar-nav">
           <li v-for="item in navItems" :key="item.key">
             <a

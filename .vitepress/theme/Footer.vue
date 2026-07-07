@@ -1,19 +1,7 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vitepress'
 
 const route = useRoute()
-
-const isDark = ref(false)
-let themeObserver: MutationObserver | undefined
-onMounted(() => {
-  isDark.value = document.documentElement.getAttribute('data-theme') === 'dark'
-  themeObserver = new MutationObserver(() => {
-    isDark.value = document.documentElement.getAttribute('data-theme') === 'dark'
-  })
-  themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] })
-})
-onUnmounted(() => themeObserver?.disconnect())
 
 function getCurrentLang(): string {
   const match = route.path.match(/^\/(en|ru|de|fr|es|it|uk|zh|ko)\//)
@@ -107,7 +95,8 @@ function t(key: string): string {
       <div class="footer-grid">
         <div class="footer-about">
           <div class="footer-brand">
-            <img :src="isDark ? '/assets/TrueAsync-flame.svg' : '/assets/TrueAsync-flame-light.svg'" alt="" width="28" height="28">
+            <img class="brand-logo brand-logo--light" src="/assets/TrueAsync-flame-light.svg" alt="" width="28" height="28">
+            <img class="brand-logo brand-logo--dark" src="/assets/TrueAsync-flame.svg" alt="" aria-hidden="true" width="28" height="28">
             <span>TrueAsync</span>
           </div>
           <p>{{ t('about') }}</p>

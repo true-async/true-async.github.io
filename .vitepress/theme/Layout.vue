@@ -105,14 +105,6 @@ watch(sidebarOpen, (open) => {
   }
 })
 
-// Expose the active layout on <html> so the navbar can align its width to the
-// current page container (docs/architecture use a wider grid than the home nav).
-onMounted(() => {
-  const setLayoutAttr = () => document.documentElement.setAttribute('data-page-layout', layout.value)
-  setLayoutAttr()
-  watch(layout, setLayoutAttr)
-})
-
 // Re-render KaTeX math formulas after SPA navigation
 onMounted(() => {
   watch(() => route.path, () => {
@@ -131,7 +123,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div>
+  <div :data-page-layout="layout">
     <Navbar />
 
     <!-- Dynamic region keyed by layout TYPE (not route): switching layouts does
@@ -154,7 +146,7 @@ onMounted(() => {
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
         {{ sidebarToggleLabel }}
       </button>
-      <Sidebar :sidebar="currentDocsSidebar" :open="sidebarOpen" />
+      <Sidebar :sidebar="currentDocsSidebar" :open="sidebarOpen" @close="sidebarOpen = false" />
       <div v-if="sidebarOpen" class="docs-sidebar-backdrop" @click="sidebarOpen = false"></div>
       <main class="docs-content" :key="route.path">
         <div class="docs-breadcrumb">
@@ -187,7 +179,7 @@ onMounted(() => {
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
         {{ sidebarToggleLabel }}
       </button>
-      <Sidebar :sidebar="currentArchSidebar" :open="sidebarOpen" />
+      <Sidebar :sidebar="currentArchSidebar" :open="sidebarOpen" @close="sidebarOpen = false" />
       <div v-if="sidebarOpen" class="docs-sidebar-backdrop" @click="sidebarOpen = false"></div>
       <main class="docs-content" :key="route.path">
         <div class="docs-breadcrumb">
