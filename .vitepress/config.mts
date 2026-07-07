@@ -1,5 +1,38 @@
 import { defineConfig } from 'vitepress'
 
+// Custom Shiki themes matching the TrueAsync mockup code palette
+// (purple variables, purple functions, teal keywords/classes, orange strings).
+const trueAsyncDark = {
+  name: 'trueasync-dark',
+  type: 'dark' as const,
+  colors: { 'editor.background': '#12101F', 'editor.foreground': '#C6C2D6' },
+  tokenColors: [
+    { scope: ['comment', 'punctuation.definition.comment', 'string.comment'], settings: { foreground: '#6f6d80', fontStyle: 'italic' } },
+    { scope: ['variable', 'variable.other', 'variable.other.php', 'variable.language', 'meta.variable', 'punctuation.definition.variable'], settings: { foreground: '#B69BFF' } },
+    { scope: ['entity.name.function', 'support.function', 'meta.function-call', 'meta.function-call.php', 'entity.name.function.php'], settings: { foreground: '#7C6BFF' } },
+    { scope: ['keyword', 'keyword.control', 'keyword.other', 'storage.type', 'storage.modifier', 'keyword.operator.new'], settings: { foreground: '#5AD1B0' } },
+    { scope: ['entity.name.type', 'support.class', 'entity.name.class', 'entity.other.inherited-class', 'support.type'], settings: { foreground: '#5AD1B0' } },
+    { scope: ['string', 'string.quoted', 'punctuation.definition.string'], settings: { foreground: '#7CC7E8' } },
+    { scope: ['constant.numeric', 'constant.language', 'constant.other'], settings: { foreground: '#E8B77C' } },
+    { scope: ['keyword.operator', 'punctuation', 'meta.brace'], settings: { foreground: '#C6C2D6' } },
+  ],
+}
+const trueAsyncLight = {
+  name: 'trueasync-light',
+  type: 'light' as const,
+  colors: { 'editor.background': '#F6F4FC', 'editor.foreground': '#3A3550' },
+  tokenColors: [
+    { scope: ['comment', 'punctuation.definition.comment', 'string.comment'], settings: { foreground: '#8B8798', fontStyle: 'italic' } },
+    { scope: ['variable', 'variable.other', 'variable.other.php', 'variable.language', 'meta.variable', 'punctuation.definition.variable'], settings: { foreground: '#6A4BEA' } },
+    { scope: ['entity.name.function', 'support.function', 'meta.function-call', 'meta.function-call.php', 'entity.name.function.php'], settings: { foreground: '#5B3FD6' } },
+    { scope: ['keyword', 'keyword.control', 'keyword.other', 'storage.type', 'storage.modifier', 'keyword.operator.new'], settings: { foreground: '#1C8F76' } },
+    { scope: ['entity.name.type', 'support.class', 'entity.name.class', 'entity.other.inherited-class', 'support.type'], settings: { foreground: '#1C8F76' } },
+    { scope: ['string', 'string.quoted', 'punctuation.definition.string'], settings: { foreground: '#2C6FCC' } },
+    { scope: ['constant.numeric', 'constant.language', 'constant.other'], settings: { foreground: '#B4711F' } },
+    { scope: ['keyword.operator', 'punctuation', 'meta.brace'], settings: { foreground: '#3A3550' } },
+  ],
+}
+
 export default defineConfig({
   title: 'TrueAsync',
   description: 'True Asynchronous PHP',
@@ -95,10 +128,10 @@ export default defineConfig({
   markdown: {
     // Keep GitHub Flavored Markdown behavior
     breaks: false,
-    // Dual theme for light/dark syntax highlighting
+    // Dual theme for light/dark syntax highlighting (mockup palette)
     theme: {
-      light: 'github-light',
-      dark: 'github-dark',
+      light: trueAsyncLight,
+      dark: trueAsyncDark,
     },
   },
 
