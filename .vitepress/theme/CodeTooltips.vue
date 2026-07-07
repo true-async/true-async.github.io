@@ -21,17 +21,34 @@ function currentLang(): string {
 }
 
 function mark() {
-  // Match leaf token spans whose exact text is a known API symbol.
+  // Match leaf token spans whose text (ignoring surrounding whitespace) is a
+  // known API symbol. When the token span also holds leading/trailing
+  // whitespace (indentation), wrap only the keyword so the underline/badge
+  // never bleeds onto the whitespace.
   const scopes = document.querySelectorAll('main pre code, .hero-panel-code')
   scopes.forEach((scope) => {
     scope.querySelectorAll('span').forEach((span) => {
       const el = span as HTMLElement
       if (el.classList.contains('api-term') || el.children.length) return
-      const text = (el.textContent || '').trim()
-      if (Object.prototype.hasOwnProperty.call(apiGlossary, text)) {
+      const raw = el.textContent || ''
+      const text = raw.trim()
+      if (!Object.prototype.hasOwnProperty.call(apiGlossary, text)) return
+      if (raw === text) {
         el.classList.add('api-term')
         el.dataset.term = text
+        return
       }
+      const start = raw.indexOf(text)
+      const lead = raw.slice(0, start)
+      const trail = raw.slice(start + text.length)
+      el.textContent = ''
+      if (lead) el.appendChild(document.createTextNode(lead))
+      const inner = document.createElement('span')
+      inner.className = 'api-term'
+      inner.dataset.term = text
+      inner.textContent = text
+      el.appendChild(inner)
+      if (trail) el.appendChild(document.createTextNode(trail))
     })
   })
 }
