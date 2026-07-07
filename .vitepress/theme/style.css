@@ -1240,6 +1240,7 @@ h1, h2, h3, h4, h5, h6 {
     padding-top: 2rem;
     border-top: 1px solid var(--color-border);
 }
+.docs-content .docs-pagenav-card,
 .docs-pagenav-card {
     display: flex;
     flex-direction: column;
