@@ -269,9 +269,10 @@
     --nav-icon-bg: #F2F0F9;
     --chip-text: #6A4BEA;
     --scrollbar-hover: #C9C3DD;
-    --code-bg: #F6F4FC;
-    --code-border: #E6E2F1;
-    --code-header-border: #EEEBF6;
+    /* Code blocks stay dark in both themes (mockup) */
+    --code-bg: #12101F;
+    --code-border: #2A2540;
+    --code-header-border: #221D33;
     --notice-bg: #EEF3FF;
     --notice-border: #D4E0F5;
     --notice-icon: #2C6FCC;
@@ -1329,7 +1330,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .docs-content pre code { background: none; padding: 0; border: none; color: inherit; }
-.docs-content div[class*="language-"] code { color: inherit; }
+.docs-content div[class*="language-"] code { color: #C6C2D6; }
 
 .docs-content a {
     color: var(--nav-primary);
@@ -1474,8 +1475,12 @@ div[class*="language-"] .shiki {
     border-radius: 0;
     padding: 16px 18px;
 }
-[data-theme="dark"] div[class*="language-"] pre code {
+div[class*="language-"] pre code {
     color: #C6C2D6;
+}
+/* Code blocks are always dark, so always use the dark (bright) syntax palette */
+div[class*="language-"] .shiki span {
+    color: var(--shiki-dark) !important;
 }
 
 /* Copy button -> header-right, always visible */
