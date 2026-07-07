@@ -708,18 +708,12 @@ const osTabs = [
   {
     name: 'Linux', file: 'build-linux.sh',
     text: `# Ubuntu / Debian - interactive wizard
-curl -fsSL https://raw.githubusercontent.com/true-async/releases/master/installer/build-linux.sh | bash
-
-# non-interactive (CI / automation)
-curl -fsSL https://raw.githubusercontent.com/true-async/releases/master/installer/build-linux.sh | NO_INTERACTIVE=true EXTENSIONS=all SET_DEFAULT=true bash`,
+curl -fsSL https://raw.githubusercontent.com/true-async/releases/master/installer/build-linux.sh | bash`,
   },
   {
     name: 'macOS', file: 'build-macos.sh',
     text: `# Apple Silicon / Intel - needs Homebrew
-curl -fsSL https://raw.githubusercontent.com/true-async/releases/master/installer/build-macos.sh | bash
-
-# non-interactive (CI / automation)
-curl -fsSL https://raw.githubusercontent.com/true-async/releases/master/installer/build-macos.sh | NO_INTERACTIVE=true EXTENSIONS=all SET_DEFAULT=true bash`,
+curl -fsSL https://raw.githubusercontent.com/true-async/releases/master/installer/build-macos.sh | bash`,
   },
 ]
 

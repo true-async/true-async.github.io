@@ -449,6 +449,9 @@ html {
     scroll-behavior: smooth;
     scroll-padding-top: 4.5rem;
     -webkit-text-size-adjust: 100%;
+    /* Always reserve the scrollbar gutter so centered layouts don't shift
+       horizontally when navigating between short and tall pages. */
+    scrollbar-gutter: stable;
 }
 
 body {
