@@ -1231,6 +1231,48 @@ h1, h2, h3, h4, h5, h6 {
     font-size: 12.5px;
 }
 
+/* Prev / next controls (mockup) */
+.docs-pagenav {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--color-border);
+}
+.docs-pagenav-card {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+    max-width: 49%;
+    padding: 16px 20px;
+    border: 1px solid var(--nav-border);
+    border-radius: 12px;
+    text-decoration: none;
+    transition: border-color 0.25s ease, background-color 0.25s ease, transform 0.25s ease;
+}
+.docs-pagenav-card:hover {
+    border-color: var(--nav-primary);
+    background: var(--nav-panel-hover);
+    transform: translateY(-2px);
+}
+.docs-pagenav-card--next {
+    text-align: right;
+    margin-left: auto;
+    align-items: flex-end;
+}
+.docs-pagenav-dir {
+    font-size: 12px;
+    color: var(--color-text-muted);
+}
+.docs-pagenav-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--color-text);
+}
+.docs-pagenav-spacer { flex: 1; }
+
 .docs-content h1 {
     font-size: 2.5rem;
     font-weight: 700;

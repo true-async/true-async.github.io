@@ -69,6 +69,24 @@ const breadcrumb = computed(() => {
   return { group: layout.value === 'architecture' ? 'Architecture' : 'Documentation', item }
 })
 
+// Prev / next controls at the bottom, derived from the sidebar order.
+const pageNav = computed(() => {
+  const sb = layout.value === 'architecture' ? currentArchSidebar.value : currentDocsSidebar.value
+  const flat: { url: string; label: string }[] = []
+  for (const grp of sb) {
+    for (const it of (grp.items || [])) {
+      flat.push({ url: it.url, label: it.label })
+      if (it.children) for (const c of it.children) flat.push({ url: c.url, label: c.label })
+    }
+  }
+  const i = flat.findIndex((x) => x.url === route.path)
+  if (i === -1) return { prev: null, next: null }
+  return {
+    prev: i > 0 ? flat[i - 1] : null,
+    next: i < flat.length - 1 ? flat[i + 1] : null,
+  }
+})
+
 // Mobile sidebar drawer state
 const sidebarOpen = ref(false)
 
@@ -137,6 +155,18 @@ onMounted(() => {
         </div>
         <Content />
         <LearningMap v-if="isMainDocsPage" />
+        <nav class="docs-pagenav" v-if="pageNav.prev || pageNav.next">
+          <a v-if="pageNav.prev" :href="pageNav.prev.url" class="docs-pagenav-card">
+            <span class="docs-pagenav-dir">&larr; Previous</span>
+            <span class="docs-pagenav-title">{{ pageNav.prev.label }}</span>
+          </a>
+          <span v-else class="docs-pagenav-spacer"></span>
+          <a v-if="pageNav.next" :href="pageNav.next.url" class="docs-pagenav-card docs-pagenav-card--next">
+            <span class="docs-pagenav-dir">Next &rarr;</span>
+            <span class="docs-pagenav-title">{{ pageNav.next.label }}</span>
+          </a>
+          <span v-else class="docs-pagenav-spacer"></span>
+        </nav>
         <DocFeedback />
       </main>
       <DocsToc />
@@ -157,6 +187,18 @@ onMounted(() => {
           <span class="docs-breadcrumb-item">{{ breadcrumb.item }}</span>
         </div>
         <Content />
+        <nav class="docs-pagenav" v-if="pageNav.prev || pageNav.next">
+          <a v-if="pageNav.prev" :href="pageNav.prev.url" class="docs-pagenav-card">
+            <span class="docs-pagenav-dir">&larr; Previous</span>
+            <span class="docs-pagenav-title">{{ pageNav.prev.label }}</span>
+          </a>
+          <span v-else class="docs-pagenav-spacer"></span>
+          <a v-if="pageNav.next" :href="pageNav.next.url" class="docs-pagenav-card docs-pagenav-card--next">
+            <span class="docs-pagenav-dir">Next &rarr;</span>
+            <span class="docs-pagenav-title">{{ pageNav.next.label }}</span>
+          </a>
+          <span v-else class="docs-pagenav-spacer"></span>
+        </nav>
         <DocFeedback />
       </main>
       <DocsToc />
