@@ -10,6 +10,7 @@ import DownloadPage from './DownloadPage.vue'
 import DocFeedback from './DocFeedback.vue'
 import LearningMap from './LearningMap.vue'
 import CodeTooltips from './CodeTooltips.vue'
+import DocsToc from './DocsToc.vue'
 import { docsSidebar, architectureSidebar } from './sidebarData'
 import { docsSidebarRu, architectureSidebarRu } from './sidebarDataRu'
 import { docsSidebarDe, architectureSidebarDe } from './sidebarDataDe'
@@ -49,6 +50,24 @@ const route = useRoute()
 
 const layout = computed(() => frontmatter.value.layout || 'default')
 const isMainDocsPage = computed(() => frontmatter.value.path_key === '/docs.html')
+
+// Breadcrumb: find the sidebar group that owns the current page.
+const breadcrumb = computed(() => {
+  const sb = layout.value === 'architecture' ? currentArchSidebar.value : currentDocsSidebar.value
+  const path = route.path
+  const item = frontmatter.value.page_title || page.value.title || ''
+  for (const grp of sb) {
+    for (const it of (grp.items || [])) {
+      if (it.url === path) return { group: grp.title, item }
+      if (it.children) {
+        for (const c of it.children) {
+          if (c.url === path) return { group: grp.title, item }
+        }
+      }
+    }
+  }
+  return { group: layout.value === 'architecture' ? 'Architecture' : 'Documentation', item }
+})
 
 // Mobile sidebar drawer state
 const sidebarOpen = ref(false)
@@ -94,8 +113,8 @@ onMounted(() => {
          the sidebar element persists and keeps its scroll position. -->
     <div :key="layout">
 
-    <!-- Page Header (docs, architecture, roadmap, download) -->
-    <div v-if="['docs', 'architecture', 'roadmap'].includes(layout)" class="page-header">
+    <!-- Page Header (roadmap only; docs/architecture use an in-content breadcrumb) -->
+    <div v-if="layout === 'roadmap'" class="page-header">
       <div class="page-header-inner" :class="{ 'page-header-inner--narrow': layout === 'roadmap' }">
         <h1>{{ frontmatter.page_title || 'Documentation' }}</h1>
         <p v-if="frontmatter.description">{{ frontmatter.description }}</p>
@@ -111,10 +130,16 @@ onMounted(() => {
       <Sidebar :sidebar="currentDocsSidebar" :open="sidebarOpen" />
       <div v-if="sidebarOpen" class="docs-sidebar-backdrop" @click="sidebarOpen = false"></div>
       <main class="docs-content" :key="route.path">
+        <div class="docs-breadcrumb">
+          <span class="docs-breadcrumb-group">{{ breadcrumb.group }}</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+          <span class="docs-breadcrumb-item">{{ breadcrumb.item }}</span>
+        </div>
         <Content />
         <LearningMap v-if="isMainDocsPage" />
         <DocFeedback />
       </main>
+      <DocsToc />
     </div>
 
     <!-- Architecture layout with sidebar -->
@@ -126,9 +151,15 @@ onMounted(() => {
       <Sidebar :sidebar="currentArchSidebar" :open="sidebarOpen" />
       <div v-if="sidebarOpen" class="docs-sidebar-backdrop" @click="sidebarOpen = false"></div>
       <main class="docs-content" :key="route.path">
+        <div class="docs-breadcrumb">
+          <span class="docs-breadcrumb-group">{{ breadcrumb.group }}</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+          <span class="docs-breadcrumb-item">{{ breadcrumb.item }}</span>
+        </div>
         <Content />
         <DocFeedback />
       </main>
+      <DocsToc />
     </div>
 
     <!-- Home layout -->
