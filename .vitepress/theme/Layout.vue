@@ -104,6 +104,14 @@ watch(sidebarOpen, (open) => {
   }
 })
 
+// Expose the active layout on <html> so the navbar can align its width to the
+// current page container (docs/architecture use a wider grid than the home nav).
+onMounted(() => {
+  const setLayoutAttr = () => document.documentElement.setAttribute('data-page-layout', layout.value)
+  setLayoutAttr()
+  watch(layout, setLayoutAttr)
+})
+
 // Re-render KaTeX math formulas after SPA navigation
 onMounted(() => {
   watch(() => route.path, () => {
