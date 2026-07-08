@@ -1805,6 +1805,7 @@ mjx-container[display="true"] {
     cursor: pointer;
     width: auto;
     justify-self: start;
+    margin-top: 1.25rem;
     margin-bottom: 1.25rem;
     text-align: left;
     font-family: var(--font-sans);
