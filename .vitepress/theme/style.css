@@ -526,16 +526,16 @@ h1, h2, h3, h4, h5, h6 {
     gap: 24px;
 }
 
-/* The brand reserves the docs sidebar column's width (15rem track + 2.5rem gap,
-   minus the 24px navbar gap) on EVERY page, so the menu always begins on the
-   same vertical line as the docs content column — aligned with the page grid
-   and identical across pages (it never shifts when navigating). */
+/* The brand reserves the docs sidebar track's width on EVERY page, so the menu
+   always begins on the same vertical line as the sidebar column's right edge
+   (a touch left of the content column, closing the gap after the logo) and is
+   identical across pages (it never shifts when navigating). */
 @media (min-width: 1280px) {
     .navbar .navbar-brand {
-        /* 17.5rem (sidebar 15rem + 2.5rem gap) minus the 24px navbar gap and the
-           12px nav-link inset, so the link's icon and active underline land on
-           the docs content column's left edge. */
-        width: calc(17.5rem - 36px);
+        /* 15rem (the sidebar track) minus the 24px navbar gap and the 12px
+           nav-link inset, so the link's icon and active underline land on the
+           sidebar column's right edge. */
+        width: calc(15rem - 36px);
     }
     .navbar .navbar-nav {
         margin-left: 0;
