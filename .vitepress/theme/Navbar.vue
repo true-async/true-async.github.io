@@ -68,7 +68,7 @@ const navItems = [
   { key: 'docs', path: '/docs.html', icon: '<path d="M6.5 3H20v18H6.5A2.5 2.5 0 0 1 4 18.5v-13A2.5 2.5 0 0 1 6.5 3zM4 18.5A2.5 2.5 0 0 1 6.5 16H20"/>' },
   { key: 'download', path: '/download.html', icon: '<path d="M12 3v12M7 10l5 5 5-5M5 21h14"/>' },
   { key: 'rfc', path: '/rfc.html', icon: '<path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9zM14 3v6h6M9 13h6M9 17h6"/>' },
-  { key: 'tutorial', path: '/#tutorial', icon: '<path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1 2.7 2.5 6 2.5s6-1.5 6-2.5v-5"/><path d="M22 10v6"/>' },
+  { key: 'tutorial', path: '/tutorial.html', icon: '<path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1 2.7 2.5 6 2.5s6-1.5 6-2.5v-5"/><path d="M22 10v6"/>' },
 ]
 
 const navLabels: Record<string, Record<string, string>> = {

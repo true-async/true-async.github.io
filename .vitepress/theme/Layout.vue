@@ -68,8 +68,17 @@ const breadcrumb = computed(() => {
       }
     }
   }
-  return { group: layout.value === 'architecture' ? 'Architecture' : 'Documentation', item }
+  const fallback = (layout.value === 'architecture' ? archLabels : docLabels)
+  return { group: fallback[currentLang.value] || fallback.en, item }
 })
+const docLabels: Record<string, string> = {
+  en: 'Documentation', ru: 'Документация', de: 'Dokumentation', es: 'Documentación',
+  fr: 'Documentation', it: 'Documentazione', uk: 'Документація', zh: '文档', ko: '문서',
+}
+const archLabels: Record<string, string> = {
+  en: 'Architecture', ru: 'Архитектура', de: 'Architektur', es: 'Arquitectura',
+  fr: 'Architecture', it: 'Architettura', uk: 'Архітектура', zh: '架构', ko: '아키텍처',
+}
 
 // Prev / next controls at the bottom, derived from the sidebar order.
 const pageNav = computed(() => {
