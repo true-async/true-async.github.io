@@ -526,21 +526,9 @@ h1, h2, h3, h4, h5, h6 {
     gap: 24px;
 }
 
-/* The brand reserves the docs sidebar column's width (15rem track + 2.5rem gap,
-   minus the 24px navbar gap) on EVERY page, so the menu always begins on the
-   same vertical line as the docs content column — aligned with the page grid
-   and identical across pages (it never shifts when navigating). */
-@media (min-width: 1280px) {
-    .navbar .navbar-brand {
-        /* 17.5rem (sidebar 15rem + 2.5rem gap) minus the 24px navbar gap and the
-           12px nav-link inset, so the link's icon and active underline land on
-           the docs content column's left edge. */
-        width: calc(17.5rem - 36px);
-    }
-    .navbar .navbar-nav {
-        margin-left: 0;
-    }
-}
+/* Menu sits right after the wordmark (matching the design mockup), not pushed
+   out to the docs content column. The brand keeps its natural width, so the
+   logo still sits at the same spot on every page and the menu never shifts. */
 
 .navbar-brand {
     display: flex;
@@ -899,15 +887,14 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .docs-sidebar {
+    /* Plain transparent column like the design mockup — no panel box, no rounded
+       top corner. Just a sticky, scrollable list. */
     padding: 1rem 0.6rem 1.25rem;
     position: sticky;
     top: calc(var(--navbar-h) + 1.25rem);
     height: calc(100vh - var(--navbar-h) - 2.5rem);
     margin-top: 1.25rem;
     overflow-y: auto;
-    background: var(--nav-panel);
-    border: 1px solid var(--color-border);
-    border-radius: 14px;
     scrollbar-width: thin;
     scrollbar-color: var(--nav-dropdown-border) transparent;
 }
@@ -1669,9 +1656,9 @@ mjx-container[display="true"] {
 }
 
 .footer-inner {
-    max-width: 80rem;
+    max-width: 90rem;
     margin: 0 auto;
-    padding: 3.5rem 1rem 2rem;
+    padding: 3.5rem 1.75rem 2rem;
 }
 
 .footer-grid {

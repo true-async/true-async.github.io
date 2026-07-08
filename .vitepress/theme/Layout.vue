@@ -8,6 +8,7 @@ import Sidebar from './Sidebar.vue'
 import RoadmapPage from './RoadmapPage.vue'
 import DownloadPage from './DownloadPage.vue'
 import RfcPage from './RfcPage.vue'
+import CoroutineDemoPage from './CoroutineDemoPage.vue'
 import DocFeedback from './DocFeedback.vue'
 import LearningMap from './LearningMap.vue'
 import CodeTooltips from './CodeTooltips.vue'
@@ -223,6 +224,11 @@ onMounted(() => {
     <!-- RFC layout -->
     <main v-else-if="layout === 'rfc'" :key="route.path">
       <RfcPage />
+    </main>
+
+    <!-- Coroutine demo layout (interactive) -->
+    <main v-else-if="layout === 'coroutine-demo'" :key="route.path">
+      <CoroutineDemoPage />
     </main>
 
     <!-- Page layout (contributing, motivation, rfc).

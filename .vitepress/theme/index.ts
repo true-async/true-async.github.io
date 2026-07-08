@@ -6,7 +6,7 @@ import './style.css'
 export default {
   Layout,
   NotFound,
-  enhanceApp({ app }) {
+  enhanceApp() {
     // Force full page load for /interactive/ links (served as static HTML from public/)
     if (typeof window !== 'undefined') {
       document.addEventListener('click', (e) => {
