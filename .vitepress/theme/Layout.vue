@@ -79,6 +79,18 @@ const archLabels: Record<string, string> = {
   en: 'Architecture', ru: 'Архитектура', de: 'Architektur', es: 'Arquitectura',
   fr: 'Architecture', it: 'Architettura', uk: 'Архітектура', zh: '架构', ko: '아키텍처',
 }
+const prevLabels: Record<string, string> = {
+  en: 'Previous', ru: 'Назад', de: 'Zurück', es: 'Anterior', fr: 'Précédent',
+  it: 'Precedente', uk: 'Назад', zh: '上一页', ko: '이전',
+}
+const nextLabels: Record<string, string> = {
+  en: 'Next', ru: 'Далее', de: 'Weiter', es: 'Siguiente', fr: 'Suivant',
+  it: 'Successivo', uk: 'Далі', zh: '下一页', ko: '다음',
+}
+const pagenavLabels = computed(() => ({
+  prev: prevLabels[currentLang.value] || prevLabels.en,
+  next: nextLabels[currentLang.value] || nextLabels.en,
+}))
 
 // Prev / next controls at the bottom, derived from the sidebar order.
 const pageNav = computed(() => {
@@ -168,12 +180,12 @@ onMounted(() => {
         <LearningMap v-if="isMainDocsPage" />
         <nav class="docs-pagenav" v-if="pageNav.prev || pageNav.next">
           <a v-if="pageNav.prev" :href="pageNav.prev.url" class="docs-pagenav-card">
-            <span class="docs-pagenav-dir">&larr; Previous</span>
+            <span class="docs-pagenav-dir">&larr; {{ pagenavLabels.prev }}</span>
             <span class="docs-pagenav-title">{{ pageNav.prev.label }}</span>
           </a>
           <span v-else class="docs-pagenav-spacer"></span>
           <a v-if="pageNav.next" :href="pageNav.next.url" class="docs-pagenav-card docs-pagenav-card--next">
-            <span class="docs-pagenav-dir">Next &rarr;</span>
+            <span class="docs-pagenav-dir">{{ pagenavLabels.next }} &rarr;</span>
             <span class="docs-pagenav-title">{{ pageNav.next.label }}</span>
           </a>
           <span v-else class="docs-pagenav-spacer"></span>
@@ -200,12 +212,12 @@ onMounted(() => {
         <Content />
         <nav class="docs-pagenav" v-if="pageNav.prev || pageNav.next">
           <a v-if="pageNav.prev" :href="pageNav.prev.url" class="docs-pagenav-card">
-            <span class="docs-pagenav-dir">&larr; Previous</span>
+            <span class="docs-pagenav-dir">&larr; {{ pagenavLabels.prev }}</span>
             <span class="docs-pagenav-title">{{ pageNav.prev.label }}</span>
           </a>
           <span v-else class="docs-pagenav-spacer"></span>
           <a v-if="pageNav.next" :href="pageNav.next.url" class="docs-pagenav-card docs-pagenav-card--next">
-            <span class="docs-pagenav-dir">Next &rarr;</span>
+            <span class="docs-pagenav-dir">{{ pagenavLabels.next }} &rarr;</span>
             <span class="docs-pagenav-title">{{ pageNav.next.label }}</span>
           </a>
           <span v-else class="docs-pagenav-spacer"></span>

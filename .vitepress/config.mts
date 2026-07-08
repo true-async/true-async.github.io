@@ -108,6 +108,9 @@ export default defineConfig({
   // Ignore dead links (interactive demos, localhost, etc.)
   ignoreDeadLinks: true,
 
+  // Per-page last-updated timestamp from git (shown in the docs footer)
+  lastUpdated: true,
+
   head: [
     // Apply the saved/system theme synchronously, before first paint, so the
     // page never flashes light-then-dark on reload (no FOUC).

@@ -15,6 +15,8 @@ const currentLang = computed(() => {
 const i18n: Record<string, {
   editPage: string
   reportError: string
+  askForum: string
+  lastUpdated: string
   shortcut: string
   issuePrefix: string
   bodyPage: string
@@ -24,6 +26,8 @@ const i18n: Record<string, {
   en: {
     editPage: 'Edit this page',
     reportError: 'Report error',
+    askForum: 'Ask on the forum',
+    lastUpdated: 'Last updated',
     shortcut: 'Ctrl+Shift+E',
     issuePrefix: 'Doc error',
     bodyPage: 'Page',
@@ -33,6 +37,8 @@ const i18n: Record<string, {
   ru: {
     editPage: 'Редактировать страницу',
     reportError: 'Сообщить об ошибке',
+    askForum: 'Спросить на форуме',
+    lastUpdated: 'Обновлено',
     shortcut: 'Ctrl+Shift+E',
     issuePrefix: 'Ошибка в документации',
     bodyPage: 'Страница',
@@ -42,6 +48,8 @@ const i18n: Record<string, {
   de: {
     editPage: 'Seite bearbeiten',
     reportError: 'Fehler melden',
+    askForum: 'Im Forum fragen',
+    lastUpdated: 'Zuletzt aktualisiert',
     shortcut: 'Ctrl+Shift+E',
     issuePrefix: 'Dokumentationsfehler',
     bodyPage: 'Seite',
@@ -51,6 +59,8 @@ const i18n: Record<string, {
   es: {
     editPage: 'Editar esta página',
     reportError: 'Reportar error',
+    askForum: 'Preguntar en el foro',
+    lastUpdated: 'Última actualización',
     shortcut: 'Ctrl+Shift+E',
     issuePrefix: 'Error en la documentación',
     bodyPage: 'Página',
@@ -60,6 +70,8 @@ const i18n: Record<string, {
   fr: {
     editPage: 'Modifier cette page',
     reportError: 'Signaler une erreur',
+    askForum: 'Poser une question sur le forum',
+    lastUpdated: 'Dernière mise à jour',
     shortcut: 'Ctrl+Shift+E',
     issuePrefix: 'Erreur de documentation',
     bodyPage: 'Page',
@@ -69,6 +81,8 @@ const i18n: Record<string, {
   it: {
     editPage: 'Modifica questa pagina',
     reportError: 'Segnala un errore',
+    askForum: 'Chiedi sul forum',
+    lastUpdated: 'Ultimo aggiornamento',
     shortcut: 'Ctrl+Shift+E',
     issuePrefix: 'Errore nella documentazione',
     bodyPage: 'Pagina',
@@ -78,6 +92,8 @@ const i18n: Record<string, {
   ko: {
     editPage: '이 페이지 편집',
     reportError: '오류 신고',
+    askForum: '포럼에서 질문하기',
+    lastUpdated: '마지막 업데이트',
     shortcut: 'Ctrl+Shift+E',
     issuePrefix: '문서 오류',
     bodyPage: '페이지',
@@ -87,6 +103,8 @@ const i18n: Record<string, {
   uk: {
     editPage: 'Редагувати сторінку',
     reportError: 'Повідомити про помилку',
+    askForum: 'Запитати на форумі',
+    lastUpdated: 'Оновлено',
     shortcut: 'Ctrl+Shift+E',
     issuePrefix: 'Помилка в документації',
     bodyPage: 'Сторінка',
@@ -96,6 +114,8 @@ const i18n: Record<string, {
   zh: {
     editPage: '编辑此页',
     reportError: '报告错误',
+    askForum: '在论坛提问',
+    lastUpdated: '最后更新',
     shortcut: 'Ctrl+Shift+E',
     issuePrefix: '文档错误',
     bodyPage: '页面',
@@ -103,6 +123,18 @@ const i18n: Record<string, {
     bodyDescription: '请描述问题...',
   },
 }
+
+const forumUrl = 'https://github.com/orgs/true-async/discussions'
+
+const lastUpdatedText = computed(() => {
+  const ts = (page.value as any).lastUpdated
+  if (!ts) return ''
+  try {
+    return new Intl.DateTimeFormat(currentLang.value, { month: 'long', year: 'numeric' }).format(new Date(ts))
+  } catch {
+    return ''
+  }
+})
 
 const labels = computed(() => {
   return i18n[currentLang.value] || i18n.en
@@ -154,7 +186,7 @@ onUnmounted(() => document.removeEventListener('keydown', onKeydown))
 
 <template>
   <div class="doc-feedback">
-    <a :href="editUrl" target="_blank" rel="noopener" class="doc-feedback-link">
+    <a :href="editUrl" target="_blank" rel="noopener" class="doc-feedback-link doc-feedback-link--accent">
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
         <path d="M11.333 2a1.886 1.886 0 0 1 2.667 2.667L5.333 13.333 2 14l.667-3.333L11.333 2z"/>
       </svg>
@@ -169,5 +201,13 @@ onUnmounted(() => document.removeEventListener('keydown', onKeydown))
       {{ labels.reportError }}
       <kbd>{{ labels.shortcut }}</kbd>
     </button>
+    <a :href="forumUrl" target="_blank" rel="noopener" class="doc-feedback-link">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 11.5a8.38 8.38 0 0 1-8.5 8.5 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7A8.38 8.38 0 0 1 4 11.5 8.5 8.5 0 0 1 12.5 3 8.38 8.38 0 0 1 21 11.5z"/>
+      </svg>
+      {{ labels.askForum }}
+    </a>
+    <span v-if="lastUpdatedText" class="doc-feedback-updated">{{ labels.lastUpdated }}: {{ lastUpdatedText }}</span>
   </div>
 </template>
+
