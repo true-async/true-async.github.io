@@ -88,7 +88,7 @@ const i18n: Record<string, HomeI18n> = {
     },
     features: {
       title: 'Ключевые возможности',
-      heading: 'API, готовый к продакшену',
+      heading: 'API, ориентированный на продакшен',
       items: [
         { title: 'Корутины', icon: 'coroutines', url: '/ru/docs/components/coroutines.html', text: 'Лёгкие корутины для эффективного конкурентного выполнения. Никаких цветных <code>async</code> функций. Просто делай <code>spawn()</code> и вперёд!' },
         { title: 'Неблокирующий I/O', icon: 'io', url: '/ru/docs/reference/supported-functions.html', text: '<code>fread</code>, <code>fwrite</code>, <code>file_get_contents</code>, <code>ob_start</code>, <code>curl</code>, <code>MySQL</code>, <code>PostgreSQL</code>. Обычные функции PHP теперь работают асинхронно без дополнительных усилий.' },

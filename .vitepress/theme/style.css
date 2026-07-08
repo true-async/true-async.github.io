@@ -906,6 +906,10 @@ h1, h2, h3, h4, h5, h6 {
     top: calc(var(--navbar-h) + 1.25rem);
     height: calc(100vh - var(--navbar-h) - 2.5rem);
     margin-top: 1.25rem;
+    /* overflow-x hidden: overflow-y:auto forces overflow-x's `visible` to compute
+       as `auto`, so a few px of content overflow produced an unwanted horizontal
+       scrollbar. Clip it — the sidebar only ever scrolls vertically. */
+    overflow-x: hidden;
     overflow-y: auto;
     /* Override the global `* { scrollbar-width: thin }` back to auto so Chromium
        drops standard-scrollbar mode and honours the 5px ::-webkit-scrollbar below
