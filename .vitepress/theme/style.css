@@ -907,8 +907,11 @@ h1, h2, h3, h4, h5, h6 {
     height: calc(100vh - var(--navbar-h) - 2.5rem);
     margin-top: 1.25rem;
     overflow-y: auto;
-    scrollbar-width: thin;
-    scrollbar-color: var(--nav-dropdown-border) transparent;
+    /* Override the global `* { scrollbar-width: thin }` back to auto so Chromium
+       drops standard-scrollbar mode and honours the 5px ::-webkit-scrollbar below
+       (thin would force ~10px and ignore it). ~half the default thin width. */
+    scrollbar-width: auto;
+    scrollbar-color: auto;
 }
 
 .docs-sidebar::-webkit-scrollbar { width: 5px; }
