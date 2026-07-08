@@ -526,9 +526,21 @@ h1, h2, h3, h4, h5, h6 {
     gap: 24px;
 }
 
-/* Menu sits right after the wordmark (matching the design mockup), not pushed
-   out to the docs content column. The brand keeps its natural width, so the
-   logo still sits at the same spot on every page and the menu never shifts. */
+/* The brand reserves the docs sidebar column's width (15rem track + 2.5rem gap,
+   minus the 24px navbar gap) on EVERY page, so the menu always begins on the
+   same vertical line as the docs content column — aligned with the page grid
+   and identical across pages (it never shifts when navigating). */
+@media (min-width: 1280px) {
+    .navbar .navbar-brand {
+        /* 17.5rem (sidebar 15rem + 2.5rem gap) minus the 24px navbar gap and the
+           12px nav-link inset, so the link's icon and active underline land on
+           the docs content column's left edge. */
+        width: calc(17.5rem - 36px);
+    }
+    .navbar .navbar-nav {
+        margin-left: 0;
+    }
+}
 
 .navbar-brand {
     display: flex;
