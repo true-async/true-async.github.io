@@ -1,0 +1,11 @@
+// ---- Brand palette (SCSS vars) ----
+// Compile-time brand colours for decorative gradients/glows. Theme-aware UI
+// colours live as CSS custom properties in _variables.scss / _dark.scss — this
+// file is only for the fixed (theme-independent) accent hues.
+
+$c-primary: #6A54F5; // core brand violet
+$c-purple: #8B7BFF; // lighter accent violet
+$c-purple-light: #B69BFF;
+$c-lilac: #C9BEFF; // pale highlight
+$c-teal: #5AD1B0; // brand teal/mint
+$c-green: #10B981; // success / shipped
