@@ -24,9 +24,15 @@ translate that locale's `hero.slogan` and `features.heading`.
 
 ## Still TODO elsewhere (separate task, not started)
 
-- **RfcPage.vue** and **CoroutineDemoPage.vue** only have `en` + `ru`; the other
-  7 locales fall back to English at runtime. Same split-structure-from-strings
-  treatment + translation needed.
+- **RfcPage.vue** — all 9 locales now render this component (de/es/fr/it/ko/uk/zh
+  `rfc.md` switched to `layout: rfc`). Only `en` + `ru` are translated in the
+  component's `rfcI18n`; the other 7 fall back to English. **To translate:** add a
+  locale block to `rfcI18n` in `RfcPage.vue` (copy the `en` shape). The 7 locales'
+  previous hand-written RFC markdown translations are preserved in git history
+  (the commit right before the `layout: rfc` switch) if you want to reuse them.
+- **CoroutineDemoPage.vue** only has `en` + `ru`; other locales fall back to
+  English. (Also: only `ru/interactive/coroutine-demo.md` exists — the other
+  locales' "How Coroutines Work" link may need a page.) Needs translation.
 - **DownloadPage.vue** — done: it was already properly localised (shared
   template + per-locale strings), so no split was needed; it just carried 34
   dead pre-redesign i18n keys, now removed. All 9 locales complete (incl. the
