@@ -1,3 +1,5 @@
+@use "../abstracts/mixins" as *;
+
 /* ---- Features ---- */
 
 .features {
@@ -62,30 +64,8 @@ a.feature-card--link:hover {
     box-shadow: 0 20px 44px -20px rgba(107, 88, 255, 0.5);
 }
 
-@property --ta-angle {
-    syntax: '<angle>';
-    inherits: false;
-    initial-value: 0deg;
-}
-
-@keyframes ta-spin {
-    to { --ta-angle: 360deg; }
-}
-
 .feature-card-glow {
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    padding: 1px;
-    background: conic-gradient(from var(--ta-angle), transparent 0deg, transparent 232deg, #5AD1B0 268deg, #8B7BFF 300deg, #C9BEFF 320deg, transparent 342deg);
-    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    opacity: 0;
-    transition: opacity 0.45s ease;
-    pointer-events: none;
-    animation: ta-spin 5s linear infinite;
-    animation-play-state: paused; /* only spin while the glow is actually visible (on hover) */
+    @include card-glow(5s);
 }
 
 a.feature-card--link:hover .feature-card-glow {

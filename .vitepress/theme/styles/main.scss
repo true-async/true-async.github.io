@@ -9,6 +9,7 @@
 
 // Base + vendor (VitePress-generated markup)
 @use "base/reset";
+@use "base/animations"; // shared @keyframes / @property (emit once, global by name)
 @use "vendor/search";
 @use "base/scrollbars";
 
