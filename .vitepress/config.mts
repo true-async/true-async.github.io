@@ -136,11 +136,19 @@ export default defineConfig({
     ['meta', { name: 'twitter:title', content: 'TrueAsync — True Asynchronous PHP' }],
     ['meta', { name: 'twitter:description', content: 'Write sync. Run async. Coroutines, non-blocking I/O and structured concurrency, built into the PHP language core.' }],
     ['meta', { name: 'twitter:image', content: 'https://true-async.github.io/assets/og-image.png' }],
-    // KaTeX for math formulas (used in evidence pages)
-    ['link', { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css' }],
-    ['script', { defer: '', src: 'https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js' }],
-    ['script', { defer: '', src: 'https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js', onload: "renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})" }],
   ],
+
+  // KaTeX (render-blocking CSS + 2 scripts) is only needed on the evidence
+  // pages — the only ones with math. Inject it per-page there instead of in the
+  // global head so it stays off the homepage/docs critical path (LCP).
+  transformHead({ pageData }) {
+    if (!/docs\/evidence\//.test(pageData.relativePath)) return []
+    return [
+      ['link', { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css' }],
+      ['script', { defer: '', src: 'https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js' }],
+      ['script', { defer: '', src: 'https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js', onload: "renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})" }],
+    ]
+  },
 
   sitemap: {
     hostname: 'https://true-async.github.io',
