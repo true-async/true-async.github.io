@@ -145,8 +145,7 @@ const filteredSidebar = computed(() => {
       />
     </div>
 
-    <template v-for="group in filteredSidebar" :key="group.title">
-      <details class="docs-nav-group" open>
+    <details v-for="group in filteredSidebar" :key="group.title" class="docs-nav-group" open>
         <summary>
           <div class="docs-nav-title">
             <span class="docs-nav-title-content">
@@ -159,13 +158,11 @@ const filteredSidebar = computed(() => {
           </div>
         </summary>
         <div class="docs-nav">
-          <template v-for="item in group.items" :key="item.url">
-            <!-- Item with children. A single wrapper <div> keeps every v-for
-                 iteration to ONE root element: a bare <template v-if> here is a
-                 variable-length fragment (parent row + optional sub-list) and
-                 nesting it in the <template v-for> fragment makes Vue's block
-                 patcher crash with a null nextSibling on re-render (theme
-                 toggle, navigation). -->
+          <!-- Every loop iteration is ONE real <div>, never a <template>
+               fragment: a <template v-for> holds its nodes in a fragment whose
+               end-anchor Vue loses on re-render, crashing the block patcher with
+               a null nextSibling (theme toggle, navigation). -->
+          <div v-for="item in group.items" :key="item.url" class="docs-nav-entry">
             <div v-if="item.children && item.children.length" class="docs-nav-item">
               <div class="docs-nav-item-parent" :class="{ expanded: isExpanded(item.url, item) }">
                 <a :href="item.url" :class="{ active: isActive(item.url) }">
@@ -199,9 +196,8 @@ const filteredSidebar = computed(() => {
               <span v-if="getIconSvg(item.icon)" class="nav-icon" v-html="'<svg width=&quot;16&quot; height=&quot;16&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;>' + getIconSvg(item.icon) + '</svg>'"></span>
               {{ item.label }}
             </a>
-          </template>
+          </div>
         </div>
       </details>
-    </template>
   </aside>
 </template>

@@ -14,8 +14,9 @@ export default {
     // client-side:
     //   * /interactive/* — static HTML served from public/, outside the router
     //   * a locale home ("/xx/" or "/xx/index.html") — with cleanUrls:false the
-    //     router normalises "/xx/index.html" to "/xx/" but has no page data under
-    //     that key, so SPA navigation renders a blank <main>. A hard load works.
+    //     router has no page data under that normalised key, so SPA navigation
+    //     renders a blank <main> (verified: no crash, just empty). A hard load
+    //     works. This is separate from the sidebar patcher fix.
     const localeHome = /^\/(?:en|ru|de|es|fr|it|uk|zh|ko)\/(?:index\.html)?$/
     if (typeof window !== 'undefined') {
       document.addEventListener('click', (e) => {
