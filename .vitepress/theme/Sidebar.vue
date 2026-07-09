@@ -160,8 +160,13 @@ const filteredSidebar = computed(() => {
         </summary>
         <div class="docs-nav">
           <template v-for="item in group.items" :key="item.url">
-            <!-- Item with children -->
-            <template v-if="item.children && item.children.length">
+            <!-- Item with children. A single wrapper <div> keeps every v-for
+                 iteration to ONE root element: a bare <template v-if> here is a
+                 variable-length fragment (parent row + optional sub-list) and
+                 nesting it in the <template v-for> fragment makes Vue's block
+                 patcher crash with a null nextSibling on re-render (theme
+                 toggle, navigation). -->
+            <div v-if="item.children && item.children.length" class="docs-nav-item">
               <div class="docs-nav-item-parent" :class="{ expanded: isExpanded(item.url, item) }">
                 <a :href="item.url" :class="{ active: isActive(item.url) }">
                   <span v-if="getIconSvg(item.icon)" class="nav-icon" v-html="'<svg width=&quot;16&quot; height=&quot;16&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;>' + getIconSvg(item.icon) + '</svg>'"></span>
@@ -187,7 +192,7 @@ const filteredSidebar = computed(() => {
                   {{ child.label }}
                 </a>
               </div>
-            </template>
+            </div>
 
             <!-- Simple item (no children) -->
             <a v-else :href="item.url" :class="{ active: isActive(item.url) }">
