@@ -1,0 +1,17 @@
+/* ---- Override VitePress defaults ---- */
+.VPDoc,
+.VPContent,
+.VPHome,
+.VPPage,
+.vp-doc {
+    /* Ensure VitePress internals don't interfere */
+}
+
+/* Hide VitePress default nav/sidebar */
+.VPNav,
+.VPSidebar,
+.VPFooter,
+.VPLocalNav {
+    display: none !important;
+}
+

@@ -1,0 +1,43 @@
+// TrueAsync theme styles — 7-1 architecture (entry point).
+// NOTE: order below preserves the original monolith's cascade exactly.
+// Only abstracts/ were hoisted to the top (they emit just custom props, so
+// order is irrelevant for them) and the duplicate doc-feedback-bar was merged.
+
+// Abstracts — design tokens (emit only :root / [data-theme] custom props)
+@use "abstracts/variables";
+@use "abstracts/dark";
+
+// Base + vendor (VitePress-generated markup)
+@use "base/reset";
+@use "vendor/search";
+@use "base/scrollbars";
+
+// Layout
+@use "layout/navbar";
+@use "layout/page-header";
+@use "layout/docs";
+
+// Components / content
+@use "components/docs-content";
+@use "components/code-blocks";
+@use "vendor/notices";
+@use "layout/footer";
+@use "components/doc-feedback";
+@use "components/sidebar-toggle";
+@use "layout/responsive";
+@use "base/vitepress-overrides";
+@use "components/page-content";
+
+// Pages
+@use "pages/hero";
+@use "components/buttons";
+@use "pages/features";
+@use "pages/guides";
+@use "pages/home-roadmap";
+@use "pages/home-responsive";
+@use "pages/roadmap";
+@use "pages/download";
+@use "components/tooltips";
+
+// Accessibility — must stay last so its !important reduced-motion resets win
+@use "base/reduced-motion";

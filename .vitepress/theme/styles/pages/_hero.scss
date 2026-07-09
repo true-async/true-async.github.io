@@ -1,0 +1,283 @@
+/* ---- Hero ---- */
+
+.hero {
+    position: relative;
+    padding: calc(var(--navbar-h) + 4.25rem) 0 4.75rem;
+    overflow: hidden;
+    background: var(--color-bg);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.hero-glow {
+    position: absolute;
+    top: -180px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 900px;
+    height: 520px;
+    background: radial-gradient(closest-side, rgba(106, 84, 245, 0.32), transparent 72%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.hero-glow::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 40px;
+    transform: translateX(-50%);
+    width: 1300px;
+    height: 620px;
+    background: radial-gradient(60% 70% at 50% 30%, rgba(139, 123, 255, 0.12), transparent 72%);
+    pointer-events: none;
+}
+
+.hero-glow::after {
+    content: '';
+    position: absolute;
+    left: 62%;
+    top: 150px;
+    width: 460px;
+    height: 460px;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, rgba(90, 209, 176, 0.10), transparent 70%);
+    filter: blur(20px);
+    pointer-events: none;
+}
+
+.hero-lines {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.hero-line {
+    position: absolute;
+    left: -15%;
+    right: -15%;
+    height: 1px;
+    background-size: 200% 100%;
+    filter: blur(0.8px);
+}
+
+.hero-line--1 {
+    top: 26%;
+    background: linear-gradient(90deg, transparent 0, transparent 38%, rgba(122, 150, 255, 0) 44%, #7a96ff 49.5%, #95a6ff 50%, #7a96ff 50.5%, rgba(122, 150, 255, 0) 56%, transparent 62%, transparent 100%);
+    opacity: 0.14;
+    animation: ta-flow 11s linear infinite;
+}
+
+.hero-line--2 {
+    top: 50%;
+    background: linear-gradient(90deg, transparent 0, transparent 32%, #8b7bff 49.5%, #a596ff 50%, #8b7bff 50.5%, transparent 68%, transparent 100%);
+    background-size: 230% 100%;
+    filter: blur(0.9px);
+    opacity: 0.11;
+    animation: ta-flow 15s linear infinite reverse;
+    animation-delay: -3s;
+}
+
+.hero-line--3 {
+    top: 71%;
+    background: linear-gradient(90deg, transparent 0, transparent 42%, #6f8dff 49.5%, #93a8ff 50%, #6f8dff 50.5%, transparent 58%, transparent 100%);
+    background-size: 180% 100%;
+    opacity: 0.09;
+    animation: ta-flow 13s linear infinite;
+    animation-delay: -6s;
+}
+
+@keyframes ta-flow {
+    from { background-position: 130% 0; }
+    to { background-position: -130% 0; }
+}
+
+.hero-grid {
+    position: relative;
+    z-index: 1;
+    max-width: 90rem;
+    margin: 0 auto;
+    padding: 0 1.75rem;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+    align-items: stretch;
+}
+
+.hero-content {
+    text-align: center;
+}
+
+.hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    padding: 6px 13px;
+    background: var(--nav-panel-hover);
+    border: 1px solid var(--nav-border);
+    border-radius: 100px;
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    color: var(--nav-accent);
+    margin-bottom: 26px;
+}
+
+.hero-badge svg {
+    width: 14px;
+    height: 14px;
+    display: inline-block;
+}
+
+.hero h1 {
+    font-size: 2.25rem;
+    line-height: 1.06;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    margin-bottom: 22px;
+    text-wrap: normal;
+}
+
+.hero-accent {
+    color: var(--nav-accent);
+}
+
+.hero-slogan {
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--nav-accent);
+    margin: -6px 0 20px;
+    letter-spacing: -0.01em;
+}
+
+.hero-description {
+    font-size: 1.0625rem;
+    line-height: 1.55;
+    color: var(--color-text-secondary);
+    max-width: 520px;
+    margin: 0 auto 34px;
+}
+
+.hero-description strong {
+    color: var(--color-text);
+    font-weight: 600;
+}
+
+.hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+}
+
+/* ---- Hero demo panel ---- */
+
+.hero-panel {
+    background: #151129;
+    border: 1px solid var(--nav-border);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 30px 70px rgba(0, 0, 0, 0.45);
+    display: flex;
+    flex-direction: column;
+}
+
+.hero-panel-titlebar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 13px 16px;
+    border-bottom: 1px solid #1B1928;
+}
+
+.hero-panel-dot {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+}
+
+.hero-panel-dot--red { background: #ff5f57; }
+.hero-panel-dot--yellow { background: #febc2e; }
+.hero-panel-dot--green { background: #28c840; }
+
+.hero-panel-filename {
+    margin-left: 8px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: #7d7b8c;
+}
+
+.hero-panel-code {
+    padding: 20px;
+    margin: 0;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    font-family: var(--font-mono);
+    font-size: 13.5px;
+    line-height: 1.9;
+    color: #D6D3E6;
+    overflow-x: auto;
+    min-height: 212px;
+    flex: 1;
+    white-space: pre;
+}
+
+.hero-panel-code code {
+    background: transparent;
+    border: none;
+    padding: 0;
+    color: inherit;
+    font-family: inherit;
+    font-size: inherit;
+}
+
+.tok-c { color: #6f6d80; }
+.tok-var { color: #B69BFF; }
+.tok-fn { color: #7C6BFF; }
+.tok-kw { color: #5AD1B0; }
+.tok-cls { color: #5AD1B0; }
+.tok-prop { color: #E8B77C; }
+.tok-str { color: #7CC7E8; }
+
+.hero-panel-tabs {
+    display: flex;
+    gap: 4px;
+    padding: 10px 12px;
+    border-top: 1px solid #1B1928;
+    overflow-x: auto;
+}
+
+.hero-panel-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 11px;
+    border: none;
+    background: transparent;
+    color: #7d7b8c;
+    border-radius: 7px;
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    flex-shrink: 0;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.hero-panel-tab svg {
+    width: 13px;
+    height: 13px;
+}
+
+.hero-panel-tab:hover {
+    color: #D6D3E6;
+}
+
+.hero-panel-tab--active,
+.hero-panel-tab--active:hover {
+    background: #2A2450;
+    color: #CFC6FF;
+}
+

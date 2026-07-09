@@ -2,7 +2,7 @@ import type { Theme } from 'vitepress'
 import Layout from './Layout.vue'
 import NotFound from './NotFound.vue'
 import ComingSoon from './ComingSoon.vue'
-import './style.css'
+import './styles/main.scss'
 
 export default {
   Layout,

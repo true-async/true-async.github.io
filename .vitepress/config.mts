@@ -178,7 +178,13 @@ export default defineConfig({
 
   vite: {
     css: {
-      // Disable VitePress default styles injection
+      // Use the modern Dart Sass compiler API (silences the legacy-js-api
+      // deprecation warning emitted when SCSS partials are compiled).
+      preprocessorOptions: {
+        scss: {
+          api: 'modern-compiler',
+        },
+      },
     },
     server: {
       hmr: {

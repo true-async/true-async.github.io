@@ -1,0 +1,152 @@
+/* ---- Global scrollbars (mockup-exact) ---- */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--nav-dropdown-border) transparent;
+}
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: var(--nav-dropdown-border);
+    border-radius: 8px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-hover);
+    background-clip: padding-box;
+}
+
+[data-theme="dark"] .nav-icon--section {
+    opacity: 1;
+    color: var(--color-text-secondary);
+}
+
+[data-theme="dark"] .nav-icon {
+    color: var(--color-text-secondary);
+}
+
+[data-theme="dark"] .docs-nav-chevron {
+    opacity: 0.85;
+}
+
+[data-theme="dark"] .docs-nav-group[open] > .docs-nav-title .docs-nav-chevron {
+    opacity: 1;
+}
+
+[data-theme="dark"] .docs-nav-title {
+    color: var(--color-text);
+    border-bottom-color: rgba(255, 255, 255, 0.06);
+}
+
+[data-theme="dark"] .docs-content code,
+[data-theme="dark"] .page-content code {
+    background: var(--code-inline-bg);
+    color: var(--code-inline-text);
+    border: none;
+}
+
+[data-theme="dark"] .docs-content pre code,
+[data-theme="dark"] .page-content pre code {
+    background: none;
+    color: inherit;
+    border: none;
+}
+
+[data-theme="dark"] .home-roadmap-tag {
+    background: rgba(255, 255, 255, 0.08);
+    color: #9CA3AF;
+}
+
+[data-theme="dark"] .home-roadmap-tag--highlight {
+    background: rgba(139, 122, 255, 0.15);
+    color: #A78BFA;
+}
+
+[data-theme="dark"] .feature-card {
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="dark"] .rfc-badge.draft { background: rgba(234, 88, 12, 0.2); color: #FB923C; }
+[data-theme="dark"] .rfc-badge.discussion { background: rgba(37, 99, 235, 0.2); color: #60A5FA; }
+
+[data-theme="dark"] .roadmap-tag,
+[data-theme="dark"] .roadmap-badge--planned {
+    background: rgba(255, 255, 255, 0.08);
+    color: #9CA3AF;
+}
+
+[data-theme="dark"] .roadmap-tag--highlight,
+[data-theme="dark"] .roadmap-badge--active {
+    background: rgba(139, 122, 255, 0.15);
+    color: #A78BFA;
+}
+
+[data-theme="dark"] .roadmap-badge--done {
+    background: rgba(99, 102, 241, 0.15);
+    color: #818CF8;
+}
+
+[data-theme="dark"] .VPLocalSearchBox {
+    --vp-local-search-bg: #211e32;
+    --vp-local-search-result-bg: #211e32;
+    --vp-local-search-result-border: #352e4a;
+    --vp-local-search-result-selected-bg: #252238;
+    --vp-local-search-result-selected-border: #9B8FFF;
+    --vp-local-search-highlight-bg: rgba(155, 143, 255, 0.25);
+    --vp-local-search-highlight-text: #9B8FFF;
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 4.5rem;
+    -webkit-text-size-adjust: 100%;
+    /* Always reserve the scrollbar gutter so centered layouts don't shift
+       horizontally when navigating between short and tall pages. */
+    scrollbar-gutter: stable;
+}
+
+body {
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.5;
+    color: var(--color-text);
+    background: var(--color-bg);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+img, svg {
+    display: block;
+    max-width: 100%;
+}
+
+ul, ol {
+    list-style: none;
+}
+
+code, pre {
+    font-family: var(--font-mono);
+}
+
+h1, h2, h3, h4, h5, h6 {
+    line-height: 1.2;
+    font-weight: 700;
+    color: var(--color-text);
+}
+

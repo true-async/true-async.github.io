@@ -1,0 +1,16 @@
+/* ---- Reduced motion ----
+   Honour the user's OS-level "reduce motion" preference site-wide: neutralise
+   the infinite decorative animations (hero flow lines, spinners, roadmap pulse,
+   navbar/sidebar plasma) and long transitions. Kept as the last layer so its
+   !important overrides win regardless of source order. */
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}

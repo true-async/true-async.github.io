@@ -1,0 +1,23 @@
+/* ---- Page Header ---- */
+
+.page-header {
+    padding: calc(var(--navbar-h) + 2rem) 1rem 2rem;
+    background: var(--color-bg-subtle);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.page-header-inner {
+    max-width: 80rem;
+    margin: 0 auto;
+}
+
+.page-header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.page-header p {
+    color: var(--color-text-muted);
+    margin-top: 0.5rem;
+}
+
