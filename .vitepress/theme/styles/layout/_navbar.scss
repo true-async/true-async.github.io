@@ -142,6 +142,11 @@
 .navbar-link:hover::after,
 .navbar-link.active::after {
     transform: scaleX(1);
+}
+
+/* Flow only on hover — the active link keeps a static gradient underline so the
+   page has no continuous background-position repaint at rest. */
+.navbar-link:hover::after {
     animation: navflow 2.4s linear infinite;
 }
 

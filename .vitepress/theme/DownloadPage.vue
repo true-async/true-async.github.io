@@ -939,14 +939,20 @@ function copyText(id: string, text: string) {
 .dl-hero-lines { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
 .dl-hero-lines span {
   position: absolute; left: -15%; right: -15%; height: 1px;
-  background: linear-gradient(90deg, transparent 0, transparent 38%, #7a96ff 49.5%, #95a6ff 50%, #7a96ff 50.5%, transparent 62%, transparent 100%);
-  background-size: 200% 100%; filter: blur(0.8px); opacity: 0.13;
+  overflow: hidden; opacity: 0.13;
+}
+/* transform-only travelling glint (rasterised once, composited) — see _hero.scss */
+.dl-hero-lines span::before {
+  content: ""; position: absolute; inset: 0; width: 200%;
+  background-image: repeating-linear-gradient(90deg, transparent 0, transparent 20%, #7a96ff 24.7%, #95a6ff 25%, #7a96ff 25.3%, transparent 30%, transparent 50%);
+  filter: blur(0.8px); will-change: transform;
   animation: dl-flow 11s linear infinite;
 }
 .dl-hero-lines span:nth-child(1) { top: 34%; }
-.dl-hero-lines span:nth-child(2) { top: 62%; opacity: 0.1; animation-duration: 15s; animation-direction: reverse; animation-delay: -3s; }
-@keyframes dl-flow { from { background-position: 130% 0; } to { background-position: -130% 0; } }
-@media (prefers-reduced-motion: reduce) { .dl-hero-lines span { animation: none; } }
+.dl-hero-lines span:nth-child(2) { top: 62%; opacity: 0.1; }
+.dl-hero-lines span:nth-child(2)::before { animation-duration: 15s; animation-direction: reverse; animation-delay: -3s; }
+@keyframes dl-flow { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) { .dl-hero-lines span::before { animation: none; } }
 
 .dl-hero-inner {
   position: relative;

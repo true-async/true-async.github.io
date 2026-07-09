@@ -85,10 +85,12 @@ a.feature-card--link:hover {
     transition: opacity 0.45s ease;
     pointer-events: none;
     animation: ta-spin 5s linear infinite;
+    animation-play-state: paused; /* only spin while the glow is actually visible (on hover) */
 }
 
 a.feature-card--link:hover .feature-card-glow {
     opacity: 1;
+    animation-play-state: running;
 }
 
 .feature-card-head {

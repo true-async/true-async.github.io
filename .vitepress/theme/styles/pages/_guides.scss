@@ -68,10 +68,12 @@
     transition: opacity 0.45s ease;
     pointer-events: none;
     animation: ta-spin 2.8s linear infinite;
+    animation-play-state: paused; /* only spin while the glow is actually visible (on hover) */
 }
 
 .lesson-card:hover .lesson-card-glow {
     opacity: 1;
+    animation-play-state: running;
 }
 
 .lesson-card-meta {

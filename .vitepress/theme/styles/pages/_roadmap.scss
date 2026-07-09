@@ -52,6 +52,14 @@
 .roadmap-milestone--active .roadmap-marker {
     background: var(--color-primary);
     border-color: var(--color-primary);
+}
+.roadmap-milestone--active .roadmap-marker::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: rgba(107, 88, 255, 0.35);
+    pointer-events: none;
     animation: roadmap-pulse 3s ease-in-out infinite;
 }
 

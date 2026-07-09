@@ -153,11 +153,13 @@
     opacity: 0;
     transition: opacity 0.4s ease;
     animation: plasmaFlow 2.6s linear infinite;
+    animation-play-state: paused; /* only run while the accent border is revealed (group hover) */
     pointer-events: none;
     filter: drop-shadow(0 0 1.5px rgba(124, 107, 255, 0.5));
 }
 .docs-nav-group:hover .docs-nav::before {
     opacity: 0.7;
+    animation-play-state: running;
 }
 @keyframes plasmaFlow {
     from { background-position: 0 0; }

@@ -58,39 +58,55 @@
     left: -15%;
     right: -15%;
     height: 1px;
-    background-size: 200% 100%;
+    overflow: hidden; /* clip the travelling glint to the line */
+}
+
+/* The travelling glint is a separate layer animated with transform only, so the
+   browser rasterises it (blur included) once and the compositor just slides it —
+   no per-frame repaint, unlike animating background-position. */
+.hero-line::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    width: 200%;
     filter: blur(0.8px);
+    will-change: transform;
+    animation: ta-flow 11s linear infinite;
+}
+
+@keyframes ta-flow {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); } /* one gradient period → seamless loop */
 }
 
 .hero-line--1 {
     top: 26%;
-    background: linear-gradient(90deg, transparent 0, transparent 38%, rgba(122, 150, 255, 0) 44%, #7a96ff 49.5%, #95a6ff 50%, #7a96ff 50.5%, rgba(122, 150, 255, 0) 56%, transparent 62%, transparent 100%);
     opacity: 0.14;
-    animation: ta-flow 11s linear infinite;
+}
+.hero-line--1::before {
+    background-image: repeating-linear-gradient(90deg, transparent 0, transparent 20%, #7a96ff 24.7%, #95a6ff 25%, #7a96ff 25.3%, transparent 30%, transparent 50%);
 }
 
 .hero-line--2 {
     top: 50%;
-    background: linear-gradient(90deg, transparent 0, transparent 32%, #8b7bff 49.5%, #a596ff 50%, #8b7bff 50.5%, transparent 68%, transparent 100%);
-    background-size: 230% 100%;
-    filter: blur(0.9px);
     opacity: 0.11;
-    animation: ta-flow 15s linear infinite reverse;
+}
+.hero-line--2::before {
+    background-image: repeating-linear-gradient(90deg, transparent 0, transparent 20%, #8b7bff 24.7%, #a596ff 25%, #8b7bff 25.3%, transparent 30%, transparent 50%);
+    filter: blur(0.9px);
+    animation-duration: 15s;
+    animation-direction: reverse;
     animation-delay: -3s;
 }
 
 .hero-line--3 {
     top: 71%;
-    background: linear-gradient(90deg, transparent 0, transparent 42%, #6f8dff 49.5%, #93a8ff 50%, #6f8dff 50.5%, transparent 58%, transparent 100%);
-    background-size: 180% 100%;
     opacity: 0.09;
-    animation: ta-flow 13s linear infinite;
-    animation-delay: -6s;
 }
-
-@keyframes ta-flow {
-    from { background-position: 130% 0; }
-    to { background-position: -130% 0; }
+.hero-line--3::before {
+    background-image: repeating-linear-gradient(90deg, transparent 0, transparent 20%, #6f8dff 24.7%, #93a8ff 25%, #6f8dff 25.3%, transparent 30%, transparent 50%);
+    animation-duration: 13s;
+    animation-delay: -6s;
 }
 
 .hero-grid {
