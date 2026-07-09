@@ -20,7 +20,12 @@ is ever worth cross-checking.
 
 ## Remaining (minor / optional)
 
-- **Social meta description** — `og:description` / `twitter:description` in
-  `.vitepress/config.mts` are a single English string for every locale. Visible
-  page content is fully localised; only the social-share preview text is English.
-  Localise via `transformHead` (per-page/locale) if desired.
+- _None._ Everything below has been resolved.
+
+## Also done
+
+- **Social meta description** — `og:description` / `twitter:description` are now
+  injected per-locale via `transformHead` in `.vitepress/config.mts` (locale
+  derived from the first path segment, English fallback). All 9 locales carry a
+  translated social-share description; the old static English tags were removed
+  so there is exactly one of each per page.

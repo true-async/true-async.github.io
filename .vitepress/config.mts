@@ -127,14 +127,14 @@ export default defineConfig({
     ['meta', { property: 'og:type', content: 'website' }],
     ['meta', { property: 'og:site_name', content: 'TrueAsync' }],
     ['meta', { property: 'og:title', content: 'TrueAsync — True Asynchronous PHP' }],
-    ['meta', { property: 'og:description', content: 'Write sync. Run async. Coroutines, non-blocking I/O and structured concurrency, built into the PHP language core.' }],
+    // og:description / twitter:description are injected per-locale in transformHead
     ['meta', { property: 'og:image', content: 'https://true-async.github.io/assets/og-image.png' }],
     ['meta', { property: 'og:image:width', content: '1200' }],
     ['meta', { property: 'og:image:height', content: '630' }],
     ['meta', { property: 'og:url', content: 'https://true-async.github.io' }],
     ['meta', { name: 'twitter:card', content: 'summary_large_image' }],
     ['meta', { name: 'twitter:title', content: 'TrueAsync — True Asynchronous PHP' }],
-    ['meta', { name: 'twitter:description', content: 'Write sync. Run async. Coroutines, non-blocking I/O and structured concurrency, built into the PHP language core.' }],
+    // twitter:description is injected per-locale in transformHead
     ['meta', { name: 'twitter:image', content: 'https://true-async.github.io/assets/og-image.png' }],
   ],
 
@@ -142,12 +142,38 @@ export default defineConfig({
   // pages — the only ones with math. Inject it per-page there instead of in the
   // global head so it stays off the homepage/docs critical path (LCP).
   transformHead({ pageData }) {
-    if (!/docs\/evidence\//.test(pageData.relativePath)) return []
-    return [
-      ['link', { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css' }],
-      ['script', { defer: '', src: 'https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js' }],
-      ['script', { defer: '', src: 'https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js', onload: "renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})" }],
-    ]
+    const head: any[] = []
+
+    // Per-locale social-share description. Derive the locale from the first path
+    // segment (locales are top-level dirs); fall back to English otherwise.
+    const socialDescriptions: Record<string, string> = {
+      en: 'Write sync. Run async. Coroutines, non-blocking I/O and structured concurrency, built into the PHP language core.',
+      ru: 'Пишите синхронно. Выполняйте асинхронно. Корутины, неблокирующий ввод-вывод и структурированная конкурентность, встроенные в ядро языка PHP.',
+      de: 'Synchron schreiben. Asynchron ausführen. Koroutinen, nicht-blockierende I/O und strukturierte Nebenläufigkeit, direkt im PHP-Sprachkern.',
+      es: 'Escribe síncrono. Ejecuta asíncrono. Corrutinas, E/S no bloqueante y concurrencia estructurada, integradas en el núcleo del lenguaje PHP.',
+      fr: 'Écrivez en synchrone. Exécutez en asynchrone. Coroutines, E/S non bloquantes et concurrence structurée, intégrées au cœur du langage PHP.',
+      it: 'Scrivi sincrono. Esegui asincrono. Coroutine, I/O non bloccante e concorrenza strutturata, integrati nel cuore del linguaggio PHP.',
+      uk: 'Пишіть синхронно. Виконуйте асинхронно. Корутини, неблокуючий ввід-вивід і структурована конкурентність, вбудовані в ядро мови PHP.',
+      zh: '同步编写，异步运行。协程、非阻塞 I/O 和结构化并发，内建于 PHP 语言核心。',
+      ko: '동기적으로 작성하고 비동기적으로 실행하세요. 코루틴, 논블로킹 I/O, 구조화된 동시성이 PHP 언어 코어에 내장되어 있습니다.',
+    }
+    const locale = pageData.relativePath.split('/')[0]
+    const desc = socialDescriptions[locale] ?? socialDescriptions.en
+    head.push(['meta', { property: 'og:description', content: desc }])
+    head.push(['meta', { name: 'twitter:description', content: desc }])
+
+    // KaTeX (render-blocking CSS + 2 scripts) is only needed on the evidence
+    // pages — the only ones with math. Inject it per-page there instead of in the
+    // global head so it stays off the homepage/docs critical path (LCP).
+    if (/docs\/evidence\//.test(pageData.relativePath)) {
+      head.push(
+        ['link', { rel: 'stylesheet', href: 'https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css' }],
+        ['script', { defer: '', src: 'https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js' }],
+        ['script', { defer: '', src: 'https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js', onload: "renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]})" }],
+      )
+    }
+
+    return head
   },
 
   sitemap: {
