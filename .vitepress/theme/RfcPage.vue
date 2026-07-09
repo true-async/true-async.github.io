@@ -1048,10 +1048,10 @@ const t = computed(() => rfcI18n[currentLang.value] || rfcI18n.en)
 <template>
   <div class="rfc">
     <!-- HERO QUOTE -->
-    <section class="rfc-quote">
+    <figure class="rfc-quote">
       <blockquote>{{ t.quote.text }}</blockquote>
       <figcaption>{{ t.quote.author }}</figcaption>
-    </section>
+    </figure>
 
     <!-- INTRO -->
     <section class="rfc-band rfc-band--intro">
@@ -1219,7 +1219,7 @@ const t = computed(() => rfcI18n[currentLang.value] || rfcI18n.en)
 
 /* hero quote */
 .rfc-quote { max-width: 760px; margin: 0 auto; padding: 60px 32px 0; text-align: center; }
-.rfc-quote blockquote { margin: 0 auto; max-width: 700px; font-size: 27px; line-height: 1.34; font-weight: 500; letter-spacing: -0.015em; color: var(--color-text); }
+.rfc-quote blockquote { margin: 0 auto; max-width: 600px; font-size: 16px; line-height: 1.5; font-weight: 500; letter-spacing: -0.01em; color: var(--color-text); }
 .rfc-quote figcaption { font-family: var(--font-mono); font-size: 13px; color: var(--nav-accent); margin-top: 18px; }
 
 .rfc-h2 { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; margin: 0 0 14px; }
@@ -1300,7 +1300,7 @@ const t = computed(() => rfcI18n[currentLang.value] || rfcI18n.en)
 
 @media (max-width: 780px) {
   .rfc-cards, .rfc-two, .rfc-main-checks { grid-template-columns: 1fr; }
-  .rfc-quote blockquote { font-size: 22px; }
+  .rfc-quote blockquote { font-size: 14px; }
   .rfc-table-head, .rfc-table-row { grid-template-columns: 0.9fr 1fr 1fr; }
   .rfc-th, .rfc-td { padding: 12px 12px; font-size: 12.5px; }
   .rfc-band, .rfc-quote { padding-left: 20px; padding-right: 20px; }
