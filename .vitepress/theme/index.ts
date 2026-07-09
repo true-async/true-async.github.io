@@ -10,13 +10,19 @@ export default {
   enhanceApp({ app }) {
     // Global components usable from markdown pages.
     app.component('ComingSoon', ComingSoon)
-    // Force full page load for /interactive/ links (served as static HTML from public/)
+    // Force a full page load for links the VitePress SPA router can't resolve
+    // client-side:
+    //   * /interactive/* — static HTML served from public/, outside the router
+    //   * a locale home ("/xx/" or "/xx/index.html") — with cleanUrls:false the
+    //     router normalises "/xx/index.html" to "/xx/" but has no page data under
+    //     that key, so SPA navigation renders a blank <main>. A hard load works.
+    const localeHome = /^\/(?:en|ru|de|es|fr|it|uk|zh|ko)\/(?:index\.html)?$/
     if (typeof window !== 'undefined') {
       document.addEventListener('click', (e) => {
         const link = (e.target as HTMLElement).closest?.('a[href]')
         if (link) {
           const href = link.getAttribute('href')
-          if (href && href.includes('/interactive/')) {
+          if (href && (href.includes('/interactive/') || localeHome.test(href))) {
             e.preventDefault()
             e.stopPropagation()
             window.location.href = href
