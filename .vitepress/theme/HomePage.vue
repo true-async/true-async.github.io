@@ -2,6 +2,8 @@
 import { computed, ref } from 'vue'
 import { useRoute } from 'vitepress'
 import { CURRENT_VERSION } from './version'
+import { roadmap } from './roadmapData'
+import { roadmapI18n } from './roadmapI18n'
 
 const route = useRoute()
 
@@ -512,14 +514,15 @@ const demoTabs: DemoTab[] = [
 ]
 const activeDemoTab = ref(0)
 
-const milestones = [
-  { version: '0.1', title: 'Foundation', date: '2024', status: 'done' },
-  { version: '0.6', title: 'Complete Async API', date: '2026-03-14', status: 'done' },
-  { version: '0.7', title: 'Threads & Stabilization', date: 'Summer 2026', status: 'done' },
-  { version: '0.8', title: 'Framework Adapters', date: 'Q3 2026', status: 'active' },
-  { version: '1.0-RC', title: 'Release Candidate', date: 'August 2026', status: 'planned', tag: 'RC' },
-  { version: '1.0', title: 'Stable Release', date: 'November 2026', status: 'planned', tag: 'Target: PHP 8.6', tagStyle: 'highlight' },
-]
+// Homepage roadmap summary = the milestones flagged homepage:true in the shared
+// single source of truth (roadmapData.ts). Add/remove there, not here.
+const homeMilestones = roadmap.flatMap(s => s.milestones).filter(m => m.homepage)
+const roadmapStrings = computed(() => roadmapI18n[currentLang.value] || roadmapI18n.en)
+const roadmapTitle = (id: string) => roadmapStrings.value.milestones[id] || roadmapI18n.en.milestones[id] || id
+const homeStatus = (status: string) => {
+  const ui = roadmapStrings.value.ui
+  return status === 'done' ? ui.homeDone : status === 'active' ? ui.homeActive : ui.homePlanned
+}
 
 // Feature icons as SVG paths
 const iconSvgs: Record<string, string> = {
@@ -652,28 +655,28 @@ const iconSvgs: Record<string, string> = {
   <section class="home-roadmap">
     <div class="home-roadmap-inner">
       <div class="home-roadmap-header">
-        <h2>Roadmap</h2>
-        <span class="home-roadmap-comment">// current release: v{{ CURRENT_VERSION }}</span>
+        <h2>{{ roadmapStrings.ui.heading }}</h2>
+        <span class="home-roadmap-comment">// {{ roadmapStrings.ui.currentRelease }} v{{ CURRENT_VERSION }}</span>
       </div>
       <div class="home-roadmap-timeline">
         <div
-          v-for="m in milestones"
-          :key="m.version"
+          v-for="m in homeMilestones"
+          :key="m.id"
           :class="['home-roadmap-item', `home-roadmap-item--${m.status}`]"
         >
           <div class="home-roadmap-dot"></div>
           <div class="home-roadmap-card">
             <div class="home-roadmap-card-head">
               <span class="home-roadmap-version">v{{ m.version }}</span>
-              <span class="home-roadmap-status">{{ m.status === 'done' ? 'Shipped' : m.status === 'active' ? 'Current' : 'Planned' }}</span>
+              <span class="home-roadmap-status">{{ homeStatus(m.status) }}</span>
             </div>
-            <span class="home-roadmap-title">{{ m.title }}</span>
+            <span class="home-roadmap-title">{{ roadmapTitle(m.id) }}</span>
             <span v-if="m.date" class="home-roadmap-date">{{ m.date }}</span>
             <span v-if="m.tag" :class="['home-roadmap-tag', m.tagStyle ? `home-roadmap-tag--${m.tagStyle}` : '']">{{ m.tag }}</span>
           </div>
         </div>
       </div>
-      <a :href="`/${currentLang}/roadmap.html`" class="home-roadmap-link">View full roadmap &rarr;</a>
+      <a :href="`/${currentLang}/roadmap.html`" class="home-roadmap-link">{{ roadmapStrings.ui.viewFull }} &rarr;</a>
     </div>
   </section>
 </template>

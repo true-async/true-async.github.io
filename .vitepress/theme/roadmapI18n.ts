@@ -1,0 +1,306 @@
+// Localised prose for the roadmap (keyed by the ids in roadmapData.ts).
+// Feature bullet `name`s are NOT here — they stay English (technical). Missing
+// locales fall back to `en` at runtime.
+//
+// NOTE for translators: keep product names ("TrueAsync Core/Server/Mobile") and
+// protocol/tech names in milestone titles ("Native HTTP/1.1/2/3", "WebSocket",
+// "Server-Sent Events", "Android via native-bridge") as-is; translate only the
+// descriptive words.
+
+export interface RoadmapStrings {
+  ui: {
+    heading: string        // homepage section heading ("Roadmap")
+    currentRelease: string // homepage comment prefix ("current release:")
+    viewFull: string       // homepage link ("View full roadmap")
+    badgeDone: string      // full-page status badge
+    badgeActive: string
+    badgePlanned: string
+    homeDone: string       // homepage timeline status
+    homeActive: string
+    homePlanned: string
+  }
+  sections: Record<string, { title: string; subtitle: string }>
+  milestones: Record<string, string>
+}
+
+export const roadmapI18n: Record<string, RoadmapStrings> = {
+  en: {
+    ui: {
+      heading: 'Roadmap',
+      currentRelease: 'current release:',
+      viewFull: 'View full roadmap',
+      badgeDone: 'Completed',
+      badgeActive: 'In Progress',
+      badgePlanned: 'Planned',
+      homeDone: 'Shipped',
+      homeActive: 'Current',
+      homePlanned: 'Planned',
+    },
+    sections: {
+      core: { title: 'TrueAsync Core', subtitle: 'Language extension: coroutines, async I/O, structured concurrency, threads.' },
+      server: { title: 'TrueAsync Server', subtitle: 'Native HTTP/1.1/2/3 server inside the PHP process.' },
+      mobile: { title: 'TrueAsync Mobile', subtitle: 'Persistent PHP runtime bridge for native mobile apps.' },
+    },
+    milestones: {
+      'core-0.1': 'Foundation',
+      'core-0.6': 'Complete Async API',
+      'core-0.7': 'Threads & Stabilization',
+      'core-0.8': 'Framework Adapters',
+      'core-1.0-rc': 'Release Candidate',
+      'core-1.0': 'Stable Release',
+      'server-0.6': 'Native HTTP/1.1/2/3',
+      'server-sse': 'Server-Sent Events',
+      'server-ws': 'WebSocket',
+      'server-next': 'Protocols on the same listener',
+      'mobile-android': 'Android via native-bridge',
+    },
+  },
+  ru: {
+    ui: {
+      heading: 'Дорожная карта',
+      currentRelease: 'текущий релиз:',
+      viewFull: 'Открыть полную дорожную карту',
+      badgeDone: 'Завершено',
+      badgeActive: 'В работе',
+      badgePlanned: 'Запланировано',
+      homeDone: 'Готово',
+      homeActive: 'Сейчас',
+      homePlanned: 'Запланировано',
+    },
+    sections: {
+      core: { title: 'TrueAsync Core', subtitle: 'Расширение языка: корутины, асинхронный ввод-вывод, структурная конкурентность, потоки.' },
+      server: { title: 'TrueAsync Server', subtitle: 'Нативный HTTP/1.1/2/3-сервер внутри процесса PHP.' },
+      mobile: { title: 'TrueAsync Mobile', subtitle: 'Постоянный мост к среде выполнения PHP для нативных мобильных приложений.' },
+    },
+    milestones: {
+      'core-0.1': 'Основа',
+      'core-0.6': 'Полный Async API',
+      'core-0.7': 'Потоки и стабилизация',
+      'core-0.8': 'Адаптеры фреймворков',
+      'core-1.0-rc': 'Кандидат в релизы',
+      'core-1.0': 'Стабильный релиз',
+      'server-0.6': 'Native HTTP/1.1/2/3',
+      'server-sse': 'Server-Sent Events',
+      'server-ws': 'WebSocket',
+      'server-next': 'Протоколы на одном слушателе',
+      'mobile-android': 'Android через native-bridge',
+    },
+  },
+  de: {
+    ui: {
+      heading: 'Roadmap',
+      currentRelease: 'aktuelle Version:',
+      viewFull: 'Vollständige Roadmap ansehen',
+      badgeDone: 'Abgeschlossen',
+      badgeActive: 'In Arbeit',
+      badgePlanned: 'Geplant',
+      homeDone: 'Veröffentlicht',
+      homeActive: 'Aktuell',
+      homePlanned: 'Geplant',
+    },
+    sections: {
+      core: { title: 'TrueAsync Core', subtitle: 'Spracherweiterung: Coroutinen, asynchrone I/O, strukturierte Nebenläufigkeit, Threads.' },
+      server: { title: 'TrueAsync Server', subtitle: 'Nativer HTTP/1.1/2/3-Server innerhalb des PHP-Prozesses.' },
+      mobile: { title: 'TrueAsync Mobile', subtitle: 'Persistente PHP-Laufzeitbrücke für native mobile Apps.' },
+    },
+    milestones: {
+      'core-0.1': 'Grundlage',
+      'core-0.6': 'Vollständige Async-API',
+      'core-0.7': 'Threads & Stabilisierung',
+      'core-0.8': 'Framework-Adapter',
+      'core-1.0-rc': 'Release Candidate',
+      'core-1.0': 'Stabile Version',
+      'server-0.6': 'Native HTTP/1.1/2/3',
+      'server-sse': 'Server-Sent Events',
+      'server-ws': 'WebSocket',
+      'server-next': 'Protokolle auf demselben Listener',
+      'mobile-android': 'Android via native-bridge',
+    },
+  },
+  es: {
+    ui: {
+      heading: 'Hoja de ruta',
+      currentRelease: 'versión actual:',
+      viewFull: 'Ver hoja de ruta completa',
+      badgeDone: 'Completado',
+      badgeActive: 'En progreso',
+      badgePlanned: 'Planificado',
+      homeDone: 'Publicado',
+      homeActive: 'Actual',
+      homePlanned: 'Planificado',
+    },
+    sections: {
+      core: { title: 'TrueAsync Core', subtitle: 'Extensión del lenguaje: corrutinas, E/S asíncrona, concurrencia estructurada, hilos.' },
+      server: { title: 'TrueAsync Server', subtitle: 'Servidor HTTP/1.1/2/3 nativo dentro del proceso de PHP.' },
+      mobile: { title: 'TrueAsync Mobile', subtitle: 'Puente de tiempo de ejecución PHP persistente para aplicaciones móviles nativas.' },
+    },
+    milestones: {
+      'core-0.1': 'Base',
+      'core-0.6': 'API Async completa',
+      'core-0.7': 'Hilos y estabilización',
+      'core-0.8': 'Adaptadores de frameworks',
+      'core-1.0-rc': 'Candidata a versión',
+      'core-1.0': 'Versión estable',
+      'server-0.6': 'Native HTTP/1.1/2/3',
+      'server-sse': 'Server-Sent Events',
+      'server-ws': 'WebSocket',
+      'server-next': 'Protocolos en el mismo listener',
+      'mobile-android': 'Android via native-bridge',
+    },
+  },
+  fr: {
+    ui: {
+      heading: 'Feuille de route',
+      currentRelease: 'version actuelle :',
+      viewFull: 'Voir la feuille de route complète',
+      badgeDone: 'Terminé',
+      badgeActive: 'En cours',
+      badgePlanned: 'Planifié',
+      homeDone: 'Publié',
+      homeActive: 'Actuel',
+      homePlanned: 'Planifié',
+    },
+    sections: {
+      core: { title: 'TrueAsync Core', subtitle: 'Extension du langage : coroutines, E/S asynchrones, concurrence structurée, threads.' },
+      server: { title: 'TrueAsync Server', subtitle: 'Serveur HTTP/1.1/2/3 natif au sein du processus PHP.' },
+      mobile: { title: 'TrueAsync Mobile', subtitle: 'Pont d\'exécution PHP persistant pour les applications mobiles natives.' },
+    },
+    milestones: {
+      'core-0.1': 'Fondation',
+      'core-0.6': 'API Async complète',
+      'core-0.7': 'Threads et stabilisation',
+      'core-0.8': 'Adaptateurs de frameworks',
+      'core-1.0-rc': 'Version candidate',
+      'core-1.0': 'Version stable',
+      'server-0.6': 'Native HTTP/1.1/2/3',
+      'server-sse': 'Server-Sent Events',
+      'server-ws': 'WebSocket',
+      'server-next': 'Protocoles sur le même écouteur',
+      'mobile-android': 'Android via native-bridge',
+    },
+  },
+  it: {
+    ui: {
+      heading: 'Roadmap',
+      currentRelease: 'versione attuale:',
+      viewFull: 'Visualizza la roadmap completa',
+      badgeDone: 'Completato',
+      badgeActive: 'In corso',
+      badgePlanned: 'Pianificato',
+      homeDone: 'Rilasciato',
+      homeActive: 'Attuale',
+      homePlanned: 'Pianificato',
+    },
+    sections: {
+      core: { title: 'TrueAsync Core', subtitle: 'Estensione del linguaggio: coroutine, I/O asincrono, concorrenza strutturata, thread.' },
+      server: { title: 'TrueAsync Server', subtitle: 'Server HTTP/1.1/2/3 nativo all\'interno del processo PHP.' },
+      mobile: { title: 'TrueAsync Mobile', subtitle: 'Ponte runtime PHP persistente per app mobili native.' },
+    },
+    milestones: {
+      'core-0.1': 'Fondamenta',
+      'core-0.6': 'API Async completa',
+      'core-0.7': 'Thread e stabilizzazione',
+      'core-0.8': 'Adattatori per framework',
+      'core-1.0-rc': 'Release Candidate',
+      'core-1.0': 'Versione stabile',
+      'server-0.6': 'Native HTTP/1.1/2/3',
+      'server-sse': 'Server-Sent Events',
+      'server-ws': 'WebSocket',
+      'server-next': 'Protocolli sullo stesso listener',
+      'mobile-android': 'Android via native-bridge',
+    },
+  },
+  ko: {
+    ui: {
+      heading: '로드맵',
+      currentRelease: '현재 릴리스:',
+      viewFull: '전체 로드맵 보기',
+      badgeDone: '완료',
+      badgeActive: '진행 중',
+      badgePlanned: '계획됨',
+      homeDone: '출시됨',
+      homeActive: '현재',
+      homePlanned: '계획됨',
+    },
+    sections: {
+      core: { title: 'TrueAsync Core', subtitle: '언어 확장: 코루틴, 비동기 I/O, 구조적 동시성, 스레드.' },
+      server: { title: 'TrueAsync Server', subtitle: 'PHP 프로세스 내부의 네이티브 HTTP/1.1/2/3 서버.' },
+      mobile: { title: 'TrueAsync Mobile', subtitle: '네이티브 모바일 앱을 위한 지속적인 PHP 런타임 브리지.' },
+    },
+    milestones: {
+      'core-0.1': '기반',
+      'core-0.6': '완전한 Async API',
+      'core-0.7': '스레드 및 안정화',
+      'core-0.8': '프레임워크 어댑터',
+      'core-1.0-rc': '릴리스 후보',
+      'core-1.0': '안정 릴리스',
+      'server-0.6': 'Native HTTP/1.1/2/3',
+      'server-sse': 'Server-Sent Events',
+      'server-ws': 'WebSocket',
+      'server-next': '동일한 리스너의 프로토콜',
+      'mobile-android': 'Android via native-bridge',
+    },
+  },
+  uk: {
+    ui: {
+      heading: 'Дорожня карта',
+      currentRelease: 'поточний реліз:',
+      viewFull: 'Відкрити повну дорожню карту',
+      badgeDone: 'Завершено',
+      badgeActive: 'У роботі',
+      badgePlanned: 'Заплановано',
+      homeDone: 'Готово',
+      homeActive: 'Зараз',
+      homePlanned: 'Заплановано',
+    },
+    sections: {
+      core: { title: 'TrueAsync Core', subtitle: 'Розширення мови: корутини, асинхронний ввід-вивід, структурна конкурентність, потоки.' },
+      server: { title: 'TrueAsync Server', subtitle: 'Нативний HTTP/1.1/2/3-сервер усередині процесу PHP.' },
+      mobile: { title: 'TrueAsync Mobile', subtitle: 'Постійний міст до середовища виконання PHP для нативних мобільних застосунків.' },
+    },
+    milestones: {
+      'core-0.1': 'Основа',
+      'core-0.6': 'Повний Async API',
+      'core-0.7': 'Потоки та стабілізація',
+      'core-0.8': 'Адаптери фреймворків',
+      'core-1.0-rc': 'Кандидат у релізи',
+      'core-1.0': 'Стабільний реліз',
+      'server-0.6': 'Native HTTP/1.1/2/3',
+      'server-sse': 'Server-Sent Events',
+      'server-ws': 'WebSocket',
+      'server-next': 'Протоколи на одному слухачі',
+      'mobile-android': 'Android через native-bridge',
+    },
+  },
+  zh: {
+    ui: {
+      heading: '路线图',
+      currentRelease: '当前版本：',
+      viewFull: '查看完整路线图',
+      badgeDone: '已完成',
+      badgeActive: '进行中',
+      badgePlanned: '计划中',
+      homeDone: '已发布',
+      homeActive: '当前',
+      homePlanned: '计划中',
+    },
+    sections: {
+      core: { title: 'TrueAsync Core', subtitle: '语言扩展：协程、异步 I/O、结构化并发、线程。' },
+      server: { title: 'TrueAsync Server', subtitle: 'PHP 进程内部的原生 HTTP/1.1/2/3 服务器。' },
+      mobile: { title: 'TrueAsync Mobile', subtitle: '面向原生移动应用的持久化 PHP 运行时桥接。' },
+    },
+    milestones: {
+      'core-0.1': '基础',
+      'core-0.6': '完整的 Async API',
+      'core-0.7': '线程与稳定化',
+      'core-0.8': '框架适配器',
+      'core-1.0-rc': '候选发布版',
+      'core-1.0': '稳定版',
+      'server-0.6': 'Native HTTP/1.1/2/3',
+      'server-sse': 'Server-Sent Events',
+      'server-ws': 'WebSocket',
+      'server-next': '同一监听器上的协议',
+      'mobile-android': 'Android via native-bridge',
+    },
+  },
+}
