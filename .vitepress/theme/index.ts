@@ -28,8 +28,10 @@ export default {
     // Hook the ROUTER itself (onBeforeRouteChange, which VitePress calls inside its
     // own go()) rather than a click listener — a click listener races the router's
     // own capture-phase handler and loses, so the SPA nav (and crash) happened anyway.
-    const needsFullLoad = (to: string): boolean => {
-      const path = to.split('#')[0].split('?')[0]
+    // Canonical form so "/fr/", "/fr/index.html" and "/fr" compare equal.
+    const canon = (p: string): string =>
+      p.replace(/index\.html$/, '').replace(/\/+$/, '') || '/'
+    const needsFullLoad = (path: string): boolean => {
       const from = localeOf(window.location.pathname)
       const dest = localeOf(path)
       if (from && dest && from !== dest) return true // language switch
@@ -38,7 +40,10 @@ export default {
     }
     const prevHook = router.onBeforeRouteChange
     router.onBeforeRouteChange = (to: string) => {
-      if (needsFullLoad(to)) {
+      const path = to.split('#')[0].split('?')[0]
+      // Never intercept a navigation to the page we are already on — the forced
+      // reload would re-fire onBeforeRouteChange and loop forever (locale home).
+      if (needsFullLoad(path) && canon(path) !== canon(window.location.pathname)) {
         window.location.assign(to)
         return false // cancel the SPA navigation; the full page load takes over
       }
