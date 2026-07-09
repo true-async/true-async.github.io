@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useRoute } from 'vitepress'
+import { CURRENT_VERSION } from './version'
 
 const route = useRoute()
 
@@ -78,7 +79,7 @@ const guidesEn = {
 const strings: Record<string, HomeStrings> = {
   en: {
     hero: {
-      badge: 'Experimental Core · v0.7.7',
+      badge: 'Experimental Core',
       title: 'True Asynchronous inside <span class="hero-accent">PHP</span>',
       slogan: 'Write sync. Run async.',
       description: 'Coroutines, non-blocking I/O, and structured concurrency, built into the language core. Write high-performance concurrent code with familiar functions and minimal changes.',
@@ -103,7 +104,7 @@ const strings: Record<string, HomeStrings> = {
   },
   ru: {
     hero: {
-      badge: 'Экспериментальное ядро · v0.7.7',
+      badge: 'Экспериментальное ядро',
       title: 'Настоящая асинхронность внутри <span class="hero-accent">PHP</span>',
       slogan: 'Пиши синхронно. Выполняй асинхронно.',
       description: 'Представьте PHP с корутинами, где знакомые функции поддерживают конкурентный ввод вывод. Создавайте высокопроизводительные конкурентные приложения с чистым, читаемым кодом и минимумом изменений!',
@@ -457,7 +458,7 @@ const iconSvgs: Record<string, string> = {
       <div class="hero-content">
         <div class="hero-badge">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6M10 3v5.5L4.8 17.4A2 2 0 0 0 6.5 20.5h11a2 2 0 0 0 1.7-3.1L14 8.5V3M7.5 14h9"/></svg>
-          {{ hero.badge }}
+          {{ hero.badge }} · v{{ CURRENT_VERSION }}
         </div>
         <h1 v-html="hero.title"></h1>
         <p v-if="hero.slogan" class="hero-slogan">{{ hero.slogan }}</p>
@@ -561,7 +562,7 @@ const iconSvgs: Record<string, string> = {
     <div class="home-roadmap-inner">
       <div class="home-roadmap-header">
         <h2>Roadmap</h2>
-        <span class="home-roadmap-comment">// current release: v0.7.7</span>
+        <span class="home-roadmap-comment">// current release: v{{ CURRENT_VERSION }}</span>
       </div>
       <div class="home-roadmap-timeline">
         <div

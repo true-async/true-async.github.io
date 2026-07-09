@@ -11,7 +11,7 @@ const currentLang = computed(() => {
 
 const downloadI18n: Record<string, {
   subtitle: string
-  current_release: string
+  badge: string
   build_title: string
   build_subtitle: string
   docker_title: string
@@ -39,7 +39,7 @@ const downloadI18n: Record<string, {
     verify_desc: 'Every Windows release is published with SHA-256 checksums. Confirm integrity before installing:',
     binaries_title: 'Grab a package for your platform',
     subtitle: 'Installation scripts for Linux/macOS, Docker images, and pre-built Windows binaries.',
-    current_release: 'Current Release',
+    badge: 'Experimental Core',
     build_title: 'Build from Source',
     build_subtitle: 'Recommended installation method for Linux and macOS. The script downloads PHP source code, the TrueAsync extension, and builds everything automatically.',
     docker_title: 'Docker',
@@ -58,7 +58,7 @@ const downloadI18n: Record<string, {
     verify_desc: 'Каждый релиз для Windows публикуется с контрольными суммами SHA-256. Проверьте целостность перед установкой:',
     binaries_title: 'Пакет под вашу платформу',
     subtitle: 'Скрипты установки для Linux/macOS, Docker-образы и готовые сборки для Windows.',
-    current_release: 'Текущий релиз',
+    badge: 'Экспериментальное ядро',
     build_title: 'Сборка из исходников',
     build_subtitle: 'Рекомендуемый способ установки для Linux и macOS. Скрипт скачает исходники PHP, расширение TrueAsync и соберёт всё автоматически.',
     docker_title: 'Docker',
@@ -77,7 +77,7 @@ const downloadI18n: Record<string, {
     verify_desc: 'Jedes Windows-Release wird mit SHA-256-Prüfsummen veröffentlicht. Überprüfen Sie die Integrität vor der Installation:',
     binaries_title: 'Holen Sie sich ein Paket für Ihre Plattform',
     subtitle: 'Installationsskripte für Linux/macOS, Docker-Images und vorkompilierte Windows-Binärdateien.',
-    current_release: 'Aktuelles Release',
+    badge: 'Experimentelle Version',
     build_title: 'Aus Quellcode kompilieren',
     build_subtitle: 'Empfohlene Installationsmethode für Linux und macOS. Das Skript lädt den PHP-Quellcode, die TrueAsync-Erweiterung herunter und kompiliert alles automatisch.',
     docker_title: 'Docker',
@@ -96,7 +96,7 @@ const downloadI18n: Record<string, {
     verify_desc: 'Cada versión para Windows se publica con sumas de verificación SHA-256. Confirma la integridad antes de instalar:',
     binaries_title: 'Obtén un paquete para tu plataforma',
     subtitle: 'Scripts de instalación para Linux/macOS, imágenes Docker y binarios precompilados para Windows.',
-    current_release: 'Versión actual',
+    badge: 'Versión experimental',
     build_title: 'Compilar desde el código fuente',
     build_subtitle: 'Método de instalación recomendado para Linux y macOS. El script descarga el código fuente de PHP, la extensión TrueAsync, y compila todo automáticamente.',
     docker_title: 'Docker',
@@ -115,7 +115,7 @@ const downloadI18n: Record<string, {
     verify_desc: 'Chaque version Windows est publiee avec des sommes de controle SHA-256. Verifiez l\'integrite avant l\'installation :',
     binaries_title: 'Un paquet pour votre plateforme',
     subtitle: "Scripts d'installation pour Linux/macOS, images Docker et binaires Windows pre-compiles.",
-    current_release: 'Version actuelle',
+    badge: 'Version expérimentale',
     build_title: 'Compiler depuis les sources',
     build_subtitle: "Methode d'installation recommandee pour Linux et macOS. Le script telecharge le code source de PHP, l'extension TrueAsync et compile le tout automatiquement.",
     docker_title: 'Docker',
@@ -134,7 +134,7 @@ const downloadI18n: Record<string, {
     verify_desc: 'Ogni release per Windows è pubblicata con checksum SHA-256. Verifica l\'integrità prima di installare:',
     binaries_title: 'Un pacchetto per la tua piattaforma',
     subtitle: 'Script di installazione per Linux/macOS, immagini Docker e binari precompilati per Windows.',
-    current_release: 'Release attuale',
+    badge: 'Versione sperimentale',
     build_title: 'Compilazione dal sorgente',
     build_subtitle: "Metodo di installazione consigliato per Linux e macOS. Lo script scarica il codice sorgente di PHP, l'estensione TrueAsync e compila tutto automaticamente.",
     docker_title: 'Docker',
@@ -153,7 +153,7 @@ const downloadI18n: Record<string, {
     verify_desc: '모든 Windows 릴리스는 SHA-256 체크섬과 함께 게시됩니다. 설치 전에 무결성을 확인하세요:',
     binaries_title: '플랫폼에 맞는 패키지 받기',
     subtitle: 'Linux/macOS용 설치 스크립트, Docker 이미지, 사전 빌드된 Windows 바이너리.',
-    current_release: '현재 릴리스',
+    badge: '실험 버전',
     build_title: '소스에서 빌드',
     build_subtitle: 'Linux 및 macOS에 권장되는 설치 방법입니다. 스크립트가 PHP 소스 코드와 TrueAsync 확장을 다운로드하고 모든 것을 자동으로 빌드합니다.',
     docker_title: 'Docker',
@@ -172,7 +172,7 @@ const downloadI18n: Record<string, {
     verify_desc: 'Кожен реліз для Windows публікується з контрольними сумами SHA-256. Перевірте цілісність перед встановленням:',
     binaries_title: 'Пакет для вашої платформи',
     subtitle: 'Скрипти встановлення для Linux/macOS, Docker-образи та готові збірки для Windows.',
-    current_release: 'Поточний реліз',
+    badge: 'Експериментальна версія',
     build_title: 'Збірка з вихідного коду',
     build_subtitle: 'Рекомендований спосіб встановлення для Linux та macOS. Скрипт завантажує вихідний код PHP, розширення TrueAsync та збирає все автоматично.',
     docker_title: 'Docker',
@@ -191,7 +191,7 @@ const downloadI18n: Record<string, {
     verify_desc: '每个 Windows 发行版都附带 SHA-256 校验和。安装前请验证完整性：',
     binaries_title: '获取适合您平台的软件包',
     subtitle: 'Linux/macOS 安装脚本、Docker 镜像和预编译 Windows 二进制文件。',
-    current_release: '当前版本',
+    badge: '实验版本',
     build_title: '从源码构建',
     build_subtitle: '推荐的 Linux 和 macOS 安装方式。脚本会自动下载 PHP 源码、TrueAsync 扩展并完成编译。',
     docker_title: 'Docker',
@@ -342,9 +342,9 @@ function copyText(id: string, text: string) {
       <div class="dl-hero-glow" aria-hidden="true"></div>
       <div class="dl-hero-lines" aria-hidden="true"><span></span><span></span></div>
       <div class="dl-hero-inner">
-        <div v-if="currentRelease" class="dl-badge">
-          <span class="dl-badge-dot"></span>
-          {{ t.current_release }} &middot; v{{ currentRelease.version }} &middot; {{ currentRelease.date }}
+        <div class="hero-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6M10 3v5.5L4.8 17.4A2 2 0 0 0 6.5 20.5h11a2 2 0 0 0 1.7-3.1L14 8.5V3M7.5 14h9"/></svg>
+          {{ t.badge }}<template v-if="currentRelease"> &middot; v{{ currentRelease.version }}</template>
         </div>
         <h1 class="dl-h1">{{ t.hero_word }} <span class="dl-brand">TrueAsync</span></h1>
         <p class="dl-lead">{{ t.subtitle }}</p>
@@ -531,17 +531,6 @@ function copyText(id: string, text: string) {
   padding: 76px 32px 64px;
   text-align: center;
 }
-.dl-badge {
-  display: inline-flex; align-items: center; gap: 9px;
-  padding: 6px 13px; margin-bottom: 26px;
-  border: 1px solid var(--color-border);
-  background: var(--nav-panel-hover);
-  border-radius: 100px;
-  font-family: var(--font-mono);
-  font-size: 12.5px;
-  color: var(--dl-accent);
-}
-.dl-badge-dot { width: 8px; height: 8px; border-radius: 50%; background: #5AD1B0; box-shadow: 0 0 0 3px rgba(90, 209, 176, 0.2); }
 .dl-h1 { font-size: 52px; line-height: 1.04; font-weight: 700; letter-spacing: -0.03em; margin: 0 0 20px; }
 .dl-lead { font-size: 19px; line-height: 1.55; color: var(--color-text-secondary); max-width: 600px; margin: 0 auto 38px; }
 

@@ -27,5 +27,7 @@ translate that locale's `hero.slogan` and `features.heading`.
 - **RfcPage.vue** and **CoroutineDemoPage.vue** only have `en` + `ru`; the other
   7 locales fall back to English at runtime. Same split-structure-from-strings
   treatment + translation needed.
-- **DownloadPage.vue** already has all 9 locales, but its i18n is not yet split
-  into shared-structure + strings (design still duplicated per locale).
+- **DownloadPage.vue** — done: it was already properly localised (shared
+  template + per-locale strings), so no split was needed; it just carried 34
+  dead pre-redesign i18n keys, now removed. All 9 locales complete (incl. the
+  new `badge` label).
