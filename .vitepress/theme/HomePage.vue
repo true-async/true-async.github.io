@@ -144,13 +144,13 @@ const strings: Record<string, HomeStrings> = {
     hero: {
       badge: 'Experimentelle Version',
       title: 'Echte Asynchronität in <span class="hero-accent">PHP</span>',
-      slogan: 'Write sync. Run async.',
+      slogan: 'Synchron schreiben. Asynchron ausführen.',
       description: 'Stellen Sie sich PHP mit Koroutinen vor, bei dem vertraute Funktionen nebenläufige Ein-/Ausgabe unterstützen. Erstellen Sie hochperformante nebenläufige Anwendungen mit sauberem, lesbarem Code und minimalen Änderungen!',
       buttons: ['Erste Schritte', 'Wie Koroutinen funktionieren', 'Herunterladen'],
     },
     features: {
       title: 'Hauptfunktionen',
-      heading: 'Production-ready API',
+      heading: 'Produktionsreife API',
       items: [
         { title: 'Koroutinen', text: 'Leichtgewichtige Koroutinen für effiziente nebenläufige Ausführung. Keine gefärbten <code>async</code>-Funktionen. Einfach <code>spawn()</code> und los!' },
         { title: 'Nicht-blockierende I/O', text: '<code>fread</code>, <code>fwrite</code>, <code>file_get_contents</code>, <code>ob_start</code>, <code>curl</code>, <code>MySQL</code>, <code>PostgreSQL</code>. Gewöhnliche PHP-Funktionen arbeiten jetzt asynchron ohne zusätzlichen Aufwand.' },
@@ -163,19 +163,32 @@ const strings: Record<string, HomeStrings> = {
         { title: 'PHP Mobile', text: 'Android-Unterstützung auf PHP-Kernebene: ein asynchroner Runtime innerhalb einer nativen App über <code>native-bridge</code>.' },
       ],
     },
-    guides: guidesEn,
+    guides: {
+      title: 'Anleitungen & Artikel',
+      heading: 'TrueAsync in der Praxis lernen',
+      description: 'Praxisnahe Anleitungen, von deiner ersten Koroutine bis zu strukturierter Nebenläufigkeit und dem integrierten Server.',
+      readMore: 'Artikel lesen',
+      items: [
+        { tag: 'Grundlagen', time: '6 Min.', title: 'Deine erste Koroutine', body: 'Installiere die Erweiterung, starte eine Koroutine mit spawn() und sieh dem kooperativen Scheduler bei der Arbeit zu.' },
+        { tag: 'Grundlagen', time: '9 Min.', title: 'Nicht-blockierende I/O', body: 'Verwandle gewöhnliche fread-, curl- und PDO-Aufrufe in nebenläufige Arbeit ohne Callbacks.' },
+        { tag: 'Grundlagen', time: '8 Min.', title: 'Strukturierte Nebenläufigkeit', body: 'Steuere die Lebensdauer von Koroutinen mit einer Scope-Sandbox und verwalte Gruppen über TaskGroup.' },
+        { tag: 'Server', time: '10 Min.', title: 'Der TrueAsync-Webserver', body: 'Betreibe einen nativen HTTP/1.1-, HTTP/2- und HTTP/3-Server direkt im PHP-Prozess.' },
+        { tag: 'Grundlagen', time: '7 Min.', title: 'PDO-Verbindungspool', body: 'Automatisches, koroutinensicheres Verbindungs-Pooling direkt in PDO integriert.' },
+        { tag: 'Grundlagen', time: '9 Min.', title: 'Channels & ThreadPool', body: 'Producer/Consumer-Muster mit gepufferten Kanälen, plus echte parallele CPU-Arbeit via ThreadPool.' },
+      ],
+    },
   },
   es: {
     hero: {
       badge: 'Versión experimental',
       title: 'Asincronía real dentro de <span class="hero-accent">PHP</span>',
-      slogan: 'Write sync. Run async.',
+      slogan: 'Escribe síncrono. Ejecuta asíncrono.',
       description: 'Imagina PHP con corrutinas, donde las funciones habituales soportan E/S concurrente. ¡Crea aplicaciones concurrentes de alto rendimiento con código limpio, legible y cambios mínimos!',
       buttons: ['Comenzar', 'Cómo funcionan las corrutinas', 'Descargar'],
     },
     features: {
       title: 'Características principales',
-      heading: 'Production-ready API',
+      heading: 'API lista para producción',
       items: [
         { title: 'Corrutinas', text: 'Corrutinas ligeras para una ejecución concurrente eficiente. Sin funciones <code>async</code> coloreadas. Simplemente haz <code>spawn()</code> y listo.' },
         { title: 'I/O no bloqueante', text: '<code>fread</code>, <code>fwrite</code>, <code>file_get_contents</code>, <code>ob_start</code>, <code>curl</code>, <code>MySQL</code>, <code>PostgreSQL</code>. Las funciones habituales de PHP ahora funcionan de forma asíncrona sin esfuerzo adicional.' },
@@ -188,19 +201,32 @@ const strings: Record<string, HomeStrings> = {
         { title: 'PHP Mobile', text: 'Soporte de Android a nivel del núcleo de PHP: un runtime asíncrono dentro de una app nativa mediante <code>native-bridge</code>.' },
       ],
     },
-    guides: guidesEn,
+    guides: {
+      title: 'Guías y artículos',
+      heading: 'Aprende TrueAsync en la práctica',
+      description: 'Guías prácticas, desde tu primera corrutina hasta la concurrencia estructurada y el servidor integrado.',
+      readMore: 'Leer artículo',
+      items: [
+        { tag: 'Básicos', time: '6 min', title: 'Tu primera corrutina', body: 'Instala la extensión, lanza una corrutina con spawn() y observa la planificación cooperativa en acción.' },
+        { tag: 'Básicos', time: '9 min', title: 'I/O no bloqueante', body: 'Convierte llamadas comunes a fread, curl y PDO en trabajo concurrente sin callbacks.' },
+        { tag: 'Básicos', time: '8 min', title: 'Concurrencia estructurada', body: 'Controla el ciclo de vida de las corrutinas con un sandbox Scope y gestiona grupos con TaskGroup.' },
+        { tag: 'Servidor', time: '10 min', title: 'El servidor web TrueAsync', body: 'Ejecuta un servidor nativo HTTP/1.1, HTTP/2 y HTTP/3 directamente dentro del proceso PHP.' },
+        { tag: 'Básicos', time: '7 min', title: 'Pool de conexiones PDO', body: 'Pool de conexiones automático y seguro para corrutinas, integrado directamente en PDO.' },
+        { tag: 'Básicos', time: '9 min', title: 'Canales y ThreadPool', body: 'Patrones producer/consumer con canales con búfer, además de trabajo de CPU paralelo real mediante ThreadPool.' },
+      ],
+    },
   },
   fr: {
     hero: {
       badge: 'Version expérimentale',
       title: 'Véritable asynchrone dans <span class="hero-accent">PHP</span>',
-      slogan: 'Write sync. Run async.',
+      slogan: 'Écrivez synchrone. Exécutez asynchrone.',
       description: 'Imaginez PHP avec des coroutines, où les fonctions familières prennent en charge les E/S concurrentes. Créez des applications concurrentes haute performance avec un code propre et lisible, et un minimum de modifications !',
       buttons: ['Commencer', 'Comment fonctionnent les coroutines', 'Télécharger'],
     },
     features: {
       title: 'Fonctionnalités clés',
-      heading: 'Production-ready API',
+      heading: 'API prête pour la production',
       items: [
         { title: 'Coroutines', text: 'Des coroutines légères pour une exécution concurrente efficace. Pas de fonctions <code>async</code> colorées. Faites simplement <code>spawn()</code> et c\'est parti !' },
         { title: 'I/O non bloquante', text: '<code>fread</code>, <code>fwrite</code>, <code>file_get_contents</code>, <code>ob_start</code>, <code>curl</code>, <code>MySQL</code>, <code>PostgreSQL</code>. Les fonctions PHP classiques fonctionnent désormais de manière asynchrone sans effort supplémentaire.' },
@@ -213,19 +239,32 @@ const strings: Record<string, HomeStrings> = {
         { title: 'PHP Mobile', text: 'Prise en charge d\'Android au niveau du cœur de PHP : un runtime asynchrone au sein d\'une application native via <code>native-bridge</code>.' },
       ],
     },
-    guides: guidesEn,
+    guides: {
+      title: 'Guides et articles',
+      heading: 'Apprenez TrueAsync en pratique',
+      description: 'Des guides pratiques, de votre première coroutine à la concurrence structurée et au serveur intégré.',
+      readMore: 'Lire l\'article',
+      items: [
+        { tag: 'Bases', time: '6 min', title: 'Votre première coroutine', body: 'Installez l\'extension, lancez une coroutine avec spawn() et observez l\'ordonnancement coopératif en action.' },
+        { tag: 'Bases', time: '9 min', title: 'I/O non bloquante', body: 'Transformez les appels ordinaires à fread, curl et PDO en travail concurrent sans callbacks.' },
+        { tag: 'Bases', time: '8 min', title: 'Concurrence structurée', body: 'Contrôlez la durée de vie des coroutines avec un bac à sable Scope et gérez les groupes via TaskGroup.' },
+        { tag: 'Serveur', time: '10 min', title: 'Le serveur web TrueAsync', body: 'Exécutez un serveur natif HTTP/1.1, HTTP/2 et HTTP/3 directement dans le processus PHP.' },
+        { tag: 'Bases', time: '7 min', title: 'Pool de connexions PDO', body: 'Un pool de connexions automatique et sûr pour les coroutines, intégré directement dans PDO.' },
+        { tag: 'Bases', time: '9 min', title: 'Channels et ThreadPool', body: 'Des patrons producteur/consommateur avec des canaux tamponnés, ainsi qu\'un vrai travail CPU parallèle via ThreadPool.' },
+      ],
+    },
   },
   it: {
     hero: {
       badge: 'Versione sperimentale',
       title: 'Vera asincronicità dentro <span class="hero-accent">PHP</span>',
-      slogan: 'Write sync. Run async.',
+      slogan: 'Scrivi sincrono. Esegui asincrono.',
       description: 'Immagina PHP con coroutine, dove le funzioni familiari supportano l\'I/O concorrente. Crea applicazioni concorrenti ad alte prestazioni con codice pulito, leggibile e modifiche minime!',
       buttons: ['Inizia', 'Come funzionano le coroutine', 'Scarica'],
     },
     features: {
       title: 'Funzionalità principali',
-      heading: 'Production-ready API',
+      heading: 'API pronta per la produzione',
       items: [
         { title: 'Coroutine', text: 'Coroutine leggere per un\'esecuzione concorrente efficiente. Nessuna funzione <code>async</code> colorata. Basta fare <code>spawn()</code> e via!' },
         { title: 'I/O non bloccante', text: '<code>fread</code>, <code>fwrite</code>, <code>file_get_contents</code>, <code>ob_start</code>, <code>curl</code>, <code>MySQL</code>, <code>PostgreSQL</code>. Le normali funzioni PHP ora funzionano in modo asincrono senza sforzo aggiuntivo.' },
@@ -238,19 +277,32 @@ const strings: Record<string, HomeStrings> = {
         { title: 'PHP Mobile', text: 'Supporto Android a livello del core di PHP: un runtime asincrono all\'interno di un\'app nativa tramite <code>native-bridge</code>.' },
       ],
     },
-    guides: guidesEn,
+    guides: {
+      title: 'Guide e articoli',
+      heading: 'Impara TrueAsync nella pratica',
+      description: 'Guide pratiche, dalla tua prima coroutine alla concorrenza strutturata e al server integrato.',
+      readMore: 'Leggi l\'articolo',
+      items: [
+        { tag: 'Basi', time: '6 min', title: 'La tua prima coroutine', body: 'Installa l\'estensione, avvia una coroutine con spawn() e osserva lo scheduling cooperativo in azione.' },
+        { tag: 'Basi', time: '9 min', title: 'I/O non bloccante', body: 'Trasforma le normali chiamate a fread, curl e PDO in lavoro concorrente senza callback.' },
+        { tag: 'Basi', time: '8 min', title: 'Concorrenza strutturata', body: 'Controlla il ciclo di vita delle coroutine con un sandbox Scope e gestisci i gruppi tramite TaskGroup.' },
+        { tag: 'Server', time: '10 min', title: 'Il web server TrueAsync', body: 'Esegui un server nativo HTTP/1.1, HTTP/2 e HTTP/3 direttamente all\'interno del processo PHP.' },
+        { tag: 'Basi', time: '7 min', title: 'Pool di connessioni PDO', body: 'Pooling delle connessioni automatico e sicuro per le coroutine, integrato direttamente in PDO.' },
+        { tag: 'Basi', time: '9 min', title: 'Channel e ThreadPool', body: 'Pattern producer/consumer con canali bufferizzati, più vero lavoro CPU parallelo tramite ThreadPool.' },
+      ],
+    },
   },
   ko: {
     hero: {
       badge: '실험 버전',
       title: '<span class="hero-accent">PHP</span> 안에 진정한 비동기',
-      slogan: 'Write sync. Run async.',
+      slogan: '동기로 작성하고, 비동기로 실행하세요.',
       description: '익숙한 함수가 동시 I/O를 지원하는 코루틴이 있는 PHP를 상상해 보세요. 깨끗하고 읽기 쉬운 코드와 최소한의 변경으로 고성능 동시성 애플리케이션을 구축하세요!',
       buttons: ['시작하기', '코루틴 작동 방식', '다운로드'],
     },
     features: {
       title: '주요 기능',
-      heading: 'Production-ready API',
+      heading: '프로덕션 준비된 API',
       items: [
         { title: '코루틴', text: '효율적인 동시 실행을 위한 경량 코루틴. 컬러드 <code>async</code> 함수 없음. <code>spawn()</code>만 하면 됩니다!' },
         { title: '논블로킹 I/O', text: '<code>fread</code>, <code>fwrite</code>, <code>file_get_contents</code>, <code>ob_start</code>, <code>curl</code>, <code>MySQL</code>, <code>PostgreSQL</code>. 일반 PHP 함수가 추가 노력 없이 비동기로 작동합니다.' },
@@ -263,19 +315,32 @@ const strings: Record<string, HomeStrings> = {
         { title: 'PHP Mobile', text: 'PHP 코어 수준의 Android 지원: <code>native-bridge</code>를 통해 네이티브 앱 내부에서 실행되는 비동기 런타임.' },
       ],
     },
-    guides: guidesEn,
+    guides: {
+      title: '가이드 & 아티클',
+      heading: 'TrueAsync를 실전으로 배우기',
+      description: '첫 코루틴부터 구조적 동시성과 내장 서버까지, 실습 중심의 가이드입니다.',
+      readMore: '아티클 읽기',
+      items: [
+        { tag: '기초', time: '6분', title: '첫 코루틴', body: '확장을 설치하고 spawn()으로 코루틴을 실행하여 협력적 스케줄링이 작동하는 모습을 확인하세요.' },
+        { tag: '기초', time: '9분', title: '논블로킹 I/O', body: '평범한 fread, curl, PDO 호출을 콜백 없이 동시 작업으로 바꿔보세요.' },
+        { tag: '기초', time: '8분', title: '구조적 동시성', body: 'Scope 샌드박스로 코루틴 수명을 제어하고 TaskGroup으로 그룹을 관리하세요.' },
+        { tag: '서버', time: '10분', title: 'TrueAsync 웹 서버', body: '네이티브 HTTP/1.1, HTTP/2, HTTP/3 서버를 PHP 프로세스 내부에서 직접 실행하세요.' },
+        { tag: '기초', time: '7분', title: 'PDO 연결 풀', body: 'PDO에 그대로 내장된 자동, 코루틴 안전 연결 풀링.' },
+        { tag: '기초', time: '9분', title: '채널 & ThreadPool', body: '버퍼링된 채널을 이용한 생산자/소비자 패턴과 ThreadPool을 통한 실제 병렬 CPU 작업.' },
+      ],
+    },
   },
   uk: {
     hero: {
       badge: 'Експериментальна версія',
       title: 'Справжня асинхронність всередині <span class="hero-accent">PHP</span>',
-      slogan: 'Write sync. Run async.',
+      slogan: 'Пиши синхронно. Виконуй асинхронно.',
       description: 'Уявіть PHP з корутинами, де знайомі функції підтримують конкурентне введення-виведення. Створюйте високопродуктивні конкурентні застосунки з чистим, зрозумілим кодом і мінімумом змін!',
       buttons: ['Почати роботу', 'Як працюють корутини', 'Завантажити'],
     },
     features: {
       title: 'Ключові можливості',
-      heading: 'Production-ready API',
+      heading: 'API, орієнтований на продакшен',
       items: [
         { title: 'Корутини', text: 'Легкі корутини для ефективного конкурентного виконання. Жодних кольорових <code>async</code> функцій. Просто роби <code>spawn()</code> і вперед!' },
         { title: 'Неблокуючий I/O', text: '<code>fread</code>, <code>fwrite</code>, <code>file_get_contents</code>, <code>ob_start</code>, <code>curl</code>, <code>MySQL</code>, <code>PostgreSQL</code>. Звичайні функції PHP тепер працюють асинхронно без додаткових зусиль.' },
@@ -288,19 +353,32 @@ const strings: Record<string, HomeStrings> = {
         { title: 'PHP Mobile', text: 'Підтримка Android на рівні ядра PHP: асинхронний рантайм всередині нативного застосунку через <code>native-bridge</code>.' },
       ],
     },
-    guides: guidesEn,
+    guides: {
+      title: 'Посібники та статті',
+      heading: 'Опановуйте TrueAsync на практиці',
+      description: 'Практичні матеріали: від першої корутини до структурної конкурентності та вбудованого сервера.',
+      readMore: 'Читати статтю',
+      items: [
+        { tag: 'Основи', time: '6 хв', title: 'Перша корутина', body: 'Установіть розширення, запустіть корутину через spawn() і подивіться на кооперативний планувальник у дії.' },
+        { tag: 'Основи', time: '9 хв', title: 'Неблокуючий I/O', body: 'Звичайні fread, curl і запити PDO починають працювати конкурентно без колбеків.' },
+        { tag: 'Основи', time: '8 хв', title: 'Структурна конкурентність', body: 'Контролюйте час життя корутин за допомогою пісочниці Scope і керуйте групами через TaskGroup.' },
+        { tag: 'Сервер', time: '10 хв', title: 'Веб-сервер TrueAsync', body: 'Нативний сервер HTTP/1.1, HTTP/2 і HTTP/3 прямо всередині процесу PHP.' },
+        { tag: 'Основи', time: '7 хв', title: 'Пул з\'єднань PDO', body: 'Автоматичний пул з\'єднань, безпечний для корутин, вбудований прямо в PDO.' },
+        { tag: 'Основи', time: '9 хв', title: 'Канали та ThreadPool', body: 'Патерн виробник-споживач на буферизованих каналах і паралельні обчислення через ThreadPool.' },
+      ],
+    },
   },
   zh: {
     hero: {
       badge: '实验版本',
       title: '<span class="hero-accent">PHP</span> 内部的真正异步',
-      slogan: 'Write sync. Run async.',
+      slogan: '同步编写，异步运行。',
       description: '想象一下，PHP 拥有协程，熟悉的函数支持并发 I/O。用简洁、可读的代码和最少的改动构建高性能并发应用程序！',
       buttons: ['开始使用', '协程工作原理', '下载'],
     },
     features: {
       title: '核心功能',
-      heading: 'Production-ready API',
+      heading: '生产就绪的 API',
       items: [
         { title: '协程', text: '轻量级协程，实现高效并发执行。没有带颜色的 <code>async</code> 函数。只需调用 <code>spawn()</code> 即可开始！' },
         { title: '非阻塞 I/O', text: '<code>fread</code>, <code>fwrite</code>, <code>file_get_contents</code>, <code>ob_start</code>, <code>curl</code>, <code>MySQL</code>, <code>PostgreSQL</code>. 普通 PHP 函数无需额外操作即可异步运行。' },
@@ -313,7 +391,20 @@ const strings: Record<string, HomeStrings> = {
         { title: 'PHP Mobile', text: '在 PHP 核心层面支持 Android：通过 <code>native-bridge</code> 在原生应用内运行异步运行时。' },
       ],
     },
-    guides: guidesEn,
+    guides: {
+      title: '指南与文章',
+      heading: '在实践中学习 TrueAsync',
+      description: '实践指南，从你的第一个协程到结构化并发以及内置服务器。',
+      readMore: '阅读文章',
+      items: [
+        { tag: '基础', time: '6 分钟', title: '你的第一个协程', body: '安装扩展，用 spawn() 启动一个协程，亲眼见证协作式调度的运行。' },
+        { tag: '基础', time: '9 分钟', title: '非阻塞 I/O', body: '将普通的 fread、curl 和 PDO 调用变成并发工作，无需回调。' },
+        { tag: '基础', time: '8 分钟', title: '结构化并发', body: '通过 Scope 沙箱控制协程的生命周期，并借助 TaskGroup 管理协程组。' },
+        { tag: '服务器', time: '10 分钟', title: 'TrueAsync Web 服务器', body: '在 PHP 进程内部直接运行原生的 HTTP/1.1、HTTP/2 和 HTTP/3 服务器。' },
+        { tag: '基础', time: '7 分钟', title: 'PDO 连接池', body: '直接内置于 PDO 的自动、协程安全的连接池。' },
+        { tag: '基础', time: '9 分钟', title: '通道 & ThreadPool', body: '使用缓冲通道的生产者/消费者模式，以及通过 ThreadPool 实现的真正并行 CPU 工作。' },
+      ],
+    },
   },
 }
 
