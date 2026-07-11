@@ -375,6 +375,30 @@ export const docsSidebar: NavGroup[] = [
   },
 ]
 
+export const tutorialSidebar: NavGroup[] = [
+  {
+    title: 'Tutorials',
+    icon: 'workflow',
+    items: [
+      { url: '/en/tutors/01-coroutines.html', label: 'Coroutines', icon: 'zap' },
+      { url: '/en/tutors/02-cancellation.html', label: 'Cancellation', icon: 'ban' },
+      { url: '/en/tutors/03-await.html', label: 'Await', icon: 'link' },
+      { url: '/en/tutors/04-exceptions.html', label: 'Exceptions', icon: 'alert-triangle' },
+      { url: '/en/tutors/05-timeout.html', label: 'Timeouts', icon: 'clock' },
+      { url: '/en/tutors/06-future.html', label: 'Future', icon: 'clock' },
+      { url: '/en/tutors/07-channels.html', label: 'Channels', icon: 'arrow-left-right' },
+      { url: '/en/tutors/08-scope.html', label: 'Scope', icon: 'braces' },
+      { url: '/en/tutors/09-pdo-pool.html', label: 'PDO Pool', icon: 'database' },
+      { url: '/en/tutors/10-task-group.html', label: 'TaskGroup', icon: 'users' },
+      { url: '/en/tutors/11-task-set.html', label: 'TaskSet', icon: 'list-checks' },
+      { url: '/en/tutors/12-iterate.html', label: 'Concurrent Iterator', icon: 'shuffle' },
+      { url: '/en/tutors/13-pool.html', label: 'Pool', icon: 'layers' },
+      { url: '/en/tutors/14-threads.html', label: 'Threads', icon: 'cpu' },
+      { url: '/en/tutors/15-context.html', label: 'Context', icon: 'link' },
+    ],
+  },
+]
+
 export const architectureSidebar: NavGroup[] = [
   {
     title: 'Core',

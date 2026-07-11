@@ -72,8 +72,8 @@ const navItems = [
 ]
 
 const navLabels: Record<string, Record<string, string>> = {
-  en: { home: 'Home', docs: 'Documentation', download: 'Download', rfc: 'RFC', tutorial: 'Tutorial', motivation: 'Motivation', architecture: 'Architecture', contributing: 'Contributing' },
-  ru: { home: 'Главная', docs: 'Документация', download: 'Скачать', rfc: 'RFC', tutorial: 'Туториал', motivation: 'Мотивация', architecture: 'Архитектура', contributing: 'Участие' },
+  en: { home: 'Home', docs: 'Documentation', download: 'Download', rfc: 'RFC', tutorial: 'Tutorials', motivation: 'Motivation', architecture: 'Architecture', contributing: 'Contributing' },
+  ru: { home: 'Главная', docs: 'Документация', download: 'Скачать', rfc: 'RFC', tutorial: 'Туториалы', motivation: 'Мотивация', architecture: 'Архитектура', contributing: 'Участие' },
   de: { home: 'Startseite', docs: 'Dokumentation', download: 'Download', rfc: 'RFC', tutorial: 'Tutorial', motivation: 'Motivation', architecture: 'Architektur', contributing: 'Mitmachen' },
   fr: { home: 'Accueil', docs: 'Documentation', download: 'Telecharger', rfc: 'RFC', tutorial: 'Tutoriel', motivation: 'Motivation', architecture: 'Architecture', contributing: 'Contribuer' },
   es: { home: 'Inicio', docs: 'Documentación', download: 'Descargar', rfc: 'RFC', tutorial: 'Tutorial', motivation: 'Motivación', architecture: 'Arquitectura', contributing: 'Contribuir' },

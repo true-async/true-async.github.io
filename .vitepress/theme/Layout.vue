@@ -13,8 +13,10 @@ import DocFeedback from './DocFeedback.vue'
 import LearningMap from './LearningMap.vue'
 import CodeTooltips from './CodeTooltips.vue'
 import DocsToc from './DocsToc.vue'
-import { docsSidebar, architectureSidebar } from './sidebarData'
-import { docsSidebarRu, architectureSidebarRu } from './sidebarDataRu'
+import TutorialProgress from './TutorialProgress.vue'
+import { tutorialSlugFromPath } from './tutorialProgress'
+import { docsSidebar, architectureSidebar, tutorialSidebar } from './sidebarData'
+import { docsSidebarRu, architectureSidebarRu, tutorialSidebarRu } from './sidebarDataRu'
 import { docsSidebarDe, architectureSidebarDe } from './sidebarDataDe'
 import { docsSidebarEs, architectureSidebarEs } from './sidebarDataEs'
 import { docsSidebarFr, architectureSidebarFr } from './sidebarDataFr'
@@ -45,17 +47,32 @@ const archSidebarMap: Record<string, any[]> = {
   fr: architectureSidebarFr, it: architectureSidebarIt, ko: architectureSidebarKo, uk: architectureSidebarUk, zh: architectureSidebarZh,
 }
 
+// Only en/ru tutorial content exists so far; other locales fall back to English.
+const tutorialSidebarMap: Record<string, any[]> = {
+  en: tutorialSidebar, ru: tutorialSidebarRu,
+}
+
 const currentDocsSidebar = computed(() => docsSidebarMap[currentLang.value] || docsSidebar)
 const currentArchSidebar = computed(() => archSidebarMap[currentLang.value] || architectureSidebar)
+const currentTutorialSidebar = computed(() => tutorialSidebarMap[currentLang.value] || tutorialSidebar)
+
+// The docs/architecture/tutorial layouts share one sidebar+content template;
+// this picks which sidebar and fallback breadcrumb label backs the current layout.
+const currentSectionSidebar = computed(() => {
+  if (layout.value === 'architecture') return currentArchSidebar.value
+  if (layout.value === 'tutorial') return currentTutorialSidebar.value
+  return currentDocsSidebar.value
+})
 
 const route = useRoute()
 
 const layout = computed(() => frontmatter.value.layout || 'default')
 const isMainDocsPage = computed(() => frontmatter.value.path_key === '/docs.html')
+const isTutorialContentPage = computed(() => !!tutorialSlugFromPath(route.path))
 
 // Breadcrumb: find the sidebar group that owns the current page.
 const breadcrumb = computed(() => {
-  const sb = layout.value === 'architecture' ? currentArchSidebar.value : currentDocsSidebar.value
+  const sb = currentSectionSidebar.value
   const path = route.path
   const item = frontmatter.value.page_title || page.value.title || ''
   for (const grp of sb) {
@@ -68,7 +85,7 @@ const breadcrumb = computed(() => {
       }
     }
   }
-  const fallback = (layout.value === 'architecture' ? archLabels : docLabels)
+  const fallback = layout.value === 'architecture' ? archLabels : layout.value === 'tutorial' ? tutorialLabels : docLabels
   return { group: fallback[currentLang.value] || fallback.en, item }
 })
 const docLabels: Record<string, string> = {
@@ -78,6 +95,9 @@ const docLabels: Record<string, string> = {
 const archLabels: Record<string, string> = {
   en: 'Architecture', ru: 'Архитектура', de: 'Architektur', es: 'Arquitectura',
   fr: 'Architecture', it: 'Architettura', uk: 'Архітектура', zh: '架构', ko: '아키텍처',
+}
+const tutorialLabels: Record<string, string> = {
+  en: 'Tutorials', ru: 'Туториалы',
 }
 const prevLabels: Record<string, string> = {
   en: 'Previous', ru: 'Назад', de: 'Zurück', es: 'Anterior', fr: 'Précédent',
@@ -94,7 +114,7 @@ const pagenavLabels = computed(() => ({
 
 // Prev / next controls at the bottom, derived from the sidebar order.
 const pageNav = computed(() => {
-  const sb = layout.value === 'architecture' ? currentArchSidebar.value : currentDocsSidebar.value
+  const sb = currentSectionSidebar.value
   const flat: { url: string; label: string }[] = []
   for (const grp of sb) {
     for (const it of (grp.items || [])) {
@@ -162,13 +182,14 @@ onMounted(() => {
       </div>
     </div>
 
-    <!-- Docs layout with sidebar -->
-    <div v-if="layout === 'docs'" class="docs-layout">
+    <!-- Docs / Architecture / Tutorial layouts share one sidebar+content template;
+         currentSectionSidebar picks the right data source for each. -->
+    <div v-if="layout === 'docs' || layout === 'architecture' || layout === 'tutorial'" class="docs-layout">
       <button class="docs-sidebar-toggle" type="button" @click="sidebarOpen = true" aria-label="Open navigation">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
         {{ sidebarToggleLabel }}
       </button>
-      <Sidebar :sidebar="currentDocsSidebar" :open="sidebarOpen" @close="sidebarOpen = false" />
+      <Sidebar :sidebar="currentSectionSidebar" :open="sidebarOpen" @close="sidebarOpen = false" />
       <div v-if="sidebarOpen" class="docs-sidebar-backdrop" @click="sidebarOpen = false"></div>
       <main class="docs-content" :key="route.path">
         <div class="docs-breadcrumb">
@@ -177,39 +198,8 @@ onMounted(() => {
           <span class="docs-breadcrumb-item">{{ breadcrumb.item }}</span>
         </div>
         <Content />
+        <TutorialProgress v-if="isTutorialContentPage" />
         <LearningMap v-if="isMainDocsPage" />
-        <nav class="docs-pagenav" v-if="pageNav.prev || pageNav.next">
-          <a v-if="pageNav.prev" :href="pageNav.prev.url" class="docs-pagenav-card">
-            <span class="docs-pagenav-dir">&larr; {{ pagenavLabels.prev }}</span>
-            <span class="docs-pagenav-title">{{ pageNav.prev.label }}</span>
-          </a>
-          <span v-else class="docs-pagenav-spacer"></span>
-          <a v-if="pageNav.next" :href="pageNav.next.url" class="docs-pagenav-card docs-pagenav-card--next">
-            <span class="docs-pagenav-dir">{{ pagenavLabels.next }} &rarr;</span>
-            <span class="docs-pagenav-title">{{ pageNav.next.label }}</span>
-          </a>
-          <span v-else class="docs-pagenav-spacer"></span>
-        </nav>
-        <DocFeedback />
-      </main>
-      <DocsToc />
-    </div>
-
-    <!-- Architecture layout with sidebar -->
-    <div v-else-if="layout === 'architecture'" class="docs-layout">
-      <button class="docs-sidebar-toggle" type="button" @click="sidebarOpen = true" aria-label="Open navigation">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-        {{ sidebarToggleLabel }}
-      </button>
-      <Sidebar :sidebar="currentArchSidebar" :open="sidebarOpen" @close="sidebarOpen = false" />
-      <div v-if="sidebarOpen" class="docs-sidebar-backdrop" @click="sidebarOpen = false"></div>
-      <main class="docs-content" :key="route.path">
-        <div class="docs-breadcrumb">
-          <span class="docs-breadcrumb-group">{{ breadcrumb.group }}</span>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
-          <span class="docs-breadcrumb-item">{{ breadcrumb.item }}</span>
-        </div>
-        <Content />
         <nav class="docs-pagenav" v-if="pageNav.prev || pageNav.next">
           <a v-if="pageNav.prev" :href="pageNav.prev.url" class="docs-pagenav-card">
             <span class="docs-pagenav-dir">&larr; {{ pagenavLabels.prev }}</span>

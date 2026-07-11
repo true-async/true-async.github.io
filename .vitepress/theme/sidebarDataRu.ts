@@ -378,6 +378,30 @@ export const docsSidebarRu: NavGroup[] = [
   },
 ]
 
+export const tutorialSidebarRu: NavGroup[] = [
+  {
+    title: 'Туториалы',
+    icon: 'workflow',
+    items: [
+      { url: '/ru/tutors/01-coroutines.html', label: 'Корутины', icon: 'zap' },
+      { url: '/ru/tutors/02-cancellation.html', label: 'Отмена', icon: 'ban' },
+      { url: '/ru/tutors/03-await.html', label: 'Await', icon: 'link' },
+      { url: '/ru/tutors/04-exceptions.html', label: 'Исключения', icon: 'alert-triangle' },
+      { url: '/ru/tutors/05-timeout.html', label: 'Таймауты', icon: 'clock' },
+      { url: '/ru/tutors/06-future.html', label: 'Future', icon: 'clock' },
+      { url: '/ru/tutors/07-channels.html', label: 'Каналы', icon: 'arrow-left-right' },
+      { url: '/ru/tutors/08-scope.html', label: 'Scope', icon: 'braces' },
+      { url: '/ru/tutors/09-pdo-pool.html', label: 'PDO Pool', icon: 'database' },
+      { url: '/ru/tutors/10-task-group.html', label: 'TaskGroup', icon: 'users' },
+      { url: '/ru/tutors/11-task-set.html', label: 'TaskSet', icon: 'list-checks' },
+      { url: '/ru/tutors/12-iterate.html', label: 'Конкурентный итератор', icon: 'shuffle' },
+      { url: '/ru/tutors/13-pool.html', label: 'Pool', icon: 'layers' },
+      { url: '/ru/tutors/14-threads.html', label: 'Потоки', icon: 'cpu' },
+      { url: '/ru/tutors/15-context.html', label: 'Context', icon: 'link' },
+    ],
+  },
+]
+
 export const architectureSidebarRu: NavGroup[] = [
   {
     title: 'Ядро',

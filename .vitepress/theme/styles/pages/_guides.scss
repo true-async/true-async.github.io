@@ -135,3 +135,49 @@
     transform: translateX(5px);
 }
 
+/* ---- Tutorial index grid (reuses .lesson-card outside the homepage) ---- */
+
+.tutorial-grid {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: 1fr;
+    margin: 2rem 0;
+}
+
+@media (min-width: 640px) {
+    .tutorial-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .tutorial-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* .docs-content a sets a global underline; beat its specificity so the
+   lesson-card (and everything inside it) stays underline-free like on the homepage. */
+.docs-content .lesson-card,
+.docs-content .lesson-card * {
+    text-decoration: none;
+}
+
+.tutorial-progress-count {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    color: var(--color-text-muted);
+    margin: -0.75rem 0 0;
+}
+
+.lesson-card--done {
+    outline-color: var(--color-primary);
+}
+
+.lesson-done-check {
+    width: 15px;
+    height: 15px;
+    color: var(--color-primary);
+    flex-shrink: 0;
+}
+

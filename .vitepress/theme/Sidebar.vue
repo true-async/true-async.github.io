@@ -2,6 +2,7 @@
 import { ref, computed, watch, nextTick } from 'vue'
 import { useRoute } from 'vitepress'
 import { navIcons } from './navIcons'
+import { completedTutorials, isTutorialCompleted, tutorialSlugFromPath } from './tutorialProgress'
 
 const route = useRoute()
 const searchQuery = ref('')
@@ -104,6 +105,12 @@ function getIconSvg(iconName: string | undefined): string | null {
   return navIcons[iconName]
 }
 
+function tutorialDone(url: string): boolean {
+  void completedTutorials.value // register reactive dependency
+  const slug = tutorialSlugFromPath(url)
+  return slug ? isTutorialCompleted(slug) : false
+}
+
 const filteredSidebar = computed(() => {
   if (!searchQuery.value.trim()) return props.sidebar
   const q = searchQuery.value.toLowerCase()
@@ -195,6 +202,7 @@ const filteredSidebar = computed(() => {
             <a v-else :href="item.url" :class="{ active: isActive(item.url) }">
               <span v-if="getIconSvg(item.icon)" class="nav-icon" v-html="'<svg width=&quot;16&quot; height=&quot;16&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;>' + getIconSvg(item.icon) + '</svg>'"></span>
               {{ item.label }}
+              <svg v-if="tutorialDone(item.url)" class="nav-done-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
             </a>
           </div>
         </div>

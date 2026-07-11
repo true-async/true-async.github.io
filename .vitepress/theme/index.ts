@@ -2,6 +2,7 @@ import type { Theme } from 'vitepress'
 import Layout from './Layout.vue'
 import NotFound from './NotFound.vue'
 import ComingSoon from './ComingSoon.vue'
+import TutorialIndexGrid from './TutorialIndexGrid.vue'
 import './styles/main.scss'
 
 export default {
@@ -10,6 +11,7 @@ export default {
   enhanceApp({ app, router }) {
     // Global components usable from markdown pages.
     app.component('ComingSoon', ComingSoon)
+    app.component('TutorialIndexGrid', TutorialIndexGrid)
     if (typeof window === 'undefined') return
 
     const LOCALES = ['en', 'ru', 'de', 'es', 'fr', 'it', 'uk', 'zh', 'ko']

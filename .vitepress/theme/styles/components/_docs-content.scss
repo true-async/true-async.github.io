@@ -225,3 +225,13 @@
     border-radius: var(--radius-lg);
 }
 
+/* Tutorial "mark as completed" button */
+.tutorial-progress-btn {
+    margin-top: 1rem;
+}
+.tutorial-progress-btn--done {
+    background: color-mix(in srgb, var(--color-primary) 14%, transparent);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
