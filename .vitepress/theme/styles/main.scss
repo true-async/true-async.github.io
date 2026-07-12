@@ -7,10 +7,10 @@
 @use "abstracts/variables";
 @use "abstracts/dark";
 
-// Base + vendor (VitePress-generated markup)
+// Base + overrides for VitePress-generated markup
 @use "base/reset";
 @use "base/animations"; // shared @keyframes / @property (emit once, global by name)
-@use "vendor/search";
+@use "components/search";
 @use "base/scrollbars";
 
 // Layout
@@ -21,7 +21,7 @@
 // Components / content
 @use "components/docs-content";
 @use "components/code-blocks";
-@use "vendor/notices";
+@use "components/notices";
 @use "layout/footer";
 @use "components/doc-feedback";
 @use "components/sidebar-toggle";
