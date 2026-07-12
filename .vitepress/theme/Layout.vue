@@ -15,8 +15,9 @@ import CodeTooltips from './CodeTooltips.vue'
 import DocsToc from './DocsToc.vue'
 import TutorialProgress from './TutorialProgress.vue'
 import { tutorialSlugFromPath } from './tutorialProgress'
-import { docsSidebar, architectureSidebar, tutorialSidebar } from './sidebarData'
-import { docsSidebarRu, architectureSidebarRu, tutorialSidebarRu } from './sidebarDataRu'
+import { docsSidebar, architectureSidebar } from './sidebarData'
+import { docsSidebarRu, architectureSidebarRu } from './sidebarDataRu'
+import { tutorialSidebar } from './tutorialData'
 import { docsSidebarDe, architectureSidebarDe } from './sidebarDataDe'
 import { docsSidebarEs, architectureSidebarEs } from './sidebarDataEs'
 import { docsSidebarFr, architectureSidebarFr } from './sidebarDataFr'
@@ -47,14 +48,10 @@ const archSidebarMap: Record<string, any[]> = {
   fr: architectureSidebarFr, it: architectureSidebarIt, ko: architectureSidebarKo, uk: architectureSidebarUk, zh: architectureSidebarZh,
 }
 
-// Only en/ru tutorial content exists so far; other locales fall back to English.
-const tutorialSidebarMap: Record<string, any[]> = {
-  en: tutorialSidebar, ru: tutorialSidebarRu,
-}
-
 const currentDocsSidebar = computed(() => docsSidebarMap[currentLang.value] || docsSidebar)
 const currentArchSidebar = computed(() => archSidebarMap[currentLang.value] || architectureSidebar)
-const currentTutorialSidebar = computed(() => tutorialSidebarMap[currentLang.value] || tutorialSidebar)
+// Tutorial sidebar is data-driven (single source + per-locale strings) for all 9 locales.
+const currentTutorialSidebar = computed(() => tutorialSidebar(currentLang.value))
 
 // The docs/architecture/tutorial layouts share one sidebar+content template;
 // this picks which sidebar and fallback breadcrumb label backs the current layout.
@@ -97,7 +94,8 @@ const archLabels: Record<string, string> = {
   fr: 'Architecture', it: 'Architettura', uk: 'Архітектура', zh: '架构', ko: '아키텍처',
 }
 const tutorialLabels: Record<string, string> = {
-  en: 'Tutorials', ru: 'Туториалы',
+  en: 'Tutorials', ru: 'Туториалы', de: 'Tutorials', es: 'Tutoriales',
+  fr: 'Tutoriels', it: 'Tutorial', uk: 'Туторіали', zh: '教程', ko: '튜토리얼',
 }
 const prevLabels: Record<string, string> = {
   en: 'Previous', ru: 'Назад', de: 'Zurück', es: 'Anterior', fr: 'Précédent',

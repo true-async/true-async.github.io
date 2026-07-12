@@ -1,10 +1,16 @@
 ---
-layout: docs
+layout: tutorial
 lang: uk
 path_key: /tutorial.html
 nav_active: tutorial
-page_title: Туторіал
-description: Покрокові туторіали з TrueAsync
+permalink: /uk/tutorial.html
+page_title: Туторіали
+description: "Покрокові туторіали з TrueAsync: від першої корутини до пулів, потоків і Context."
 ---
 
-<ComingSoon />
+# Туторіали
+
+Покрокове знайомство з TrueAsync: від першої корутини до структурованої конкурентності, пулів ресурсів і справжнього паралелізму.
+Туторіали побудовані один на одному, тому радимо проходити їх по порядку, починаючи з першого.
+
+<TutorialIndexGrid />

@@ -170,6 +170,17 @@
     margin: -0.75rem 0 0;
 }
 
+/* Series heading above each tutorial grid (Basics / TrueAsync Server). */
+.tutorial-section-title {
+    margin: 2.5rem 0 0;
+    padding-bottom: 0;
+    border-bottom: none;
+    font-size: 1.35rem;
+}
+.tutorial-section-title + .tutorial-grid {
+    margin-top: 1rem;
+}
+
 .lesson-card--done {
     outline-color: var(--color-primary);
 }

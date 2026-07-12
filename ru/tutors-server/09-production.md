@@ -1,5 +1,5 @@
 ---
-layout: docs
+layout: tutorial
 lang: ru
 path_key: "/tutors-server/09-production.html"
 nav_active: docs

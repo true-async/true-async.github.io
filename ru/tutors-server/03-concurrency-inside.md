@@ -1,5 +1,5 @@
 ---
-layout: docs
+layout: tutorial
 lang: ru
 path_key: "/tutors-server/03-concurrency-inside.html"
 nav_active: docs

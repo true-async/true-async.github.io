@@ -2,11 +2,18 @@ import { ref } from 'vue'
 
 const STORAGE_KEY = 'trueasync:tutorial-progress'
 
-export const TUTORIAL_SLUGS = [
+// Basics series (under /tutors/) and the server series (under /tutors-server/).
+export const CORE_SLUGS = [
   '01-coroutines', '02-cancellation', '03-await', '04-exceptions', '05-timeout',
   '06-future', '07-channels', '08-scope', '09-pdo-pool', '10-task-group',
   '11-task-set', '12-iterate', '13-pool', '14-threads', '15-context',
 ]
+export const SERVER_SLUGS = [
+  '01-first-server', '02-request-response', '03-concurrency-inside', '04-streaming-uploads',
+  '05-static', '06-sse', '07-websocket', '08-workers', '09-production', '10-grpc',
+]
+// Progress is keyed by slug; the two series never share a slug, so a flat set is safe.
+export const TUTORIAL_SLUGS = [...CORE_SLUGS, ...SERVER_SLUGS]
 
 function load(): Set<string> {
   if (typeof window === 'undefined') return new Set()
@@ -47,6 +54,6 @@ export function completedCount(): number {
 }
 
 export function tutorialSlugFromPath(path: string): string | null {
-  const m = path.match(/\/tutors\/([a-z0-9-]+)\.html$/)
+  const m = path.match(/\/tutors(?:-server)?\/([a-z0-9-]+)\.html$/)
   return m ? m[1] : null
 }

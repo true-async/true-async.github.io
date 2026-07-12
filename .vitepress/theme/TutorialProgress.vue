@@ -15,6 +15,13 @@ const done = computed(() => (slug.value ? isTutorialCompleted(slug.value) : fals
 const labels: Record<string, { mark: string; done: string }> = {
   en: { mark: 'Mark as completed', done: 'Completed' },
   ru: { mark: 'Отметить как пройденное', done: 'Пройдено' },
+  de: { mark: 'Als abgeschlossen markieren', done: 'Abgeschlossen' },
+  es: { mark: 'Marcar como completado', done: 'Completado' },
+  fr: { mark: 'Marquer comme terminé', done: 'Terminé' },
+  it: { mark: 'Segna come completato', done: 'Completato' },
+  ko: { mark: '완료로 표시', done: '완료됨' },
+  uk: { mark: 'Позначити як пройдене', done: 'Пройдено' },
+  zh: { mark: '标记为已完成', done: '已完成' },
 }
 const t = computed(() => labels[lang.value] || labels.en)
 
