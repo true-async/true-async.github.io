@@ -4,6 +4,8 @@ import { useRoute } from 'vitepress'
 import { CURRENT_VERSION } from './version'
 import { roadmap } from './roadmapData'
 import { roadmapI18n } from './roadmapI18n'
+import { tutorialStrings } from './tutorialData'
+import { CORE_SLUGS, SERVER_SLUGS } from './tutorialProgress'
 
 const route = useRoute()
 
@@ -20,7 +22,7 @@ const currentLang = computed(() => {
 // ---------------------------------------------------------------------------
 interface ButtonMeta { slug: string; style: string; icon?: string; external?: boolean }
 interface FeatureMeta { icon: string; slug: string }
-interface GuideMeta { tagColor: string; slug: string }
+interface GuideMeta { series: 'core' | 'server'; index: number; tagColor: string; time: number }
 
 const heroButtonsMeta: ButtonMeta[] = [
   { slug: 'docs.html', style: 'primary', icon: 'arrow' },
@@ -38,44 +40,42 @@ const featureMeta: FeatureMeta[] = [
   { icon: 'futures', slug: 'docs/components/future.html' },
   { icon: 'mobile', slug: 'docs/mobile/index.html' },
 ]
+// Curated tutorials for the home page: a spread across both series. `index` is
+// the position in tutorialStrings.core / .server; title + body are pulled from
+// there (single source), so only tagColor and reading time live here.
 const guideMeta: GuideMeta[] = [
-  { tagColor: 'purple', slug: 'docs/components/coroutines.html' },
-  { tagColor: 'purple', slug: 'docs/reference/supported-functions.html' },
-  { tagColor: 'purple', slug: 'docs/components/scope.html' },
-  { tagColor: 'teal', slug: 'docs/server/index.html' },
-  { tagColor: 'orange', slug: 'docs/components/pdo-pool.html' },
-  { tagColor: 'blue', slug: 'docs/components/channels.html' },
+  { series: 'core', index: 0, tagColor: 'purple', time: 6 },   // Coroutines
+  { series: 'core', index: 7, tagColor: 'purple', time: 8 },   // Scope
+  { series: 'core', index: 8, tagColor: 'orange', time: 7 },   // PDO Pool
+  { series: 'core', index: 13, tagColor: 'blue', time: 9 },    // Threads
+  { series: 'server', index: 0, tagColor: 'teal', time: 10 },  // First server
+  { series: 'server', index: 6, tagColor: 'teal', time: 8 },   // WebSocket
 ]
 
 // ---------------------------------------------------------------------------
 // PER-LOCALE STRINGS ONLY. Arrays align by index with the *Meta arrays above.
-// TRANSLATION DEBT: for de/es/fr/it/ko/uk/zh the hero.slogan, features.heading,
-// guides.heading and the whole guides block are English placeholders — see
-// docs/translation-debt.md.
+// The guides section only carries its own chrome here (title/heading/etc. plus
+// the localized "server" tag and time unit); each card's title and body are
+// pulled from tutorialStrings, so the tutorial translations are the one source.
 // ---------------------------------------------------------------------------
 interface FeatureStr { title: string; text: string }
-interface GuideStr { tag: string; time: string; title: string; body: string }
 interface HeroStr { badge: string; title: string; slogan: string; description: string; buttons: [string, string, string] }
 interface HomeStrings {
   hero: HeroStr
   features: { title: string; heading: string; items: FeatureStr[] }
-  guides: { title: string; heading: string; description: string; readMore: string; items: GuideStr[] }
+  // Card title/body come from tutorialStrings; only the section chrome + the
+  // localized "server" tag word and time unit live here. timeUnit carries its
+  // own leading space where the language wants one (e.g. ' min' vs ko '분').
+  guides: { title: string; heading: string; description: string; readMore: string; serverTag: string; timeUnit: string }
 }
 
-// English guides block, reused as the placeholder for locales not yet translated.
 const guidesEn = {
   title: 'Guides & Articles',
   heading: 'Learn TrueAsync in practice',
   description: 'Hands-on guides, from your first coroutine to structured concurrency and the built-in server.',
-  readMore: 'Read article',
-  items: [
-    { tag: 'Core', time: '6 min', title: 'Your first coroutine', body: 'Install the extension, spawn() a coroutine and see cooperative scheduling in action.' },
-    { tag: 'Core', time: '9 min', title: 'Non-blocking I/O', body: 'Turn ordinary fread, curl and PDO calls into concurrent work without callbacks.' },
-    { tag: 'Core', time: '8 min', title: 'Structured concurrency', body: 'Control coroutine lifetime with a Scope sandbox and manage groups via TaskGroup.' },
-    { tag: 'Server', time: '10 min', title: 'The TrueAsync web server', body: 'Run a native HTTP/1.1, HTTP/2 and HTTP/3 server directly inside the PHP process.' },
-    { tag: 'Core', time: '7 min', title: 'PDO connection pool', body: 'Automatic, coroutine-safe connection pooling built right into PDO.' },
-    { tag: 'Core', time: '9 min', title: 'Channels & ThreadPool', body: 'Producer/consumer patterns with buffered channels, plus real parallel CPU work via ThreadPool.' },
-  ],
+  readMore: 'Read tutorial',
+  serverTag: 'Server',
+  timeUnit: ' min',
 }
 
 const strings: Record<string, HomeStrings> = {
@@ -131,15 +131,9 @@ const strings: Record<string, HomeStrings> = {
       title: 'Руководства и статьи',
       heading: 'Осваивайте TrueAsync на практике',
       description: 'Практические материалы: от первой корутины до структурной конкурентности и встроенного сервера.',
-      readMore: 'Читать статью',
-      items: [
-        { tag: 'Основы', time: '6 мин', title: 'Первая корутина', body: 'Установите расширение, запустите корутину через spawn() и посмотрите на кооперативный планировщик в действии.' },
-        { tag: 'Основы', time: '9 мин', title: 'Неблокирующий I/O', body: 'Обычные fread, curl и запросы PDO начинают работать конкурентно без коллбэков.' },
-        { tag: 'Основы', time: '8 мин', title: 'Структурная конкурентность', body: 'Контролируйте время жизни корутин с помощью песочницы Scope и управляйте группами через TaskGroup.' },
-        { tag: 'Сервер', time: '10 мин', title: 'Веб-сервер TrueAsync', body: 'Нативный сервер HTTP/1.1, HTTP/2 и HTTP/3 прямо внутри процесса PHP.' },
-        { tag: 'Основы', time: '7 мин', title: 'Пул соединений PDO', body: 'Автоматический пул соединений, безопасный для корутин, встроенный прямо в PDO.' },
-        { tag: 'Основы', time: '9 мин', title: 'Каналы и ThreadPool', body: 'Паттерн производитель-потребитель на буферизованных каналах и параллельные вычисления через ThreadPool.' },
-      ],
+      readMore: 'Читать туториал',
+      serverTag: 'Сервер',
+      timeUnit: ' мин',
     },
   },
   de: {
@@ -169,15 +163,9 @@ const strings: Record<string, HomeStrings> = {
       title: 'Anleitungen & Artikel',
       heading: 'TrueAsync in der Praxis lernen',
       description: 'Praxisnahe Anleitungen, von deiner ersten Koroutine bis zu strukturierter Nebenläufigkeit und dem integrierten Server.',
-      readMore: 'Artikel lesen',
-      items: [
-        { tag: 'Grundlagen', time: '6 Min.', title: 'Deine erste Koroutine', body: 'Installiere die Erweiterung, starte eine Koroutine mit spawn() und sieh dem kooperativen Scheduler bei der Arbeit zu.' },
-        { tag: 'Grundlagen', time: '9 Min.', title: 'Nicht-blockierende I/O', body: 'Verwandle gewöhnliche fread-, curl- und PDO-Aufrufe in nebenläufige Arbeit ohne Callbacks.' },
-        { tag: 'Grundlagen', time: '8 Min.', title: 'Strukturierte Nebenläufigkeit', body: 'Steuere die Lebensdauer von Koroutinen mit einer Scope-Sandbox und verwalte Gruppen über TaskGroup.' },
-        { tag: 'Server', time: '10 Min.', title: 'Der TrueAsync-Webserver', body: 'Betreibe einen nativen HTTP/1.1-, HTTP/2- und HTTP/3-Server direkt im PHP-Prozess.' },
-        { tag: 'Grundlagen', time: '7 Min.', title: 'PDO-Verbindungspool', body: 'Automatisches, koroutinensicheres Verbindungs-Pooling direkt in PDO integriert.' },
-        { tag: 'Grundlagen', time: '9 Min.', title: 'Channels & ThreadPool', body: 'Producer/Consumer-Muster mit gepufferten Kanälen, plus echte parallele CPU-Arbeit via ThreadPool.' },
-      ],
+      readMore: 'Tutorial lesen',
+      serverTag: 'Server',
+      timeUnit: ' Min.',
     },
   },
   es: {
@@ -207,15 +195,9 @@ const strings: Record<string, HomeStrings> = {
       title: 'Guías y artículos',
       heading: 'Aprende TrueAsync en la práctica',
       description: 'Guías prácticas, desde tu primera corrutina hasta la concurrencia estructurada y el servidor integrado.',
-      readMore: 'Leer artículo',
-      items: [
-        { tag: 'Básicos', time: '6 min', title: 'Tu primera corrutina', body: 'Instala la extensión, lanza una corrutina con spawn() y observa la planificación cooperativa en acción.' },
-        { tag: 'Básicos', time: '9 min', title: 'I/O no bloqueante', body: 'Convierte llamadas comunes a fread, curl y PDO en trabajo concurrente sin callbacks.' },
-        { tag: 'Básicos', time: '8 min', title: 'Concurrencia estructurada', body: 'Controla el ciclo de vida de las corrutinas con un sandbox Scope y gestiona grupos con TaskGroup.' },
-        { tag: 'Servidor', time: '10 min', title: 'El servidor web TrueAsync', body: 'Ejecuta un servidor nativo HTTP/1.1, HTTP/2 y HTTP/3 directamente dentro del proceso PHP.' },
-        { tag: 'Básicos', time: '7 min', title: 'Pool de conexiones PDO', body: 'Pool de conexiones automático y seguro para corrutinas, integrado directamente en PDO.' },
-        { tag: 'Básicos', time: '9 min', title: 'Canales y ThreadPool', body: 'Patrones producer/consumer con canales con búfer, además de trabajo de CPU paralelo real mediante ThreadPool.' },
-      ],
+      readMore: 'Leer el tutorial',
+      serverTag: 'Servidor',
+      timeUnit: ' min',
     },
   },
   fr: {
@@ -245,15 +227,9 @@ const strings: Record<string, HomeStrings> = {
       title: 'Guides et articles',
       heading: 'Apprenez TrueAsync en pratique',
       description: 'Des guides pratiques, de votre première coroutine à la concurrence structurée et au serveur intégré.',
-      readMore: 'Lire l\'article',
-      items: [
-        { tag: 'Bases', time: '6 min', title: 'Votre première coroutine', body: 'Installez l\'extension, lancez une coroutine avec spawn() et observez l\'ordonnancement coopératif en action.' },
-        { tag: 'Bases', time: '9 min', title: 'I/O non bloquante', body: 'Transformez les appels ordinaires à fread, curl et PDO en travail concurrent sans callbacks.' },
-        { tag: 'Bases', time: '8 min', title: 'Concurrence structurée', body: 'Contrôlez la durée de vie des coroutines avec un bac à sable Scope et gérez les groupes via TaskGroup.' },
-        { tag: 'Serveur', time: '10 min', title: 'Le serveur web TrueAsync', body: 'Exécutez un serveur natif HTTP/1.1, HTTP/2 et HTTP/3 directement dans le processus PHP.' },
-        { tag: 'Bases', time: '7 min', title: 'Pool de connexions PDO', body: 'Un pool de connexions automatique et sûr pour les coroutines, intégré directement dans PDO.' },
-        { tag: 'Bases', time: '9 min', title: 'Channels et ThreadPool', body: 'Des patrons producteur/consommateur avec des canaux tamponnés, ainsi qu\'un vrai travail CPU parallèle via ThreadPool.' },
-      ],
+      readMore: 'Lire le tutoriel',
+      serverTag: 'Serveur',
+      timeUnit: ' min',
     },
   },
   it: {
@@ -283,15 +259,9 @@ const strings: Record<string, HomeStrings> = {
       title: 'Guide e articoli',
       heading: 'Impara TrueAsync nella pratica',
       description: 'Guide pratiche, dalla tua prima coroutine alla concorrenza strutturata e al server integrato.',
-      readMore: 'Leggi l\'articolo',
-      items: [
-        { tag: 'Basi', time: '6 min', title: 'La tua prima coroutine', body: 'Installa l\'estensione, avvia una coroutine con spawn() e osserva lo scheduling cooperativo in azione.' },
-        { tag: 'Basi', time: '9 min', title: 'I/O non bloccante', body: 'Trasforma le normali chiamate a fread, curl e PDO in lavoro concorrente senza callback.' },
-        { tag: 'Basi', time: '8 min', title: 'Concorrenza strutturata', body: 'Controlla il ciclo di vita delle coroutine con un sandbox Scope e gestisci i gruppi tramite TaskGroup.' },
-        { tag: 'Server', time: '10 min', title: 'Il web server TrueAsync', body: 'Esegui un server nativo HTTP/1.1, HTTP/2 e HTTP/3 direttamente all\'interno del processo PHP.' },
-        { tag: 'Basi', time: '7 min', title: 'Pool di connessioni PDO', body: 'Pooling delle connessioni automatico e sicuro per le coroutine, integrato direttamente in PDO.' },
-        { tag: 'Basi', time: '9 min', title: 'Channel e ThreadPool', body: 'Pattern producer/consumer con canali bufferizzati, più vero lavoro CPU parallelo tramite ThreadPool.' },
-      ],
+      readMore: 'Leggi il tutorial',
+      serverTag: 'Server',
+      timeUnit: ' min',
     },
   },
   ko: {
@@ -321,15 +291,9 @@ const strings: Record<string, HomeStrings> = {
       title: '가이드 & 아티클',
       heading: 'TrueAsync를 실전으로 배우기',
       description: '첫 코루틴부터 구조적 동시성과 내장 서버까지, 실습 중심의 가이드입니다.',
-      readMore: '아티클 읽기',
-      items: [
-        { tag: '기초', time: '6분', title: '첫 코루틴', body: '확장을 설치하고 spawn()으로 코루틴을 실행하여 협력적 스케줄링이 작동하는 모습을 확인하세요.' },
-        { tag: '기초', time: '9분', title: '논블로킹 I/O', body: '평범한 fread, curl, PDO 호출을 콜백 없이 동시 작업으로 바꿔보세요.' },
-        { tag: '기초', time: '8분', title: '구조적 동시성', body: 'Scope 샌드박스로 코루틴 수명을 제어하고 TaskGroup으로 그룹을 관리하세요.' },
-        { tag: '서버', time: '10분', title: 'TrueAsync 웹 서버', body: '네이티브 HTTP/1.1, HTTP/2, HTTP/3 서버를 PHP 프로세스 내부에서 직접 실행하세요.' },
-        { tag: '기초', time: '7분', title: 'PDO 연결 풀', body: 'PDO에 그대로 내장된 자동, 코루틴 안전 연결 풀링.' },
-        { tag: '기초', time: '9분', title: '채널 & ThreadPool', body: '버퍼링된 채널을 이용한 생산자/소비자 패턴과 ThreadPool을 통한 실제 병렬 CPU 작업.' },
-      ],
+      readMore: '튜토리얼 읽기',
+      serverTag: '서버',
+      timeUnit: '분',
     },
   },
   uk: {
@@ -359,15 +323,9 @@ const strings: Record<string, HomeStrings> = {
       title: 'Посібники та статті',
       heading: 'Опановуйте TrueAsync на практиці',
       description: 'Практичні матеріали: від першої корутини до структурної конкурентності та вбудованого сервера.',
-      readMore: 'Читати статтю',
-      items: [
-        { tag: 'Основи', time: '6 хв', title: 'Перша корутина', body: 'Установіть розширення, запустіть корутину через spawn() і подивіться на кооперативний планувальник у дії.' },
-        { tag: 'Основи', time: '9 хв', title: 'Неблокуючий I/O', body: 'Звичайні fread, curl і запити PDO починають працювати конкурентно без колбеків.' },
-        { tag: 'Основи', time: '8 хв', title: 'Структурна конкурентність', body: 'Контролюйте час життя корутин за допомогою пісочниці Scope і керуйте групами через TaskGroup.' },
-        { tag: 'Сервер', time: '10 хв', title: 'Веб-сервер TrueAsync', body: 'Нативний сервер HTTP/1.1, HTTP/2 і HTTP/3 прямо всередині процесу PHP.' },
-        { tag: 'Основи', time: '7 хв', title: 'Пул з\'єднань PDO', body: 'Автоматичний пул з\'єднань, безпечний для корутин, вбудований прямо в PDO.' },
-        { tag: 'Основи', time: '9 хв', title: 'Канали та ThreadPool', body: 'Патерн виробник-споживач на буферизованих каналах і паралельні обчислення через ThreadPool.' },
-      ],
+      readMore: 'Читати туторіал',
+      serverTag: 'Сервер',
+      timeUnit: ' хв',
     },
   },
   zh: {
@@ -397,15 +355,9 @@ const strings: Record<string, HomeStrings> = {
       title: '指南与文章',
       heading: '在实践中学习 TrueAsync',
       description: '实践指南，从你的第一个协程到结构化并发以及内置服务器。',
-      readMore: '阅读文章',
-      items: [
-        { tag: '基础', time: '6 分钟', title: '你的第一个协程', body: '安装扩展，用 spawn() 启动一个协程，亲眼见证协作式调度的运行。' },
-        { tag: '基础', time: '9 分钟', title: '非阻塞 I/O', body: '将普通的 fread、curl 和 PDO 调用变成并发工作，无需回调。' },
-        { tag: '基础', time: '8 分钟', title: '结构化并发', body: '通过 Scope 沙箱控制协程的生命周期，并借助 TaskGroup 管理协程组。' },
-        { tag: '服务器', time: '10 分钟', title: 'TrueAsync Web 服务器', body: '在 PHP 进程内部直接运行原生的 HTTP/1.1、HTTP/2 和 HTTP/3 服务器。' },
-        { tag: '基础', time: '7 分钟', title: 'PDO 连接池', body: '直接内置于 PDO 的自动、协程安全的连接池。' },
-        { tag: '基础', time: '9 分钟', title: '通道 & ThreadPool', body: '使用缓冲通道的生产者/消费者模式，以及通过 ThreadPool 实现的真正并行 CPU 工作。' },
-      ],
+      readMore: '阅读教程',
+      serverTag: '服务器',
+      timeUnit: ' 分钟',
     },
   },
 }
@@ -442,14 +394,21 @@ function buildHome(lang: string, s: HomeStrings) {
       heading: s.guides.heading,
       description: s.guides.description,
       readMore: s.guides.readMore,
-      items: guideMeta.map((m, i) => ({
-        tag: s.guides.items[i].tag,
-        time: s.guides.items[i].time,
-        title: s.guides.items[i].title,
-        body: s.guides.items[i].body,
-        tagColor: m.tagColor,
-        url: abs(m.slug),
-      })),
+      items: guideMeta.map((m) => {
+        const ts = tutorialStrings(lang)
+        const entry = m.series === 'core' ? ts.core[m.index] : ts.server[m.index]
+        const slug = m.series === 'core'
+          ? `tutors/${CORE_SLUGS[m.index]}.html`
+          : `tutors-server/${SERVER_SLUGS[m.index]}.html`
+        return {
+          tag: m.series === 'core' ? ts.coreGroup : s.guides.serverTag,
+          time: `${m.time}${s.guides.timeUnit}`,
+          title: entry.label,
+          body: entry.body,
+          tagColor: m.tagColor,
+          url: abs(slug),
+        }
+      }),
     },
   }
 }
