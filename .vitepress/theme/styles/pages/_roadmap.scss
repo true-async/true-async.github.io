@@ -25,7 +25,7 @@
 
 .roadmap-milestone {
     position: relative;
-    margin-bottom: 2.5rem;
+    margin-bottom: 1.75rem;
 }
 
 .roadmap-milestone:last-child {
@@ -35,7 +35,7 @@
 .roadmap-marker {
     position: absolute;
     left: -2rem;
-    top: 0.3rem;
+    top: 1.15rem;
     width: 16px;
     height: 16px;
     border-radius: 50%;
@@ -45,8 +45,8 @@
 }
 
 .roadmap-milestone--done .roadmap-marker {
-    background: #10B981;
-    border-color: #10B981;
+    background: var(--color-status-done);
+    border-color: var(--color-status-done);
 }
 
 .roadmap-milestone--active .roadmap-marker {
@@ -67,26 +67,31 @@
 
 .roadmap-milestone--planned .roadmap-marker {
     background: var(--color-bg);
-    border-color: #9CA3AF;
+    border-color: var(--color-text-muted);
 }
 
+/* Card: fully rounded (matches lesson-card / home-roadmap-card), with a
+   status-colored left accent instead of the old sharp-cornered strip. */
 .roadmap-card {
+    border: 1px solid var(--color-border);
     border-left: 3px solid var(--color-border);
-    padding: 1rem 1.25rem;
-    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+    padding: 1.1rem 1.25rem;
+    border-radius: 14px;
     background: var(--color-bg-subtle);
+    transition: border-color 0.2s ease;
 }
 
 .roadmap-milestone--done .roadmap-card {
-    border-left-color: #10B981;
+    border-left-color: var(--color-status-done);
 }
 
 .roadmap-milestone--active .roadmap-card {
     border-left-color: var(--color-primary);
+    box-shadow: 0 0 24px -8px rgba(107, 88, 255, 0.18);
 }
 
 .roadmap-milestone--planned .roadmap-card {
-    border-left-color: #9CA3AF;
+    border-left-color: var(--color-text-muted);
 }
 
 .roadmap-card-header {
@@ -114,13 +119,13 @@
     letter-spacing: 0.05em;
     padding: 0.2em 0.6em;
     border-radius: 9999px;
-    background: #F3F4F6;
-    color: #6B7280;
+    background: var(--nav-panel-hover);
+    color: var(--color-text-muted);
 }
 
 .roadmap-tag--highlight {
-    background: #EDE9FE;
-    color: #5B21B6;
+    background: rgba(107, 88, 255, 0.14);
+    color: var(--color-primary);
 }
 
 .roadmap-card-meta {
@@ -146,18 +151,18 @@
 }
 
 .roadmap-badge--done {
-    background: #E0E7FF;
-    color: #3730A3;
+    background: rgba(28, 143, 118, 0.14);
+    color: var(--color-status-done);
 }
 
 .roadmap-badge--active {
-    background: #EDE9FE;
-    color: #5B21B6;
+    background: rgba(107, 88, 255, 0.14);
+    color: var(--color-primary);
 }
 
 .roadmap-badge--planned {
-    background: #F3F4F6;
-    color: #6B7280;
+    background: var(--nav-panel-hover);
+    color: var(--color-text-muted);
 }
 
 .roadmap-features {
@@ -183,7 +188,7 @@
 }
 
 .roadmap-feature--done .roadmap-feature-dot {
-    background: #10B981;
+    background: var(--color-status-done);
 }
 
 .roadmap-feature--in-progress .roadmap-feature-dot {
@@ -191,7 +196,7 @@
 }
 
 .roadmap-feature--planned .roadmap-feature-dot {
-    background: #D1D5DB;
+    background: var(--color-border);
 }
 
 .roadmap-feature--done {
@@ -209,4 +214,3 @@
         gap: 0.4rem;
     }
 }
-

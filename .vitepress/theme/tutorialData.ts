@@ -86,7 +86,7 @@ export function tutorialSidebar(lang: string): NavGroup[] {
   if (s.laravel?.length) {
     groups.push({
       title: s.laravelGroup ?? 'Laravel',
-      icon: 'plug',
+      icon: 'laravel',
       items: LARAVEL_SLUGS.map((slug, i) => ({
         url: `/${lang}/tutors-laravel/${slug}.html`,
         label: s.laravel![i]?.label ?? slug,

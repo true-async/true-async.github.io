@@ -57,16 +57,6 @@
     border: none;
 }
 
-[data-theme="dark"] .home-roadmap-tag {
-    background: rgba(255, 255, 255, 0.08);
-    color: #9CA3AF;
-}
-
-[data-theme="dark"] .home-roadmap-tag--highlight {
-    background: rgba(139, 122, 255, 0.15);
-    color: #A78BFA;
-}
-
 [data-theme="dark"] .feature-card {
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
@@ -74,22 +64,11 @@
 [data-theme="dark"] .rfc-badge.draft { background: rgba(234, 88, 12, 0.2); color: #FB923C; }
 [data-theme="dark"] .rfc-badge.discussion { background: rgba(37, 99, 235, 0.2); color: #60A5FA; }
 
-[data-theme="dark"] .roadmap-tag,
-[data-theme="dark"] .roadmap-badge--planned {
-    background: rgba(255, 255, 255, 0.08);
-    color: #9CA3AF;
-}
-
-[data-theme="dark"] .roadmap-tag--highlight,
-[data-theme="dark"] .roadmap-badge--active {
-    background: rgba(139, 122, 255, 0.15);
-    color: #A78BFA;
-}
-
-[data-theme="dark"] .roadmap-badge--done {
-    background: rgba(99, 102, 241, 0.15);
-    color: #818CF8;
-}
+/* home-roadmap-tag and roadmap-tag/roadmap-badge used to have hardcoded
+   dark-mode overrides here; their base rules in _home-roadmap.scss and
+   _roadmap.scss now use theme-aware CSS variables directly, so no separate
+   dark patch is needed (removing it also stops it from re-overriding the
+   token-based colors with stale hex). */
 
 [data-theme="dark"] .VPLocalSearchBox {
     --vp-local-search-bg: #211e32;

@@ -40,6 +40,9 @@
     --notice-border: #D4E0F5;
     --notice-icon: #2C6FCC;
     --navbar-h: 78px;
+    /* Roadmap "done" status — reuses the same teal accent as the tutorial
+       tag/checkmark system, so "complete" reads consistently across the site. */
+    --color-status-done: #1C8F76;
 
     --font-sans: 'Space Grotesk', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
