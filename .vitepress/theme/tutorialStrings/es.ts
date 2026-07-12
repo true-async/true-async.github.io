@@ -34,6 +34,14 @@ const es: TutorialStrings = {
     { label: 'Producción', body: 'Tiempos de espera, límites, contrapresión en accept, compresión, logging y apagado ordenado.' },
     { label: 'gRPC', body: 'addGrpcHandler(): unary y streaming, readMessage/writeMessage, trailers y deadlines.' },
   ],
+  laravelGroup: 'Laravel',
+  laravel: [
+    { label: 'Primera ejecución', body: 'Ejecutar Laravel bajo TrueAsync Server y tu primera API, desde las rutas hasta la base de datos.' },
+    { label: 'Pool y transacciones', body: 'PDO Pool bajo Eloquent y CoroutineTransactions: por qué el contador de transacciones anidadas no puede quedarse en una propiedad de Connection.' },
+    { label: 'SSE y gRPC', body: 'trueasync_response(), Sse y grpc_handlers: llegar más allá del Illuminate Response con buffer directamente desde un controlador.' },
+    { label: 'Patrones inseguros', body: 'Propiedades static mutables, once() sobre un singleton y Number::useLocale(): las formas habituales en que el estado se filtra entre peticiones, y cómo detectarlas con análisis estático.' },
+    { label: 'Paquetes de terceros', body: 'Debugbar, Telescope, Inertia, spatie/permission, Socialite: qué ya está adaptado para corrutinas y qué merece la pena desactivar.' },
+  ],
 }
 
 export default es

@@ -34,6 +34,14 @@ const ko: TutorialStrings = {
     { label: '프로덕션', body: '타임아웃, 제한, accept 백프레셔, 압축, 로깅, 그리고 graceful shutdown.' },
     { label: 'gRPC', body: 'addGrpcHandler(): 단항과 스트리밍, readMessage/writeMessage, 트레일러, 그리고 데드라인.' },
   ],
+  laravelGroup: 'Laravel',
+  laravel: [
+    { label: '첫 실행', body: 'TrueAsync Server 위에서 Laravel을 실행하고 라우트에서 데이터베이스까지 첫 API를 만듭니다.' },
+    { label: '풀과 트랜잭션', body: 'Eloquent 아래의 PDO Pool과 CoroutineTransactions: 왜 중첩 트랜잭션 카운터를 Connection의 속성에 둘 수 없는가.' },
+    { label: 'SSE와 gRPC', body: 'trueasync_response(), Sse, grpc_handlers: 컨트롤러에서 곧바로 버퍼링된 Illuminate Response 너머에 접근하기.' },
+    { label: '위험한 패턴', body: '가변 static 속성, 싱글턴 위의 once(), Number::useLocale(): 요청 간 상태가 흔히 새는 방식과 정적 분석으로 이를 잡아내는 방법.' },
+    { label: '서드파티 패키지', body: 'Debugbar, Telescope, Inertia, spatie/permission, Socialite: 이미 코루틴에 적응된 것과 꺼두는 것이 나은 것.' },
+  ],
 }
 
 export default ko

@@ -34,6 +34,14 @@ const uk: TutorialStrings = {
     { label: 'Продакшен', body: 'Таймаути, ліміти, зворотний тиск на accept, компресія, логи і graceful shutdown.' },
     { label: 'gRPC', body: 'addGrpcHandler(): unary і стримінг, readMessage/writeMessage, трейлери і дедлайни.' },
   ],
+  laravelGroup: 'Laravel',
+  laravel: [
+    { label: 'Перший запуск', body: 'Запуск Laravel під TrueAsync Server і перший API, від маршрутів до бази даних.' },
+    { label: 'Пул і транзакції', body: "PDO Pool під Eloquent і CoroutineTransactions: чому лічильник вкладених транзакцій не може лишатися властивістю Connection." },
+    { label: 'SSE і gRPC', body: 'trueasync_response(), Sse і grpc_handlers: як дістатися буферизованого Illuminate Response прямо з контролера.' },
+    { label: 'Небезпечні патерни', body: "Мутабельні статичні властивості, once() на синглтоні та Number::useLocale(): типові способи витоку стану між запитами і як їх ловити статичним аналізом." },
+    { label: 'Сторонні пакети', body: "Debugbar, Telescope, Inertia, spatie/permission, Socialite: що вже адаптоване під корутини, а що варто вимкнути." },
+  ],
 }
 
 export default uk

@@ -1,5 +1,5 @@
 import type { NavGroup } from './sidebarData'
-import { CORE_SLUGS, SERVER_SLUGS } from './tutorialProgress'
+import { CORE_SLUGS, SERVER_SLUGS, LARAVEL_SLUGS } from './tutorialProgress'
 import ru from './tutorialStrings/ru'
 import en from './tutorialStrings/en'
 import de from './tutorialStrings/de'
@@ -24,12 +24,18 @@ export interface TutorialStrings {
   readMore: string
   core: TutorialItemStrings[]
   server: TutorialItemStrings[]
+  // Laravel series only exists for locales that have translated it (ru so far);
+  // other locale string files simply omit these two fields.
+  laravelGroup?: string
+  laravel?: TutorialItemStrings[]
 }
 
+// One icon per lesson concept — kept distinct within each series so the
+// sidebar doesn't repeat the same glyph twice in a row (was: clock x2, link x2).
 const CORE_ICONS = [
-  'zap', 'ban', 'link', 'alert-triangle', 'clock',
-  'clock', 'arrow-left-right', 'braces', 'database', 'users',
-  'list-checks', 'shuffle', 'layers', 'cpu', 'link',
+  'zap', 'ban', 'hourglass', 'alert-triangle', 'clock',
+  'sparkles', 'arrow-left-right', 'braces', 'database', 'users',
+  'list-checks', 'shuffle', 'layers', 'cpu', 'target',
 ]
 const CORE_TAG_COLORS = [
   'purple', 'orange', 'purple', 'orange', 'orange',
@@ -37,13 +43,15 @@ const CORE_TAG_COLORS = [
   'teal', 'teal', 'blue', 'blue', 'blue',
 ]
 const SERVER_ICONS = [
-  'server', 'arrow-left-right', 'shuffle', 'layers', 'section-blocks',
-  'plug', 'link', 'cpu', 'section-settings', 'section-code',
+  'server', 'repeat', 'nested-squares', 'waves', 'file',
+  'rss', 'message-circle', 'columns', 'shield-check', 'section-code',
 ]
 const SERVER_TAG_COLORS = [
   'teal', 'blue', 'teal', 'orange', 'purple',
   'blue', 'blue', 'orange', 'purple', 'teal',
 ]
+const LARAVEL_ICONS = ['plug', 'database', 'route', 'shield-alert', 'section-puzzle']
+const LARAVEL_TAG_COLORS = ['purple', 'blue', 'teal', 'orange', 'teal']
 
 const stringsByLang: Record<string, TutorialStrings> = { ru, en, de, es, fr, it, ko, uk, zh }
 
@@ -51,10 +59,11 @@ export function tutorialStrings(lang: string): TutorialStrings {
   return stringsByLang[lang] || en
 }
 
-// Sidebar: two groups (basics + server) built from structure + localized labels.
+// Sidebar: groups built from structure + localized labels. The Laravel group
+// only appears for locales whose strings file actually fills it in.
 export function tutorialSidebar(lang: string): NavGroup[] {
   const s = tutorialStrings(lang)
-  return [
+  const groups: NavGroup[] = [
     {
       title: s.coreGroup,
       icon: 'workflow',
@@ -74,6 +83,18 @@ export function tutorialSidebar(lang: string): NavGroup[] {
       })),
     },
   ]
+  if (s.laravel?.length) {
+    groups.push({
+      title: s.laravelGroup ?? 'Laravel',
+      icon: 'plug',
+      items: LARAVEL_SLUGS.map((slug, i) => ({
+        url: `/${lang}/tutors-laravel/${slug}.html`,
+        label: s.laravel![i]?.label ?? slug,
+        icon: LARAVEL_ICONS[i],
+      })),
+    })
+  }
+  return groups
 }
 
 export interface TutorialCard {
@@ -104,8 +125,22 @@ export function tutorialSections(lang: string): { title: string; cards: Tutorial
     title: s.server[i]?.label ?? slug,
     body: s.server[i]?.body ?? '',
   }))
-  return [
+  const sections = [
     { title: s.coreGroup, cards: core },
     { title: s.serverGroup, cards: server },
   ]
+  if (s.laravel?.length) {
+    sections.push({
+      title: s.laravelGroup ?? 'Laravel',
+      cards: LARAVEL_SLUGS.map((slug, i) => ({
+        slug,
+        url: `/${lang}/tutors-laravel/${slug}.html`,
+        tag: String(i + 1).padStart(2, '0'),
+        tagColor: LARAVEL_TAG_COLORS[i],
+        title: s.laravel![i]?.label ?? slug,
+        body: s.laravel![i]?.body ?? '',
+      })),
+    })
+  }
+  return sections
 }

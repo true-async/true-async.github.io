@@ -12,8 +12,12 @@ export const SERVER_SLUGS = [
   '01-first-server', '02-request-response', '03-concurrency-inside', '04-streaming-uploads',
   '05-static', '06-sse', '07-websocket', '08-workers', '09-production', '10-grpc',
 ]
-// Progress is keyed by slug; the two series never share a slug, so a flat set is safe.
-export const TUTORIAL_SLUGS = [...CORE_SLUGS, ...SERVER_SLUGS]
+// Laravel series (under /tutors-laravel/) — ru only for now, gated in tutorialData.ts.
+export const LARAVEL_SLUGS = [
+  '01-start', '02-pool-transactions', '03-sse-grpc', '04-unsafe-patterns', '05-third-party',
+]
+// Progress is keyed by slug; the series never share a slug, so a flat set is safe.
+export const TUTORIAL_SLUGS = [...CORE_SLUGS, ...SERVER_SLUGS, ...LARAVEL_SLUGS]
 
 function load(): Set<string> {
   if (typeof window === 'undefined') return new Set()
@@ -54,6 +58,6 @@ export function completedCount(): number {
 }
 
 export function tutorialSlugFromPath(path: string): string | null {
-  const m = path.match(/\/tutors(?:-server)?\/([a-z0-9-]+)\.html$/)
+  const m = path.match(/\/tutors(?:-server|-laravel)?\/([a-z0-9-]+)\.html$/)
   return m ? m[1] : null
 }

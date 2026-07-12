@@ -34,6 +34,14 @@ const de: TutorialStrings = {
     { label: 'Produktion', body: 'Timeouts, Limits, Backpressure beim Accept, Kompression, Logging und Graceful Shutdown.' },
     { label: 'gRPC', body: 'addGrpcHandler(): unary und Streaming, readMessage/writeMessage, Trailer und Deadlines.' },
   ],
+  laravelGroup: 'Laravel',
+  laravel: [
+    { label: 'Erster Durchlauf', body: 'Laravel unter TrueAsync Server ausführen und deine erste API, von den Routen bis zur Datenbank.' },
+    { label: 'Pool & Transaktionen', body: 'PDO Pool unter Eloquent und CoroutineTransactions: warum der Zähler für verschachtelte Transaktionen nicht auf einer Connection-Eigenschaft bleiben kann.' },
+    { label: 'SSE & gRPC', body: 'trueasync_response(), Sse und grpc_handlers: direkt aus einem Controller an der gepufferten Illuminate Response vorbeigreifen.' },
+    { label: 'Unsichere Muster', body: 'Veränderliche statische Eigenschaften, once() auf einem Singleton und Number::useLocale(): die üblichen Wege, wie Zustand zwischen Anfragen ausläuft, und wie man sie mit statischer Analyse findet.' },
+    { label: 'Pakete von Drittanbietern', body: 'Debugbar, Telescope, Inertia, spatie/permission, Socialite: was bereits für Coroutinen angepasst ist und was es wert ist, deaktiviert zu werden.' },
+  ],
 }
 
 export default de

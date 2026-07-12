@@ -34,6 +34,14 @@ const zh: TutorialStrings = {
     { label: '生产环境', body: '超时、限制、accept 上的背压、压缩、日志与优雅关闭。' },
     { label: 'gRPC', body: 'addGrpcHandler()：一元与流式、readMessage/writeMessage、trailers 与截止时间。' },
   ],
+  laravelGroup: 'Laravel',
+  laravel: [
+    { label: '首次运行', body: '在 TrueAsync Server 下运行 Laravel，并从路由到数据库构建你的第一个 API。' },
+    { label: '连接池与事务', body: 'Eloquent 之下的 PDO Pool 与 CoroutineTransactions：为什么嵌套事务计数器不能留在 Connection 的属性上。' },
+    { label: 'SSE 与 gRPC', body: 'trueasync_response()、Sse 与 grpc_handlers：直接从控制器越过被缓冲的 Illuminate Response。' },
+    { label: '不安全的模式', body: '可变的静态属性、单例上的 once()，以及 Number::useLocale()：状态在请求之间泄漏的常见方式，以及如何用静态分析捕获它们。' },
+    { label: '第三方包', body: 'Debugbar、Telescope、Inertia、spatie/permission、Socialite：哪些已经为协程做好了适配，哪些值得禁用。' },
+  ],
 }
 
 export default zh
