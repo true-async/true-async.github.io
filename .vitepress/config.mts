@@ -184,6 +184,10 @@ export default defineConfig({
   themeConfig: {
     search: {
       provider: 'local',
+      options: {
+        // Show a content excerpt under each hit by default (not just the title).
+        detailedView: true,
+      },
     },
     localeRoutes,
   },
