@@ -123,10 +123,13 @@ export default defineConfig({
     ['meta', { property: 'og:image:width', content: '1200' }],
     ['meta', { property: 'og:image:height', content: '630' }],
     ['meta', { property: 'og:url', content: 'https://true-async.github.io' }],
-    ['meta', { name: 'twitter:card', content: 'summary_large_image' }],
+    // summary (not summary_large_image): X shows the title + description text
+    // next to a square thumbnail. og:image stays the wide banner for
+    // Facebook / LinkedIn / Slack / Telegram, which render og:image.
+    ['meta', { name: 'twitter:card', content: 'summary' }],
     ['meta', { name: 'twitter:title', content: 'TrueAsync — True Asynchronous PHP' }],
     // twitter:description is injected per-locale in transformHead
-    ['meta', { name: 'twitter:image', content: 'https://true-async.github.io/assets/og-image.png' }],
+    ['meta', { name: 'twitter:image', content: 'https://true-async.github.io/assets/twitter-card.png' }],
   ],
 
   // KaTeX (render-blocking CSS + 2 scripts) is only needed on the evidence
