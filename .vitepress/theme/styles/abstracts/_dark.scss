@@ -1,0 +1,51 @@
+/* ---- Dark Theme ---- */
+[data-theme="dark"] {
+    --color-primary: #8B7BFF;
+    --color-primary-dark: #7B67FF;
+    --color-navbar: #17142B;
+    --color-navbar-link-hover: #8B7BFF;
+    --color-text: #ECEAF4;
+    --color-text-secondary: #A7A5B6;
+    --color-text-muted: #6C6A7B;
+    --color-bg: #17142B;
+    --color-bg-subtle: #221C3B;
+    --color-border: #2E2846;
+    --color-card-border: rgba(255, 255, 255, 0.08);
+    --color-code-bg: #28223F;
+    /* Inline code (Variant A — lilac tint, borderless) */
+    --code-inline-bg: #2B2551;
+    --code-inline-text: #CFC5F5;
+
+    /* Navbar (mockup-exact) */
+    --nav-primary: #6A54F5;
+    --nav-accent: #8B7BFF;
+    --nav-panel: #221C3B;
+    --nav-panel-hover: #28223F;
+    /* Docs sidebar active item (Variant 1 — filled lilac pill) */
+    --nav-active-bg: #2C2551;
+    --nav-active-text: #CFC7FF;
+    --nav-border: #2C2940;
+    --nav-dropdown-bg: #1A1630;
+    --nav-dropdown-border: #332D4E;
+    --nav-dropdown-active: #241E40;
+    --nav-icon-bg: #1D1A2E;
+    --chip-text: #C4B9FF;
+    --scrollbar-hover: #463E68;
+    --code-bg: #12101F;
+    --code-border: #2A2540;
+    --code-header-border: #221D33;
+    --color-status-done: #5AD1B0;
+
+    --vp-c-brand-1: #8B7BFF;
+    --vp-c-brand-2: #6A54F5;
+    --vp-c-bg: #17142B;
+    --vp-c-bg-alt: #221C3B;
+    --vp-c-bg-soft: #28223F;
+    --vp-c-default-soft: #28223F;
+    --vp-c-text-1: #ECEAF4;
+    --vp-c-text-2: #A7A5B6;
+    --vp-c-text-3: #6C6A7B;
+    --vp-c-divider: #2E2846;
+    --vp-c-white: #17142B;
+}
+

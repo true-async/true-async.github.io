@@ -2,6 +2,7 @@
 import { ref, computed, watch, nextTick } from 'vue'
 import { useRoute } from 'vitepress'
 import { navIcons } from './navIcons'
+import { completedTutorials, isTutorialCompleted, tutorialSlugFromPath } from './tutorialProgress'
 
 const route = useRoute()
 const searchQuery = ref('')
@@ -42,6 +43,40 @@ const props = defineProps<{
   open?: boolean
 }>()
 
+const emit = defineEmits<{ (e: 'close'): void }>()
+
+// Swipe-left-to-dismiss for the open mobile drawer (touch or held-mouse drag).
+// The drawer slides in from the left, so a leftward swipe pushes it back out.
+let swStartX = 0
+let swStartY = 0
+let swTracking = false
+
+function onSbPointerDown(e: PointerEvent) {
+  if (!props.open) return
+  if (e.pointerType === 'mouse' && e.button !== 0) return
+  swStartX = e.clientX
+  swStartY = e.clientY
+  swTracking = true
+}
+
+function onSbPointerMove(e: PointerEvent) {
+  if (!swTracking) return
+  if (e.pointerType === 'mouse' && !(e.buttons & 1)) {
+    swTracking = false
+    return
+  }
+  const dx = e.clientX - swStartX
+  const dy = e.clientY - swStartY
+  if (dx < -50 && Math.abs(dx) > Math.abs(dy)) {
+    emit('close')
+    swTracking = false
+  }
+}
+
+function onSbPointerEnd() {
+  swTracking = false
+}
+
 const expandedItems = ref<Set<string>>(new Set())
 
 function isChildActive(item: NavItem): boolean {
@@ -70,6 +105,12 @@ function getIconSvg(iconName: string | undefined): string | null {
   return navIcons[iconName]
 }
 
+function tutorialDone(url: string): boolean {
+  void completedTutorials.value // register reactive dependency
+  const slug = tutorialSlugFromPath(url)
+  return slug ? isTutorialCompleted(slug) : false
+}
+
 const filteredSidebar = computed(() => {
   if (!searchQuery.value.trim()) return props.sidebar
   const q = searchQuery.value.toLowerCase()
@@ -87,7 +128,16 @@ const filteredSidebar = computed(() => {
 </script>
 
 <template>
-  <aside class="docs-sidebar" :class="{ open }" ref="sidebarEl" @click.capture="rememberScroll">
+  <aside
+    class="docs-sidebar"
+    :class="{ open }"
+    ref="sidebarEl"
+    @click.capture="rememberScroll"
+    @pointerdown="onSbPointerDown"
+    @pointermove="onSbPointerMove"
+    @pointerup="onSbPointerEnd"
+    @pointercancel="onSbPointerEnd"
+  >
     <div class="docs-search">
       <svg class="docs-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="11" cy="11" r="8"/>
@@ -102,8 +152,7 @@ const filteredSidebar = computed(() => {
       />
     </div>
 
-    <template v-for="group in filteredSidebar" :key="group.title">
-      <details class="docs-nav-group" open>
+    <details v-for="group in filteredSidebar" :key="group.title" class="docs-nav-group" open>
         <summary>
           <div class="docs-nav-title">
             <span class="docs-nav-title-content">
@@ -116,9 +165,12 @@ const filteredSidebar = computed(() => {
           </div>
         </summary>
         <div class="docs-nav">
-          <template v-for="item in group.items" :key="item.url">
-            <!-- Item with children -->
-            <template v-if="item.children && item.children.length">
+          <!-- Every loop iteration is ONE real <div>, never a <template>
+               fragment: a <template v-for> holds its nodes in a fragment whose
+               end-anchor Vue loses on re-render, crashing the block patcher with
+               a null nextSibling (theme toggle, navigation). -->
+          <div v-for="item in group.items" :key="item.url" class="docs-nav-entry">
+            <div v-if="item.children && item.children.length" class="docs-nav-item">
               <div class="docs-nav-item-parent" :class="{ expanded: isExpanded(item.url, item) }">
                 <a :href="item.url" :class="{ active: isActive(item.url) }">
                   <span v-if="getIconSvg(item.icon)" class="nav-icon" v-html="'<svg width=&quot;16&quot; height=&quot;16&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;>' + getIconSvg(item.icon) + '</svg>'"></span>
@@ -144,16 +196,16 @@ const filteredSidebar = computed(() => {
                   {{ child.label }}
                 </a>
               </div>
-            </template>
+            </div>
 
             <!-- Simple item (no children) -->
             <a v-else :href="item.url" :class="{ active: isActive(item.url) }">
               <span v-if="getIconSvg(item.icon)" class="nav-icon" v-html="'<svg width=&quot;16&quot; height=&quot;16&quot; viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;currentColor&quot; stroke-width=&quot;2&quot; stroke-linecap=&quot;round&quot; stroke-linejoin=&quot;round&quot;>' + getIconSvg(item.icon) + '</svg>'"></span>
               {{ item.label }}
+              <svg v-if="tutorialDone(item.url)" class="nav-done-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
             </a>
-          </template>
+          </div>
         </div>
       </details>
-    </template>
   </aside>
 </template>

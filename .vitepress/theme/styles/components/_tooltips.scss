@@ -1,0 +1,90 @@
+/* ---- API hover tooltips in code blocks (mockup-exact) ---- */
+.api-term {
+    position: relative;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: background-color 0.15s ease, filter 0.15s ease;
+}
+.api-term::after {
+    content: '?';
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 13px;
+    height: 13px;
+    font-size: 9px;
+    line-height: 1;
+    vertical-align: super;
+    margin-left: 2.5px;
+    opacity: 0.85;
+    background: rgba(120, 116, 140, 0.14);
+    color: #6b6780;
+    border-radius: 3px;
+    font-family: var(--font-sans);
+    font-weight: 700;
+}
+.api-term:hover {
+    background: rgba(139, 123, 255, 0.14);
+    filter: brightness(1.18);
+}
+.api-term:hover::after {
+    background: rgba(120, 116, 140, 0.22);
+    opacity: 0.9;
+}
+
+.api-tooltip {
+    position: fixed;
+    z-index: 300;
+    width: 300px;
+    max-width: calc(100vw - 24px);
+    background: color-mix(in srgb, var(--nav-dropdown-bg) 78%, transparent);
+    border: 1px solid color-mix(in srgb, var(--nav-dropdown-border) 70%, transparent);
+    border-radius: 12px;
+    box-shadow: 0 22px 54px -16px rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(16px) saturate(1.4);
+    -webkit-backdrop-filter: blur(16px) saturate(1.4);
+    overflow: hidden;
+    animation: apiTipIn 0.16s ease;
+}
+.api-tooltip--up {
+    transform: translateY(-100%);
+}
+@keyframes apiTipIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+.api-tooltip-sig {
+    font-family: var(--font-mono);
+    font-size: 12.5px;
+    color: var(--chip-text);
+    padding: 12px 15px 9px;
+    border-bottom: 1px solid var(--nav-border);
+    word-break: break-word;
+    line-height: 1.4;
+}
+.api-tooltip-body {
+    padding: 11px 15px 13px;
+}
+.api-tooltip-desc {
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--color-text-secondary);
+}
+.api-tooltip-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 10px;
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--nav-accent);
+    text-decoration: none;
+}
+.api-tooltip-link:hover {
+    color: var(--nav-primary);
+}
+.api-tooltip-link svg {
+    width: 13px;
+    height: 13px;
+}

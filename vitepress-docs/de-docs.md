@@ -16,3 +16,11 @@ Datenbankbibliotheken, Socket-Bibliotheken und andere Funktionen modifiziert.
 `PHP TrueAsync` implementiert das Paradigma der transparenten Asynchronität ohne gefärbte Funktionen,
 das Codeänderungen minimiert und die Segmentierung von Bibliotheken beseitigt.
 Mit anderen Worten: Bei der Verwendung von Koroutinen verwenden Sie dieselben Funktionen ohne Änderungen oder mit minimalen Änderungen.
+
+## IDE-Unterstützung {#ide-support}
+
+Für Autovervollständigung, Inline-Dokumentation und Stubs für die statische Analyse installieren Sie das Dev-Paket [`true-async/ide-helper`](https://github.com/true-async/ide-helper). Es deckt den Async-Kern, den HTTP-Server und den ClickHouse-Client ab und funktioniert mit PhpStorm, PHPStan und Psalm.
+
+```bash
+composer require --dev true-async/ide-helper
+```

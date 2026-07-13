@@ -1,0 +1,57 @@
+/* ---- TrueAsync Design Tokens ---- */
+
+:root {
+    --color-primary: #6A54F5;
+    --color-primary-dark: #5A44E0;
+    --color-navbar: #F5F3FB;
+    --color-navbar-link-hover: #6A54F5;
+    --color-text: #1B1730;
+    --color-text-secondary: #5E5A72;
+    --color-text-muted: #8B8798;
+    --color-bg: #F5F3FB;
+    --color-bg-subtle: #FFFFFF;
+    --color-border: #E6E2F1;
+    --color-card-border: rgba(0, 0, 0, 0.05);
+    --color-code-bg: #F0EDF9;
+    /* Inline code (Variant A — lilac tint, borderless) */
+    --code-inline-bg: #EAE6FB;
+    --code-inline-text: #5333C9;
+
+    /* Navbar (mockup-exact) */
+    --nav-primary: #6A54F5;
+    --nav-accent: #8B7BFF;
+    --nav-panel: #FFFFFF;
+    --nav-panel-hover: #F0EDF9;
+    /* Docs sidebar active item (Variant 1 — filled lilac pill) */
+    --nav-active-bg: #EEEDFE;
+    --nav-active-text: #3C3489;
+    --nav-border: #DCD7EC;
+    --nav-dropdown-bg: #FFFFFF;
+    --nav-dropdown-border: #E4E0F0;
+    --nav-dropdown-active: #EEE9FA;
+    --nav-icon-bg: #F2F0F9;
+    --chip-text: #6A4BEA;
+    --scrollbar-hover: #C9C3DD;
+    /* Code blocks and the default "info" notice stay dark in both themes (mockup) */
+    --code-bg: #12101F;
+    --code-border: #2A2540;
+    --code-header-border: #221D33;
+    --notice-bg: #1B2033;
+    --notice-border: #2A3350;
+    --notice-icon: #7FB4FF;
+    --navbar-h: 78px;
+    /* Roadmap "done" status — reuses the same teal accent as the tutorial
+       tag/checkmark system, so "complete" reads consistently across the site. */
+    --color-status-done: #1C8F76;
+
+    --font-sans: 'Space Grotesk', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    --radius-md: 0.375rem;
+    --radius-lg: 0.5rem;
+    --radius-xl: 0.75rem;
+    --radius-2xl: 1rem;
+    --radius-3xl: 1.5rem;
+    --radius-4xl: 2rem;
+    --radius-full: 9999px;
+}
+

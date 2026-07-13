@@ -1,0 +1,14 @@
+/* ---- Shared keyframes / registered custom properties ----
+   Emitted once (via main.scss). @keyframes and @property are global by name,
+   so partials reference `ta-spin` / `--ta-angle` without importing this file. */
+
+/* Animatable angle driving the rotating conic-gradient card glow. */
+@property --ta-angle {
+    syntax: '<angle>';
+    inherits: false;
+    initial-value: 0deg;
+}
+
+@keyframes ta-spin {
+    to { --ta-angle: 360deg; }
+}

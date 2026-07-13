@@ -1,0 +1,194 @@
+@use "../abstracts/mixins" as *;
+
+/* ---- Guides & Articles ---- */
+
+.guides {
+    position: relative;
+    z-index: 10;
+    padding: 4rem 0;
+    border-top: 1px solid var(--color-border);
+}
+
+.guides-header {
+    text-align: center;
+    max-width: 40rem;
+    margin: 0 auto 3rem;
+    padding: 0 1.75rem;
+}
+
+.guides-header h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.75rem;
+}
+
+.guides-header p {
+    font-size: 1.0625rem;
+    color: var(--color-text-secondary);
+    line-height: 1.5;
+}
+
+.guides-grid {
+    display: grid;
+    gap: 1rem;
+    max-width: 90rem;
+    margin: 0 auto;
+    padding: 0 1.75rem;
+    grid-template-columns: 1fr;
+}
+
+.lesson-card {
+    position: relative;
+    display: block;
+    overflow: hidden;
+    padding: 1.5rem;
+    background: var(--color-bg-subtle);
+    border-radius: var(--radius-xl);
+    outline: 1px solid var(--color-card-border);
+    text-decoration: none;
+    color: inherit;
+    transform: translateY(0);
+    transition: transform 0.4s cubic-bezier(.2,.7,.2,1), box-shadow 0.4s cubic-bezier(.2,.7,.2,1);
+}
+
+.lesson-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 24px 44px -18px rgba(107, 88, 255, 0.4);
+}
+
+.lesson-card-glow {
+    @include card-glow(2.8s);
+}
+
+.lesson-card:hover .lesson-card-glow {
+    opacity: 1;
+    animation-play-state: running;
+}
+
+.lesson-card-meta {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.lesson-tag {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    padding: 0.25rem 0.55rem;
+    border-radius: var(--radius-full);
+}
+
+.lesson-tag--purple { background: rgba(139, 123, 255, 0.14); color: #7B5FE8; }
+.lesson-tag--teal { background: rgba(90, 209, 176, 0.16); color: #1C8F76; }
+.lesson-tag--orange { background: rgba(224, 165, 90, 0.18); color: #B4711F; }
+.lesson-tag--blue { background: rgba(90, 168, 255, 0.16); color: #2C6FCC; }
+
+[data-theme="dark"] .lesson-tag--purple { color: #B4A8FF; }
+[data-theme="dark"] .lesson-tag--teal { color: #5AD1B0; }
+[data-theme="dark"] .lesson-tag--orange { color: #E7B276; }
+[data-theme="dark"] .lesson-tag--blue { color: #7FB4FF; }
+
+.lesson-time {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+}
+
+.lesson-card h3 {
+    position: relative;
+    font-size: 1.0625rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem;
+    line-height: 1.3;
+}
+
+.lesson-card p {
+    position: relative;
+    font-size: 0.875rem;
+    line-height: 1.55;
+    color: var(--color-text-secondary);
+    margin: 0 0 1.125rem;
+}
+
+.lesson-read-more {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4375rem;
+    font-size: 0.84375rem;
+    font-weight: 600;
+    color: var(--color-primary);
+}
+
+.lesson-arrow {
+    width: 15px;
+    height: 15px;
+    transition: transform 0.4s cubic-bezier(.2,.7,.2,1);
+}
+
+.lesson-card:hover .lesson-arrow {
+    transform: translateX(5px);
+}
+
+/* ---- Tutorial index grid (reuses .lesson-card outside the homepage) ---- */
+
+.tutorial-grid {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: 1fr;
+    margin: 2rem 0;
+}
+
+@media (min-width: 640px) {
+    .tutorial-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .tutorial-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* .docs-content a sets a global underline; beat its specificity so the
+   lesson-card (and everything inside it) stays underline-free like on the homepage. */
+.docs-content .lesson-card,
+.docs-content .lesson-card * {
+    text-decoration: none;
+}
+
+.tutorial-progress-count {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    color: var(--color-text-muted);
+    margin: -0.75rem 0 0;
+}
+
+/* Series heading above each tutorial grid (Basics / TrueAsync Server). */
+.tutorial-section-title {
+    margin: 2.5rem 0 0;
+    padding-bottom: 0;
+    border-bottom: none;
+    font-size: 1.35rem;
+}
+.tutorial-section-title + .tutorial-grid {
+    margin-top: 1rem;
+}
+
+.lesson-card--done {
+    outline-color: var(--color-primary);
+}
+
+.lesson-done-check {
+    width: 15px;
+    height: 15px;
+    color: var(--color-primary);
+    flex-shrink: 0;
+}
+

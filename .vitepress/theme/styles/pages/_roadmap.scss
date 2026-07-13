@@ -1,0 +1,298 @@
+/* ========================================
+   Roadmap Page
+   ======================================== */
+
+.roadmap-container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: var(--navbar-h) 1.5rem 4rem;
+}
+
+.roadmap-intro {
+    padding-top: 52px;
+    margin-bottom: 2.5rem;
+}
+
+.roadmap-intro-title {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin: 0 0 14px;
+}
+
+.roadmap-intro-lead {
+    font-size: 16.5px;
+    line-height: 1.65;
+    color: var(--color-text-secondary);
+    margin: 0;
+}
+
+.roadmap-body {
+    display: grid;
+    grid-template-columns: 11rem minmax(0, 1fr);
+    gap: 2.5rem;
+    align-items: start;
+}
+
+.roadmap-nav {
+    position: sticky;
+    top: calc(var(--navbar-h) + 24px);
+}
+
+.roadmap-nav-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.roadmap-nav-link {
+    display: block;
+    padding: 6px 0 6px 14px;
+    font-size: 13.5px;
+    line-height: 1.4;
+    color: var(--color-text-muted);
+    border-left: 2px solid var(--color-border);
+    text-decoration: none;
+    transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.roadmap-nav-link:hover {
+    color: var(--color-text);
+    border-left-color: var(--nav-accent);
+}
+
+.roadmap-nav-link.active {
+    color: var(--nav-accent);
+    border-left-color: var(--nav-primary);
+}
+
+.roadmap-timeline {
+    position: relative;
+    padding-left: 2rem;
+}
+
+.roadmap-timeline::before {
+    content: '';
+    position: absolute;
+    left: 7px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--color-border);
+}
+
+.roadmap-milestone {
+    position: relative;
+    margin-bottom: 1.75rem;
+}
+
+.roadmap-milestone:last-child {
+    margin-bottom: 0;
+}
+
+.roadmap-marker {
+    position: absolute;
+    left: -2rem;
+    top: 1.15rem;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 3px solid var(--color-border);
+    background: var(--color-bg);
+    z-index: 1;
+}
+
+.roadmap-milestone--done .roadmap-marker {
+    background: var(--color-status-done);
+    border-color: var(--color-status-done);
+}
+
+.roadmap-milestone--active .roadmap-marker {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+}
+.roadmap-milestone--active .roadmap-marker::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: rgba(107, 88, 255, 0.35);
+    pointer-events: none;
+    animation: roadmap-pulse 3s ease-in-out infinite;
+}
+
+/* @keyframes roadmap-pulse is defined once in pages/_home-roadmap.scss (loaded globally). */
+
+.roadmap-milestone--planned .roadmap-marker {
+    background: var(--color-bg);
+    border-color: var(--color-text-muted);
+}
+
+/* Card: fully rounded (matches lesson-card / home-roadmap-card), with a
+   status-colored left accent instead of the old sharp-cornered strip.
+   Hover lift mirrors .lm-group-panel (LearningMap) so both "spine and card"
+   timelines in the docs share the same interaction, not just the same shape. */
+.roadmap-card {
+    --rm-accent: var(--color-text-muted);
+    border: 1px solid var(--color-border);
+    border-left: 3px solid var(--color-border);
+    padding: 1.1rem 1.25rem;
+    border-radius: 14px;
+    background: var(--color-bg-subtle);
+    transition: border-color 0.2s ease, transform 0.3s cubic-bezier(.2,.7,.2,1), box-shadow 0.3s cubic-bezier(.2,.7,.2,1);
+}
+
+.roadmap-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 16px 30px -16px var(--rm-accent);
+}
+
+.roadmap-milestone--done .roadmap-card {
+    --rm-accent: var(--color-status-done);
+    border-left-color: var(--color-status-done);
+}
+
+.roadmap-milestone--active .roadmap-card {
+    --rm-accent: var(--color-primary);
+    border-left-color: var(--color-primary);
+    box-shadow: 0 0 24px -8px rgba(107, 88, 255, 0.18);
+}
+
+.roadmap-milestone--planned .roadmap-card {
+    border-left-color: var(--color-text-muted);
+}
+
+.roadmap-card-header {
+    margin-bottom: 0.75rem;
+}
+
+.roadmap-card-title-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.roadmap-card-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: var(--color-text);
+}
+
+.roadmap-tag {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 0.25em 0.65em;
+    border-radius: 9999px;
+    background: var(--nav-panel-hover);
+    color: var(--color-text-muted);
+}
+
+.roadmap-tag--highlight {
+    background: rgba(107, 88, 255, 0.14);
+    color: var(--color-primary);
+}
+
+.roadmap-card-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.4rem;
+}
+
+.roadmap-date {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+}
+
+.roadmap-badge {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 0.25em 0.65em;
+    border-radius: 9999px;
+}
+
+.roadmap-badge--done {
+    background: rgba(28, 143, 118, 0.14);
+    color: var(--color-status-done);
+}
+
+.roadmap-badge--active {
+    background: rgba(107, 88, 255, 0.14);
+    color: var(--color-primary);
+}
+
+.roadmap-badge--planned {
+    background: var(--nav-panel-hover);
+    color: var(--color-text-muted);
+}
+
+/* Plain list, not chips: unlike LearningMap's 1-3 word node labels, these are
+   long technical phrases — pill chips blew up into oversized capsules here. */
+.roadmap-features {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.roadmap-feature {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0;
+    font-size: 0.95rem;
+    color: var(--color-text-secondary);
+}
+
+.roadmap-feature-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.roadmap-feature--done .roadmap-feature-dot {
+    background: var(--color-status-done);
+}
+
+.roadmap-feature--in-progress .roadmap-feature-dot {
+    background: var(--color-primary);
+}
+
+.roadmap-feature--planned .roadmap-feature-dot {
+    background: var(--color-border);
+}
+
+.roadmap-feature--done {
+    color: var(--color-text-muted);
+}
+
+@media (max-width: 860px) {
+    .roadmap-body {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+
+    .roadmap-nav {
+        display: none;
+    }
+}
+
+@media (max-width: 640px) {
+    .roadmap-container {
+        padding: var(--navbar-h) 1rem 3rem;
+    }
+
+    .roadmap-card-title-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.4rem;
+    }
+}

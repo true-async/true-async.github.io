@@ -1,6 +1,11 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useRoute } from 'vitepress'
+import { CURRENT_VERSION } from './version'
+import { roadmap } from './roadmapData'
+import { roadmapI18n } from './roadmapI18n'
+import { tutorialStrings } from './tutorialData'
+import { CORE_SLUGS, SERVER_SLUGS } from './tutorialProgress'
 
 const route = useRoute()
 
@@ -9,365 +14,480 @@ const currentLang = computed(() => {
   return match ? match[1] : 'en'
 })
 
-interface HeroButton {
-  label: string; url: string; style: string; external?: boolean
-}
-interface Feature {
-  title: string; icon: string; url: string; text: string
-}
-interface CtaData {
-  title: string; description: string; buttons: HeroButton[]
-}
-interface HeroData {
-  badge: string; title: string; description: string; buttons: HeroButton[]
-}
-interface FeaturesData {
-  title: string; items: Feature[]
-}
-interface HomeI18n {
-  hero: HeroData; features: FeaturesData; cta: CtaData
+// ---------------------------------------------------------------------------
+// SHARED STRUCTURE (locale-independent). Icons, link slugs, styles and colours
+// live here ONCE. Per-locale data below carries ONLY translatable strings, in
+// the same order as these arrays. This is what keeps every language on the same
+// design — editing the layout here updates all 9 locales at once.
+// ---------------------------------------------------------------------------
+interface ButtonMeta { slug: string; style: string; icon?: string; external?: boolean }
+interface FeatureMeta { icon: string; slug: string }
+interface GuideMeta { series: 'core' | 'server'; index: number; tagColor: string; time: number }
+
+const heroButtonsMeta: ButtonMeta[] = [
+  { slug: 'docs.html', style: 'primary', icon: 'arrow' },
+  { slug: 'interactive/coroutine-demo.html', style: 'secondary', external: true },
+  { slug: 'download.html', style: 'accent', icon: 'download' },
+]
+const featureMeta: FeatureMeta[] = [
+  { icon: 'coroutines', slug: 'docs/components/coroutines.html' },
+  { icon: 'io', slug: 'docs/reference/supported-functions.html' },
+  { icon: 'web-servers', slug: 'docs/server/index.html' },
+  { icon: 'cancellation', slug: 'docs/components/cancellation.html' },
+  { icon: 'structured-concurrency', slug: 'docs/components/scope.html' },
+  { icon: 'pdo-pool', slug: 'docs/components/pdo-pool.html' },
+  { icon: 'channel', slug: 'docs/components/channels.html' },
+  { icon: 'futures', slug: 'docs/components/future.html' },
+  { icon: 'mobile', slug: 'docs/mobile/index.html' },
+]
+// Curated tutorials for the home page: a spread across both series. `index` is
+// the position in tutorialStrings.core / .server; title + body are pulled from
+// there (single source), so only tagColor and reading time live here.
+const guideMeta: GuideMeta[] = [
+  { series: 'core', index: 0, tagColor: 'purple', time: 6 },   // Coroutines
+  { series: 'core', index: 7, tagColor: 'purple', time: 8 },   // Scope
+  { series: 'core', index: 8, tagColor: 'orange', time: 7 },   // PDO Pool
+  { series: 'core', index: 13, tagColor: 'blue', time: 9 },    // Threads
+  { series: 'server', index: 0, tagColor: 'teal', time: 10 },  // First server
+  { series: 'server', index: 6, tagColor: 'teal', time: 8 },   // WebSocket
+]
+
+// ---------------------------------------------------------------------------
+// PER-LOCALE STRINGS ONLY. Arrays align by index with the *Meta arrays above.
+// The guides section only carries its own chrome here (title/heading/etc. plus
+// the localized "server" tag and time unit); each card's title and body are
+// pulled from tutorialStrings, so the tutorial translations are the one source.
+// ---------------------------------------------------------------------------
+interface FeatureStr { title: string; text: string }
+interface HeroStr { badge: string; title: string; slogan: string; description: string; buttons: [string, string, string] }
+interface HomeStrings {
+  hero: HeroStr
+  features: { title: string; heading: string; items: FeatureStr[] }
+  // Card title/body come from tutorialStrings; only the section chrome + the
+  // localized "server" tag word and time unit live here. timeUnit carries its
+  // own leading space where the language wants one (e.g. ' min' vs ko '분').
+  guides: { title: string; heading: string; description: string; readMore: string; serverTag: string; timeUnit: string }
 }
 
-const i18n: Record<string, HomeI18n> = {
+const guidesEn = {
+  title: 'Guides & Articles',
+  heading: 'Learn TrueAsync in practice',
+  description: 'Hands-on guides, from your first coroutine to structured concurrency and the built-in server.',
+  readMore: 'Read tutorial',
+  serverTag: 'Server',
+  timeUnit: ' min',
+}
+
+const strings: Record<string, HomeStrings> = {
   en: {
     hero: {
-      badge: 'Experimental Version',
-      title: 'True Asynchronous inside PHP',
-      description: 'Imagine PHP with coroutines, where familiar functions support concurrent I/O. Build high-performance concurrent applications with clean, readable code and minimal changes!',
-      buttons: [
-        { label: 'Get Started', url: '/en/docs.html', style: 'primary' },
-        { label: 'How Coroutines Work', url: '/en/interactive/coroutine-demo.html', style: 'secondary', external: true },
-        { label: 'Download', url: '/en/download.html', style: 'secondary' },
-        { label: 'Discord', url: 'https://discord.gg/yqBQPBHKp5', style: 'secondary', external: true },
-      ],
+      badge: 'Experimental Core',
+      title: 'True Asynchronous inside <span class="hero-accent">PHP</span>',
+      slogan: 'Write sync. Run async.',
+      description: 'Coroutines, non-blocking I/O, and structured concurrency, built into the language core. Write high-performance concurrent code with familiar functions and minimal changes.',
+      buttons: ['Get Started', 'How Coroutines Work', 'Download'],
     },
     features: {
       title: 'Key Features',
+      heading: 'Production-oriented API',
       items: [
-        { title: 'Coroutines', icon: 'coroutines', url: '/en/docs/components/coroutines.html', text: 'Lightweight coroutines for efficient concurrent execution. No colored <code>async</code> functions. Just do <code>spawn()</code> and go!' },
-        { title: 'Non-blocking I/O', icon: 'io', url: '/en/docs/reference/supported-functions.html', text: '<code>fread</code>, <code>fwrite</code>, <code>file_get_contents</code>, <code>ob_start</code>, <code>curl</code>, <code>MySQL</code>, <code>PostgreSQL</code>. Regular PHP functions now work asynchronously without extra effort.' },
-        { title: 'TrueAsync Server', icon: 'web-servers', url: '/en/docs/server/index.html', text: 'Native <code>HTTP/1.1</code>, <code>HTTP/2</code>, and <code>HTTP/3</code> web server written in C, running directly inside the PHP process.' },
-        { title: 'Cooperative Cancellation', icon: 'cancellation', url: '/en/docs/components/cancellation.html', text: 'Simple and flexible <code>API</code> for coroutine cancellation. <code>Scope::cancel()</code>.' },
-        { title: 'Structured Concurrency', icon: 'structured-concurrency', url: '/en/docs/components/scope.html', text: 'Control coroutine lifetime with <code>Scope</code> sandbox. Manage groups of coroutines via <code>TaskGroup</code>.' },
-        { title: 'PDO Pool', icon: 'pdo-pool', url: '/en/docs/components/pdo-pool.html', text: 'Connection pooling built right into <code>PDO</code>. Automatic connection management for maximum performance.' },
-        { title: 'Channel · ThreadPool', icon: 'channel', url: '/en/docs/components/channels.html', text: 'Data exchange between coroutines. Buffered and unbuffered channels for producer/consumer patterns. Cross-thread via <code>ThreadChannel</code>; parallel CPU tasks via <code>Thread</code> and <code>ThreadPool</code>.' },
-        { title: 'Futures', icon: 'futures', url: '/en/docs/components/future.html', text: 'Deferred results for asynchronous computations. Composition via <code>await_all</code>, <code>await_first</code>.' },
-        { title: 'PHP Mobile', icon: 'mobile', url: '/en/docs/mobile/index.html', text: 'Android support at the PHP core level: an asynchronous runtime inside a native app via <code>native-bridge</code>.' },
+        { title: 'Coroutines', text: 'Lightweight coroutines for efficient concurrent execution. No colored <code>async</code> functions. Just do <code>spawn()</code> and go!' },
+        { title: 'Non-blocking I/O', text: '<code>fread</code>, <code>fwrite</code>, <code>file_get_contents</code>, <code>ob_start</code>, <code>curl</code>, <code>MySQL</code>, <code>PostgreSQL</code>. Regular PHP functions now work asynchronously without extra effort.' },
+        { title: 'TrueAsync Server', text: 'Native <code>HTTP/1.1</code>, <code>HTTP/2</code>, and <code>HTTP/3</code> web server written in C, running directly inside the PHP process.' },
+        { title: 'Cooperative Cancellation', text: 'Simple and flexible <code>API</code> for coroutine cancellation. <code>Scope::cancel()</code>.' },
+        { title: 'Structured Concurrency', text: 'Control coroutine lifetime with <code>Scope</code> sandbox. Manage groups of coroutines via <code>TaskGroup</code>.' },
+        { title: 'PDO Pool', text: 'Connection pooling built right into <code>PDO</code>. Automatic connection management for maximum performance.' },
+        { title: 'Channel · ThreadPool', text: 'Data exchange between coroutines. Buffered and unbuffered channels for producer/consumer patterns. Cross-thread via <code>ThreadChannel</code>; parallel CPU tasks via <code>Thread</code> and <code>ThreadPool</code>.' },
+        { title: 'Futures', text: 'Deferred results for asynchronous computations. Composition via <code>await_all</code>, <code>await_first</code>.' },
+        { title: 'PHP Mobile', text: 'Android support at the PHP core level: an asynchronous runtime inside a native app via <code>native-bridge</code>.' },
       ],
     },
-    cta: {
-      title: 'Ready to Build Async PHP Applications?',
-      description: 'Get started with TrueAsync in minutes. Install via Composer and start writing concurrent code today.',
-      buttons: [
-        { label: 'Read the Docs', url: '/en/docs.html', style: 'primary' },
-        { label: 'View on GitHub', url: 'https://github.com/true-async', style: 'secondary', external: true },
-        { label: 'Chat on Discord', url: 'https://discord.gg/yqBQPBHKp5', style: 'secondary', external: true },
-      ],
-    },
+    guides: guidesEn,
   },
   ru: {
     hero: {
-      badge: 'Экспериментальная версия',
-      title: 'Настоящая асинхронность для PHP',
+      badge: 'Экспериментальное ядро',
+      title: 'Настоящая асинхронность внутри <span class="hero-accent">PHP</span>',
+      slogan: 'Пиши синхронно. Выполняй асинхронно.',
       description: 'Представьте PHP с корутинами, где знакомые функции поддерживают конкурентный ввод вывод. Создавайте высокопроизводительные конкурентные приложения с чистым, читаемым кодом и минимумом изменений!',
-      buttons: [
-        { label: 'Начать работу', url: '/ru/docs.html', style: 'primary' },
-        { label: 'Как работают корутины', url: '/ru/interactive/coroutine-demo.html', style: 'secondary', external: true },
-        { label: 'Скачать', url: '/ru/download.html', style: 'secondary' },
-        { label: 'Discord', url: 'https://discord.gg/yqBQPBHKp5', style: 'secondary', external: true },
-      ],
+      buttons: ['Начать работу', 'Как работают корутины', 'Скачать'],
     },
     features: {
       title: 'Ключевые возможности',
+      heading: 'API, ориентированный на продакшен',
       items: [
-        { title: 'Корутины', icon: 'coroutines', url: '/ru/docs/components/coroutines.html', text: 'Лёгкие корутины для эффективного конкурентного выполнения. Никаких цветных <code>async</code> функций. Просто делай <code>spawn()</code> и вперёд!' },
-        { title: 'Неблокирующий I/O', icon: 'io', url: '/ru/docs/reference/supported-functions.html', text: '<code>fread</code>, <code>fwrite</code>, <code>file_get_contents</code>, <code>ob_start</code>, <code>curl</code>, <code>MySQL</code>, <code>PostgreSQL</code>. Обычные функции PHP теперь работают асинхронно без дополнительных усилий.' },
-        { title: 'TrueAsync Server', icon: 'web-servers', url: '/ru/docs/server/index.html', text: 'Нативный Web-сервер на C с поддержкой <code>HTTP/1.1</code>, <code>HTTP/2</code> и <code>HTTP/3</code> прямо внутри PHP-процесса.' },
-        { title: 'Корпоративная отмена', icon: 'cancellation', url: '/ru/docs/components/cancellation.html', text: 'Простой и гибкий <code>API</code> для отмены корутин. <code>Scope::cancel()</code>.' },
-        { title: 'Структурная конкурентность', icon: 'structured-concurrency', url: '/ru/docs/components/scope.html', text: 'Контроль времени жизни корутин с помощью песочницы <code>Scope</code>. Управление группой корутин через <code>TaskGroup</code>' },
-        { title: 'PDO Pool', icon: 'pdo-pool', url: '/ru/docs/components/pdo-pool.html', text: 'Поддержка пула соединений прямо в <code>PDO</code>. Автоматическое управление коннектами для максимальной производительности.' },
-        { title: 'Channel · ThreadPool', icon: 'channel', url: '/ru/docs/components/channels.html', text: 'Обмен данными между корутинами. Буферизованные и небуферизованные каналы. Межпотоковая передача через <code>ThreadChannel</code>; параллельные CPU-задачи через <code>Thread</code> и <code>ThreadPool</code>.' },
-        { title: 'Futures', icon: 'futures', url: '/ru/docs/components/future.html', text: 'Отложенные результаты для асинхронных вычислений. Композиция через <code>await_all</code>, <code>await_first</code>.' },
-        { title: 'PHP Mobile', icon: 'mobile', url: '/ru/docs/mobile/index.html', text: 'Поддержка Android на уровне ядра PHP: асинхронный рантайм внутри нативного приложения через <code>native-bridge</code>.' },
+        { title: 'Корутины', text: 'Лёгкие корутины для эффективного конкурентного выполнения. Никаких цветных <code>async</code> функций. Просто делай <code>spawn()</code> и вперёд!' },
+        { title: 'Неблокирующий I/O', text: '<code>fread</code>, <code>fwrite</code>, <code>file_get_contents</code>, <code>ob_start</code>, <code>curl</code>, <code>MySQL</code>, <code>PostgreSQL</code>. Обычные функции PHP теперь работают асинхронно без дополнительных усилий.' },
+        { title: 'TrueAsync Server', text: 'Нативный Web-сервер на C с поддержкой <code>HTTP/1.1</code>, <code>HTTP/2</code> и <code>HTTP/3</code> прямо внутри PHP-процесса.' },
+        { title: 'Кооперативная отмена', text: 'Простой и гибкий <code>API</code> для отмены корутин. <code>Scope::cancel()</code>.' },
+        { title: 'Структурная конкурентность', text: 'Контроль времени жизни корутин с помощью песочницы <code>Scope</code>. Управление группой корутин через <code>TaskGroup</code>' },
+        { title: 'PDO Pool', text: 'Поддержка пула соединений прямо в <code>PDO</code>. Автоматическое управление коннектами для максимальной производительности.' },
+        { title: 'Channel · ThreadPool', text: 'Обмен данными между корутинами. Буферизованные и небуферизованные каналы. Межпотоковая передача через <code>ThreadChannel</code>; параллельные CPU-задачи через <code>Thread</code> и <code>ThreadPool</code>.' },
+        { title: 'Futures', text: 'Отложенные результаты для асинхронных вычислений. Композиция через <code>await_all</code>, <code>await_first</code>.' },
+        { title: 'PHP Mobile', text: 'Поддержка Android на уровне ядра PHP: асинхронный рантайм внутри нативного приложения через <code>native-bridge</code>.' },
       ],
     },
-    cta: {
-      title: 'Готовы создавать асинхронные PHP-приложения?',
-      description: 'Начните работу с TrueAsync за несколько минут. Установите через Composer и пишите конкурентный код уже сегодня.',
-      buttons: [
-        { label: 'Читать документацию', url: '/ru/docs.html', style: 'primary' },
-        { label: 'Смотреть на GitHub', url: 'https://github.com/true-async', style: 'secondary', external: true },
-        { label: 'Чат в Discord', url: 'https://discord.gg/yqBQPBHKp5', style: 'secondary', external: true },
-      ],
+    guides: {
+      title: 'Руководства и статьи',
+      heading: 'Осваивайте TrueAsync на практике',
+      description: 'Практические материалы: от первой корутины до структурной конкурентности и встроенного сервера.',
+      readMore: 'Читать туториал',
+      serverTag: 'Сервер',
+      timeUnit: ' мин',
     },
   },
   de: {
     hero: {
       badge: 'Experimentelle Version',
-      title: 'Echte Asynchronität in PHP',
+      title: 'Echte Asynchronität in <span class="hero-accent">PHP</span>',
+      slogan: 'Synchron schreiben. Asynchron ausführen.',
       description: 'Stellen Sie sich PHP mit Koroutinen vor, bei dem vertraute Funktionen nebenläufige Ein-/Ausgabe unterstützen. Erstellen Sie hochperformante nebenläufige Anwendungen mit sauberem, lesbarem Code und minimalen Änderungen!',
-      buttons: [
-        { label: 'Erste Schritte', url: '/de/docs.html', style: 'primary' },
-        { label: 'Wie Koroutinen funktionieren', url: '/de/interactive/coroutine-demo.html', style: 'secondary', external: true },
-        { label: 'Herunterladen', url: '/de/download.html', style: 'secondary' },
-        { label: 'Discord', url: 'https://discord.gg/yqBQPBHKp5', style: 'secondary', external: true },
-      ],
+      buttons: ['Erste Schritte', 'Wie Koroutinen funktionieren', 'Herunterladen'],
     },
     features: {
       title: 'Hauptfunktionen',
+      heading: 'Produktionsreife API',
       items: [
-        { title: 'Koroutinen', icon: 'coroutines', url: '/de/docs/components/coroutines.html', text: 'Leichtgewichtige Koroutinen für effiziente nebenläufige Ausführung. Keine gefärbten <code>async</code>-Funktionen. Einfach <code>spawn()</code> und los!' },
-        { title: 'Nicht-blockierende I/O', icon: 'io', url: '/de/docs/reference/supported-functions.html', text: '<code>fread</code>, <code>fwrite</code>, <code>file_get_contents</code>, <code>ob_start</code>, <code>curl</code>, <code>MySQL</code>, <code>PostgreSQL</code>. Gewöhnliche PHP-Funktionen arbeiten jetzt asynchron ohne zusätzlichen Aufwand.' },
-        { title: 'TrueAsync Server', icon: 'web-servers', url: '/de/docs/server/index.html', text: 'Nativer Webserver in C mit Unterstützung für <code>HTTP/1.1</code>, <code>HTTP/2</code> und <code>HTTP/3</code>, direkt im PHP-Prozess.' },
-        { title: 'Kooperative Abbruchsteuerung', icon: 'cancellation', url: '/de/docs/components/cancellation.html', text: 'Einfache und flexible <code>API</code> zum Abbrechen von Koroutinen. <code>Scope::cancel()</code>.' },
-        { title: 'Strukturierte Nebenläufigkeit', icon: 'structured-concurrency', url: '/de/docs/components/scope.html', text: 'Kontrolle der Lebensdauer von Koroutinen mit der <code>Scope</code>-Sandbox. Verwaltung von Koroutinen-Gruppen über <code>TaskGroup</code>.' },
-        { title: 'PDO Pool', icon: 'pdo-pool', url: '/de/docs/components/pdo-pool.html', text: 'Verbindungs-Pooling direkt in <code>PDO</code> eingebaut. Automatische Verbindungsverwaltung für maximale Leistung.' },
-        { title: 'Channel · ThreadPool', icon: 'channel', url: '/de/docs/components/channels.html', text: 'Datenaustausch zwischen Koroutinen. Gepufferte und ungepufferte Kanäle für Producer/Consumer-Muster. Thread-übergreifend via <code>ThreadChannel</code>; parallele CPU-Aufgaben via <code>Thread</code> und <code>ThreadPool</code>.' },
-        { title: 'Futures', icon: 'futures', url: '/de/docs/components/future.html', text: 'Verzögerte Ergebnisse für asynchrone Berechnungen. Komposition über <code>await_all</code>, <code>await_first</code>.' },
-        { title: 'PHP Mobile', icon: 'mobile', url: '/de/roadmap.html', text: 'Android-Unterstützung auf PHP-Kernebene: ein asynchroner Runtime innerhalb einer nativen App über <code>native-bridge</code>.' },
+        { title: 'Koroutinen', text: 'Leichtgewichtige Koroutinen für effiziente nebenläufige Ausführung. Keine gefärbten <code>async</code>-Funktionen. Einfach <code>spawn()</code> und los!' },
+        { title: 'Nicht-blockierende I/O', text: '<code>fread</code>, <code>fwrite</code>, <code>file_get_contents</code>, <code>ob_start</code>, <code>curl</code>, <code>MySQL</code>, <code>PostgreSQL</code>. Gewöhnliche PHP-Funktionen arbeiten jetzt asynchron ohne zusätzlichen Aufwand.' },
+        { title: 'TrueAsync Server', text: 'Nativer Webserver in C mit Unterstützung für <code>HTTP/1.1</code>, <code>HTTP/2</code> und <code>HTTP/3</code>, direkt im PHP-Prozess.' },
+        { title: 'Kooperative Abbruchsteuerung', text: 'Einfache und flexible <code>API</code> zum Abbrechen von Koroutinen. <code>Scope::cancel()</code>.' },
+        { title: 'Strukturierte Nebenläufigkeit', text: 'Kontrolle der Lebensdauer von Koroutinen mit der <code>Scope</code>-Sandbox. Verwaltung von Koroutinen-Gruppen über <code>TaskGroup</code>.' },
+        { title: 'PDO Pool', text: 'Verbindungs-Pooling direkt in <code>PDO</code> eingebaut. Automatische Verbindungsverwaltung für maximale Leistung.' },
+        { title: 'Channel · ThreadPool', text: 'Datenaustausch zwischen Koroutinen. Gepufferte und ungepufferte Kanäle für Producer/Consumer-Muster. Thread-übergreifend via <code>ThreadChannel</code>; parallele CPU-Aufgaben via <code>Thread</code> und <code>ThreadPool</code>.' },
+        { title: 'Futures', text: 'Verzögerte Ergebnisse für asynchrone Berechnungen. Komposition über <code>await_all</code>, <code>await_first</code>.' },
+        { title: 'PHP Mobile', text: 'Android-Unterstützung auf PHP-Kernebene: ein asynchroner Runtime innerhalb einer nativen App über <code>native-bridge</code>.' },
       ],
     },
-    cta: {
-      title: 'Bereit, asynchrone PHP-Anwendungen zu erstellen?',
-      description: 'Starten Sie mit TrueAsync in wenigen Minuten. Installieren Sie es über Composer und schreiben Sie noch heute nebenläufigen Code.',
-      buttons: [
-        { label: 'Dokumentation lesen', url: '/de/docs.html', style: 'primary' },
-        { label: 'Auf GitHub ansehen', url: 'https://github.com/true-async', style: 'secondary', external: true },
-        { label: 'Discord-Chat', url: 'https://discord.gg/yqBQPBHKp5', style: 'secondary', external: true },
-      ],
+    guides: {
+      title: 'Anleitungen & Artikel',
+      heading: 'TrueAsync in der Praxis lernen',
+      description: 'Praxisnahe Anleitungen, von deiner ersten Koroutine bis zu strukturierter Nebenläufigkeit und dem integrierten Server.',
+      readMore: 'Tutorial lesen',
+      serverTag: 'Server',
+      timeUnit: ' Min.',
     },
   },
   es: {
     hero: {
       badge: 'Versión experimental',
-      title: 'Asincronía real dentro de PHP',
+      title: 'Asincronía real dentro de <span class="hero-accent">PHP</span>',
+      slogan: 'Escribe síncrono. Ejecuta asíncrono.',
       description: 'Imagina PHP con corrutinas, donde las funciones habituales soportan E/S concurrente. ¡Crea aplicaciones concurrentes de alto rendimiento con código limpio, legible y cambios mínimos!',
-      buttons: [
-        { label: 'Comenzar', url: '/es/docs.html', style: 'primary' },
-        { label: 'Cómo funcionan las corrutinas', url: '/es/interactive/coroutine-demo.html', style: 'secondary', external: true },
-        { label: 'Descargar', url: '/es/download.html', style: 'secondary' },
-        { label: 'Discord', url: 'https://discord.gg/yqBQPBHKp5', style: 'secondary', external: true },
-      ],
+      buttons: ['Comenzar', 'Cómo funcionan las corrutinas', 'Descargar'],
     },
     features: {
       title: 'Características principales',
+      heading: 'API lista para producción',
       items: [
-        { title: 'Corrutinas', icon: 'coroutines', url: '/es/docs/components/coroutines.html', text: 'Corrutinas ligeras para una ejecución concurrente eficiente. Sin funciones <code>async</code> coloreadas. Simplemente haz <code>spawn()</code> y listo.' },
-        { title: 'I/O no bloqueante', icon: 'io', url: '/es/docs/reference/supported-functions.html', text: '<code>fread</code>, <code>fwrite</code>, <code>file_get_contents</code>, <code>ob_start</code>, <code>curl</code>, <code>MySQL</code>, <code>PostgreSQL</code>. Las funciones habituales de PHP ahora funcionan de forma asíncrona sin esfuerzo adicional.' },
-        { title: 'TrueAsync Server', icon: 'web-servers', url: '/es/docs/server/index.html', text: 'Servidor web nativo en C con soporte para <code>HTTP/1.1</code>, <code>HTTP/2</code> y <code>HTTP/3</code>, directamente dentro del proceso PHP.' },
-        { title: 'Cancelación cooperativa', icon: 'cancellation', url: '/es/docs/components/cancellation.html', text: '<code>API</code> simple y flexible para cancelar corrutinas. <code>Scope::cancel()</code>.' },
-        { title: 'Concurrencia estructurada', icon: 'structured-concurrency', url: '/es/docs/components/scope.html', text: 'Control del ciclo de vida de las corrutinas mediante el sandbox <code>Scope</code>. Gestión de grupos de corrutinas con <code>TaskGroup</code>.' },
-        { title: 'PDO Pool', icon: 'pdo-pool', url: '/es/docs/components/pdo-pool.html', text: 'Pool de conexiones integrado directamente en <code>PDO</code>. Gestión automática de conexiones para máximo rendimiento.' },
-        { title: 'Channel · ThreadPool', icon: 'channel', url: '/es/docs/components/channels.html', text: 'Intercambio de datos entre corrutinas. Canales con y sin búfer para patrones producer/consumer. Entre hilos via <code>ThreadChannel</code>; tareas CPU paralelas con <code>Thread</code> y <code>ThreadPool</code>.' },
-        { title: 'Futures', icon: 'futures', url: '/es/docs/components/future.html', text: 'Resultados diferidos para cálculos asíncronos. Composición mediante <code>await_all</code>, <code>await_first</code>.' },
-        { title: 'PHP Mobile', icon: 'mobile', url: '/es/roadmap.html', text: 'Soporte de Android a nivel del núcleo de PHP: un runtime asíncrono dentro de una app nativa mediante <code>native-bridge</code>.' },
+        { title: 'Corrutinas', text: 'Corrutinas ligeras para una ejecución concurrente eficiente. Sin funciones <code>async</code> coloreadas. Simplemente haz <code>spawn()</code> y listo.' },
+        { title: 'I/O no bloqueante', text: '<code>fread</code>, <code>fwrite</code>, <code>file_get_contents</code>, <code>ob_start</code>, <code>curl</code>, <code>MySQL</code>, <code>PostgreSQL</code>. Las funciones habituales de PHP ahora funcionan de forma asíncrona sin esfuerzo adicional.' },
+        { title: 'TrueAsync Server', text: 'Servidor web nativo en C con soporte para <code>HTTP/1.1</code>, <code>HTTP/2</code> y <code>HTTP/3</code>, directamente dentro del proceso PHP.' },
+        { title: 'Cancelación cooperativa', text: '<code>API</code> simple y flexible para cancelar corrutinas. <code>Scope::cancel()</code>.' },
+        { title: 'Concurrencia estructurada', text: 'Control del ciclo de vida de las corrutinas mediante el sandbox <code>Scope</code>. Gestión de grupos de corrutinas con <code>TaskGroup</code>.' },
+        { title: 'PDO Pool', text: 'Pool de conexiones integrado directamente en <code>PDO</code>. Gestión automática de conexiones para máximo rendimiento.' },
+        { title: 'Channel · ThreadPool', text: 'Intercambio de datos entre corrutinas. Canales con y sin búfer para patrones producer/consumer. Entre hilos via <code>ThreadChannel</code>; tareas CPU paralelas con <code>Thread</code> y <code>ThreadPool</code>.' },
+        { title: 'Futures', text: 'Resultados diferidos para cálculos asíncronos. Composición mediante <code>await_all</code>, <code>await_first</code>.' },
+        { title: 'PHP Mobile', text: 'Soporte de Android a nivel del núcleo de PHP: un runtime asíncrono dentro de una app nativa mediante <code>native-bridge</code>.' },
       ],
     },
-    cta: {
-      title: '¿Listo para crear aplicaciones PHP asíncronas?',
-      description: 'Comienza con TrueAsync en minutos. Instálalo con Composer y escribe código concurrente hoy mismo.',
-      buttons: [
-        { label: 'Leer la documentación', url: '/es/docs.html', style: 'primary' },
-        { label: 'Ver en GitHub', url: 'https://github.com/true-async', style: 'secondary', external: true },
-        { label: 'Chat en Discord', url: 'https://discord.gg/yqBQPBHKp5', style: 'secondary', external: true },
-      ],
+    guides: {
+      title: 'Guías y artículos',
+      heading: 'Aprende TrueAsync en la práctica',
+      description: 'Guías prácticas, desde tu primera corrutina hasta la concurrencia estructurada y el servidor integrado.',
+      readMore: 'Leer el tutorial',
+      serverTag: 'Servidor',
+      timeUnit: ' min',
     },
   },
   fr: {
     hero: {
       badge: 'Version expérimentale',
-      title: 'Véritable asynchrone dans PHP',
+      title: 'Véritable asynchrone dans <span class="hero-accent">PHP</span>',
+      slogan: 'Écrivez synchrone. Exécutez asynchrone.',
       description: 'Imaginez PHP avec des coroutines, où les fonctions familières prennent en charge les E/S concurrentes. Créez des applications concurrentes haute performance avec un code propre et lisible, et un minimum de modifications !',
-      buttons: [
-        { label: 'Commencer', url: '/fr/docs.html', style: 'primary' },
-        { label: 'Comment fonctionnent les coroutines', url: '/fr/interactive/coroutine-demo.html', style: 'secondary', external: true },
-        { label: 'Télécharger', url: '/fr/download.html', style: 'secondary' },
-        { label: 'Discord', url: 'https://discord.gg/yqBQPBHKp5', style: 'secondary', external: true },
-      ],
+      buttons: ['Commencer', 'Comment fonctionnent les coroutines', 'Télécharger'],
     },
     features: {
       title: 'Fonctionnalités clés',
+      heading: 'API prête pour la production',
       items: [
-        { title: 'Coroutines', icon: 'coroutines', url: '/fr/docs/components/coroutines.html', text: 'Des coroutines légères pour une exécution concurrente efficace. Pas de fonctions <code>async</code> colorées. Faites simplement <code>spawn()</code> et c\'est parti !' },
-        { title: 'I/O non bloquante', icon: 'io', url: '/fr/docs/reference/supported-functions.html', text: '<code>fread</code>, <code>fwrite</code>, <code>file_get_contents</code>, <code>ob_start</code>, <code>curl</code>, <code>MySQL</code>, <code>PostgreSQL</code>. Les fonctions PHP classiques fonctionnent désormais de manière asynchrone sans effort supplémentaire.' },
-        { title: 'TrueAsync Server', icon: 'web-servers', url: '/fr/docs/server/index.html', text: 'Serveur web natif en C avec prise en charge de <code>HTTP/1.1</code>, <code>HTTP/2</code> et <code>HTTP/3</code>, directement à l\'intérieur du processus PHP.' },
-        { title: 'Annulation coopérative', icon: 'cancellation', url: '/fr/docs/components/cancellation.html', text: '<code>API</code> simple et flexible pour l\'annulation des coroutines. <code>Scope::cancel()</code>.' },
-        { title: 'Concurrence structurée', icon: 'structured-concurrency', url: '/fr/docs/components/scope.html', text: 'Contrôle du cycle de vie des coroutines grâce au bac à sable <code>Scope</code>. Gestion de groupes de coroutines via <code>TaskGroup</code>.' },
-        { title: 'PDO Pool', icon: 'pdo-pool', url: '/fr/docs/components/pdo-pool.html', text: 'Pool de connexions intégré directement dans <code>PDO</code>. Gestion automatique des connexions pour des performances maximales.' },
-        { title: 'Channel · ThreadPool', icon: 'channel', url: '/fr/docs/components/channels.html', text: 'Échange de données entre coroutines. Canaux avec et sans tampon pour les patrons producteur/consommateur. Entre threads via <code>ThreadChannel</code> ; tâches CPU parallèles via <code>Thread</code> et <code>ThreadPool</code>.' },
-        { title: 'Futures', icon: 'futures', url: '/fr/docs/components/future.html', text: 'Résultats différés pour les calculs asynchrones. Composition via <code>await_all</code>, <code>await_first</code>.' },
-        { title: 'PHP Mobile', icon: 'mobile', url: '/fr/roadmap.html', text: 'Prise en charge d\'Android au niveau du cœur de PHP : un runtime asynchrone au sein d\'une application native via <code>native-bridge</code>.' },
+        { title: 'Coroutines', text: 'Des coroutines légères pour une exécution concurrente efficace. Pas de fonctions <code>async</code> colorées. Faites simplement <code>spawn()</code> et c\'est parti !' },
+        { title: 'I/O non bloquante', text: '<code>fread</code>, <code>fwrite</code>, <code>file_get_contents</code>, <code>ob_start</code>, <code>curl</code>, <code>MySQL</code>, <code>PostgreSQL</code>. Les fonctions PHP classiques fonctionnent désormais de manière asynchrone sans effort supplémentaire.' },
+        { title: 'TrueAsync Server', text: 'Serveur web natif en C avec prise en charge de <code>HTTP/1.1</code>, <code>HTTP/2</code> et <code>HTTP/3</code>, directement à l\'intérieur du processus PHP.' },
+        { title: 'Annulation coopérative', text: '<code>API</code> simple et flexible pour l\'annulation des coroutines. <code>Scope::cancel()</code>.' },
+        { title: 'Concurrence structurée', text: 'Contrôle du cycle de vie des coroutines grâce au bac à sable <code>Scope</code>. Gestion de groupes de coroutines via <code>TaskGroup</code>.' },
+        { title: 'PDO Pool', text: 'Pool de connexions intégré directement dans <code>PDO</code>. Gestion automatique des connexions pour des performances maximales.' },
+        { title: 'Channel · ThreadPool', text: 'Échange de données entre coroutines. Canaux avec et sans tampon pour les patrons producteur/consommateur. Entre threads via <code>ThreadChannel</code> ; tâches CPU parallèles via <code>Thread</code> et <code>ThreadPool</code>.' },
+        { title: 'Futures', text: 'Résultats différés pour les calculs asynchrones. Composition via <code>await_all</code>, <code>await_first</code>.' },
+        { title: 'PHP Mobile', text: 'Prise en charge d\'Android au niveau du cœur de PHP : un runtime asynchrone au sein d\'une application native via <code>native-bridge</code>.' },
       ],
     },
-    cta: {
-      title: 'Prêt à créer des applications PHP asynchrones ?',
-      description: 'Démarrez avec TrueAsync en quelques minutes. Installez via Composer et écrivez du code concurrent dès aujourd\'hui.',
-      buttons: [
-        { label: 'Lire la documentation', url: '/fr/docs.html', style: 'primary' },
-        { label: 'Voir sur GitHub', url: 'https://github.com/true-async', style: 'secondary', external: true },
-        { label: 'Chat sur Discord', url: 'https://discord.gg/yqBQPBHKp5', style: 'secondary', external: true },
-      ],
+    guides: {
+      title: 'Guides et articles',
+      heading: 'Apprenez TrueAsync en pratique',
+      description: 'Des guides pratiques, de votre première coroutine à la concurrence structurée et au serveur intégré.',
+      readMore: 'Lire le tutoriel',
+      serverTag: 'Serveur',
+      timeUnit: ' min',
     },
   },
   it: {
     hero: {
       badge: 'Versione sperimentale',
-      title: 'Vera asincronicità dentro PHP',
+      title: 'Vera asincronicità dentro <span class="hero-accent">PHP</span>',
+      slogan: 'Scrivi sincrono. Esegui asincrono.',
       description: 'Immagina PHP con coroutine, dove le funzioni familiari supportano l\'I/O concorrente. Crea applicazioni concorrenti ad alte prestazioni con codice pulito, leggibile e modifiche minime!',
-      buttons: [
-        { label: 'Inizia', url: '/it/docs.html', style: 'primary' },
-        { label: 'Come funzionano le coroutine', url: '/it/interactive/coroutine-demo.html', style: 'secondary', external: true },
-        { label: 'Scarica', url: '/it/download.html', style: 'secondary' },
-        { label: 'Discord', url: 'https://discord.gg/yqBQPBHKp5', style: 'secondary', external: true },
-      ],
+      buttons: ['Inizia', 'Come funzionano le coroutine', 'Scarica'],
     },
     features: {
       title: 'Funzionalità principali',
+      heading: 'API pronta per la produzione',
       items: [
-        { title: 'Coroutine', icon: 'coroutines', url: '/it/docs/components/coroutines.html', text: 'Coroutine leggere per un\'esecuzione concorrente efficiente. Nessuna funzione <code>async</code> colorata. Basta fare <code>spawn()</code> e via!' },
-        { title: 'I/O non bloccante', icon: 'io', url: '/it/docs/reference/supported-functions.html', text: '<code>fread</code>, <code>fwrite</code>, <code>file_get_contents</code>, <code>ob_start</code>, <code>curl</code>, <code>MySQL</code>, <code>PostgreSQL</code>. Le normali funzioni PHP ora funzionano in modo asincrono senza sforzo aggiuntivo.' },
-        { title: 'TrueAsync Server', icon: 'web-servers', url: '/it/docs/server/index.html', text: 'Web server nativo in C con supporto per <code>HTTP/1.1</code>, <code>HTTP/2</code> e <code>HTTP/3</code>, direttamente all\'interno del processo PHP.' },
-        { title: 'Cancellazione cooperativa', icon: 'cancellation', url: '/it/docs/components/cancellation.html', text: '<code>API</code> semplice e flessibile per la cancellazione delle coroutine. <code>Scope::cancel()</code>.' },
-        { title: 'Concorrenza strutturata', icon: 'structured-concurrency', url: '/it/docs/components/scope.html', text: 'Controllo del ciclo di vita delle coroutine tramite sandbox <code>Scope</code>. Gestione di gruppi di coroutine tramite <code>TaskGroup</code>.' },
-        { title: 'PDO Pool', icon: 'pdo-pool', url: '/it/docs/components/pdo-pool.html', text: 'Pool di connessioni integrato direttamente in <code>PDO</code>. Gestione automatica delle connessioni per le massime prestazioni.' },
-        { title: 'Channel · ThreadPool', icon: 'channel', url: '/it/docs/components/channels.html', text: 'Scambio di dati tra coroutine. Canali bufferizzati e non bufferizzati per pattern producer/consumer. Tra thread via <code>ThreadChannel</code>; task CPU paralleli con <code>Thread</code> e <code>ThreadPool</code>.' },
-        { title: 'Futures', icon: 'futures', url: '/it/docs/components/future.html', text: 'Risultati differiti per calcoli asincroni. Composizione tramite <code>await_all</code>, <code>await_first</code>.' },
-        { title: 'PHP Mobile', icon: 'mobile', url: '/it/roadmap.html', text: 'Supporto Android a livello del core di PHP: un runtime asincrono all\'interno di un\'app nativa tramite <code>native-bridge</code>.' },
+        { title: 'Coroutine', text: 'Coroutine leggere per un\'esecuzione concorrente efficiente. Nessuna funzione <code>async</code> colorata. Basta fare <code>spawn()</code> e via!' },
+        { title: 'I/O non bloccante', text: '<code>fread</code>, <code>fwrite</code>, <code>file_get_contents</code>, <code>ob_start</code>, <code>curl</code>, <code>MySQL</code>, <code>PostgreSQL</code>. Le normali funzioni PHP ora funzionano in modo asincrono senza sforzo aggiuntivo.' },
+        { title: 'TrueAsync Server', text: 'Web server nativo in C con supporto per <code>HTTP/1.1</code>, <code>HTTP/2</code> e <code>HTTP/3</code>, direttamente all\'interno del processo PHP.' },
+        { title: 'Cancellazione cooperativa', text: '<code>API</code> semplice e flessibile per la cancellazione delle coroutine. <code>Scope::cancel()</code>.' },
+        { title: 'Concorrenza strutturata', text: 'Controllo del ciclo di vita delle coroutine tramite sandbox <code>Scope</code>. Gestione di gruppi di coroutine tramite <code>TaskGroup</code>.' },
+        { title: 'PDO Pool', text: 'Pool di connessioni integrato direttamente in <code>PDO</code>. Gestione automatica delle connessioni per le massime prestazioni.' },
+        { title: 'Channel · ThreadPool', text: 'Scambio di dati tra coroutine. Canali bufferizzati e non bufferizzati per pattern producer/consumer. Tra thread via <code>ThreadChannel</code>; task CPU paralleli con <code>Thread</code> e <code>ThreadPool</code>.' },
+        { title: 'Futures', text: 'Risultati differiti per calcoli asincroni. Composizione tramite <code>await_all</code>, <code>await_first</code>.' },
+        { title: 'PHP Mobile', text: 'Supporto Android a livello del core di PHP: un runtime asincrono all\'interno di un\'app nativa tramite <code>native-bridge</code>.' },
       ],
     },
-    cta: {
-      title: 'Pronto a creare applicazioni PHP asincrone?',
-      description: 'Inizia a lavorare con TrueAsync in pochi minuti. Installa tramite Composer e scrivi codice concorrente già oggi.',
-      buttons: [
-        { label: 'Leggi la documentazione', url: '/it/docs.html', style: 'primary' },
-        { label: 'Visualizza su GitHub', url: 'https://github.com/true-async', style: 'secondary', external: true },
-        { label: 'Chat su Discord', url: 'https://discord.gg/yqBQPBHKp5', style: 'secondary', external: true },
-      ],
+    guides: {
+      title: 'Guide e articoli',
+      heading: 'Impara TrueAsync nella pratica',
+      description: 'Guide pratiche, dalla tua prima coroutine alla concorrenza strutturata e al server integrato.',
+      readMore: 'Leggi il tutorial',
+      serverTag: 'Server',
+      timeUnit: ' min',
     },
   },
   ko: {
     hero: {
       badge: '실험 버전',
-      title: 'PHP 안에 진정한 비동기',
+      title: '<span class="hero-accent">PHP</span> 안에 진정한 비동기',
+      slogan: '동기로 작성하고, 비동기로 실행하세요.',
       description: '익숙한 함수가 동시 I/O를 지원하는 코루틴이 있는 PHP를 상상해 보세요. 깨끗하고 읽기 쉬운 코드와 최소한의 변경으로 고성능 동시성 애플리케이션을 구축하세요!',
-      buttons: [
-        { label: '시작하기', url: '/ko/docs.html', style: 'primary' },
-        { label: '코루틴 작동 방식', url: '/ko/interactive/coroutine-demo.html', style: 'secondary', external: true },
-        { label: '다운로드', url: '/ko/download.html', style: 'secondary' },
-        { label: 'Discord', url: 'https://discord.gg/yqBQPBHKp5', style: 'secondary', external: true },
-      ],
+      buttons: ['시작하기', '코루틴 작동 방식', '다운로드'],
     },
     features: {
       title: '주요 기능',
+      heading: '프로덕션 준비된 API',
       items: [
-        { title: '코루틴', icon: 'coroutines', url: '/ko/docs/components/coroutines.html', text: '효율적인 동시 실행을 위한 경량 코루틴. 컬러드 <code>async</code> 함수 없음. <code>spawn()</code>만 하면 됩니다!' },
-        { title: '논블로킹 I/O', icon: 'io', url: '/ko/docs/reference/supported-functions.html', text: '<code>fread</code>, <code>fwrite</code>, <code>file_get_contents</code>, <code>ob_start</code>, <code>curl</code>, <code>MySQL</code>, <code>PostgreSQL</code>. 일반 PHP 함수가 추가 노력 없이 비동기로 작동합니다.' },
-        { title: 'TrueAsync Server', icon: 'web-servers', url: '/ko/docs/server/index.html', text: 'C로 작성된 네이티브 웹 서버. <code>HTTP/1.1</code>, <code>HTTP/2</code>, <code>HTTP/3</code>을 PHP 프로세스 내부에서 직접 처리합니다.' },
-        { title: '협력적 취소', icon: 'cancellation', url: '/ko/docs/components/cancellation.html', text: '코루틴 취소를 위한 간단하고 유연한 <code>API</code>. <code>Scope::cancel()</code>.' },
-        { title: '구조적 동시성', icon: 'structured-concurrency', url: '/ko/docs/components/scope.html', text: '<code>Scope</code> 샌드박스로 코루틴 수명을 제어하세요. <code>TaskGroup</code>으로 코루틴 그룹을 관리하세요.' },
-        { title: 'PDO Pool', icon: 'pdo-pool', url: '/ko/docs/components/pdo-pool.html', text: '<code>PDO</code>에 내장된 연결 풀링. 최대 성능을 위한 자동 연결 관리.' },
-        { title: 'Channel · ThreadPool', icon: 'channel', url: '/ko/docs/components/channels.html', text: '코루틴 간의 데이터 교환. 생산자/소비자 패턴을 위한 버퍼링 및 비버퍼링 채널. <code>ThreadChannel</code>로 OS 스레드 간 통신, <code>Thread</code>·<code>ThreadPool</code>로 병렬 CPU 작업.' },
-        { title: 'Futures', icon: 'futures', url: '/ko/docs/components/future.html', text: '비동기 계산을 위한 지연 결과. <code>await_all</code>, <code>await_first</code>를 통한 조합.' },
-        { title: 'PHP Mobile', icon: 'mobile', url: '/ko/roadmap.html', text: 'PHP 코어 수준의 Android 지원: <code>native-bridge</code>를 통해 네이티브 앱 내부에서 실행되는 비동기 런타임.' },
+        { title: '코루틴', text: '효율적인 동시 실행을 위한 경량 코루틴. 컬러드 <code>async</code> 함수 없음. <code>spawn()</code>만 하면 됩니다!' },
+        { title: '논블로킹 I/O', text: '<code>fread</code>, <code>fwrite</code>, <code>file_get_contents</code>, <code>ob_start</code>, <code>curl</code>, <code>MySQL</code>, <code>PostgreSQL</code>. 일반 PHP 함수가 추가 노력 없이 비동기로 작동합니다.' },
+        { title: 'TrueAsync Server', text: 'C로 작성된 네이티브 웹 서버. <code>HTTP/1.1</code>, <code>HTTP/2</code>, <code>HTTP/3</code>을 PHP 프로세스 내부에서 직접 처리합니다.' },
+        { title: '협력적 취소', text: '코루틴 취소를 위한 간단하고 유연한 <code>API</code>. <code>Scope::cancel()</code>.' },
+        { title: '구조적 동시성', text: '<code>Scope</code> 샌드박스로 코루틴 수명을 제어하세요. <code>TaskGroup</code>으로 코루틴 그룹을 관리하세요.' },
+        { title: 'PDO Pool', text: '<code>PDO</code>에 내장된 연결 풀링. 최대 성능을 위한 자동 연결 관리.' },
+        { title: 'Channel · ThreadPool', text: '코루틴 간의 데이터 교환. 생산자/소비자 패턴을 위한 버퍼링 및 비버퍼링 채널. <code>ThreadChannel</code>로 OS 스레드 간 통신, <code>Thread</code>·<code>ThreadPool</code>로 병렬 CPU 작업.' },
+        { title: 'Futures', text: '비동기 계산을 위한 지연 결과. <code>await_all</code>, <code>await_first</code>를 통한 조합.' },
+        { title: 'PHP Mobile', text: 'PHP 코어 수준의 Android 지원: <code>native-bridge</code>를 통해 네이티브 앱 내부에서 실행되는 비동기 런타임.' },
       ],
     },
-    cta: {
-      title: '비동기 PHP 애플리케이션을 구축할 준비가 되셨나요?',
-      description: '몇 분 안에 TrueAsync를 시작하세요. Composer로 설치하고 오늘부터 동시성 코드를 작성하세요.',
-      buttons: [
-        { label: '문서 읽기', url: '/ko/docs.html', style: 'primary' },
-        { label: 'GitHub에서 보기', url: 'https://github.com/true-async', style: 'secondary', external: true },
-        { label: 'Discord에서 채팅', url: 'https://discord.gg/yqBQPBHKp5', style: 'secondary', external: true },
-      ],
+    guides: {
+      title: '가이드 & 아티클',
+      heading: 'TrueAsync를 실전으로 배우기',
+      description: '첫 코루틴부터 구조적 동시성과 내장 서버까지, 실습 중심의 가이드입니다.',
+      readMore: '튜토리얼 읽기',
+      serverTag: '서버',
+      timeUnit: '분',
     },
   },
   uk: {
     hero: {
       badge: 'Експериментальна версія',
-      title: 'Справжня асинхронність всередині PHP',
+      title: 'Справжня асинхронність всередині <span class="hero-accent">PHP</span>',
+      slogan: 'Пиши синхронно. Виконуй асинхронно.',
       description: 'Уявіть PHP з корутинами, де знайомі функції підтримують конкурентне введення-виведення. Створюйте високопродуктивні конкурентні застосунки з чистим, зрозумілим кодом і мінімумом змін!',
-      buttons: [
-        { label: 'Почати роботу', url: '/uk/docs.html', style: 'primary' },
-        { label: 'Як працюють корутини', url: '/uk/interactive/coroutine-demo.html', style: 'secondary', external: true },
-        { label: 'Завантажити', url: '/uk/download.html', style: 'secondary' },
-        { label: 'Discord', url: 'https://discord.gg/yqBQPBHKp5', style: 'secondary', external: true },
-      ],
+      buttons: ['Почати роботу', 'Як працюють корутини', 'Завантажити'],
     },
     features: {
       title: 'Ключові можливості',
+      heading: 'API, орієнтований на продакшен',
       items: [
-        { title: 'Корутини', icon: 'coroutines', url: '/uk/docs/components/coroutines.html', text: 'Легкі корутини для ефективного конкурентного виконання. Жодних кольорових <code>async</code> функцій. Просто роби <code>spawn()</code> і вперед!' },
-        { title: 'Неблокуючий I/O', icon: 'io', url: '/uk/docs/reference/supported-functions.html', text: '<code>fread</code>, <code>fwrite</code>, <code>file_get_contents</code>, <code>ob_start</code>, <code>curl</code>, <code>MySQL</code>, <code>PostgreSQL</code>. Звичайні функції PHP тепер працюють асинхронно без додаткових зусиль.' },
-        { title: 'TrueAsync Server', icon: 'web-servers', url: '/uk/docs/server/index.html', text: 'Нативний Web-сервер на C з підтримкою <code>HTTP/1.1</code>, <code>HTTP/2</code> і <code>HTTP/3</code> прямо всередині PHP-процесу.' },
-        { title: 'Кооперативне скасування', icon: 'cancellation', url: '/uk/docs/components/cancellation.html', text: 'Простий і гнучкий <code>API</code> для скасування корутин. <code>Scope::cancel()</code>.' },
-        { title: 'Структурна конкурентність', icon: 'structured-concurrency', url: '/uk/docs/components/scope.html', text: 'Контроль часу життя корутин за допомогою пісочниці <code>Scope</code>. Керування групами корутин через <code>TaskGroup</code>.' },
-        { title: 'PDO Pool', icon: 'pdo-pool', url: '/uk/docs/components/pdo-pool.html', text: 'Пул з\'єднань вбудований прямо в <code>PDO</code>. Автоматичне керування з\'єднаннями для максимальної продуктивності.' },
-        { title: 'Channel · ThreadPool', icon: 'channel', url: '/uk/docs/components/channels.html', text: 'Обмін даними між корутинами. Буферизовані та небуферизовані канали. Між потоками через <code>ThreadChannel</code>; паралельні CPU-задачі через <code>Thread</code> і <code>ThreadPool</code>.' },
-        { title: 'Futures', icon: 'futures', url: '/uk/docs/components/future.html', text: 'Відкладені результати для асинхронних обчислень. Композиція через <code>await_all</code>, <code>await_first</code>.' },
-        { title: 'PHP Mobile', icon: 'mobile', url: '/uk/roadmap.html', text: 'Підтримка Android на рівні ядра PHP: асинхронний рантайм всередині нативного застосунку через <code>native-bridge</code>.' },
+        { title: 'Корутини', text: 'Легкі корутини для ефективного конкурентного виконання. Жодних кольорових <code>async</code> функцій. Просто роби <code>spawn()</code> і вперед!' },
+        { title: 'Неблокуючий I/O', text: '<code>fread</code>, <code>fwrite</code>, <code>file_get_contents</code>, <code>ob_start</code>, <code>curl</code>, <code>MySQL</code>, <code>PostgreSQL</code>. Звичайні функції PHP тепер працюють асинхронно без додаткових зусиль.' },
+        { title: 'TrueAsync Server', text: 'Нативний Web-сервер на C з підтримкою <code>HTTP/1.1</code>, <code>HTTP/2</code> і <code>HTTP/3</code> прямо всередині PHP-процесу.' },
+        { title: 'Кооперативне скасування', text: 'Простий і гнучкий <code>API</code> для скасування корутин. <code>Scope::cancel()</code>.' },
+        { title: 'Структурна конкурентність', text: 'Контроль часу життя корутин за допомогою пісочниці <code>Scope</code>. Керування групами корутин через <code>TaskGroup</code>.' },
+        { title: 'PDO Pool', text: 'Пул з\'єднань вбудований прямо в <code>PDO</code>. Автоматичне керування з\'єднаннями для максимальної продуктивності.' },
+        { title: 'Channel · ThreadPool', text: 'Обмін даними між корутинами. Буферизовані та небуферизовані канали. Між потоками через <code>ThreadChannel</code>; паралельні CPU-задачі через <code>Thread</code> і <code>ThreadPool</code>.' },
+        { title: 'Futures', text: 'Відкладені результати для асинхронних обчислень. Композиція через <code>await_all</code>, <code>await_first</code>.' },
+        { title: 'PHP Mobile', text: 'Підтримка Android на рівні ядра PHP: асинхронний рантайм всередині нативного застосунку через <code>native-bridge</code>.' },
       ],
     },
-    cta: {
-      title: 'Готові створювати асинхронні PHP-застосунки?',
-      description: 'Почніть роботу з TrueAsync за кілька хвилин. Встановіть через Composer і пишіть конкурентний код вже сьогодні.',
-      buttons: [
-        { label: 'Читати документацію', url: '/uk/docs.html', style: 'primary' },
-        { label: 'Дивитися на GitHub', url: 'https://github.com/true-async', style: 'secondary', external: true },
-        { label: 'Чат у Discord', url: 'https://discord.gg/yqBQPBHKp5', style: 'secondary', external: true },
-      ],
+    guides: {
+      title: 'Посібники та статті',
+      heading: 'Опановуйте TrueAsync на практиці',
+      description: 'Практичні матеріали: від першої корутини до структурної конкурентності та вбудованого сервера.',
+      readMore: 'Читати туторіал',
+      serverTag: 'Сервер',
+      timeUnit: ' хв',
     },
   },
   zh: {
     hero: {
       badge: '实验版本',
-      title: 'PHP 内部的真正异步',
+      title: '<span class="hero-accent">PHP</span> 内部的真正异步',
+      slogan: '同步编写，异步运行。',
       description: '想象一下，PHP 拥有协程，熟悉的函数支持并发 I/O。用简洁、可读的代码和最少的改动构建高性能并发应用程序！',
-      buttons: [
-        { label: '开始使用', url: '/zh/docs.html', style: 'primary' },
-        { label: '协程工作原理', url: '/zh/interactive/coroutine-demo.html', style: 'secondary', external: true },
-        { label: '下载', url: '/zh/download.html', style: 'secondary' },
-        { label: 'Discord', url: 'https://discord.gg/yqBQPBHKp5', style: 'secondary', external: true },
-      ],
+      buttons: ['开始使用', '协程工作原理', '下载'],
     },
     features: {
       title: '核心功能',
+      heading: '生产就绪的 API',
       items: [
-        { title: '协程', icon: 'coroutines', url: '/zh/docs/components/coroutines.html', text: '轻量级协程，实现高效并发执行。没有带颜色的 <code>async</code> 函数。只需调用 <code>spawn()</code> 即可开始！' },
-        { title: '非阻塞 I/O', icon: 'io', url: '/zh/docs/reference/supported-functions.html', text: '<code>fread</code>, <code>fwrite</code>, <code>file_get_contents</code>, <code>ob_start</code>, <code>curl</code>, <code>MySQL</code>, <code>PostgreSQL</code>. 普通 PHP 函数无需额外操作即可异步运行。' },
-        { title: 'TrueAsync Server', icon: 'web-servers', url: '/zh/docs/server/index.html', text: '使用 C 编写的原生 Web 服务器，直接在 PHP 进程内支持 <code>HTTP/1.1</code>、<code>HTTP/2</code> 与 <code>HTTP/3</code>。' },
-        { title: '协作式取消', icon: 'cancellation', url: '/zh/docs/components/cancellation.html', text: '简单灵活的 <code>API</code>，用于取消协程。<code>Scope::cancel()</code>。' },
-        { title: '结构化并发', icon: 'structured-concurrency', url: '/zh/docs/components/scope.html', text: '通过沙箱 <code>Scope</code> 控制协程的生命周期。通过 <code>TaskGroup</code> 管理协程组。' },
-        { title: 'PDO 连接池', icon: 'pdo-pool', url: '/zh/docs/components/pdo-pool.html', text: '直接内置于 <code>PDO</code> 的连接池。自动管理连接以实现最佳性能。' },
-        { title: '通道 · ThreadPool', icon: 'channel', url: '/zh/docs/components/channels.html', text: '协程之间的数据交换。缓冲和非缓冲通道支持生产者/消费者模式。跨线程通过 <code>ThreadChannel</code>；并行 CPU 任务通过 <code>Thread</code> 和 <code>ThreadPool</code>。' },
-        { title: 'Futures', icon: 'futures', url: '/zh/docs/components/future.html', text: '异步计算的延迟结果。通过 <code>await_all</code>, <code>await_first</code> 进行组合。' },
-        { title: 'PHP Mobile', icon: 'mobile', url: '/zh/roadmap.html', text: '在 PHP 核心层面支持 Android:通过 <code>native-bridge</code> 在原生应用内运行异步运行时。' },
+        { title: '协程', text: '轻量级协程，实现高效并发执行。没有带颜色的 <code>async</code> 函数。只需调用 <code>spawn()</code> 即可开始！' },
+        { title: '非阻塞 I/O', text: '<code>fread</code>, <code>fwrite</code>, <code>file_get_contents</code>, <code>ob_start</code>, <code>curl</code>, <code>MySQL</code>, <code>PostgreSQL</code>. 普通 PHP 函数无需额外操作即可异步运行。' },
+        { title: 'TrueAsync Server', text: '使用 C 编写的原生 Web 服务器，直接在 PHP 进程内支持 <code>HTTP/1.1</code>、<code>HTTP/2</code> 与 <code>HTTP/3</code>。' },
+        { title: '协作式取消', text: '简单灵活的 <code>API</code>，用于取消协程。<code>Scope::cancel()</code>。' },
+        { title: '结构化并发', text: '通过沙箱 <code>Scope</code> 控制协程的生命周期。通过 <code>TaskGroup</code> 管理协程组。' },
+        { title: 'PDO 连接池', text: '直接内置于 <code>PDO</code> 的连接池。自动管理连接以实现最佳性能。' },
+        { title: '通道 · ThreadPool', text: '协程之间的数据交换。缓冲和非缓冲通道支持生产者/消费者模式。跨线程通过 <code>ThreadChannel</code>；并行 CPU 任务通过 <code>Thread</code> 和 <code>ThreadPool</code>。' },
+        { title: 'Futures', text: '异步计算的延迟结果。通过 <code>await_all</code>, <code>await_first</code> 进行组合。' },
+        { title: 'PHP Mobile', text: '在 PHP 核心层面支持 Android：通过 <code>native-bridge</code> 在原生应用内运行异步运行时。' },
       ],
     },
-    cta: {
-      title: '准备好构建异步 PHP 应用程序了吗？',
-      description: '几分钟内即可开始使用 TrueAsync。通过 Composer 安装，立即编写并发代码。',
-      buttons: [
-        { label: '阅读文档', url: '/zh/docs.html', style: 'primary' },
-        { label: '在 GitHub 上查看', url: 'https://github.com/true-async', style: 'secondary', external: true },
-        { label: 'Discord 聊天', url: 'https://discord.gg/yqBQPBHKp5', style: 'secondary', external: true },
-      ],
+    guides: {
+      title: '指南与文章',
+      heading: '在实践中学习 TrueAsync',
+      description: '实践指南，从你的第一个协程到结构化并发以及内置服务器。',
+      readMore: '阅读教程',
+      serverTag: '服务器',
+      timeUnit: ' 分钟',
     },
   },
 }
 
-const t = computed(() => i18n[currentLang.value] || i18n.en)
+// Merge shared structure + per-locale strings into the shape the template uses.
+function buildHome(lang: string, s: HomeStrings) {
+  const abs = (slug: string) => (slug.startsWith('http') ? slug : `/${lang}/${slug}`)
+  return {
+    hero: {
+      badge: s.hero.badge,
+      title: s.hero.title,
+      slogan: s.hero.slogan,
+      description: s.hero.description,
+      buttons: heroButtonsMeta.map((m, i) => ({
+        label: s.hero.buttons[i],
+        url: abs(m.slug),
+        style: m.style,
+        icon: m.icon,
+        external: m.external,
+      })),
+    },
+    features: {
+      title: s.features.title,
+      heading: s.features.heading,
+      items: featureMeta.map((m, i) => ({
+        title: s.features.items[i].title,
+        text: s.features.items[i].text,
+        icon: m.icon,
+        url: abs(m.slug),
+      })),
+    },
+    guides: {
+      title: s.guides.title,
+      heading: s.guides.heading,
+      description: s.guides.description,
+      readMore: s.guides.readMore,
+      items: guideMeta.map((m) => {
+        const ts = tutorialStrings(lang)
+        const entry = m.series === 'core' ? ts.core[m.index] : ts.server[m.index]
+        const slug = m.series === 'core'
+          ? `tutors/${CORE_SLUGS[m.index]}.html`
+          : `tutors-server/${SERVER_SLUGS[m.index]}.html`
+        return {
+          tag: m.series === 'core' ? ts.coreGroup : s.guides.serverTag,
+          time: `${m.time}${s.guides.timeUnit}`,
+          title: entry.label,
+          body: entry.body,
+          tagColor: m.tagColor,
+          url: abs(slug),
+        }
+      }),
+    },
+  }
+}
+
+const t = computed(() => buildHome(currentLang.value, strings[currentLang.value] || strings.en))
 const hero = computed(() => t.value.hero)
 const features = computed(() => t.value.features)
-const cta = computed(() => t.value.cta)
+const guides = computed(() => t.value.guides)
 
-const milestones = [
-  { version: '0.1', title: 'Foundation', date: '2024', status: 'done' },
-  { version: '0.6', title: 'Complete Async API', date: '2026-03-14', status: 'done' },
-  { version: '0.7', title: 'Threads & Stabilization', date: 'Summer 2026', status: 'done' },
-  { version: '0.8', title: 'Framework Adapters', date: 'Q3 2026', status: 'active' },
-  { version: '1.0-RC', title: 'Release Candidate', date: 'August 2026', status: 'planned', tag: 'RC' },
-  { version: '1.0', title: 'Stable Release', date: 'November 2026', status: 'planned', tag: 'Target: PHP 8.6', tagStyle: 'highlight' },
+// Hero demo panel — code is language-neutral, same across locales
+interface DemoTab {
+  key: string; label: string; icon: string; filename: string; code: string
+}
+const demoTabs: DemoTab[] = [
+  {
+    key: 'io', label: 'Concurrent I/O', filename: 'concurrent-io.php',
+    icon: '<path d="M18 4l3 3-3 3M21 7H9a5 5 0 0 0-5 5M6 20l-3-3 3-3M3 17h12a5 5 0 0 0 5-5"/>',
+    code: `<span class="tok-c">// three coroutines run at the same time</span>
+<span class="tok-var">$page</span>  = <span class="tok-fn">spawn</span>(<span class="tok-kw">fn</span>() => <span class="tok-fn">file_get_contents</span>(<span class="tok-prop">$url</span>));
+<span class="tok-var">$rows</span>  = <span class="tok-fn">spawn</span>(<span class="tok-kw">fn</span>() => <span class="tok-prop">$pdo</span>-><span class="tok-fn">query</span>(<span class="tok-prop">$sql</span>)-><span class="tok-fn">fetchAll</span>());
+<span class="tok-var">$stats</span> = <span class="tok-fn">spawn</span>(<span class="tok-kw">fn</span>() => <span class="tok-fn">file_get_contents</span>(<span class="tok-prop">$api</span>));
+
+<span class="tok-c">// wait for all three, cancel after 2s</span>
+[<span class="tok-var">$html</span>, <span class="tok-var">$data</span>, <span class="tok-var">$meta</span>] = <span class="tok-fn">await_all_or_fail</span>(
+    [<span class="tok-prop">$page</span>, <span class="tok-prop">$rows</span>, <span class="tok-prop">$stats</span>], <span class="tok-fn">timeout</span>(<span class="tok-prop">2000</span>));`,
+  },
+  {
+    key: 'pdo', label: 'PDO Pool', filename: 'pdo-pool.php',
+    icon: '<path d="M12 3c4.5 0 8 1.3 8 3s-3.5 3-8 3-8-1.3-8-3 3.5-3 8-3zM4 6v12c0 1.7 3.5 3 8 3s8-1.3 8-3V6M4 12c0 1.7 3.5 3 8 3s8-1.3 8-3"/>',
+    code: `<span class="tok-c">// pooling is transparent, just switch it on</span>
+<span class="tok-var">$pdo</span> = <span class="tok-kw">new</span> <span class="tok-cls">PDO</span>(<span class="tok-prop">$dsn</span>, <span class="tok-prop">$user</span>, <span class="tok-prop">$pass</span>, [
+    <span class="tok-cls">PDO</span>::<span class="tok-cls">ATTR_POOL_ENABLED</span> => <span class="tok-kw">true</span>,
+    <span class="tok-cls">PDO</span>::<span class="tok-cls">ATTR_POOL_MAX</span>     => <span class="tok-prop">8</span>,
+]);
+
+<span class="tok-c">// each coroutine borrows its own connection</span>
+<span class="tok-var">$users</span> = <span class="tok-fn">spawn</span>(<span class="tok-kw">fn</span>() => <span class="tok-prop">$pdo</span>-><span class="tok-fn">query</span>(<span class="tok-str">'SELECT * FROM users'</span>));
+<span class="tok-var">$stats</span> = <span class="tok-fn">spawn</span>(<span class="tok-kw">fn</span>() => <span class="tok-prop">$pdo</span>-><span class="tok-fn">query</span>(<span class="tok-str">'SELECT * FROM stats'</span>));
+
+[<span class="tok-var">$u</span>, <span class="tok-var">$s</span>] = <span class="tok-fn">await_all_or_fail</span>([<span class="tok-prop">$users</span>, <span class="tok-prop">$stats</span>]);`,
+  },
+  {
+    key: 'threads', label: 'Threads', filename: 'threads.php',
+    icon: '<path d="M4 5h16M4 12h16M4 19h16"/>',
+    code: `<span class="tok-c">// offload CPU-bound work to a thread pool</span>
+<span class="tok-var">$pool</span> = <span class="tok-kw">new</span> <span class="tok-cls">Async\\ThreadPool</span>(workers: <span class="tok-prop">4</span>);
+
+<span class="tok-var">$hash</span> = <span class="tok-prop">$pool</span>-><span class="tok-fn">submit</span>(<span class="tok-kw">fn</span>() => <span class="tok-fn">password_hash</span>(<span class="tok-prop">$pw</span>, <span class="tok-cls">PASSWORD_ARGON2ID</span>));
+<span class="tok-var">$img</span>  = <span class="tok-prop">$pool</span>-><span class="tok-fn">submit</span>(<span class="tok-kw">fn</span>() => <span class="tok-fn">resize_image</span>(<span class="tok-prop">$file</span>));
+
+<span class="tok-c">// runs on real OS threads, in parallel</span>
+[<span class="tok-var">$h</span>, <span class="tok-var">$i</span>] = <span class="tok-fn">await_all_or_fail</span>([<span class="tok-prop">$hash</span>, <span class="tok-prop">$img</span>]);`,
+  },
+  {
+    key: 'server', label: 'Web Server', filename: 'server.php',
+    icon: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 010 18M12 3a14 14 0 000 18"/>',
+    code: `<span class="tok-c">// non-blocking HTTP server in pure PHP</span>
+<span class="tok-var">$config</span> = (<span class="tok-kw">new</span> <span class="tok-cls">TrueAsync\\HttpServerConfig</span>())
+    -><span class="tok-fn">addListener</span>(<span class="tok-str">'0.0.0.0'</span>, <span class="tok-prop">8080</span>);
+<span class="tok-var">$server</span> = <span class="tok-kw">new</span> <span class="tok-cls">TrueAsync\\HttpServer</span>(<span class="tok-prop">$config</span>);
+
+<span class="tok-c">// each request runs in its own coroutine</span>
+<span class="tok-prop">$server</span>-><span class="tok-fn">addHttpHandler</span>(<span class="tok-kw">fn</span>(<span class="tok-prop">$req</span>, <span class="tok-prop">$res</span>) =>
+    <span class="tok-prop">$res</span>-><span class="tok-fn">end</span>(<span class="tok-str">"Hello #"</span> . <span class="tok-cls">Async</span>\\<span class="tok-fn">current_coroutine</span>()-><span class="tok-fn">getId</span>()));
+
+<span class="tok-prop">$server</span>-><span class="tok-fn">start</span>();`,
+  },
 ]
+const activeDemoTab = ref(0)
+
+// Homepage roadmap summary = the milestones flagged homepage:true in the shared
+// single source of truth (roadmapData.ts). Add/remove there, not here.
+const homeMilestones = roadmap.flatMap(s => s.milestones).filter(m => m.homepage)
+const roadmapStrings = computed(() => roadmapI18n[currentLang.value] || roadmapI18n.en)
+const roadmapTitle = (id: string) => roadmapStrings.value.milestones[id] || roadmapI18n.en.milestones[id] || id
+const homeStatus = (status: string) => {
+  const ui = roadmapStrings.value.ui
+  return status === 'done' ? ui.homeDone : status === 'active' ? ui.homeActive : ui.homePlanned
+}
 
 // Feature icons as SVG paths
 const iconSvgs: Record<string, string> = {
@@ -387,31 +507,66 @@ const iconSvgs: Record<string, string> = {
 <template>
   <!-- Hero -->
   <section class="hero">
-    <div class="hero-bg"></div>
-    <div class="hero-content">
-      <div class="hero-badge">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>
-        {{ hero.badge }}
+    <div class="hero-glow"></div>
+    <div class="hero-lines" aria-hidden="true">
+      <span class="hero-line hero-line--1"></span>
+      <span class="hero-line hero-line--2"></span>
+      <span class="hero-line hero-line--3"></span>
+    </div>
+    <div class="hero-grid">
+      <div class="hero-content">
+        <div class="hero-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6M10 3v5.5L4.8 17.4A2 2 0 0 0 6.5 20.5h11a2 2 0 0 0 1.7-3.1L14 8.5V3M7.5 14h9"/></svg>
+          {{ hero.badge }} · v{{ CURRENT_VERSION }}
+        </div>
+        <h1 v-html="hero.title"></h1>
+        <p v-if="hero.slogan" class="hero-slogan">{{ hero.slogan }}</p>
+        <p class="hero-description">{{ hero.description }}</p>
+        <div class="hero-actions">
+          <a
+            v-for="(btn, i) in hero.buttons"
+            :key="i"
+            :href="btn.url"
+            :class="['btn', `btn-${btn.style}`, 'btn-lg']"
+            :target="btn.external ? '_blank' : undefined"
+            :rel="btn.external ? 'noopener' : undefined"
+          >
+            <svg v-if="btn.icon === 'download'" class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>
+            {{ btn.label }}
+            <svg v-if="btn.icon === 'arrow'" class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </a>
+        </div>
       </div>
-      <h1>{{ hero.title }}</h1>
-      <p class="hero-description">{{ hero.description }}</p>
-      <div class="hero-actions">
-        <a
-          v-for="btn in hero.buttons"
-          :key="btn.label"
-          :href="btn.url"
-          :class="['btn', `btn-${btn.style}`, 'btn-lg']"
-          :target="btn.external ? '_blank' : undefined"
-          :rel="btn.external ? 'noopener' : undefined"
-        >{{ btn.label }}</a>
+
+      <div class="hero-panel">
+        <div class="hero-panel-titlebar">
+          <span class="hero-panel-dot hero-panel-dot--red"></span>
+          <span class="hero-panel-dot hero-panel-dot--yellow"></span>
+          <span class="hero-panel-dot hero-panel-dot--green"></span>
+          <span class="hero-panel-filename">{{ demoTabs[activeDemoTab].filename }}</span>
+        </div>
+        <pre class="hero-panel-code"><code v-html="demoTabs[activeDemoTab].code"></code></pre>
+        <div class="hero-panel-tabs">
+          <button
+            v-for="(tab, i) in demoTabs"
+            :key="tab.key"
+            type="button"
+            :class="['hero-panel-tab', { 'hero-panel-tab--active': i === activeDemoTab }]"
+            @click="activeDemoTab = i"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" v-html="tab.icon"></svg>
+            {{ tab.label }}
+          </button>
+        </div>
       </div>
     </div>
   </section>
 
   <!-- Features -->
-  <section class="features">
+  <section id="features" class="features">
     <div class="features-header">
-      <h2>{{ features.title }}</h2>
+      <div v-if="features.heading" class="section-eyebrow">{{ features.title }}</div>
+      <h2>{{ features.heading || features.title }}</h2>
     </div>
     <div class="features-grid">
       <a
@@ -420,52 +575,73 @@ const iconSvgs: Record<string, string> = {
         :href="feature.url"
         class="feature-card feature-card--link"
       >
-        <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" v-html="iconSvgs[feature.icon]"></svg>
-        <h3>{{ feature.title }}</h3>
+        <div class="feature-card-glow"></div>
+        <div class="feature-card-head">
+          <div class="feature-icon-box">
+            <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" v-html="iconSvgs[feature.icon]"></svg>
+          </div>
+          <h3>{{ feature.title }}</h3>
+        </div>
         <p v-html="feature.text"></p>
       </a>
     </div>
   </section>
 
-  <!-- CTA -->
-  <section class="cta-section">
-    <div class="cta-content">
-      <svg class="cta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
-      <h2>{{ cta.title }}</h2>
-      <p>{{ cta.description }}</p>
-      <div class="cta-actions">
-        <a
-          v-for="btn in cta.buttons"
-          :key="btn.label"
-          :href="btn.url"
-          :class="['btn', `btn-${btn.style}`, 'btn-lg']"
-          :target="btn.external ? '_blank' : undefined"
-          :rel="btn.external ? 'noopener' : undefined"
-        >{{ btn.label }}</a>
-      </div>
+  <!-- Guides & Articles -->
+  <section id="tutorial" class="guides">
+    <div class="guides-header">
+      <div v-if="guides.heading" class="section-eyebrow">{{ guides.title }}</div>
+      <h2>{{ guides.heading || guides.title }}</h2>
+      <p>{{ guides.description }}</p>
+    </div>
+    <div class="guides-grid">
+      <a
+        v-for="lesson in guides.items"
+        :key="lesson.title"
+        :href="lesson.url"
+        class="lesson-card"
+      >
+        <div class="lesson-card-glow"></div>
+        <div class="lesson-card-meta">
+          <span :class="['lesson-tag', `lesson-tag--${lesson.tagColor}`]">{{ lesson.tag }}</span>
+          <span class="lesson-time">{{ lesson.time }}</span>
+        </div>
+        <h3>{{ lesson.title }}</h3>
+        <p>{{ lesson.body }}</p>
+        <div class="lesson-read-more">
+          {{ guides.readMore }}
+          <svg class="lesson-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </div>
+      </a>
     </div>
   </section>
 
   <!-- Roadmap -->
   <section class="home-roadmap">
     <div class="home-roadmap-inner">
-      <h2>Roadmap</h2>
+      <div class="home-roadmap-header">
+        <h2>{{ roadmapStrings.ui.heading }}</h2>
+        <span class="home-roadmap-comment">// {{ roadmapStrings.ui.currentRelease }} v{{ CURRENT_VERSION }}</span>
+      </div>
       <div class="home-roadmap-timeline">
         <div
-          v-for="m in milestones"
-          :key="m.version"
+          v-for="m in homeMilestones"
+          :key="m.id"
           :class="['home-roadmap-item', `home-roadmap-item--${m.status}`]"
         >
           <div class="home-roadmap-dot"></div>
-          <div class="home-roadmap-content">
-            <span class="home-roadmap-version">v{{ m.version }}</span>
-            <span class="home-roadmap-title">{{ m.title }}</span>
+          <div class="home-roadmap-card">
+            <div class="home-roadmap-card-head">
+              <span class="home-roadmap-version">v{{ m.version }}</span>
+              <span class="home-roadmap-status">{{ homeStatus(m.status) }}</span>
+            </div>
+            <span class="home-roadmap-title">{{ roadmapTitle(m.id) }}</span>
             <span v-if="m.date" class="home-roadmap-date">{{ m.date }}</span>
             <span v-if="m.tag" :class="['home-roadmap-tag', m.tagStyle ? `home-roadmap-tag--${m.tagStyle}` : '']">{{ m.tag }}</span>
           </div>
         </div>
       </div>
-      <a :href="`/${currentLang}/roadmap.html`" class="home-roadmap-link">View full roadmap &rarr;</a>
+      <a :href="`/${currentLang}/roadmap.html`" class="home-roadmap-link">{{ roadmapStrings.ui.viewFull }} &rarr;</a>
     </div>
   </section>
 </template>

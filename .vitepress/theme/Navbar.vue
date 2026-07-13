@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { ref, watch, defineAsyncComponent, onMounted, onUnmounted } from 'vue'
-import { useRoute } from 'vitepress'
+import { useRoute, useData } from 'vitepress'
 
 const VPLocalSearchBox = defineAsyncComponent(() =>
   import('vitepress/dist/client/theme-default/components/VPLocalSearchBox.vue')
 )
 
 const route = useRoute()
+const { theme } = useData()
 const menuOpen = ref(false)
 const langOpen = ref(false)
 const showSearch = ref(false)
@@ -64,25 +65,23 @@ const languages = [
 ]
 
 const navItems = [
-  { key: 'home', path: '/' },
-  { key: 'docs', path: '/docs.html' },
-  { key: 'download', path: '/download.html' },
-  { key: 'rfc', path: '/rfc.html' },
-  { key: 'motivation', path: '/motivation.html' },
-  { key: 'architecture', path: '/architecture.html' },
-  { key: 'contributing', path: '/contributing.html' },
+  { key: 'docs', path: '/docs.html', icon: '<path d="M6.5 3H20v18H6.5A2.5 2.5 0 0 1 4 18.5v-13A2.5 2.5 0 0 1 6.5 3zM4 18.5A2.5 2.5 0 0 1 6.5 16H20"/>' },
+  { key: 'download', path: '/download.html', icon: '<path d="M12 3v12M7 10l5 5 5-5M5 21h14"/>' },
+  { key: 'rfc', path: '/rfc.html', icon: '<path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9zM14 3v6h6M9 13h6M9 17h6"/>' },
+  { key: 'tutorial', path: '/tutorial.html', icon: '<path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1 2.7 2.5 6 2.5s6-1.5 6-2.5v-5"/><path d="M22 10v6"/>' },
+  { key: 'architecture', path: '/architecture.html', icon: '<path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22.54 12.43-10 4.56a2 2 0 0 1-1.66 0l-9.4-4.28"/><path d="m22.54 16.43-10 4.56a2 2 0 0 1-1.66 0l-9.4-4.28"/>' },
 ]
 
 const navLabels: Record<string, Record<string, string>> = {
-  en: { home: 'Home', docs: 'Documentation', download: 'Download', rfc: 'RFC', motivation: 'Motivation', architecture: 'Architecture', contributing: 'Contributing' },
-  ru: { home: 'Главная', docs: 'Документация', download: 'Скачать', rfc: 'RFC', motivation: 'Мотивация', architecture: 'Архитектура', contributing: 'Участие' },
-  de: { home: 'Startseite', docs: 'Dokumentation', download: 'Download', rfc: 'RFC', motivation: 'Motivation', architecture: 'Architektur', contributing: 'Mitmachen' },
-  fr: { home: 'Accueil', docs: 'Documentation', download: 'Telecharger', rfc: 'RFC', motivation: 'Motivation', architecture: 'Architecture', contributing: 'Contribuer' },
-  es: { home: 'Inicio', docs: 'Documentación', download: 'Descargar', rfc: 'RFC', motivation: 'Motivación', architecture: 'Arquitectura', contributing: 'Contribuir' },
-  it: { home: 'Home', docs: 'Documentazione', download: 'Download', rfc: 'RFC', motivation: 'Motivazione', architecture: 'Architettura', contributing: 'Contribuire' },
-  uk: { home: 'Головна', docs: 'Документація', download: 'Завантажити', rfc: 'RFC', motivation: 'Мотивація', architecture: 'Архітектура', contributing: 'Участь' },
-  zh: { home: '首页', docs: '文档', download: '下载', rfc: 'RFC', motivation: '动机', architecture: '架构', contributing: '参与贡献' },
-  ko: { home: '홈', docs: '문서', download: '다운로드', rfc: 'RFC', motivation: '동기', architecture: '아키텍처', contributing: '기여하기' },
+  en: { home: 'Home', docs: 'Documentation', download: 'Download', rfc: 'RFC', tutorial: 'Tutorials', motivation: 'Motivation', architecture: 'Architecture', contributing: 'Contributing' },
+  ru: { home: 'Главная', docs: 'Документация', download: 'Скачать', rfc: 'RFC', tutorial: 'Туториалы', motivation: 'Мотивация', architecture: 'Архитектура', contributing: 'Участие' },
+  de: { home: 'Startseite', docs: 'Dokumentation', download: 'Download', rfc: 'RFC', tutorial: 'Tutorial', motivation: 'Motivation', architecture: 'Architektur', contributing: 'Mitmachen' },
+  fr: { home: 'Accueil', docs: 'Documentation', download: 'Telecharger', rfc: 'RFC', tutorial: 'Tutoriel', motivation: 'Motivation', architecture: 'Architecture', contributing: 'Contribuer' },
+  es: { home: 'Inicio', docs: 'Documentación', download: 'Descargar', rfc: 'RFC', tutorial: 'Tutorial', motivation: 'Motivación', architecture: 'Arquitectura', contributing: 'Contribuir' },
+  it: { home: 'Home', docs: 'Documentazione', download: 'Download', rfc: 'RFC', tutorial: 'Tutorial', motivation: 'Motivazione', architecture: 'Architettura', contributing: 'Contribuire' },
+  uk: { home: 'Головна', docs: 'Документація', download: 'Завантажити', rfc: 'RFC', tutorial: 'Туторіал', motivation: 'Мотивація', architecture: 'Архітектура', contributing: 'Участь' },
+  zh: { home: '首页', docs: '文档', download: '下载', rfc: 'RFC', tutorial: '教程', motivation: '动机', architecture: '架构', contributing: '参与贡献' },
+  ko: { home: '홈', docs: '문서', download: '다운로드', rfc: 'RFC', tutorial: '튜토리얼', motivation: '동기', architecture: '아키텍처', contributing: '기여하기' },
 }
 
 function getCurrentLang(): string {
@@ -105,13 +104,59 @@ function isActive(key: string): boolean {
 }
 
 function langPath(code: string): string {
-  const path = route.path
   const lang = getCurrentLang()
-  return path.replace(`/${lang}/`, `/${code}/`)
+  const target = route.path.replace(`/${lang}/`, `/${code}/`)
+  const routes: string[] = (theme.value as any).localeRoutes || []
+  if (routes.length === 0) return target // no route data — fall back to naive swap
+  // Match the target against known pages, tolerating the "/" vs "/index.html" forms.
+  const candidates = [target]
+  if (target.endsWith('/')) candidates.push(target + 'index.html')
+  if (target.endsWith('/index.html')) candidates.push(target.slice(0, -'index.html'.length))
+  if (candidates.some((c) => routes.includes(c))) return target
+  // No translation for this page — send the user to the target locale's home.
+  return `/${code}/`
 }
 
 function toggleMenu() {
   menuOpen.value = !menuOpen.value
+}
+
+// Swipe-up-to-dismiss for the open mobile menu (touch or held-mouse drag).
+const menuEl = ref<HTMLElement | null>(null)
+let swipeStartY = 0
+let swipeStartX = 0
+let swipeTracking = false
+
+function onMenuPointerDown(e: PointerEvent) {
+  if (e.pointerType === 'mouse' && e.button !== 0) return
+  swipeStartY = e.clientY
+  swipeStartX = e.clientX
+  swipeTracking = true
+}
+
+function onMenuPointerMove(e: PointerEvent) {
+  if (!swipeTracking) return
+  // A mouse gesture requires the primary button held down.
+  if (e.pointerType === 'mouse' && !(e.buttons & 1)) {
+    swipeTracking = false
+    return
+  }
+  const dy = e.clientY - swipeStartY
+  const dx = e.clientX - swipeStartX
+  // Decisive, mostly-vertical upward swipe.
+  if (dy < -55 && Math.abs(dy) > Math.abs(dx)) {
+    // If the menu can still scroll down, let native scrolling win instead.
+    const el = menuEl.value
+    const atBottom = !el || el.scrollTop + el.clientHeight >= el.scrollHeight - 1
+    if (atBottom) {
+      menuOpen.value = false
+      swipeTracking = false
+    }
+  }
+}
+
+function onMenuPointerEnd() {
+  swipeTracking = false
 }
 
 function toggleLang(e: Event) {
@@ -136,7 +181,8 @@ onUnmounted(() => {
   <nav class="navbar">
     <div class="navbar-inner">
       <a :href="`/${getCurrentLang()}/`" class="navbar-brand">
-        <img src="/assets/logo-header.png" alt="" width="28" height="28">
+        <img class="brand-logo brand-logo--light" src="/assets/TrueAsync-flame-light.svg" alt="TrueAsync" width="34" height="34">
+        <img class="brand-logo brand-logo--dark" src="/assets/TrueAsync-flame.svg" alt="" aria-hidden="true" width="34" height="34">
         <span>TrueAsync</span>
       </a>
 
@@ -148,31 +194,61 @@ onUnmounted(() => {
         </svg>
       </button>
 
-      <div class="navbar-menu" :class="{ open: menuOpen }">
+      <div
+        class="navbar-menu"
+        :class="{ open: menuOpen }"
+        ref="menuEl"
+        @pointerdown="onMenuPointerDown"
+        @pointermove="onMenuPointerMove"
+        @pointerup="onMenuPointerEnd"
+        @pointercancel="onMenuPointerEnd"
+      >
         <ul class="navbar-nav">
           <li v-for="item in navItems" :key="item.key">
             <a
               :href="`/${getCurrentLang()}${item.path}`"
               class="navbar-link"
               :class="{ active: isActive(item.key) }"
-            >{{ getNavLabel(item.key) }}</a>
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" v-html="item.icon"></svg>
+              {{ getNavLabel(item.key) }}
+            </a>
           </li>
         </ul>
 
+        <div class="navbar-spacer"></div>
+
         <div class="navbar-actions">
           <button class="search-button" @click="openSearch" type="button" aria-label="Search">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
-              <circle cx="11" cy="11" r="8"/>
-              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+            <span class="search-button-label">Search docs&hellip;</span>
+            <span class="search-kbd">&#8984;K</span>
+          </button>
+
+          <a href="https://discord.gg/yqBQPBHKp5" class="nav-box nav-box--glow" target="_blank" rel="noopener" aria-label="Discord">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><path d="M19.27 5.33A16.6 16.6 0 0 0 15.05 4l-.2.4a15.4 15.4 0 0 1 3.72 1.15 15.2 15.2 0 0 0-12.94 0A15.4 15.4 0 0 1 9.35 4.4L9.15 4a16.6 16.6 0 0 0-4.22 1.33A17.5 17.5 0 0 0 2 17.9a16.8 16.8 0 0 0 5.07 2.57 12.4 12.4 0 0 0 1.09-1.77 10.8 10.8 0 0 1-1.7-.82l.42-.31a11.9 11.9 0 0 0 10.24 0l.42.31a10.8 10.8 0 0 1-1.71.82 12.4 12.4 0 0 0 1.09 1.77A16.8 16.8 0 0 0 22 17.9a17.5 17.5 0 0 0-2.73-12.57ZM8.89 15.55c-1 0-1.82-.92-1.82-2.05s.8-2.06 1.82-2.06 1.84.93 1.82 2.06c0 1.13-.8 2.05-1.82 2.05Zm6.22 0c-1 0-1.82-.92-1.82-2.05s.8-2.06 1.82-2.06 1.84.93 1.82 2.06c0 1.13-.8 2.05-1.82 2.05Z"/></svg>
+          </a>
+
+          <a href="https://github.com/true-async" class="nav-box nav-box--glow nav-box--github" target="_blank" rel="noopener" aria-label="GitHub">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.5 2 2 6.6 2 12.3c0 4.5 2.9 8.3 6.8 9.7.5.1.7-.2.7-.5v-1.7c-2.8.6-3.4-1.4-3.4-1.4-.5-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 .1 1.5 1 1.5 1 .9 1.5 2.3 1.1 2.9.8.1-.7.3-1.1.6-1.4-2.2-.3-4.6-1.1-4.6-5 0-1.1.4-2 1-2.7-.1-.3-.4-1.3.1-2.7 0 0 .8-.3 2.7 1a9.3 9.3 0 0 1 5 0c1.9-1.3 2.7-1 2.7-1 .5 1.4.2 2.4.1 2.7.6.7 1 1.6 1 2.7 0 3.9-2.3 4.7-4.6 5 .4.3.7.9.7 1.9v2.8c0 .3.2.6.7.5A10.05 10.05 0 0 0 22 12.3C22 6.6 17.5 2 12 2Z"/></svg>
+          </a>
+
+          <button class="nav-box" @click="toggleTheme" type="button" :aria-label="isDark ? 'Light mode' : 'Dark mode'">
+            <!-- Sun icon (shown in dark mode) -->
+            <svg v-if="isDark" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>
             </svg>
-            <span class="search-button-label">Search</span>
-            <kbd class="search-kbd">Ctrl K</kbd>
+            <!-- Moon icon (shown in light mode) -->
+            <svg v-else width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>
+            </svg>
           </button>
 
           <div class="lang-dropdown" :class="{ open: langOpen }">
             <button class="lang-dropdown-toggle" @click="toggleLang" type="button">
+              <svg class="lang-dropdown-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"/></svg>
               {{ getCurrentLang().toUpperCase() }}
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              <svg class="lang-dropdown-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
             </button>
             <div class="lang-dropdown-menu">
               <a
@@ -181,92 +257,16 @@ onUnmounted(() => {
                 :href="langPath(lang.code)"
                 class="lang-option"
                 :class="{ active: lang.code === getCurrentLang() }"
-              >{{ lang.label }}</a>
+              >
+                <span class="lang-option-code">{{ lang.code.toUpperCase() }}</span>
+                <span class="lang-option-name">{{ lang.label }}</span>
+                <svg v-if="lang.code === getCurrentLang()" class="lang-option-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+              </a>
             </div>
           </div>
-
-          <button class="theme-toggle" @click="toggleTheme" type="button" :aria-label="isDark ? 'Light mode' : 'Dark mode'">
-            <!-- Sun icon (shown in dark mode) -->
-            <svg v-if="isDark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
-              <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-            </svg>
-            <!-- Moon icon (shown in light mode) -->
-            <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
-              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-            </svg>
-          </button>
-
-          <a href="https://github.com/true-async" class="github-link" target="_blank" rel="noopener" aria-label="GitHub">
-            <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
-          </a>
-
-          <a href="https://discord.gg/yqBQPBHKp5" class="github-link" target="_blank" rel="noopener" aria-label="Discord">
-            <svg viewBox="0 0 16 16" fill="currentColor"><path d="M13.545 2.907a13.227 13.227 0 0 0-3.257-1.011.05.05 0 0 0-.052.025c-.141.25-.297.577-.406.833a12.19 12.19 0 0 0-3.658 0 8.258 8.258 0 0 0-.412-.833.051.051 0 0 0-.052-.025c-1.125.194-2.22.534-3.257 1.011a.046.046 0 0 0-.021.018C.356 6.024-.213 9.047.066 12.032c.001.014.01.028.021.037a13.276 13.276 0 0 0 3.995 2.02.05.05 0 0 0 .056-.019c.308-.42.582-.863.818-1.329a.05.05 0 0 0-.027-.07 8.735 8.735 0 0 1-1.248-.595.05.05 0 0 1-.005-.083c.084-.063.168-.129.248-.195a.05.05 0 0 1 .051-.007c2.619 1.196 5.454 1.196 8.041 0a.05.05 0 0 1 .053.007c.08.066.164.132.248.195a.05.05 0 0 1-.004.083c-.398.232-.805.43-1.249.596a.05.05 0 0 0-.027.07c.24.465.515.909.817 1.329a.05.05 0 0 0 .056.019 13.235 13.235 0 0 0 4.001-2.02.049.049 0 0 0 .021-.037c.334-3.451-.559-6.449-2.366-9.106a.034.034 0 0 0-.02-.019z"/></svg>
-          </a>
         </div>
       </div>
     </div>
     <VPLocalSearchBox v-if="showSearch" @close="showSearch = false" />
   </nav>
 </template>
-
-<style scoped>
-.search-button {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 10px;
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  background: var(--color-bg-subtle);
-  color: var(--color-text-secondary);
-  cursor: pointer;
-  font-family: inherit;
-  font-size: 0.85em;
-  transition: border-color 0.2s, color 0.2s;
-  white-space: nowrap;
-}
-.search-button:hover {
-  border-color: var(--color-primary);
-  color: var(--color-text);
-}
-.search-button-label {
-  display: none;
-}
-.search-kbd {
-  display: none;
-  font-family: inherit;
-  font-size: 0.8em;
-  padding: 1px 5px;
-  border: 1px solid var(--color-border);
-  border-radius: 4px;
-  color: var(--color-text-muted);
-  background: var(--color-bg);
-}
-@media (min-width: 768px) {
-  .search-button-label { display: inline; }
-  .search-kbd { display: inline; }
-}
-.theme-toggle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border: none;
-  border-radius: 6px;
-  background: transparent;
-  color: var(--color-text-secondary);
-  cursor: pointer;
-  transition: color 0.2s;
-  padding: 0;
-}
-.theme-toggle svg {
-  width: 16px;
-  height: 16px;
-}
-.theme-toggle:hover {
-  border-color: var(--color-primary);
-  color: var(--color-text);
-}
-</style>

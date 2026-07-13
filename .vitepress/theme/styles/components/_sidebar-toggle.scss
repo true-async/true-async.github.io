@@ -1,0 +1,28 @@
+/* ---- Mobile Sidebar Toggle ---- */
+
+.docs-sidebar-toggle {
+    display: none;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.9rem;
+    background: var(--color-bg-subtle);
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--color-text);
+    cursor: pointer;
+    width: auto;
+    justify-self: start;
+    margin-top: 1.25rem;
+    margin-bottom: 1.25rem;
+    text-align: left;
+    font-family: var(--font-sans);
+    transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.docs-sidebar-toggle:hover { border-color: #6A54F5; }
+.docs-sidebar-toggle svg { color: var(--color-primary); }
+
+.docs-sidebar-backdrop { display: none; }
+

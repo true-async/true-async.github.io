@@ -15,3 +15,11 @@ description: "TrueAsync 文档。了解如何安装和使用 PHP 的真正异步
 `PHP TrueAsync` 实现了无着色函数的透明异步范式，
 最大限度地减少了代码更改，并消除了库的碎片化。
 换句话说，使用协程时，您使用相同的函数，无需更改或仅需最少的更改。
+
+## IDE 支持 {#ide-support}
+
+如需自动补全、内联文档和静态分析桩文件，请安装开发依赖包 [`true-async/ide-helper`](https://github.com/true-async/ide-helper)。它覆盖 async 核心、HTTP 服务器和 ClickHouse 客户端，并支持 PhpStorm、PHPStan 和 Psalm。
+
+```bash
+composer require --dev true-async/ide-helper
+```

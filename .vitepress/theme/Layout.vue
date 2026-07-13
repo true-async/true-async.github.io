@@ -7,10 +7,17 @@ import HomePage from './HomePage.vue'
 import Sidebar from './Sidebar.vue'
 import RoadmapPage from './RoadmapPage.vue'
 import DownloadPage from './DownloadPage.vue'
+import RfcPage from './RfcPage.vue'
+import CoroutineDemoPage from './CoroutineDemoPage.vue'
 import DocFeedback from './DocFeedback.vue'
 import LearningMap from './LearningMap.vue'
+import CodeTooltips from './CodeTooltips.vue'
+import DocsToc from './DocsToc.vue'
+import TutorialProgress from './TutorialProgress.vue'
+import { tutorialSlugFromPath } from './tutorialProgress'
 import { docsSidebar, architectureSidebar } from './sidebarData'
 import { docsSidebarRu, architectureSidebarRu } from './sidebarDataRu'
+import { tutorialSidebar } from './tutorialData'
 import { docsSidebarDe, architectureSidebarDe } from './sidebarDataDe'
 import { docsSidebarEs, architectureSidebarEs } from './sidebarDataEs'
 import { docsSidebarFr, architectureSidebarFr } from './sidebarDataFr'
@@ -43,11 +50,83 @@ const archSidebarMap: Record<string, any[]> = {
 
 const currentDocsSidebar = computed(() => docsSidebarMap[currentLang.value] || docsSidebar)
 const currentArchSidebar = computed(() => archSidebarMap[currentLang.value] || architectureSidebar)
+// Tutorial sidebar is data-driven (single source + per-locale strings) for all 9 locales.
+const currentTutorialSidebar = computed(() => tutorialSidebar(currentLang.value))
+
+// The docs/architecture/tutorial layouts share one sidebar+content template;
+// this picks which sidebar and fallback breadcrumb label backs the current layout.
+const currentSectionSidebar = computed(() => {
+  if (layout.value === 'architecture') return currentArchSidebar.value
+  if (layout.value === 'tutorial') return currentTutorialSidebar.value
+  return currentDocsSidebar.value
+})
 
 const route = useRoute()
 
 const layout = computed(() => frontmatter.value.layout || 'default')
 const isMainDocsPage = computed(() => frontmatter.value.path_key === '/docs.html')
+const isTutorialContentPage = computed(() => !!tutorialSlugFromPath(route.path))
+
+// Breadcrumb: find the sidebar group that owns the current page.
+const breadcrumb = computed(() => {
+  const sb = currentSectionSidebar.value
+  const path = route.path
+  const item = frontmatter.value.page_title || page.value.title || ''
+  for (const grp of sb) {
+    for (const it of (grp.items || [])) {
+      if (it.url === path) return { group: grp.title, item }
+      if (it.children) {
+        for (const c of it.children) {
+          if (c.url === path) return { group: grp.title, item }
+        }
+      }
+    }
+  }
+  const fallback = layout.value === 'architecture' ? archLabels : layout.value === 'tutorial' ? tutorialLabels : docLabels
+  return { group: fallback[currentLang.value] || fallback.en, item }
+})
+const docLabels: Record<string, string> = {
+  en: 'Documentation', ru: 'Документация', de: 'Dokumentation', es: 'Documentación',
+  fr: 'Documentation', it: 'Documentazione', uk: 'Документація', zh: '文档', ko: '문서',
+}
+const archLabels: Record<string, string> = {
+  en: 'Architecture', ru: 'Архитектура', de: 'Architektur', es: 'Arquitectura',
+  fr: 'Architecture', it: 'Architettura', uk: 'Архітектура', zh: '架构', ko: '아키텍처',
+}
+const tutorialLabels: Record<string, string> = {
+  en: 'Tutorials', ru: 'Туториалы', de: 'Tutorials', es: 'Tutoriales',
+  fr: 'Tutoriels', it: 'Tutorial', uk: 'Туторіали', zh: '教程', ko: '튜토리얼',
+}
+const prevLabels: Record<string, string> = {
+  en: 'Previous', ru: 'Назад', de: 'Zurück', es: 'Anterior', fr: 'Précédent',
+  it: 'Precedente', uk: 'Назад', zh: '上一页', ko: '이전',
+}
+const nextLabels: Record<string, string> = {
+  en: 'Next', ru: 'Далее', de: 'Weiter', es: 'Siguiente', fr: 'Suivant',
+  it: 'Successivo', uk: 'Далі', zh: '下一页', ko: '다음',
+}
+const pagenavLabels = computed(() => ({
+  prev: prevLabels[currentLang.value] || prevLabels.en,
+  next: nextLabels[currentLang.value] || nextLabels.en,
+}))
+
+// Prev / next controls at the bottom, derived from the sidebar order.
+const pageNav = computed(() => {
+  const sb = currentSectionSidebar.value
+  const flat: { url: string; label: string }[] = []
+  for (const grp of sb) {
+    for (const it of (grp.items || [])) {
+      flat.push({ url: it.url, label: it.label })
+      if (it.children) for (const c of it.children) flat.push({ url: c.url, label: c.label })
+    }
+  }
+  const i = flat.findIndex((x) => x.url === route.path)
+  if (i === -1) return { prev: null, next: null }
+  return {
+    prev: i > 0 ? flat[i - 1] : null,
+    next: i < flat.length - 1 ? flat[i + 1] : null,
+  }
+})
 
 // Mobile sidebar drawer state
 const sidebarOpen = ref(false)
@@ -84,7 +163,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div>
+  <div :data-page-layout="layout">
     <Navbar />
 
     <!-- Dynamic region keyed by layout TYPE (not route): switching layouts does
@@ -93,41 +172,39 @@ onMounted(() => {
          the sidebar element persists and keeps its scroll position. -->
     <div :key="layout">
 
-    <!-- Page Header (docs, architecture, roadmap, download) -->
-    <div v-if="['docs', 'architecture', 'roadmap'].includes(layout)" class="page-header">
-      <div class="page-header-inner" :class="{ 'page-header-inner--narrow': layout === 'roadmap' }">
-        <h1>{{ frontmatter.page_title || 'Documentation' }}</h1>
-        <p v-if="frontmatter.description">{{ frontmatter.description }}</p>
-      </div>
-    </div>
-
-    <!-- Docs layout with sidebar -->
-    <div v-if="layout === 'docs'" class="docs-layout">
+    <!-- Docs / Architecture / Tutorial layouts share one sidebar+content template;
+         currentSectionSidebar picks the right data source for each. -->
+    <div v-if="layout === 'docs' || layout === 'architecture' || layout === 'tutorial'" class="docs-layout">
       <button class="docs-sidebar-toggle" type="button" @click="sidebarOpen = true" aria-label="Open navigation">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
         {{ sidebarToggleLabel }}
       </button>
-      <Sidebar :sidebar="currentDocsSidebar" :open="sidebarOpen" />
+      <Sidebar :sidebar="currentSectionSidebar" :open="sidebarOpen" @close="sidebarOpen = false" />
       <div v-if="sidebarOpen" class="docs-sidebar-backdrop" @click="sidebarOpen = false"></div>
       <main class="docs-content" :key="route.path">
+        <div class="docs-breadcrumb">
+          <span class="docs-breadcrumb-group">{{ breadcrumb.group }}</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+          <span class="docs-breadcrumb-item">{{ breadcrumb.item }}</span>
+        </div>
         <Content />
+        <TutorialProgress v-if="isTutorialContentPage" />
         <LearningMap v-if="isMainDocsPage" />
+        <nav class="docs-pagenav" v-if="pageNav.prev || pageNav.next">
+          <a v-if="pageNav.prev" :href="pageNav.prev.url" class="docs-pagenav-card">
+            <span class="docs-pagenav-dir">&larr; {{ pagenavLabels.prev }}</span>
+            <span class="docs-pagenav-title">{{ pageNav.prev.label }}</span>
+          </a>
+          <span v-else class="docs-pagenav-spacer"></span>
+          <a v-if="pageNav.next" :href="pageNav.next.url" class="docs-pagenav-card docs-pagenav-card--next">
+            <span class="docs-pagenav-dir">{{ pagenavLabels.next }} &rarr;</span>
+            <span class="docs-pagenav-title">{{ pageNav.next.label }}</span>
+          </a>
+          <span v-else class="docs-pagenav-spacer"></span>
+        </nav>
         <DocFeedback />
       </main>
-    </div>
-
-    <!-- Architecture layout with sidebar -->
-    <div v-else-if="layout === 'architecture'" class="docs-layout">
-      <button class="docs-sidebar-toggle" type="button" @click="sidebarOpen = true" aria-label="Open navigation">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-        {{ sidebarToggleLabel }}
-      </button>
-      <Sidebar :sidebar="currentArchSidebar" :open="sidebarOpen" />
-      <div v-if="sidebarOpen" class="docs-sidebar-backdrop" @click="sidebarOpen = false"></div>
-      <main class="docs-content" :key="route.path">
-        <Content />
-        <DocFeedback />
-      </main>
+      <DocsToc />
     </div>
 
     <!-- Home layout -->
@@ -143,6 +220,16 @@ onMounted(() => {
     <!-- Download layout -->
     <main v-else-if="layout === 'download'" :key="route.path">
       <DownloadPage />
+    </main>
+
+    <!-- RFC layout -->
+    <main v-else-if="layout === 'rfc'" :key="route.path">
+      <RfcPage />
+    </main>
+
+    <!-- Coroutine demo layout (interactive) -->
+    <main v-else-if="layout === 'coroutine-demo'" :key="route.path">
+      <CoroutineDemoPage />
     </main>
 
     <!-- Page layout (contributing, motivation, rfc).
@@ -163,11 +250,12 @@ onMounted(() => {
     </div>
 
     <!-- Default layout -->
-    <main v-else style="padding-top: 3.5rem;" :key="route.path">
+    <main v-else style="padding-top: var(--navbar-h);" :key="route.path">
       <Content />
     </main>
     </div>
 
     <Footer />
+    <CodeTooltips />
   </div>
 </template>

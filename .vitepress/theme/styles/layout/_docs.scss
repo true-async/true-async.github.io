@@ -1,0 +1,333 @@
+/* ---- Docs Layout ---- */
+
+.docs-layout {
+    display: grid;
+    grid-template-columns: 15rem minmax(0, 1fr) 13rem;
+    gap: 2.5rem;
+    max-width: 90rem;
+    margin: 0 auto;
+    padding: var(--navbar-h) 1.75rem 0;
+    align-items: start;
+    min-height: calc(100vh - var(--navbar-h) - 200px);
+}
+
+.docs-sidebar {
+    /* Plain transparent column like the design mockup — no panel box, no rounded
+       top corner. Just a sticky, scrollable list. */
+    padding: 1rem 0.6rem 1.25rem;
+    position: sticky;
+    top: calc(var(--navbar-h) + 1.25rem);
+    height: calc(100vh - var(--navbar-h) - 2.5rem);
+    margin-top: 1.25rem;
+    /* overflow-x hidden: overflow-y:auto forces overflow-x's `visible` to compute
+       as `auto`, so a few px of content overflow produced an unwanted horizontal
+       scrollbar. Clip it — the sidebar only ever scrolls vertically. */
+    overflow-x: hidden;
+    overflow-y: auto;
+    /* Override the global `* { scrollbar-width: thin }` back to auto so Chromium
+       drops standard-scrollbar mode and honours the 5px ::-webkit-scrollbar below
+       (thin would force ~10px and ignore it). ~half the default thin width. */
+    scrollbar-width: auto;
+    scrollbar-color: auto;
+}
+
+.docs-sidebar::-webkit-scrollbar { width: 5px; }
+.docs-sidebar::-webkit-scrollbar-track { background: transparent; }
+.docs-sidebar::-webkit-scrollbar-thumb { background: rgba(107, 88, 255, 0.15); border-radius: 3px; }
+.docs-sidebar::-webkit-scrollbar-thumb:hover { background: rgba(107, 88, 255, 0.35); }
+
+/* Sidebar Search */
+.docs-search {
+    position: relative;
+    margin-bottom: 0.75rem;
+    padding: 0 0.25rem;
+}
+
+.docs-search-icon {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-text-muted);
+    pointer-events: none;
+}
+
+.docs-search-input {
+    width: 100%;
+    padding: 0.4rem 0.6rem 0.4rem 2rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-size: 0.8rem;
+    font-family: var(--font-sans);
+    color: var(--color-text);
+    background: var(--color-bg);
+    transition: border-color 0.15s, box-shadow 0.15s;
+    outline: none;
+}
+
+.docs-search-input::placeholder { color: var(--color-text-muted); }
+.docs-search-input:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px rgba(107, 88, 255, 0.1);
+}
+
+/* Sidebar Accordion */
+.docs-nav-group { margin-bottom: 0.5rem; }
+.docs-nav-group summary { list-style: none; }
+.docs-nav-group summary::-webkit-details-marker { display: none; }
+
+.docs-nav-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 11.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.11em;
+    color: var(--color-text-muted);
+    padding: 7px 12px;
+    margin-top: 0.25rem;
+    cursor: pointer;
+    user-select: none;
+    border-radius: 7px;
+    transition: color 0.2s ease, background 0.2s ease;
+}
+
+.docs-nav-group:first-child .docs-nav-title {
+    margin-top: 0;
+}
+
+.docs-nav-title-content {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.nav-icon--section {
+    width: 1rem;
+    height: 1rem;
+    opacity: 0.55;
+}
+
+.docs-nav-title:hover .nav-icon--section {
+    opacity: 0.85;
+}
+
+.docs-nav-title:hover {
+    color: var(--chip-text);
+    background: var(--nav-panel-hover);
+}
+
+.docs-nav-chevron {
+    transition: transform 0.2s ease;
+    opacity: 0.5;
+    flex-shrink: 0;
+}
+
+.docs-nav-group[open] > .docs-nav-title .docs-nav-chevron {
+    transform: rotate(0deg);
+    opacity: 0.7;
+}
+.docs-nav-group:not([open]) > .docs-nav-title .docs-nav-chevron {
+    transform: rotate(-90deg);
+    opacity: 0.5;
+}
+
+.docs-nav {
+    position: relative;
+    padding: 5px 0 2px 8px;
+    margin: 2px 0 6px 19px;
+    border-left: 1px solid var(--color-border);
+}
+/* Plasma-flow accent border, revealed on group hover (mockup) */
+.docs-nav::before {
+    content: '';
+    position: absolute;
+    left: -1px;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    border-radius: 2px;
+    background: repeating-linear-gradient(180deg, #6A54F5 0, #B69BFF 4px, #5AD1B0 7px, transparent 8px, transparent 13px);
+    background-size: 100% 13px;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    animation: plasmaFlow 2.6s linear infinite;
+    animation-play-state: paused; /* only run while the accent border is revealed (group hover) */
+    pointer-events: none;
+    filter: drop-shadow(0 0 1.5px rgba(124, 107, 255, 0.5));
+}
+.docs-nav-group:hover .docs-nav::before {
+    opacity: 0.7;
+    animation-play-state: running;
+}
+@keyframes plasmaFlow {
+    from { background-position: 0 0; }
+    to { background-position: 0 13px; }
+}
+@keyframes chevPlasma {
+    0% { color: #6A54F5; }
+    25% { color: #B69BFF; }
+    50% { color: #5AD1B0; }
+    75% { color: #7C6BFF; }
+    100% { color: #6A54F5; }
+}
+@keyframes sbItemIn {
+    from { opacity: 0; transform: translateX(-6px); }
+    to { opacity: 1; transform: none; }
+}
+.docs-nav-title:hover .docs-nav-chevron {
+    animation: chevPlasma 1.5s linear infinite;
+}
+.docs-nav a .nav-icon {
+    transition: color 0.2s ease, transform 0.25s cubic-bezier(.2, .7, .2, 1);
+}
+.docs-nav a:hover .nav-icon {
+    transform: translateX(1px);
+}
+.docs-nav-sub a {
+    animation: sbItemIn 0.34s cubic-bezier(.2, .7, .2, 1) both;
+}
+
+.docs-nav a {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.3rem 0.75rem;
+    font-size: 0.84rem;
+    color: var(--color-text-secondary);
+    border-radius: var(--radius-md);
+    border-left: 2px solid transparent;
+    transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+    margin-bottom: 0.0625rem;
+    text-decoration: none;
+}
+
+.docs-nav a:hover {
+    color: var(--color-text);
+    background: var(--nav-panel-hover);
+}
+
+.docs-nav a.active {
+    color: var(--nav-active-text);
+    background: var(--nav-active-bg);
+    border-left-color: var(--nav-primary);
+    font-weight: 500;
+}
+
+/* Nav Icons */
+.nav-icon {
+    flex-shrink: 0;
+    width: 1.1rem;
+    height: 1.1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 0.15rem;
+    color: var(--color-text-muted);
+}
+
+.nav-icon svg { width: 14px; height: 14px; }
+
+.docs-nav a.active .nav-icon,
+.docs-nav a:hover .nav-icon {
+    color: var(--color-primary);
+}
+
+.nav-done-check {
+    flex-shrink: 0;
+    margin-left: auto;
+    color: var(--color-primary);
+}
+
+/* Children (sub-navigation) */
+.docs-nav-item-parent {
+    display: flex;
+    align-items: center;
+}
+
+.docs-nav-item-parent > a {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.3rem 0.75rem;
+    font-size: 0.84rem;
+    color: var(--color-text-secondary);
+    border-radius: var(--radius-md);
+    border-left: 2px solid transparent;
+    transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+    text-decoration: none;
+}
+
+.docs-nav-item-parent > a:hover {
+    color: var(--color-text);
+    background: var(--nav-panel-hover);
+}
+
+.docs-nav-item-parent > a.active {
+    color: var(--nav-active-text);
+    background: var(--nav-active-bg);
+    border-left-color: var(--nav-primary);
+    font-weight: 500;
+}
+
+.docs-nav-expand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    margin-right: 0.35rem;
+    border: none;
+    background: none;
+    cursor: pointer;
+    color: var(--color-text-muted);
+    border-radius: var(--radius-md);
+    flex-shrink: 0;
+    transition: all 0.15s ease;
+    opacity: 0.5;
+}
+
+.docs-nav-expand:hover {
+    color: var(--color-text);
+    background: var(--color-bg-subtle);
+    opacity: 1;
+}
+
+.docs-nav-item-parent.expanded .docs-nav-expand { opacity: 0.7; }
+.docs-nav-expand svg { transition: transform 0.2s ease; }
+.docs-nav-item-parent.expanded .docs-nav-expand svg { transform: rotate(180deg); }
+
+.docs-nav-sub {
+    padding-left: 0.75rem;
+    margin-left: 1.35rem;
+    border-left: 1.5px solid var(--color-border);
+}
+
+.docs-nav-sub a {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    padding: 0.2rem 0.6rem;
+    color: var(--color-text-muted);
+    text-decoration: none;
+    border-radius: var(--radius-md);
+    border-left: 2px solid transparent;
+    transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+    margin-bottom: 0.0625rem;
+    animation: sbItemIn 0.34s cubic-bezier(.2, .7, .2, 1) both;
+}
+
+.docs-nav-sub a:hover {
+    color: var(--color-text-secondary);
+    background: var(--nav-panel-hover);
+}
+
+.docs-nav-sub a.active {
+    color: var(--nav-active-text);
+    background: var(--nav-active-bg);
+    border-left-color: var(--nav-primary);
+    font-weight: 500;
+}
+

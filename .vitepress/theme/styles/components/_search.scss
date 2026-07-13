@@ -1,0 +1,319 @@
+/* ---- VitePress Local Search (custom-themed) ----
+   VitePress injects its own component <style> at runtime, AFTER the theme CSS
+   and at equal-or-higher specificity, so plain `.VPLocalSearchBox …` overrides
+   lose the cascade. The doubled root class below raises specificity just enough
+   to win reliably in both dev and production, without reaching for !important. */
+.VPLocalSearchBox.VPLocalSearchBox {
+    --vp-local-search-highlight-bg: rgba(139, 123, 255, 0.22);
+    --vp-local-search-highlight-text: var(--nav-accent);
+
+    .backdrop {
+        background: rgba(10, 8, 22, 0.62);
+        backdrop-filter: blur(6px);
+    }
+
+    .shell {
+        background: var(--nav-dropdown-bg);
+        border: 1px solid var(--nav-dropdown-border);
+        border-radius: 16px;
+        box-shadow: 0 28px 70px -24px rgba(0, 0, 0, 0.7), 0 2px 8px rgba(0, 0, 0, 0.25);
+        width: min(92vw, 640px);
+        margin: 12vh auto 0;
+        max-height: min(72vh, 620px);
+        overflow: hidden;
+    }
+
+    /* Search bar. VitePress wraps this in a full border that turns brand-purple
+       on :focus-within (a boxy ring around the input); drop the sides and keep a
+       single divider that accents on focus instead. */
+    .search-bar {
+        background: transparent;
+        border: 0;
+        border-bottom: 1px solid var(--color-border);
+        border-radius: 0;
+        padding: 10px 14px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    .search-bar:focus-within {
+        border-bottom-color: var(--nav-accent);
+    }
+    .search-icon {
+        color: var(--nav-accent);
+        margin: 0 2px;
+    }
+    .search-icon.local-search-icon {
+        width: 20px;
+        height: 20px;
+    }
+    #localsearch-label {
+        display: flex;
+        align-items: center;
+    }
+    .search-bar input[type='search'],
+    #localsearch-input {
+        background: transparent;
+        color: var(--color-text);
+        border: none;
+        outline: none;
+        font-family: var(--font-sans);
+        font-size: 1.05rem;
+        width: 100%;
+        height: 44px;
+    }
+    #localsearch-input::placeholder {
+        color: var(--color-text-muted);
+    }
+
+    /* Action buttons: strip native chrome, render as clean ghost icon buttons */
+    .search-actions {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .search-actions button {
+        appearance: none;
+        -webkit-appearance: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 34px;
+        height: 34px;
+        padding: 0;
+        font-size: 17px;
+        border: 1px solid transparent;
+        border-radius: 9px;
+        background: transparent;
+        color: var(--color-text-muted);
+        cursor: pointer;
+        transition: color 0.18s ease, background-color 0.18s ease, border-color 0.18s ease;
+    }
+    .search-actions button:hover:not([disabled]) {
+        color: var(--color-text);
+        background: var(--nav-panel-hover);
+        border-color: var(--nav-border);
+    }
+    .search-actions button:focus-visible {
+        outline: 2px solid var(--nav-accent);
+        outline-offset: 1px;
+    }
+    .search-actions button[disabled] {
+        opacity: 0.4;
+        cursor: default;
+    }
+    /* "detailed list" toggle when active reads as a pressed accent chip */
+    .search-actions button.toggle-layout-button.detailed-list {
+        color: var(--nav-accent);
+        background: var(--vp-local-search-highlight-bg);
+        border-color: transparent;
+    }
+
+    /* Results list */
+    .results {
+        background: transparent;
+        max-height: 56vh;
+        overflow-y: auto;
+        padding: 8px;
+    }
+    .result {
+        margin-bottom: 2px;
+        border: none;
+        border-radius: 12px;
+    }
+    .result.selected {
+        background: var(--nav-dropdown-active);
+        outline: 1px solid var(--nav-accent);
+        outline-offset: -1px;
+    }
+    .result a {
+        color: var(--color-text);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 11px 12px;
+        border: none;
+    }
+    .result .titles {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 5px 8px;
+        padding-left: 0;
+        z-index: 1;
+    }
+    /* the '#' section marker: a small, quiet glyph, not a big boxed icon */
+    .result .title-icon {
+        flex-shrink: 0;
+        width: auto;
+        height: auto;
+        min-width: 0;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        background: transparent;
+        border: none;
+        border-radius: 0;
+        color: var(--color-text-muted);
+        font-family: var(--font-mono);
+        font-size: 0.9rem;
+        opacity: 0.7;
+    }
+    .result.selected .title-icon {
+        color: var(--nav-accent);
+        opacity: 1;
+    }
+    .result .title {
+        color: var(--color-text-secondary);
+        font-size: 0.875rem;
+        font-weight: 500;
+        line-height: 1.3;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .result .title.main {
+        color: var(--color-text);
+        font-size: 1.03rem;
+        font-weight: 600;
+        width: 100%;
+        order: -1;
+    }
+    .result .title .text {
+        color: inherit;
+    }
+    .result .titles .title:not(.main) .text {
+        color: var(--color-text-muted);
+    }
+    .result .title .local-search-icon {
+        color: var(--color-text-muted);
+        opacity: 0.6;
+    }
+    /* Content preview under each hit (detailedView) */
+    .result .titles {
+        width: 100%;
+    }
+    .result .excerpt-wrapper {
+        width: 100%;
+        margin-top: 6px;
+        max-height: 54px;
+        overflow: hidden;
+        position: relative;
+        /* fade the truncated tail so the cut never looks abrupt */
+        mask-image: linear-gradient(to bottom, #000 60%, transparent);
+        -webkit-mask-image: linear-gradient(to bottom, #000 60%, transparent);
+    }
+    .result:not(.selected) .excerpt-wrapper {
+        opacity: 0.65;
+    }
+    .result .excerpt {
+        opacity: 1;
+        background: transparent;
+        padding: 0;
+        font-size: 0.82rem;
+        line-height: 1.5;
+        color: var(--color-text-muted);
+    }
+    .result .excerpt :where(h1, h2, h3, h4, h5, h6, p, li, div, span, code) {
+        font-size: inherit;
+        font-weight: inherit;
+        line-height: inherit;
+        color: inherit;
+        margin: 0;
+        background: transparent;
+    }
+    .result .excerpt mark {
+        color: var(--nav-accent);
+    }
+    .result .excerpt-gradient-top,
+    .result .excerpt-gradient-bottom {
+        display: none;
+    }
+
+    /* Keyboard shortcuts footer */
+    .search-keyboard-shortcuts {
+        background: transparent;
+        border-top: 1px solid var(--color-border);
+        padding: 10px 16px;
+        font-size: 0.78em;
+        color: var(--color-text-muted);
+    }
+    .search-keyboard-shortcuts kbd {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 22px;
+        height: 22px;
+        padding: 0 6px;
+        background: var(--nav-panel);
+        border: 1px solid var(--nav-border);
+        border-bottom-width: 2px;
+        border-radius: 7px;
+        color: var(--color-text-secondary);
+        font-family: var(--font-mono);
+        font-size: 0.72rem;
+    }
+    mark {
+        background: var(--vp-local-search-highlight-bg);
+        color: var(--nav-accent);
+        border-radius: 4px;
+        padding: 0 2px;
+        font-weight: 600;
+    }
+    .no-results {
+        color: var(--color-text-muted);
+        padding: 2.5rem 2rem;
+        text-align: center;
+    }
+}
+
+/* ---- VitePress Icon System (for search shortcuts) ---- */
+[class^='vpi-'],
+[class*=' vpi-'],
+.vp-icon {
+    width: 1em;
+    height: 1em;
+    display: inline-block;
+}
+[class^='vpi-']:not(.bg),
+[class*=' vpi-']:not(.bg),
+.vp-icon:not(.bg) {
+    -webkit-mask: var(--icon) no-repeat;
+    mask: var(--icon) no-repeat;
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
+    background-color: currentColor;
+    color: inherit;
+}
+.vpi-arrow-right,
+.vpi-arrow-down,
+.vpi-arrow-left,
+.vpi-arrow-up {
+    --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 24 24'%3E%3Cpath d='M5 12h14M12 5l7 7-7 7'/%3E%3C/svg%3E");
+}
+.vpi-arrow-down { transform: rotate(90deg); }
+.vpi-arrow-up { transform: rotate(-90deg); }
+.vpi-arrow-left { transform: rotate(180deg); }
+.vpi-corner-down-left {
+    --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 24 24'%3E%3Cpath d='m9 10-5 5 5 5'/%3E%3Cpath d='M20 4v7a4 4 0 0 1-4 4H4'/%3E%3C/svg%3E");
+}
+.vpi-search {
+    --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 24 24'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3C/svg%3E");
+}
+.vpi-layout-list {
+    --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 24 24'%3E%3Crect width='7' height='7' x='3' y='3' rx='1'/%3E%3Crect width='7' height='7' x='3' y='14' rx='1'/%3E%3Cpath d='M14 4h7M14 9h7M14 15h7M14 20h7'/%3E%3C/svg%3E");
+}
+.vpi-delete {
+    --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 24 24'%3E%3Cpath d='M20 5H9l-7 7 7 7h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2ZM18 9l-6 6M12 9l6 6'/%3E%3C/svg%3E");
+}
+.vpi-chevron-right,
+.vpi-chevron-down,
+.vpi-chevron-left,
+.vpi-chevron-up {
+    --icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='currentColor' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' viewBox='0 0 24 24'%3E%3Cpath d='m9 18 6-6-6-6'/%3E%3C/svg%3E");
+}
+.vpi-chevron-down { transform: rotate(90deg); }
+.vpi-chevron-up { transform: rotate(-90deg); }
+.vpi-chevron-left { transform: rotate(180deg); }
+

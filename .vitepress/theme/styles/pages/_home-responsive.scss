@@ -1,0 +1,105 @@
+/* ---- Homepage Responsive ---- */
+
+@media (min-width: 640px) {
+    .hero h1 {
+        font-size: 2.5rem;
+    }
+
+    .hero-actions {
+        flex-direction: row;
+        justify-content: center;
+    }
+
+    .features-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .guides-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .hero-grid {
+        grid-template-columns: 1.05fr 0.95fr;
+        gap: 3.25rem;
+    }
+
+    .hero-content {
+        text-align: left;
+        /* Fill the row height (= code panel height) and let the actions row
+           sink to the bottom, so the buttons line up with the panel's base. */
+        align-self: stretch;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .hero-badge {
+        margin-left: 0;
+        align-self: flex-start;
+    }
+
+    .hero-description {
+        margin-left: 0;
+    }
+
+    .hero-actions {
+        justify-content: flex-start;
+        margin-top: auto;
+    }
+
+    .hero h1 {
+        font-size: 3rem;
+    }
+
+    .hero-description {
+        font-size: 1.15625rem;
+    }
+
+    .features-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .features-header h2 {
+        font-size: 2.375rem;
+    }
+
+    .guides-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 767px) {
+    .hero {
+        padding: calc(var(--navbar-h) + 2rem) 0 3rem;
+    }
+}
+
+@media (max-width: 640px) {
+    .home-roadmap-timeline {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 0;
+        gap: 1rem;
+    }
+
+    .home-roadmap-timeline::before {
+        display: none;
+    }
+
+    .home-roadmap-item {
+        min-width: 0;
+    }
+
+    .home-roadmap-card {
+        flex-direction: row;
+        justify-content: space-between;
+        text-align: left;
+        gap: 0.5rem;
+    }
+
+    .home-roadmap-dot {
+        display: none;
+    }
+}
+

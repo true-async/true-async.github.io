@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vitepress'
 
 const route = useRoute()
@@ -14,7 +14,6 @@ interface LmI18n {
   hint: string
   hintMobile: string
   openDoc: string
-  fullVersion: string
   stepFormat: (n: number) => string
   groups: Record<string, string>
   nodes: Record<string, { title: string; desc: string; comment?: string }>
@@ -24,8 +23,7 @@ const i18n: Record<string, LmI18n> = {
   en: {
     hint: 'Hover over a node for details. Click to go to the documentation.',
     hintMobile: 'Tap a node for details.',
-    openDoc: 'Open documentation \u2192',
-    fullVersion: 'Full interactive version \u2192',
+    openDoc: 'Open documentation →',
     stepFormat: (n) => `Step ${n} of 6`,
     groups: {
       primitives: 'Basic Primitives', sync: 'Synchronization', cancellation: 'Cancellation',
@@ -33,7 +31,7 @@ const i18n: Record<string, LmI18n> = {
       threads: 'Threads',
     },
     nodes: {
-      coroutines: { title: 'Coroutines', desc: 'Basic unit of asynchrony \u2014 launching concurrent tasks' },
+      coroutines: { title: 'Coroutines', desc: 'Basic unit of asynchrony — launching concurrent tasks' },
       future: { title: 'Future', desc: 'Get the result of an asynchronous operation' },
       'await-funcs': { title: 'await, await_all', desc: 'Waiting for one or more coroutines or Futures' },
       channels: { title: 'Channels', desc: 'Pass data between coroutines' },
@@ -52,8 +50,7 @@ const i18n: Record<string, LmI18n> = {
   ru: {
     hint: 'Наведите на узел для подробностей. Нажмите для перехода к документации.',
     hintMobile: 'Нажмите на узел для подробностей.',
-    openDoc: 'Открыть документацию \u2192',
-    fullVersion: 'Полная интерактивная версия \u2192',
+    openDoc: 'Открыть документацию →',
     stepFormat: (n) => `Шаг ${n} из 6`,
     groups: {
       primitives: 'Базовые примитивы', sync: 'Синхронизация', cancellation: 'Cancellation',
@@ -80,8 +77,7 @@ const i18n: Record<string, LmI18n> = {
   de: {
     hint: 'Fahren Sie mit der Maus über einen Knoten, um Details zu sehen. Klicken Sie, um zur Dokumentation zu gelangen.',
     hintMobile: 'Tippen Sie auf einen Knoten für Details.',
-    openDoc: 'Dokumentation öffnen \u2192',
-    fullVersion: 'Vollständige interaktive Version \u2192',
+    openDoc: 'Dokumentation öffnen →',
     stepFormat: (n) => `Schritt ${n} von 6`,
     groups: {
       primitives: 'Grundlegende Primitive', sync: 'Synchronisation', cancellation: 'Abbruch',
@@ -108,8 +104,7 @@ const i18n: Record<string, LmI18n> = {
   es: {
     hint: 'Pase el cursor sobre un nodo para ver los detalles. Haga clic para ir a la documentación.',
     hintMobile: 'Toque un nodo para ver los detalles.',
-    openDoc: 'Abrir documentación \u2192',
-    fullVersion: 'Versión interactiva completa \u2192',
+    openDoc: 'Abrir documentación →',
     stepFormat: (n) => `Paso ${n} de 6`,
     groups: {
       primitives: 'Primitivas básicas', sync: 'Sincronización', cancellation: 'Cancelación',
@@ -136,8 +131,7 @@ const i18n: Record<string, LmI18n> = {
   fr: {
     hint: 'Survolez un nœud pour plus de détails. Cliquez pour accéder à la documentation.',
     hintMobile: 'Appuyez sur un nœud pour plus de détails.',
-    openDoc: 'Ouvrir la documentation \u2192',
-    fullVersion: 'Version interactive complète \u2192',
+    openDoc: 'Ouvrir la documentation →',
     stepFormat: (n) => `Étape ${n} sur 6`,
     groups: {
       primitives: 'Primitives de base', sync: 'Synchronisation', cancellation: 'Annulation',
@@ -164,8 +158,7 @@ const i18n: Record<string, LmI18n> = {
   it: {
     hint: 'Passa il mouse su un nodo per i dettagli. Clicca per andare alla documentazione.',
     hintMobile: 'Tocca un nodo per i dettagli.',
-    openDoc: 'Apri documentazione \u2192',
-    fullVersion: 'Versione interattiva completa \u2192',
+    openDoc: 'Apri documentazione →',
     stepFormat: (n) => `Passo ${n} di 6`,
     groups: {
       primitives: 'Primitive di base', sync: 'Sincronizzazione', cancellation: 'Cancellazione',
@@ -192,8 +185,7 @@ const i18n: Record<string, LmI18n> = {
   ko: {
     hint: '노드 위에 마우스를 올리면 상세 정보를 볼 수 있습니다. 클릭하면 문서로 이동합니다.',
     hintMobile: '노드를 탭하면 상세 정보를 볼 수 있습니다.',
-    openDoc: '문서 열기 \u2192',
-    fullVersion: '전체 인터랙티브 버전 \u2192',
+    openDoc: '문서 열기 →',
     stepFormat: (n) => `${n}단계 / 6단계`,
     groups: {
       primitives: '기본 프리미티브', sync: '동기화', cancellation: '취소',
@@ -220,8 +212,7 @@ const i18n: Record<string, LmI18n> = {
   uk: {
     hint: 'Наведіть курсор на вузол для деталей. Натисніть, щоб перейти до документації.',
     hintMobile: 'Натисніть на вузол для деталей.',
-    openDoc: 'Відкрити документацію \u2192',
-    fullVersion: 'Повна інтерактивна версія \u2192',
+    openDoc: 'Відкрити документацію →',
     stepFormat: (n) => `Крок ${n} з 6`,
     groups: {
       primitives: 'Базові примітиви', sync: 'Синхронізація', cancellation: 'Скасування',
@@ -248,8 +239,7 @@ const i18n: Record<string, LmI18n> = {
   zh: {
     hint: '将鼠标悬停在节点上查看详情。点击可跳转到文档。',
     hintMobile: '点击节点查看详情。',
-    openDoc: '打开文档 \u2192',
-    fullVersion: '完整交互版本 \u2192',
+    openDoc: '打开文档 →',
     stepFormat: (n) => `第 ${n} 步，共 6 步`,
     groups: {
       primitives: '基础原语', sync: '同步', cancellation: '取消',
@@ -277,101 +267,67 @@ const i18n: Record<string, LmI18n> = {
 
 const t = computed(() => i18n[currentLang.value] || i18n.en)
 
-// --- Static graph data ---
-
-const GRP_COLORS: Record<string, { color: string; bg: string; border: string }> = {
-  primitives:   { color: '#6B58FF', bg: 'rgba(107,88,255,0.12)',  border: 'rgba(107,88,255,0.50)' },
-  sync:         { color: '#2563EB', bg: 'rgba(37,99,235,0.12)',   border: 'rgba(37,99,235,0.50)' },
-  cancellation: { color: '#DC2626', bg: 'rgba(220,38,38,0.12)',   border: 'rgba(220,38,38,0.50)' },
-  structural:   { color: '#0891B2', bg: 'rgba(8,145,178,0.12)',   border: 'rgba(8,145,178,0.50)' },
-  context:      { color: '#8B5CF6', bg: 'rgba(139,92,246,0.12)',  border: 'rgba(139,92,246,0.50)' },
-  iterate:      { color: '#F59E0B', bg: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.50)' },
-  resources:    { color: '#16A34A', bg: 'rgba(22,163,74,0.12)',   border: 'rgba(22,163,74,0.50)' },
-  threads:      { color: '#EA580C', bg: 'rgba(234,88,12,0.12)',  border: 'rgba(234,88,12,0.50)' },
-}
-
-const ARROW_IDS: Record<string, string> = {
-  primitives: 'lmArrPurple', sync: 'lmArrBlue', cancellation: 'lmArrRed',
-  structural: 'lmArrTeal', context: 'lmArrViolet', resources: 'lmArrGreen',
-  threads: 'lmArrOrange',
+// ---------------------------------------------------------------------------
+// Structure: a vertical timeline of grouped sections, each holding a wrap of
+// node "chips" — the same idiom as the full /roadmap page and the tutorial
+// card grid, so this reads as one more view of the same design system rather
+// than a bespoke SVG diagram. Colors reuse the site's 4-hue tag palette
+// (purple/teal/orange/blue); code snippets reuse the homepage hero's .tok-*
+// token classes. No hand-tuned coordinates, no drawn connector lines — the
+// "path" is the vertical spine + numbered badges (1-6); related concepts
+// still light up together on hover via the adjacency map below.
+// ---------------------------------------------------------------------------
+const GROUP_ORDER = ['primitives', 'sync', 'cancellation', 'structural', 'context', 'iterate', 'resources', 'threads']
+const GROUP_COLOR: Record<string, string> = {
+  primitives: 'purple', sync: 'blue', cancellation: 'orange', structural: 'teal',
+  context: 'purple', iterate: 'orange', resources: 'teal', threads: 'blue',
 }
 
 interface NodeDef {
-  id: string; group: string; order: number | null; w: number; h: number;
-  cx: number; cy: number;
-  codeHtml: string;
-  urlSuffix: string;
+  id: string
+  group: string
+  order: number | null
+  urlSuffix: string
+  codeHtml: string
 }
 
 const nodesDef: NodeDef[] = [
-  { id: 'coroutines', group: 'primitives', order: 1, w: 130, h: 44, cx: 250, cy: 55,
-    urlSuffix: '/docs/components/coroutines.html',
-    codeHtml: '<span class="var">$coro</span> = <span class="fn">spawn</span>(<span class="kw">function</span>() {\n  <span class="fn">echo</span> <span class="str">"async!"</span>;\n});' },
-  { id: 'future', group: 'primitives', order: null, w: 110, h: 44, cx: 470, cy: 55,
-    urlSuffix: '/docs/components/future.html',
-    codeHtml: '<span class="var">$coro</span> = <span class="fn">spawn</span>(<span class="var">$task</span>);\n<span class="var">$result</span> = <span class="fn">await</span>(<span class="var">$coro</span>);' },
-  { id: 'await-funcs', group: 'sync', order: 2, w: 160, h: 44, cx: 250, cy: 150,
-    urlSuffix: '/docs/reference/await.html',
-    codeHtml: '<span class="var">$result</span> = <span class="fn">await</span>(<span class="var">$coro</span>);\n<span class="var">$results</span> = <span class="fn">await_all</span>(<span class="var">$tasks</span>);\n<span class="var">$first</span> = <span class="fn">await_first_success</span>(<span class="var">$tasks</span>);' },
-  { id: 'channels', group: 'sync', order: null, w: 110, h: 44, cx: 470, cy: 150,
-    urlSuffix: '/docs/components/channels.html',
-    codeHtml: '<span class="var">$ch</span> = <span class="kw">new</span> Async\\<span class="fn">Channel</span>(<span class="num">10</span>);\n<span class="var">$ch</span>-><span class="fn">send</span>(<span class="str">"data"</span>);\n<span class="var">$val</span> = <span class="var">$ch</span>-><span class="fn">recv</span>();' },
-  { id: 'cancellation', group: 'cancellation', order: 3, w: 150, h: 44, cx: 300, cy: 245,
-    urlSuffix: '/docs/components/cancellation.html',
-    codeHtml: '' /* comment is dynamic per language, built in template */ },
-  { id: 'scope', group: 'structural', order: 4, w: 110, h: 44, cx: 250, cy: 340,
-    urlSuffix: '/docs/components/scope.html',
-    codeHtml: '<span class="var">$scope</span> = <span class="kw">new</span> Async\\<span class="fn">Scope</span>();\n<span class="fn">spawn_with</span>(<span class="var">$scope</span>, <span class="var">$task</span>);' },
-  { id: 'taskgroup', group: 'structural', order: null, w: 130, h: 44, cx: 400, cy: 340,
-    urlSuffix: '/docs/components/task-group.html',
-    codeHtml: '<span class="var">$group</span> = <span class="kw">new</span> <span class="fn">TaskGroup</span>(<span class="num">5</span>);\n<span class="var">$group</span>-><span class="fn">spawn</span>(<span class="var">$task</span>);\n<span class="var">$results</span> = <span class="var">$group</span>-><span class="fn">all</span>();' },
-  { id: 'taskset', group: 'structural', order: null, w: 120, h: 44, cx: 540, cy: 340,
-    urlSuffix: '/docs/components/task-set.html',
-    codeHtml: '<span class="var">$set</span> = <span class="kw">new</span> <span class="fn">TaskSet</span>(<span class="num">10</span>);\n<span class="var">$set</span>-><span class="fn">spawn</span>(<span class="var">$task</span>);\n<span class="var">$r</span> = <span class="var">$set</span>-><span class="fn">joinNext</span>();' },
-  { id: 'context', group: 'context', order: 5, w: 120, h: 44, cx: 300, cy: 435,
-    urlSuffix: '/docs/components/context.html',
-    codeHtml: '<span class="var">$ctx</span> = <span class="fn">current_context</span>();\n<span class="var">$ctx</span>-><span class="fn">set</span>(<span class="str">\'auth_token\'</span>, <span class="var">$token</span>);\n<span class="var">$v</span> = <span class="var">$ctx</span>-><span class="fn">find</span>(<span class="str">\'auth_token\'</span>);' },
-  { id: 'iterate', group: 'iterate', order: null, w: 120, h: 44, cx: 125, cy: 532,
-    urlSuffix: '/docs/reference/iterate.html',
-    codeHtml: '<span class="fn">iterate</span>(<span class="var">$items</span>, <span class="kw">function</span>(<span class="var">$v</span>, <span class="var">$k</span>) {\n  <span class="fn">echo</span> <span class="str">"$k: $v\\n"</span>;\n}, <span class="fn">concurrency</span>: <span class="num">4</span>);' },
-  { id: 'pool', group: 'resources', order: 6, w: 130, h: 44, cx: 350, cy: 532,
-    urlSuffix: '/docs/components/pool.html',
-    codeHtml: '<span class="var">$pool</span> = <span class="kw">new</span> <span class="fn">Pool</span>(\n  <span class="fn">factory</span>: <span class="kw">fn</span>() => <span class="kw">new</span> <span class="fn">Conn</span>(),\n  <span class="fn">max</span>: <span class="num">10</span>\n);' },
-  { id: 'pdo-pool', group: 'resources', order: null, w: 120, h: 44, cx: 510, cy: 532,
-    urlSuffix: '/docs/components/pdo-pool.html',
-    codeHtml: '<span class="var">$pdo</span> = <span class="kw">new</span> <span class="fn">PDO</span>(<span class="var">$dsn</span>, <span class="var">$user</span>, <span class="var">$pwd</span>, [\n  PDO::<span class="fn">ATTR_POOL_MAX</span> => <span class="num">10</span>\n]);' },
-  { id: 'thread', group: 'threads', order: null, w: 110, h: 44, cx: 180, cy: 635,
-    urlSuffix: '/docs/components/threads.html',
-    codeHtml: '<span class="var">$t</span> = <span class="fn">spawn_thread</span>(<span class="kw">function</span>() {\n  <span class="kw">return</span> <span class="fn">heavyCompute</span>();\n});\n<span class="var">$r</span> = <span class="fn">await</span>(<span class="var">$t</span>);' },
-  { id: 'thread-pool', group: 'threads', order: null, w: 130, h: 44, cx: 420, cy: 635,
-    urlSuffix: '/docs/components/thread-pool.html',
-    codeHtml: '<span class="var">$pool</span> = <span class="kw">new</span> <span class="fn">ThreadPool</span>(<span class="num">4</span>);\n<span class="var">$f</span> = <span class="var">$pool</span>-><span class="fn">submit</span>(<span class="var">$task</span>);\n<span class="var">$results</span> = <span class="var">$pool</span>-><span class="fn">map</span>(<span class="var">$items</span>, <span class="var">$fn</span>);' },
+  { id: 'coroutines', group: 'primitives', order: 1, urlSuffix: '/docs/components/coroutines.html',
+    codeHtml: '<span class="tok-var">$coro</span> = <span class="tok-fn">spawn</span>(<span class="tok-kw">function</span>() {\n  <span class="tok-fn">echo</span> <span class="tok-str">"async!"</span>;\n});' },
+  { id: 'future', group: 'primitives', order: null, urlSuffix: '/docs/components/future.html',
+    codeHtml: '<span class="tok-var">$coro</span> = <span class="tok-fn">spawn</span>(<span class="tok-prop">$task</span>);\n<span class="tok-var">$result</span> = <span class="tok-fn">await</span>(<span class="tok-prop">$coro</span>);' },
+  { id: 'await-funcs', group: 'sync', order: 2, urlSuffix: '/docs/reference/await.html',
+    codeHtml: '<span class="tok-var">$result</span> = <span class="tok-fn">await</span>(<span class="tok-prop">$coro</span>);\n<span class="tok-var">$results</span> = <span class="tok-fn">await_all</span>(<span class="tok-prop">$tasks</span>);\n<span class="tok-var">$first</span> = <span class="tok-fn">await_first_success</span>(<span class="tok-prop">$tasks</span>);' },
+  { id: 'channels', group: 'sync', order: null, urlSuffix: '/docs/components/channels.html',
+    codeHtml: '<span class="tok-var">$ch</span> = <span class="tok-kw">new</span> <span class="tok-cls">Async\\Channel</span>(<span class="tok-prop">10</span>);\n<span class="tok-prop">$ch</span>-><span class="tok-fn">send</span>(<span class="tok-str">"data"</span>);\n<span class="tok-var">$val</span> = <span class="tok-prop">$ch</span>-><span class="tok-fn">recv</span>();' },
+  { id: 'cancellation', group: 'cancellation', order: 3, urlSuffix: '/docs/components/cancellation.html',
+    codeHtml: '' /* comment is dynamic per language, built via getNodeCodeHtml() */ },
+  { id: 'scope', group: 'structural', order: 4, urlSuffix: '/docs/components/scope.html',
+    codeHtml: '<span class="tok-var">$scope</span> = <span class="tok-kw">new</span> <span class="tok-cls">Async\\Scope</span>();\n<span class="tok-fn">spawn_with</span>(<span class="tok-prop">$scope</span>, <span class="tok-prop">$task</span>);' },
+  { id: 'taskgroup', group: 'structural', order: null, urlSuffix: '/docs/components/task-group.html',
+    codeHtml: '<span class="tok-var">$group</span> = <span class="tok-kw">new</span> <span class="tok-cls">TaskGroup</span>(<span class="tok-prop">5</span>);\n<span class="tok-prop">$group</span>-><span class="tok-fn">spawn</span>(<span class="tok-prop">$task</span>);\n<span class="tok-var">$results</span> = <span class="tok-prop">$group</span>-><span class="tok-fn">all</span>();' },
+  { id: 'taskset', group: 'structural', order: null, urlSuffix: '/docs/components/task-set.html',
+    codeHtml: '<span class="tok-var">$set</span> = <span class="tok-kw">new</span> <span class="tok-cls">TaskSet</span>(<span class="tok-prop">10</span>);\n<span class="tok-prop">$set</span>-><span class="tok-fn">spawn</span>(<span class="tok-prop">$task</span>);\n<span class="tok-var">$r</span> = <span class="tok-prop">$set</span>-><span class="tok-fn">joinNext</span>();' },
+  { id: 'context', group: 'context', order: 5, urlSuffix: '/docs/components/context.html',
+    codeHtml: '<span class="tok-var">$ctx</span> = <span class="tok-fn">current_context</span>();\n<span class="tok-prop">$ctx</span>-><span class="tok-fn">set</span>(<span class="tok-str">\'auth_token\'</span>, <span class="tok-prop">$token</span>);\n<span class="tok-var">$v</span> = <span class="tok-prop">$ctx</span>-><span class="tok-fn">find</span>(<span class="tok-str">\'auth_token\'</span>);' },
+  { id: 'iterate', group: 'iterate', order: null, urlSuffix: '/docs/reference/iterate.html',
+    codeHtml: '<span class="tok-fn">iterate</span>(<span class="tok-prop">$items</span>, <span class="tok-kw">function</span>(<span class="tok-prop">$v</span>, <span class="tok-prop">$k</span>) {\n  <span class="tok-fn">echo</span> <span class="tok-str">"$k: $v\\n"</span>;\n}, <span class="tok-fn">concurrency</span>: <span class="tok-prop">4</span>);' },
+  { id: 'pool', group: 'resources', order: 6, urlSuffix: '/docs/components/pool.html',
+    codeHtml: '<span class="tok-var">$pool</span> = <span class="tok-kw">new</span> <span class="tok-cls">Pool</span>(\n  <span class="tok-fn">factory</span>: <span class="tok-kw">fn</span>() => <span class="tok-kw">new</span> <span class="tok-cls">Conn</span>(),\n  <span class="tok-fn">max</span>: <span class="tok-prop">10</span>\n);' },
+  { id: 'pdo-pool', group: 'resources', order: null, urlSuffix: '/docs/components/pdo-pool.html',
+    codeHtml: '<span class="tok-var">$pdo</span> = <span class="tok-kw">new</span> <span class="tok-cls">PDO</span>(<span class="tok-prop">$dsn</span>, <span class="tok-prop">$user</span>, <span class="tok-prop">$pwd</span>, [\n  <span class="tok-cls">PDO</span>::<span class="tok-fn">ATTR_POOL_MAX</span> => <span class="tok-prop">10</span>\n]);' },
+  { id: 'thread', group: 'threads', order: null, urlSuffix: '/docs/components/threads.html',
+    codeHtml: '<span class="tok-var">$t</span> = <span class="tok-fn">spawn_thread</span>(<span class="tok-kw">function</span>() {\n  <span class="tok-kw">return</span> <span class="tok-fn">heavyCompute</span>();\n});\n<span class="tok-var">$r</span> = <span class="tok-fn">await</span>(<span class="tok-prop">$t</span>);' },
+  { id: 'thread-pool', group: 'threads', order: null, urlSuffix: '/docs/components/thread-pool.html',
+    codeHtml: '<span class="tok-var">$pool</span> = <span class="tok-kw">new</span> <span class="tok-cls">ThreadPool</span>(<span class="tok-prop">4</span>);\n<span class="tok-var">$f</span> = <span class="tok-prop">$pool</span>-><span class="tok-fn">submit</span>(<span class="tok-prop">$task</span>);\n<span class="tok-var">$results</span> = <span class="tok-prop">$pool</span>-><span class="tok-fn">map</span>(<span class="tok-prop">$items</span>, <span class="tok-prop">$fn</span>);' },
 ]
 
-const edges = [
-  { from: 'coroutines', to: 'await-funcs', type: 'path' },
-  { from: 'await-funcs', to: 'cancellation', type: 'path' },
-  { from: 'cancellation', to: 'scope', type: 'path' },
-  { from: 'scope', to: 'context', type: 'path' },
-  { from: 'context', to: 'pool', type: 'path' },
-  { from: 'scope', to: 'taskgroup', type: 'path' },
-  { from: 'taskgroup', to: 'taskset', type: 'related' },
-  { from: 'pool', to: 'pdo-pool', type: 'path' },
-  { from: 'coroutines', to: 'future', type: 'related' },
-  { from: 'coroutines', to: 'channels', type: 'related' },
-  { from: 'pool', to: 'thread-pool', type: 'related' },
-  { from: 'thread', to: 'thread-pool', type: 'related' },
-]
-
-const zones = [
-  { group: 'primitives', x: 140, y: 10, w: 400, h: 85, rx: 14 },
-  { group: 'sync', x: 100, y: 105, w: 440, h: 85, rx: 14 },
-  { group: 'cancellation', x: 170, y: 200, w: 260, h: 85, rx: 14 },
-  { group: 'structural', x: 140, y: 295, w: 470, h: 85, rx: 14 },
-  { group: 'context', x: 185, y: 390, w: 230, h: 85, rx: 14 },
-  { group: 'iterate', x: 30, y: 485, w: 190, h: 90, rx: 14 },
-  { group: 'resources', x: 245, y: 485, w: 330, h: 90, rx: 14 },
-  { group: 'threads', x: 30, y: 595, w: 540, h: 90, rx: 14 },
+// "related" links purely drive the hover highlight below — nothing is drawn.
+const edgePairs: [string, string][] = [
+  ['coroutines', 'await-funcs'], ['await-funcs', 'cancellation'], ['cancellation', 'scope'],
+  ['scope', 'context'], ['context', 'pool'], ['scope', 'taskgroup'], ['taskgroup', 'taskset'],
+  ['pool', 'pdo-pool'], ['coroutines', 'future'], ['coroutines', 'channels'],
+  ['pool', 'thread-pool'], ['thread', 'thread-pool'],
 ]
 
 const subPages: Record<string, { label: string; urlSuffix: string }[]> = {
@@ -422,41 +378,30 @@ const subPages: Record<string, { label: string; urlSuffix: string }[]> = {
   ],
 }
 
-// --- Adjacency map ---
-const adjMap: Record<string, Set<string>> = {}
-for (const n of nodesDef) adjMap[n.id] = new Set()
-for (const e of edges) { adjMap[e.from].add(e.to); adjMap[e.to].add(e.from) }
-
-// --- Edge path computation ---
-function exitPt(cx: number, cy: number, w: number, h: number, angle: number) {
-  const hw = w / 2, hh = h / 2
-  const c = Math.cos(angle), s = Math.sin(angle)
-  const tx = c ? hw / Math.abs(c) : 9999
-  const ty = s ? hh / Math.abs(s) : 9999
-  const tt = Math.min(tx, ty)
-  return { x: cx + c * tt, y: cy + s * tt }
-}
-
-function calcEdgePath(from: NodeDef, to: NodeDef): string {
-  const dx = to.cx - from.cx, dy = to.cy - from.cy
-  const d = Math.sqrt(dx * dx + dy * dy)
-  if (d < 1) return ''
-  const a = Math.atan2(dy, dx)
-  const s = exitPt(from.cx, from.cy, from.w, from.h, a)
-  const e = exitPt(to.cx, to.cy, to.w, to.h, a + Math.PI)
-  const mx = (s.x + e.x) / 2, my = (s.y + e.y) / 2
-  const ux = dx / d, uy = dy / d
-  const off = Math.min(d * 0.12, 30)
-  return `M${s.x},${s.y} Q${mx - uy * off},${my + ux * off} ${e.x},${e.y}`
-}
-
 const nodeMap: Record<string, NodeDef> = {}
 for (const n of nodesDef) nodeMap[n.id] = n
 
-const edgePaths = edges.map((e, i) => {
-  const from = nodeMap[e.from], to = nodeMap[e.to]
-  return { ...e, d: calcEdgePath(from, to), index: i, groupColor: GRP_COLORS[from.group].color }
+const nodesByGroup = computed(() => {
+  const m: Record<string, NodeDef[]> = {}
+  for (const g of GROUP_ORDER) m[g] = nodesDef.filter((n) => n.group === g)
+  return m
 })
+
+// Step number shown on the group panel's corner badge — the order of whichever
+// node in that group sits on the 1-6 primary path (most groups have exactly
+// one; iterate/threads have none and get no badge).
+const groupOrderMap = computed(() => {
+  const m: Record<string, number | null> = {}
+  for (const g of GROUP_ORDER) {
+    const ordered = nodesByGroup.value[g].find((n) => n.order != null)
+    m[g] = ordered ? ordered.order! : null
+  }
+  return m
+})
+
+const adjMap: Record<string, Set<string>> = {}
+for (const n of nodesDef) adjMap[n.id] = new Set()
+for (const [a, b] of edgePairs) { adjMap[a].add(b); adjMap[b].add(a) }
 
 // --- Interaction state ---
 const hoveredId = ref<string | null>(null)
@@ -469,23 +414,15 @@ function isNodeHighlighted(id: string): boolean {
   if (!hoveredId.value) return false
   return id === hoveredId.value || adjMap[hoveredId.value]?.has(id)
 }
-function isEdgeDimmed(from: string, to: string): boolean {
-  if (!hoveredId.value) return false
-  return from !== hoveredId.value && to !== hoveredId.value
-}
-function isEdgeHighlighted(from: string, to: string): boolean {
-  if (!hoveredId.value) return false
-  return from === hoveredId.value || to === hoveredId.value
-}
-function isZoneDimmed(group: string): boolean {
+function isGroupDimmed(group: string): boolean {
   if (!hoveredId.value) return false
   const activeGroups = new Set<string>()
   activeGroups.add(nodeMap[hoveredId.value].group)
-  adjMap[hoveredId.value]?.forEach(nid => activeGroups.add(nodeMap[nid].group))
+  adjMap[hoveredId.value]?.forEach((nid) => activeGroups.add(nodeMap[nid].group))
   return !activeGroups.has(group)
 }
 
-// --- Tooltip ---
+// --- Tooltip (desktop hover / keyboard focus) ---
 const tipVisible = ref(false)
 const tipX = ref(0)
 const tipY = ref(0)
@@ -494,33 +431,38 @@ function getNodeCodeHtml(id: string): string {
   const n = nodeMap[id]
   if (id === 'cancellation') {
     const cm = t.value.nodes.cancellation?.comment || '// or with timeout:'
-    return `<span class="var">$coro</span>-><span class="fn">cancel</span>();\n<span class="cm">${cm}</span>\n<span class="fn">await</span>(<span class="var">$coro</span>, <span class="fn">timeout</span>(<span class="num">5000</span>));`
+    return `<span class="tok-prop">$coro</span>-><span class="tok-fn">cancel</span>();\n<span class="tok-c">${cm}</span>\n<span class="tok-fn">await</span>(<span class="tok-prop">$coro</span>, <span class="tok-fn">timeout</span>(<span class="tok-prop">5000</span>));`
   }
   return n.codeHtml
 }
 
 function onNodeEnter(id: string, ev: MouseEvent) {
+  if (isMobile.value) return
   hoveredId.value = id
   tipX.value = ev.clientX + 16
   tipY.value = ev.clientY + 16
+  tipVisible.value = true
+}
+function onNodeFocus(id: string, ev: FocusEvent) {
+  if (isMobile.value) return
+  hoveredId.value = id
+  const rect = (ev.target as HTMLElement).getBoundingClientRect()
+  tipX.value = rect.left
+  tipY.value = rect.bottom + 10
   tipVisible.value = true
 }
 function onNodeLeave() {
   hoveredId.value = null
   tipVisible.value = false
 }
-function onSvgMouseMove(ev: MouseEvent) {
-  if (hoveredId.value) {
+function onWrapMouseMove(ev: MouseEvent) {
+  if (hoveredId.value && tipVisible.value) {
     let x = ev.clientX + 16, y = ev.clientY + 16
-    if (x + 240 > window.innerWidth - 10) x = ev.clientX - 252
-    if (y + 200 > window.innerHeight - 10) y = ev.clientY - 212
+    if (x + 280 > window.innerWidth - 10) x = ev.clientX - 292
+    if (y + 220 > window.innerHeight - 10) y = ev.clientY - 232
     tipX.value = x
     tipY.value = y
   }
-}
-function onNodeClick(id: string) {
-  const n = nodeMap[id]
-  if (n.urlSuffix) window.location.href = `/${currentLang.value}${n.urlSuffix}`
 }
 
 // --- Mobile bottom sheet ---
@@ -532,7 +474,12 @@ onMounted(() => {
   isMobile.value = window.innerWidth <= 768
 })
 
-function onNodeTouchMobile(id: string) {
+function onChipClick(id: string) {
+  // On mobile the <a> below has no href (see template), so there's nothing
+  // for VitePress's own capture-phase router listener to intercept — no
+  // preventDefault() race to lose. Desktop keeps the real href and navigates
+  // natively; this handler only needs to run for the mobile sheet.
+  if (!isMobile.value) return
   hoveredId.value = id
   sheetNodeId.value = id
   sheetOpen.value = true
@@ -567,113 +514,53 @@ function onSheetTouchEnd() {
   if (sheetRef.value) sheetRef.value.style.transform = ''
   if (dy > 60) closeSheet()
 }
-
-// Touch handler for SVG on mobile
-function onSvgTouch(ev: TouchEvent) {
-  const target = (ev.target as Element)?.closest?.('.lm-node')
-  if (target) {
-    ev.preventDefault()
-    const id = target.getAttribute('data-id')
-    if (id) onNodeTouchMobile(id)
-  } else {
-    if (sheetOpen.value) closeSheet()
-    else hoveredId.value = null
-  }
-}
 </script>
 
 <template>
   <div class="learning-map-wrap">
     <p class="lm-hint">{{ isMobile ? t.hintMobile : t.hint }}</p>
-    <div class="lm-container">
-      <svg
-        viewBox="0 0 600 700"
-        preserveAspectRatio="xMidYMid meet"
-        xmlns="http://www.w3.org/2000/svg"
-        @mousemove="onSvgMouseMove"
-        @touchstart.passive="onSvgTouch"
+
+    <div class="lm-timeline" @mousemove="onWrapMouseMove">
+      <section
+        v-for="g in GROUP_ORDER" :key="g"
+        class="lm-group" :class="[`lm-group--${GROUP_COLOR[g]}`, { dimmed: isGroupDimmed(g) }]"
       >
-        <defs>
-          <marker id="lmArrPurple" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse"><polygon points="0 0,10 3.5,0 7" fill="#6B58FF" opacity="0.65"/></marker>
-          <marker id="lmArrBlue" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse"><polygon points="0 0,10 3.5,0 7" fill="#2563EB" opacity="0.65"/></marker>
-          <marker id="lmArrRed" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse"><polygon points="0 0,10 3.5,0 7" fill="#DC2626" opacity="0.65"/></marker>
-          <marker id="lmArrTeal" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse"><polygon points="0 0,10 3.5,0 7" fill="#0891B2" opacity="0.65"/></marker>
-          <marker id="lmArrViolet" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse"><polygon points="0 0,10 3.5,0 7" fill="#8B5CF6" opacity="0.65"/></marker>
-          <marker id="lmArrGreen" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse"><polygon points="0 0,10 3.5,0 7" fill="#16A34A" opacity="0.65"/></marker>
-          <marker id="lmArrOrange" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse"><polygon points="0 0,10 3.5,0 7" fill="#EA580C" opacity="0.65"/></marker>
-          <filter id="lmShadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.06"/></filter>
-        </defs>
-
-        <!-- Group zones -->
-        <g v-for="z in zones" :key="z.group"
-           class="group-zone" :class="{ dimmed: isZoneDimmed(z.group) }">
-          <rect :x="z.x" :y="z.y" :width="z.w" :height="z.h" :rx="z.rx"
-                :fill="GRP_COLORS[z.group].bg" :stroke="GRP_COLORS[z.group].border"
-                stroke-width="1" stroke-dasharray="6 3" />
-          <text :x="z.x + 14" :y="z.y + 16" font-family="Fira Sans,sans-serif"
-                font-size="11" font-weight="600" :fill="GRP_COLORS[z.group].color" opacity="0.7">
-            {{ t.groups[z.group] }}
-          </text>
-        </g>
-
-        <!-- Edges -->
-        <path v-for="e in edgePaths" :key="`${e.from}-${e.to}`"
-              :d="e.d" fill="none"
-              :class="['edge', e.type === 'path' ? 'edge-path' : 'edge-related',
-                        { dimmed: isEdgeDimmed(e.from, e.to), highlighted: isEdgeHighlighted(e.from, e.to) }]"
-              :stroke="e.type === 'path' ? e.groupColor : '#94A3B8'"
-              :stroke-width="e.type === 'path' ? 2 : 1.5"
-              :stroke-dasharray="e.type === 'related' ? '5 4' : undefined"
-              :opacity="e.type === 'path' ? 0.5 : 0.25"
-              :marker-end="e.type === 'path' ? `url(#${ARROW_IDS[nodeMap[e.from].group]})` : undefined"
-              :style="e.type === 'path' ? { animationDelay: e.index * 0.05 + 's' } : undefined"
-        />
-
-        <!-- Nodes -->
-        <g v-for="n in nodesDef" :key="n.id"
-           class="lm-node" :data-id="n.id"
-           :class="{ dimmed: isNodeDimmed(n.id), highlighted: isNodeHighlighted(n.id) }"
-           @mouseenter="(ev) => onNodeEnter(n.id, ev)"
-           @mouseleave="onNodeLeave"
-           @click="onNodeClick(n.id)"
-           style="cursor: pointer;"
-        >
-          <clipPath :id="`lmc-${n.id}`">
-            <rect :x="n.cx - n.w/2" :y="n.cy - n.h/2" :width="n.w" :height="n.h" :rx="Math.min(n.h/2, 14)" />
-          </clipPath>
-          <rect class="node-bg node-fill" :x="n.cx - n.w/2" :y="n.cy - n.h/2" :width="n.w" :height="n.h"
-                :rx="Math.min(n.h/2, 14)"
-                :stroke="GRP_COLORS[n.group].border" stroke-width="1.5" filter="url(#lmShadow)" />
-          <rect :x="n.cx - n.w/2" :y="n.cy - n.h/2" width="4" :height="n.h" rx="2"
-                :fill="GRP_COLORS[n.group].color" opacity="0.7" :clip-path="`url(#lmc-${n.id})`" />
-          <text :x="n.cx + 2" :y="n.cy" text-anchor="middle" dominant-baseline="central"
-                font-family="Fira Sans,sans-serif" font-size="13" font-weight="600"
-                :fill="GRP_COLORS[n.group].color" pointer-events="none">
-            {{ t.nodes[n.id]?.title || n.id }}
-          </text>
-          <!-- Order badge -->
-          <g v-if="n.order" class="order-badge-g" :style="{ animationDelay: n.order * 0.08 + 's', transformOrigin: `${n.cx + n.w/2 - 2}px ${n.cy - n.h/2 - 2}px` }">
-            <circle :cx="n.cx + n.w/2 - 2" :cy="n.cy - n.h/2 - 2" r="11" :fill="GRP_COLORS[n.group].color" />
-            <text :x="n.cx + n.w/2 - 2" :y="n.cy - n.h/2 - 2" text-anchor="middle" dominant-baseline="central"
-                  font-family="Fira Sans,sans-serif" font-size="9" font-weight="700" class="badge-text" pointer-events="none">
-              {{ n.order }}
-            </text>
-          </g>
-        </g>
-      </svg>
+        <div class="lm-group-dot"></div>
+        <div class="lm-group-panel">
+          <span v-if="groupOrderMap[g]" class="lm-group-badge" :class="`lm-group-badge--${GROUP_COLOR[g]}`">
+            {{ String(groupOrderMap[g]).padStart(2, '0') }}
+          </span>
+          <h3 class="lm-group-title">{{ t.groups[g] }}</h3>
+          <div class="lm-nodes">
+            <a
+              v-for="n in nodesByGroup[g]" :key="n.id"
+              class="lm-node" :class="{ dimmed: isNodeDimmed(n.id), highlighted: isNodeHighlighted(n.id) }"
+              :href="isMobile ? undefined : `/${currentLang}${n.urlSuffix}`"
+              @mouseenter="(ev) => onNodeEnter(n.id, ev)"
+              @mouseleave="onNodeLeave"
+              @focus="(ev) => onNodeFocus(n.id, ev)"
+              @blur="onNodeLeave"
+              @click="onChipClick(n.id)"
+            >
+              {{ t.nodes[n.id]?.title || n.id }}
+            </a>
+          </div>
+        </div>
+      </section>
     </div>
 
-    <!-- Desktop tooltip -->
+    <!-- Desktop / keyboard tooltip -->
     <div v-if="!isMobile && tipVisible && hoveredId" class="lm-tooltip visible"
          :style="{ left: tipX + 'px', top: tipY + 'px' }">
       <div class="tt-title">{{ t.nodes[hoveredId]?.title }}</div>
       <div class="tt-desc">{{ t.nodes[hoveredId]?.desc }}</div>
-      <div class="tt-group" :style="{ color: GRP_COLORS[nodeMap[hoveredId].group].color }">
-        {{ t.groups[nodeMap[hoveredId].group] }}
-      </div>
-      <div v-if="nodeMap[hoveredId].order" class="tt-order"
-           :style="{ color: GRP_COLORS[nodeMap[hoveredId].group].color }">
-        {{ t.stepFormat(nodeMap[hoveredId].order!) }}
+      <div class="tt-meta">
+        <span class="tt-group" :class="`tt-group--${GROUP_COLOR[nodeMap[hoveredId].group]}`">
+          {{ t.groups[nodeMap[hoveredId].group] }}
+        </span>
+        <span v-if="nodeMap[hoveredId].order" class="tt-order">
+          {{ t.stepFormat(nodeMap[hoveredId].order!) }}
+        </span>
       </div>
       <div class="tt-code" v-html="getNodeCodeHtml(hoveredId)"></div>
       <div v-if="subPages[hoveredId]" class="tt-sub">
@@ -691,16 +578,15 @@ function onSvgTouch(ev: TouchEvent) {
         <div class="sh-handle"><span></span></div>
         <button class="sh-close" aria-label="Close" @click="closeSheet">&times;</button>
       </div>
-      <div class="sh-title" :style="{ color: GRP_COLORS[nodeMap[sheetNodeId].group].color }">
-        {{ t.nodes[sheetNodeId]?.title }}
-      </div>
+      <div class="sh-title">{{ t.nodes[sheetNodeId]?.title }}</div>
       <div class="sh-desc">{{ t.nodes[sheetNodeId]?.desc }}</div>
-      <div class="sh-group" :style="{ color: GRP_COLORS[nodeMap[sheetNodeId].group].color }">
-        {{ t.groups[nodeMap[sheetNodeId].group] }}
-      </div>
-      <div v-if="nodeMap[sheetNodeId].order" class="sh-order"
-           :style="{ color: GRP_COLORS[nodeMap[sheetNodeId].group].color }">
-        {{ t.stepFormat(nodeMap[sheetNodeId].order!) }}
+      <div class="sh-meta">
+        <span class="sh-group" :class="`sh-group--${GROUP_COLOR[nodeMap[sheetNodeId].group]}`">
+          {{ t.groups[nodeMap[sheetNodeId].group] }}
+        </span>
+        <span v-if="nodeMap[sheetNodeId].order" class="sh-order">
+          {{ t.stepFormat(nodeMap[sheetNodeId].order!) }}
+        </span>
       </div>
       <div class="sh-code" v-html="getNodeCodeHtml(sheetNodeId)"></div>
       <div v-if="subPages[sheetNodeId]" class="sh-links">
@@ -709,169 +595,260 @@ function onSvgTouch(ev: TouchEvent) {
       </div>
       <a class="sh-btn" :href="`/${currentLang}${nodeMap[sheetNodeId].urlSuffix}`">{{ t.openDoc }}</a>
     </div>
-
-    <a class="lm-link" :href="`/${currentLang}/interactive/learning-map.html`">{{ t.fullVersion }}</a>
   </div>
 </template>
 
 <style scoped>
 .learning-map-wrap {
+  /* No max-width/auto-margin: this sits inside .docs-content's own reading
+     column, so it should fill it flush-left like the surrounding prose —
+     centering it independently created a left offset against the paragraphs. */
   width: 100%;
-  max-width: 660px;
-  margin: 0 auto;
 }
 .lm-hint {
-  text-align: center;
+  text-align: left;
   font-size: 0.85em;
   color: var(--color-text-secondary);
-  margin-bottom: 10px;
+  margin-bottom: 1.5rem;
 }
-.lm-container {
-  width: 100%;
-  max-width: 620px;
-  margin: 0 auto;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-xl, 12px);
-  background: var(--color-bg-subtle);
+/* ---- Timeline: same spine-and-dot idiom as the full /roadmap page ---- */
+.lm-timeline {
+  position: relative;
+  padding-left: 2rem;
+}
+.lm-timeline::before {
+  content: '';
+  position: absolute;
+  left: 7px;
+  top: 6px;
+  bottom: 6px;
+  width: 2px;
+  background: var(--color-border);
+}
+.lm-group {
+  position: relative;
+  margin-bottom: 1.25rem;
+  transition: opacity 0.25s;
+}
+.lm-group:last-child { margin-bottom: 0; }
+.lm-group.dimmed { opacity: 0.35; }
+
+.lm-group-dot {
+  position: absolute;
+  left: -2rem;
+  top: 1rem;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 3px solid var(--lm-accent);
+  background: var(--color-bg);
+  z-index: 1;
+}
+
+.lm-group-panel {
+  position: relative;
   overflow: hidden;
+  background: var(--color-bg-subtle);
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  padding: 1rem 1.15rem 1.1rem;
+  transition: transform 0.4s cubic-bezier(.2,.7,.2,1), box-shadow 0.4s cubic-bezier(.2,.7,.2,1);
 }
-.lm-container svg {
-  display: block;
-  width: 100%;
-  height: auto;
-}
-.lm-link {
-  display: block;
-  text-align: center;
-  margin-top: 10px;
-  font-size: 0.85em;
+.lm-group:hover .lm-group-panel {
+  transform: translateY(-3px);
+  box-shadow: 0 20px 38px -18px var(--lm-accent);
 }
 
-/* Node fills — use CSS for theme-aware SVG colors */
-.node-fill { fill: var(--color-bg); }
-.badge-text { fill: #fff; }
-
-/* Node transitions */
-.lm-node { transition: opacity 0.25s; }
-.lm-node.dimmed { opacity: 0.12; }
-.lm-node .node-bg { transition: stroke-width 0.2s, filter 0.2s; }
-.lm-node.highlighted .node-bg { stroke-width: 2.5; }
-
-/* Edge transitions */
-.edge { transition: opacity 0.25s; }
-.edge.dimmed { opacity: 0.04 !important; }
-.edge.highlighted { opacity: 0.8 !important; stroke-width: 2.5 !important; }
-
-/* Zone transitions */
-.group-zone { opacity: 0.75; transition: opacity 0.3s; }
-.group-zone.dimmed { opacity: 0.05; }
-
-/* Badge animation */
-@keyframes lmBadgePop {
-  0% { transform: scale(0); opacity: 0; }
-  60% { transform: scale(1.3); opacity: 1; }
-  100% { transform: scale(1); opacity: 1; }
+/* Spinning conic-gradient ring, same recipe as the homepage lesson cards
+   (mixins.card-glow) — reuses the already-global --ta-angle / ta-spin from
+   base/_animations.scss instead of redeclaring them here. */
+.lm-group-panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: conic-gradient(from var(--ta-angle), transparent 0deg, transparent 232deg, #5AD1B0 268deg, #8B7BFF 300deg, #C9BEFF 320deg, transparent 342deg);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.45s ease;
+  pointer-events: none;
+  animation: ta-spin 2.8s linear infinite;
+  animation-play-state: paused;
 }
-.order-badge-g { opacity: 0; animation: lmBadgePop 0.35s ease forwards; }
-
-/* Edge draw animation */
-@keyframes lmEdgeDraw {
-  from { stroke-dashoffset: 800; }
-  to { stroke-dashoffset: 0; }
+.lm-group:hover .lm-group-panel::before {
+  opacity: 1;
+  animation-play-state: running;
 }
-.edge-path { stroke-dasharray: 800; animation: lmEdgeDraw 1.2s ease forwards; }
+.lm-group-title {
+  margin: 0 0 0.65rem;
+  padding-right: 2.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--lm-accent);
+}
 
-/* Tooltip */
+/* Step badge — same visual language as the tutorial cards' "01" corner tag. */
+.lm-group-badge {
+  position: absolute;
+  top: 0.95rem;
+  right: 1.1rem;
+  z-index: 1;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 0.25rem 0.55rem;
+  border-radius: 9999px;
+}
+.lm-group-badge--purple { background: rgba(139, 123, 255, 0.14); color: #7B5FE8; }
+.lm-group-badge--teal   { background: rgba(90, 209, 176, 0.16); color: #1C8F76; }
+.lm-group-badge--orange { background: rgba(224, 165, 90, 0.18); color: #B4711F; }
+.lm-group-badge--blue   { background: rgba(90, 168, 255, 0.16); color: #2C6FCC; }
+[data-theme="dark"] .lm-group-badge--purple { color: #B4A8FF; }
+[data-theme="dark"] .lm-group-badge--teal   { color: #5AD1B0; }
+[data-theme="dark"] .lm-group-badge--orange { color: #E7B276; }
+[data-theme="dark"] .lm-group-badge--blue   { color: #7FB4FF; }
+
+/* ---- Group accent colors: the site's own 4-hue tag palette ---- */
+.lm-group--purple { --lm-accent: #7B5FE8; }
+.lm-group--teal   { --lm-accent: #1C8F76; }
+.lm-group--orange { --lm-accent: #B4711F; }
+.lm-group--blue   { --lm-accent: #2C6FCC; }
+[data-theme="dark"] .lm-group--purple { --lm-accent: #B4A8FF; }
+[data-theme="dark"] .lm-group--teal   { --lm-accent: #5AD1B0; }
+[data-theme="dark"] .lm-group--orange { --lm-accent: #E7B276; }
+[data-theme="dark"] .lm-group--blue   { --lm-accent: #7FB4FF; }
+
+/* ---- Node chips ---- */
+.lm-nodes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.lm-node {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.85rem;
+  border-radius: 9999px;
+  /* Must read lighter than .lm-group-panel's own background, or the pill
+     looks like a dark cutout instead of a raised chip sitting on the card. */
+  background: var(--nav-panel-hover);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  font-size: 0.84rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease, opacity 0.25s ease;
+}
+.lm-node:hover,
+.lm-node:focus-visible,
+.lm-node.highlighted {
+  border-color: var(--lm-accent);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px -6px var(--lm-accent);
+}
+.lm-node:focus-visible { outline: 2px solid var(--lm-accent); outline-offset: 2px; }
+.lm-node.dimmed { opacity: 0.35; }
+
+/* ---- Tooltip / bottom sheet shared content styling ---- */
 .lm-tooltip {
   position: fixed; pointer-events: none;
-  background: var(--color-bg); border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg, 10px); padding: 10px 14px;
-  font-size: 0.82em; box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+  background: var(--color-bg-subtle); border: 1px solid var(--color-border);
+  border-radius: 14px; padding: 0.9rem 1rem;
+  font-size: 0.85em; box-shadow: 0 28px 60px -24px rgba(0, 0, 0, 0.55), 0 2px 8px rgba(0, 0, 0, 0.2);
   z-index: 100; opacity: 0; transition: opacity 0.18s;
-  max-width: 320px; line-height: 1.45;
+  max-width: 300px; line-height: 1.45;
 }
 .lm-tooltip.visible { opacity: 1; }
-.tt-title { font-weight: 700; margin-bottom: 2px; font-size: 1.05em; }
-.tt-desc { color: var(--color-text-secondary); margin-bottom: 4px; }
-.tt-group { font-size: 0.88em; font-weight: 500; }
-.tt-order { font-size: 0.85em; margin-top: 3px; font-weight: 600; }
-.tt-code {
-  margin-top: 6px; padding: 6px 8px; background: var(--color-code-bg);
-  border-radius: 6px; font-family: 'Fira Mono', monospace;
-  font-size: 0.82em; line-height: 1.5; color: var(--color-text);
-  white-space: pre; overflow-x: auto; border: 1px solid var(--color-border);
+.tt-title { font-weight: 700; margin-bottom: 2px; font-size: 1.05em; color: var(--color-text); }
+.tt-desc { color: var(--color-text-secondary); margin-bottom: 0.5rem; }
+.tt-meta { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.1rem; }
+.tt-group { font-size: 0.85em; font-weight: 600; }
+.tt-group--purple { color: #7B5FE8; } .tt-group--teal { color: #1C8F76; }
+.tt-group--orange { color: #B4711F; } .tt-group--blue { color: #2C6FCC; }
+[data-theme="dark"] .tt-group--purple { color: #B4A8FF; } [data-theme="dark"] .tt-group--teal { color: #5AD1B0; }
+[data-theme="dark"] .tt-group--orange { color: #E7B276; } [data-theme="dark"] .tt-group--blue { color: #7FB4FF; }
+.tt-order { font-size: 0.8em; color: var(--color-text-muted); font-family: var(--font-mono); }
+
+.tt-code, .sh-code {
+  margin-top: 0.6rem; padding: 0.6rem 0.75rem; background: var(--code-bg);
+  border: 1px solid var(--code-border); border-radius: 10px;
+  font-family: var(--font-mono); font-size: 0.82em; line-height: 1.55;
+  /* --code-bg is dark in both themes (site convention); the base text color
+     must match, or unwrapped punctuation (=, ->, parens) goes invisible in
+     light mode. Same value as the real code blocks (_code-blocks.scss). */
+  color: #C6C2D6;
+  white-space: pre; overflow-x: auto;
 }
-:deep(.tt-code .kw) { color: #7C3AED; font-weight: 600; }
-:deep(.tt-code .fn) { color: #2563EB; }
-:deep(.tt-code .str) { color: #16A34A; }
-:deep(.tt-code .var) { color: #0891B2; }
-:deep(.tt-code .cm) { color: #9CA3AF; font-style: italic; }
-:deep(.tt-code .num) { color: #EA580C; }
-.tt-sub {
-  font-size: 0.85em; margin-top: 5px; color: var(--color-text-secondary);
-  border-top: 1px solid var(--color-border); padding-top: 5px;
+:deep(.tok-c) { color: #6f6d80; }
+:deep(.tok-var) { color: #B69BFF; }
+:deep(.tok-fn) { color: #7C6BFF; }
+:deep(.tok-kw) { color: #5AD1B0; }
+:deep(.tok-cls) { color: #5AD1B0; }
+:deep(.tok-prop) { color: #E8B77C; }
+:deep(.tok-str) { color: #7CC7E8; }
+
+.tt-sub, .sh-links {
+  font-size: 0.85em; margin-top: 0.5rem; color: var(--color-text-secondary);
+  border-top: 1px solid var(--color-border); padding-top: 0.5rem;
 }
-.tt-sub a {
-  display: block; color: var(--color-primary); text-decoration: none; padding: 1px 0;
-}
+.tt-sub a { display: block; color: var(--color-primary); text-decoration: none; padding: 1px 0; }
 .tt-sub a:hover { text-decoration: underline; }
 
-/* Mobile bottom sheet */
+/* ---- Mobile bottom sheet ---- */
 .lm-sheet-overlay {
-  display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 199;
+  display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); z-index: 199;
 }
 .lm-sheet-overlay.visible { display: block; }
 .lm-sheet {
-  position: fixed; left: 0; right: 0; bottom: 0; background: var(--color-bg);
-  border-radius: 16px 16px 0 0; box-shadow: 0 -4px 24px rgba(0,0,0,0.15);
+  position: fixed; left: 0; right: 0; bottom: 0; background: var(--color-bg-subtle);
+  border-radius: 16px 16px 0 0; box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.35);
+  border-top: 1px solid var(--color-border);
   z-index: 200; transform: translateY(100%);
   transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
   max-height: 70vh; overflow-y: auto; -webkit-overflow-scrolling: touch;
-  padding: 0 20px 20px;
+  padding: 0 1.25rem 1.25rem;
 }
 .lm-sheet.visible { transform: translateY(0); }
 .sh-header {
   display: flex; align-items: center; justify-content: center;
-  padding: 10px 0 6px; position: sticky; top: 0; background: var(--color-bg); z-index: 1;
+  padding: 10px 0 6px; position: sticky; top: 0; background: var(--color-bg-subtle); z-index: 1;
 }
 .sh-handle { flex: 1; display: flex; justify-content: center; cursor: grab; }
-.sh-handle span { display: block; width: 36px; height: 4px; border-radius: 2px; background: #D1D5DB; }
+.sh-handle span { display: block; width: 36px; height: 4px; border-radius: 2px; background: var(--color-border); }
 .sh-close {
   position: absolute; right: 12px; top: 8px;
-  width: 32px; height: 32px; border: none; background: var(--color-bg-subtle);
+  width: 32px; height: 32px; border: none; background: var(--color-bg);
   border-radius: 50%; cursor: pointer; display: flex; align-items: center;
   justify-content: center; color: var(--color-text-muted); transition: all 0.15s;
   font-size: 18px; line-height: 1;
 }
 .sh-close:hover { background: var(--color-border); color: var(--color-text); }
-.sh-title { font-weight: 700; font-size: 1.15em; margin-bottom: 2px; }
-.sh-desc { color: var(--color-text-secondary); font-size: 0.92em; margin-bottom: 6px; }
-.sh-group { font-size: 0.85em; font-weight: 500; margin-bottom: 2px; }
-.sh-order { font-size: 0.85em; font-weight: 600; margin-bottom: 8px; }
-.sh-code {
-  padding: 8px 10px; background: var(--color-code-bg); border-radius: 8px;
-  font-family: 'Fira Mono', monospace; font-size: 0.82em; line-height: 1.5;
-  color: var(--color-text); white-space: pre; overflow-x: auto; border: 1px solid var(--color-border); margin-bottom: 10px;
-}
-:deep(.sh-code .kw) { color: #7C3AED; font-weight: 600; }
-:deep(.sh-code .fn) { color: #2563EB; }
-:deep(.sh-code .str) { color: #16A34A; }
-:deep(.sh-code .var) { color: #0891B2; }
-:deep(.sh-code .cm) { color: #9CA3AF; font-style: italic; }
-:deep(.sh-code .num) { color: #EA580C; }
-.sh-links {
-  display: flex; flex-direction: column; gap: 2px; font-size: 0.9em;
-  border-top: 1px solid var(--color-border); padding-top: 8px; margin-bottom: 10px;
-}
-.sh-links a { color: var(--color-primary); text-decoration: none; padding: 4px 0; }
+.sh-title { font-weight: 700; font-size: 1.15em; margin-bottom: 2px; color: var(--color-text); }
+.sh-desc { color: var(--color-text-secondary); font-size: 0.92em; margin-bottom: 0.5rem; }
+.sh-meta { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.6rem; }
+.sh-group { font-size: 0.85em; font-weight: 600; }
+.sh-group--purple { color: #7B5FE8; } .sh-group--teal { color: #1C8F76; }
+.sh-group--orange { color: #B4711F; } .sh-group--blue { color: #2C6FCC; }
+[data-theme="dark"] .sh-group--purple { color: #B4A8FF; } [data-theme="dark"] .sh-group--teal { color: #5AD1B0; }
+[data-theme="dark"] .sh-group--orange { color: #E7B276; } [data-theme="dark"] .sh-group--blue { color: #7FB4FF; }
+.sh-order { font-size: 0.8em; color: var(--color-text-muted); font-family: var(--font-mono); }
+.sh-links a { display: block; color: var(--color-primary); text-decoration: none; padding: 4px 0; }
 .sh-btn {
-  display: block; width: 100%; padding: 12px; background: var(--color-primary);
-  color: #fff; border: none; border-radius: 10px; font-family: inherit;
-  font-size: 0.95em; font-weight: 600; cursor: pointer; text-align: center; text-decoration: none;
+  display: block; width: 100%; margin-top: 0.75rem; padding: 0.75rem;
+  background: var(--color-primary); color: #fff; border: none; border-radius: 10px;
+  font-family: inherit; font-size: 0.95em; font-weight: 600; cursor: pointer;
+  text-align: center; text-decoration: none;
 }
 
 @media (max-width: 768px) {
-  .lm-container { overflow-y: auto; }
   .lm-tooltip { display: none !important; }
   .lm-hint { font-size: 0.8em; }
 }
