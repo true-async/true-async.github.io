@@ -27,10 +27,16 @@
 
     .hero-content {
         text-align: left;
+        /* Fill the row height (= code panel height) and let the actions row
+           sink to the bottom, so the buttons line up with the panel's base. */
+        align-self: stretch;
+        display: flex;
+        flex-direction: column;
     }
 
     .hero-badge {
         margin-left: 0;
+        align-self: flex-start;
     }
 
     .hero-description {
@@ -39,6 +45,7 @@
 
     .hero-actions {
         justify-content: flex-start;
+        margin-top: auto;
     }
 
     .hero h1 {

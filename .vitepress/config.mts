@@ -23,7 +23,7 @@ function collectLocaleRoutes(): string[] {
         if (statSync(full).isDirectory()) { stack.push(full); continue }
         if (!name.endsWith('.md')) continue
         const rel = full.slice(projectRoot.length).split(sep).join('/')
-        if (rel === `${loc}/docs.md`) continue // srcExcluded, served via rewrite
+        if (rel === `${loc}/docs.md`) continue // sourced from vitepress-docs/ via rewrite; skip stray copies
         routes.push('/' + rel.replace(/\.md$/, '.html'))
       }
     }
@@ -76,20 +76,11 @@ export default defineConfig({
     'CLAUDE.md',
     'README.md',
     'CHANGELOG.md',
-    // Exclude docs.md for all languages — contains inline <style>/<script>
-    // Clean versions are in vitepress-docs/ and mapped via rewrites
-    'en/docs.md',
-    'ru/docs.md',
-    'de/docs.md',
-    'es/docs.md',
-    'fr/docs.md',
-    'it/docs.md',
-    'ko/docs.md',
-    'uk/docs.md',
-    'zh/docs.md',
   ],
 
-  // Map VitePress-clean docs pages to the original URL paths
+  // The docs index for every locale is authored in vitepress-docs/<lang>-docs.md
+  // (clean: just the intro; the map is the LearningMap.vue component). These
+  // rewrites map those sources onto the /<lang>/docs.html URLs.
   rewrites: {
     'vitepress-docs/en-docs.md': 'en/docs.md',
     'vitepress-docs/ru-docs.md': 'ru/docs.md',

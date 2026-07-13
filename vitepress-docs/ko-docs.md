@@ -16,3 +16,11 @@ description: "TrueAsync 문서. PHP를 위한 진정한 비동기 프리미티�
 `PHP TrueAsync`는 컬러드 함수 없이 투명한 비동기 패러다임을 구현하여
 코드 변경을 최소화하고 라이브러리 분절을 제거합니다.
 즉, 코루틴을 사용할 때 변경 없이 또는 최소한의 변경으로 동일한 함수를 사용합니다.
+
+## IDE 지원 {#ide-support}
+
+자동 완성, 인라인 문서, 정적 분석 스텁을 위해 개발용 패키지 [`true-async/ide-helper`](https://github.com/true-async/ide-helper)를 설치하세요. async 코어, HTTP 서버, ClickHouse 클라이언트를 지원하며 PhpStorm, PHPStan, Psalm에서 작동합니다.
+
+```bash
+composer require --dev true-async/ide-helper
+```

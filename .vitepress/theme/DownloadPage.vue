@@ -27,6 +27,10 @@ const downloadI18n: Record<string, {
   verify_desc: string
   binaries_eyebrow: string
   binaries_title: string
+  ide_eyebrow: string
+  ide_title: string
+  ide_desc: string
+  ide_link: string
 }> = {
   en: {
     hero_word: 'Download',
@@ -46,6 +50,10 @@ const downloadI18n: Record<string, {
     windows_title: 'Windows',
     all_releases: 'All releases on GitHub',
     install_docs: 'Installation documentation',
+    ide_eyebrow: 'Editor tooling',
+    ide_title: 'IDE autocompletion and stubs',
+    ide_desc: 'Add the dev-only helper package for autocompletion, inline documentation, and static-analysis stubs covering the async core, HTTP server, and ClickHouse client. Works with PhpStorm, PHPStan, and Psalm. Requires PHP 8.6+.',
+    ide_link: 'IDE helper on GitHub',
   },
   ru: {
     hero_word: 'Скачать',
@@ -65,6 +73,10 @@ const downloadI18n: Record<string, {
     windows_title: 'Windows',
     all_releases: 'Все релизы на GitHub',
     install_docs: 'Документация по установке',
+    ide_eyebrow: 'Поддержка редактора',
+    ide_title: 'Автодополнение и стабы для IDE',
+    ide_desc: 'Установите dev-пакет со стабами: автодополнение, встроенная документация и подсказки для статического анализа по async-ядру, HTTP-серверу и клиенту ClickHouse. Работает с PhpStorm, PHPStan и Psalm. Требуется PHP 8.6+.',
+    ide_link: 'IDE helper на GitHub',
   },
   de: {
     hero_word: 'Herunterladen',
@@ -84,6 +96,10 @@ const downloadI18n: Record<string, {
     windows_title: 'Windows',
     all_releases: 'Alle Releases auf GitHub',
     install_docs: 'Installationsdokumentation',
+    ide_eyebrow: 'Editor-Werkzeuge',
+    ide_title: 'IDE-Autovervollständigung und Stubs',
+    ide_desc: 'Installieren Sie das Dev-Paket mit Stubs: Autovervollständigung, Inline-Dokumentation und Hinweise für die statische Analyse zu Async-Kern, HTTP-Server und ClickHouse-Client. Funktioniert mit PhpStorm, PHPStan und Psalm. Erfordert PHP 8.6+.',
+    ide_link: 'IDE-Helper auf GitHub',
   },
   es: {
     hero_word: 'Descargar',
@@ -103,6 +119,10 @@ const downloadI18n: Record<string, {
     windows_title: 'Windows',
     all_releases: 'Todas las versiones en GitHub',
     install_docs: 'Documentación de instalación',
+    ide_eyebrow: 'Herramientas del editor',
+    ide_title: 'Autocompletado y stubs para el IDE',
+    ide_desc: 'Instala el paquete de desarrollo con stubs: autocompletado, documentación en línea y ayudas para el análisis estático del núcleo async, el servidor HTTP y el cliente ClickHouse. Funciona con PhpStorm, PHPStan y Psalm. Requiere PHP 8.6+.',
+    ide_link: 'IDE helper en GitHub',
   },
   fr: {
     hero_word: 'Télécharger',
@@ -122,6 +142,10 @@ const downloadI18n: Record<string, {
     windows_title: 'Windows',
     all_releases: 'Toutes les versions sur GitHub',
     install_docs: "Documentation d'installation",
+    ide_eyebrow: "Outils pour l'éditeur",
+    ide_title: "Autocomplétion et stubs pour l'IDE",
+    ide_desc: "Installez le paquet de développement avec les stubs : autocomplétion, documentation intégrée et aides à l'analyse statique pour le cœur async, le serveur HTTP et le client ClickHouse. Compatible avec PhpStorm, PHPStan et Psalm. Nécessite PHP 8.6+.",
+    ide_link: 'IDE helper sur GitHub',
   },
   it: {
     hero_word: 'Scarica',
@@ -141,6 +165,10 @@ const downloadI18n: Record<string, {
     windows_title: 'Windows',
     all_releases: 'Tutte le release su GitHub',
     install_docs: "Documentazione sull'installazione",
+    ide_eyebrow: "Strumenti per l'editor",
+    ide_title: "Autocompletamento e stub per l'IDE",
+    ide_desc: "Installa il pacchetto di sviluppo con gli stub: autocompletamento, documentazione inline e supporto all'analisi statica per il core async, il server HTTP e il client ClickHouse. Funziona con PhpStorm, PHPStan e Psalm. Richiede PHP 8.6+.",
+    ide_link: 'IDE helper su GitHub',
   },
   ko: {
     hero_word: '다운로드',
@@ -160,6 +188,10 @@ const downloadI18n: Record<string, {
     windows_title: 'Windows',
     all_releases: 'GitHub의 모든 릴리스',
     install_docs: '설치 문서',
+    ide_eyebrow: '에디터 도구',
+    ide_title: 'IDE 자동 완성 및 스텁',
+    ide_desc: 'async 코어, HTTP 서버, ClickHouse 클라이언트를 위한 자동 완성, 인라인 문서, 정적 분석 스텁을 제공하는 개발용 패키지를 설치하세요. PhpStorm, PHPStan, Psalm에서 작동합니다. PHP 8.6+ 필요.',
+    ide_link: 'GitHub의 IDE helper',
   },
   uk: {
     hero_word: 'Завантажити',
@@ -179,6 +211,10 @@ const downloadI18n: Record<string, {
     windows_title: 'Windows',
     all_releases: 'Усі релізи на GitHub',
     install_docs: 'Документація зі встановлення',
+    ide_eyebrow: 'Інструменти редактора',
+    ide_title: 'Автодоповнення та стаби для IDE',
+    ide_desc: 'Встановіть dev-пакет зі стабами: автодоповнення, вбудована документація та підказки для статичного аналізу за async-ядром, HTTP-сервером і клієнтом ClickHouse. Працює з PhpStorm, PHPStan і Psalm. Потрібен PHP 8.6+.',
+    ide_link: 'IDE helper на GitHub',
   },
   zh: {
     hero_word: '下载',
@@ -198,6 +234,10 @@ const downloadI18n: Record<string, {
     windows_title: 'Windows',
     all_releases: 'GitHub 上的所有版本',
     install_docs: '安装文档',
+    ide_eyebrow: '编辑器工具',
+    ide_title: 'IDE 自动补全与桩文件',
+    ide_desc: '安装开发依赖包，为 async 核心、HTTP 服务器和 ClickHouse 客户端提供自动补全、内联文档和静态分析桩文件。支持 PhpStorm、PHPStan 和 Psalm。需要 PHP 8.6+。',
+    ide_link: 'GitHub 上的 IDE helper',
   },
 }
 
@@ -220,6 +260,11 @@ const windowsFiles = computed(() => {
 
 const allReleasesUrl = 'https://github.com/true-async/releases/releases'
 const docsUrl = computed(() => `/${currentLang.value}/docs.html`)
+
+// Dev-only IDE stubs package (autocompletion + static-analysis).
+// Repo: https://github.com/true-async/ide-helper
+const ideHelperUrl = 'https://github.com/true-async/ide-helper'
+const ideCmd = 'composer require --dev true-async/ide-helper'
 
 // Prebuilt-binaries grid (Linux / macOS / Windows), mockup-style. Linux and
 // macOS point at the build scripts (we ship no tarball); Windows links the real
@@ -302,7 +347,7 @@ const os = ref(0)
 const pane = computed(() => (method.value === 0 ? osTabs[os.value] : methodTabs[method.value]))
 
 // --- terminal syntax highlighting (mockup palette) ---
-const KW = new Set(['cd', 'make', 'echo', 'git', 'docker', 'php', 'sha256sum', 'gpg', 'irm', 'iex', 'grep', 'findstr', 'curl', 'pecl'])
+const KW = new Set(['cd', 'make', 'echo', 'git', 'docker', 'php', 'sha256sum', 'gpg', 'irm', 'iex', 'grep', 'findstr', 'curl', 'pecl', 'composer'])
 const DIR = new Set(['FROM', 'RUN', 'COPY', 'WORKDIR', 'CMD', 'ENV'])
 function esc(s: string) {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -416,6 +461,30 @@ function copyText(id: string, text: string) {
           {{ t.build_subtitle }}
           <a :href="docsUrl">{{ t.install_docs }} &rarr;</a>
         </p>
+      </div>
+    </section>
+
+    <!-- ===== IDE HELPER ===== -->
+    <section class="dl-section dl-section--tight" id="ide">
+      <div class="dl-section-head">
+        <div class="dl-eyebrow">{{ t.ide_eyebrow }}</div>
+        <h2 class="dl-h2">{{ t.ide_title }}</h2>
+      </div>
+      <div class="dl-methods">
+        <div class="dl-card">
+          <p class="dl-card-lead">{{ t.ide_desc }}</p>
+          <div class="dl-inlinecode">
+            <pre class="dl-code"><template v-for="(ln, i) in renderLines(ideCmd)" :key="i"><span v-html="ln.html"></span>{{ '\n' }}</template></pre>
+            <button class="dl-copy dl-copy--abs" @click="copyText('ide', ideCmd)" :title="copied === 'ide' ? 'Copied' : 'Copy'">
+              <template v-if="copied === 'ide'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></template>
+              <template v-else><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></template>
+            </button>
+          </div>
+          <a :href="ideHelperUrl" target="_blank" rel="noopener" class="dl-btn dl-btn--ghost dl-ide-link">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .5C5.73.5.5 5.73.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56 0-.28-.01-1.02-.02-2-3.2.7-3.88-1.54-3.88-1.54-.52-1.33-1.28-1.68-1.28-1.68-1.05-.72.08-.71.08-.71 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11.1 11.1 0 0 1 2.9-.39c.98 0 1.97.13 2.9.39 2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.8 1.19 1.83 1.19 3.09 0 4.42-2.69 5.39-5.25 5.68.41.35.78 1.05.78 2.12 0 1.53-.01 2.76-.01 3.14 0 .31.21.68.8.56A11.51 11.51 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5z"/></svg>
+            {{ t.ide_link }}
+          </a>
+        </div>
       </div>
     </section>
 
@@ -655,6 +724,7 @@ function copyText(id: string, text: string) {
 .dl-win-extra { margin-top: 20px; }
 .dl-inlinecode { position: relative; background: var(--dl-code-bg); border: 1px solid var(--color-border); border-radius: 12px; padding: 16px 18px; margin-top: 4px; }
 .dl-inlinecode .dl-code { font-size: 12.5px; line-height: 1.85; }
+.dl-ide-link { margin-top: 18px; }
 .dl-fineprint { font-size: 13px; color: var(--color-text-muted); margin: 14px 0 0; }
 .dl-fineprint code, .dl-card-lead code { font-family: var(--font-mono); font-size: 12px; color: var(--dl-accent); }
 

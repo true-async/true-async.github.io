@@ -89,7 +89,7 @@ const strings: Record<string, HomeStrings> = {
     },
     features: {
       title: 'Key Features',
-      heading: 'Production-ready API',
+      heading: 'Production-oriented API',
       items: [
         { title: 'Coroutines', text: 'Lightweight coroutines for efficient concurrent execution. No colored <code>async</code> functions. Just do <code>spawn()</code> and go!' },
         { title: 'Non-blocking I/O', text: '<code>fread</code>, <code>fwrite</code>, <code>file_get_contents</code>, <code>ob_start</code>, <code>curl</code>, <code>MySQL</code>, <code>PostgreSQL</code>. Regular PHP functions now work asynchronously without extra effort.' },
@@ -427,48 +427,54 @@ const demoTabs: DemoTab[] = [
     key: 'io', label: 'Concurrent I/O', filename: 'concurrent-io.php',
     icon: '<path d="M18 4l3 3-3 3M21 7H9a5 5 0 0 0-5 5M6 20l-3-3 3-3M3 17h12a5 5 0 0 0 5-5"/>',
     code: `<span class="tok-c">// three coroutines run at the same time</span>
-<span class="tok-var">$page</span> = <span class="tok-fn">spawn</span>(<span class="tok-kw">fn</span>() => <span class="tok-fn">file_get_contents</span>(<span class="tok-prop">$url</span>));
-<span class="tok-var">$rows</span> = <span class="tok-fn">spawn</span>(<span class="tok-kw">fn</span>() => <span class="tok-prop">$pdo</span>-><span class="tok-fn">query</span>(<span class="tok-prop">$sql</span>));
-<span class="tok-var">$tick</span> = <span class="tok-fn">spawn</span>(<span class="tok-kw">fn</span>() => <span class="tok-fn">delay</span>(<span class="tok-prop">200</span>)); <span class="tok-c">// timeout guard</span>
+<span class="tok-var">$page</span>  = <span class="tok-fn">spawn</span>(<span class="tok-kw">fn</span>() => <span class="tok-fn">file_get_contents</span>(<span class="tok-prop">$url</span>));
+<span class="tok-var">$rows</span>  = <span class="tok-fn">spawn</span>(<span class="tok-kw">fn</span>() => <span class="tok-prop">$pdo</span>-><span class="tok-fn">query</span>(<span class="tok-prop">$sql</span>)-><span class="tok-fn">fetchAll</span>());
+<span class="tok-var">$stats</span> = <span class="tok-fn">spawn</span>(<span class="tok-kw">fn</span>() => <span class="tok-fn">file_get_contents</span>(<span class="tok-prop">$api</span>));
 
-<span class="tok-c">// suspend until all three finish</span>
-[<span class="tok-var">$html</span>, <span class="tok-var">$data</span>] = <span class="tok-fn">await_all</span>([<span class="tok-prop">$page</span>, <span class="tok-prop">$rows</span>], <span class="tok-prop">$tick</span>);`,
+<span class="tok-c">// wait for all three, cancel after 2s</span>
+[<span class="tok-var">$html</span>, <span class="tok-var">$data</span>, <span class="tok-var">$meta</span>] = <span class="tok-fn">await_all_or_fail</span>(
+    [<span class="tok-prop">$page</span>, <span class="tok-prop">$rows</span>, <span class="tok-prop">$stats</span>], <span class="tok-fn">timeout</span>(<span class="tok-prop">2000</span>));`,
   },
   {
     key: 'pdo', label: 'PDO Pool', filename: 'pdo-pool.php',
     icon: '<path d="M12 3c4.5 0 8 1.3 8 3s-3.5 3-8 3-8-1.3-8-3 3.5-3 8-3zM4 6v12c0 1.7 3.5 3 8 3s8-1.3 8-3V6M4 12c0 1.7 3.5 3 8 3s8-1.3 8-3"/>',
-    code: `<span class="tok-c">// pooled connections, reused across coroutines</span>
-<span class="tok-var">$pool</span> = <span class="tok-kw">new</span> <span class="tok-cls">Async\\Pdo\\Pool</span>(<span class="tok-prop">$dsn</span>, size: <span class="tok-prop">8</span>);
+    code: `<span class="tok-c">// pooling is transparent, just switch it on</span>
+<span class="tok-var">$pdo</span> = <span class="tok-kw">new</span> <span class="tok-cls">PDO</span>(<span class="tok-prop">$dsn</span>, <span class="tok-prop">$user</span>, <span class="tok-prop">$pass</span>, [
+    <span class="tok-cls">PDO</span>::<span class="tok-cls">ATTR_POOL_ENABLED</span> => <span class="tok-kw">true</span>,
+    <span class="tok-cls">PDO</span>::<span class="tok-cls">ATTR_POOL_MAX</span>     => <span class="tok-prop">8</span>,
+]);
 
-<span class="tok-var">$users</span> = <span class="tok-fn">spawn</span>(<span class="tok-kw">fn</span>() => <span class="tok-prop">$pool</span>-><span class="tok-fn">query</span>(<span class="tok-str">'SELECT * FROM users'</span>));
-<span class="tok-var">$stats</span> = <span class="tok-fn">spawn</span>(<span class="tok-kw">fn</span>() => <span class="tok-prop">$pool</span>-><span class="tok-fn">query</span>(<span class="tok-str">'SELECT * FROM stats'</span>));
+<span class="tok-c">// each coroutine borrows its own connection</span>
+<span class="tok-var">$users</span> = <span class="tok-fn">spawn</span>(<span class="tok-kw">fn</span>() => <span class="tok-prop">$pdo</span>-><span class="tok-fn">query</span>(<span class="tok-str">'SELECT * FROM users'</span>));
+<span class="tok-var">$stats</span> = <span class="tok-fn">spawn</span>(<span class="tok-kw">fn</span>() => <span class="tok-prop">$pdo</span>-><span class="tok-fn">query</span>(<span class="tok-str">'SELECT * FROM stats'</span>));
 
-<span class="tok-c">// each coroutine borrows a free connection</span>
-[<span class="tok-var">$u</span>, <span class="tok-var">$s</span>] = <span class="tok-fn">await_all</span>([<span class="tok-prop">$users</span>, <span class="tok-prop">$stats</span>]);`,
+[<span class="tok-var">$u</span>, <span class="tok-var">$s</span>] = <span class="tok-fn">await_all_or_fail</span>([<span class="tok-prop">$users</span>, <span class="tok-prop">$stats</span>]);`,
   },
   {
     key: 'threads', label: 'Threads', filename: 'threads.php',
     icon: '<path d="M4 5h16M4 12h16M4 19h16"/>',
     code: `<span class="tok-c">// offload CPU-bound work to a thread pool</span>
-<span class="tok-var">$pool</span> = <span class="tok-kw">new</span> <span class="tok-cls">Async\\ThreadPool</span>(<span class="tok-prop">4</span>);
+<span class="tok-var">$pool</span> = <span class="tok-kw">new</span> <span class="tok-cls">Async\\ThreadPool</span>(workers: <span class="tok-prop">4</span>);
 
 <span class="tok-var">$hash</span> = <span class="tok-prop">$pool</span>-><span class="tok-fn">submit</span>(<span class="tok-kw">fn</span>() => <span class="tok-fn">password_hash</span>(<span class="tok-prop">$pw</span>, <span class="tok-cls">PASSWORD_ARGON2ID</span>));
 <span class="tok-var">$img</span>  = <span class="tok-prop">$pool</span>-><span class="tok-fn">submit</span>(<span class="tok-kw">fn</span>() => <span class="tok-fn">resize_image</span>(<span class="tok-prop">$file</span>));
 
 <span class="tok-c">// runs on real OS threads, in parallel</span>
-[<span class="tok-var">$h</span>, <span class="tok-var">$i</span>] = <span class="tok-fn">await_all</span>([<span class="tok-prop">$hash</span>, <span class="tok-prop">$img</span>]);`,
+[<span class="tok-var">$h</span>, <span class="tok-var">$i</span>] = <span class="tok-fn">await_all_or_fail</span>([<span class="tok-prop">$hash</span>, <span class="tok-prop">$img</span>]);`,
   },
   {
     key: 'server', label: 'Web Server', filename: 'server.php',
     icon: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 010 18M12 3a14 14 0 000 18"/>',
     code: `<span class="tok-c">// non-blocking HTTP server in pure PHP</span>
-<span class="tok-var">$server</span> = <span class="tok-kw">new</span> <span class="tok-cls">Async\\Http\\Server</span>(<span class="tok-str">'0.0.0.0'</span>, <span class="tok-prop">8080</span>);
-
-<span class="tok-prop">$server</span>-><span class="tok-fn">on</span>(<span class="tok-str">'request'</span>, <span class="tok-kw">fn</span>(<span class="tok-prop">$req</span>, <span class="tok-prop">$res</span>) =>
-    <span class="tok-prop">$res</span>-><span class="tok-fn">end</span>(<span class="tok-str">"Hello from coroutine #"</span> . <span class="tok-fn">coroutine_id</span>()));
+<span class="tok-var">$config</span> = (<span class="tok-kw">new</span> <span class="tok-cls">TrueAsync\\HttpServerConfig</span>())
+    -><span class="tok-fn">addListener</span>(<span class="tok-str">'0.0.0.0'</span>, <span class="tok-prop">8080</span>);
+<span class="tok-var">$server</span> = <span class="tok-kw">new</span> <span class="tok-cls">TrueAsync\\HttpServer</span>(<span class="tok-prop">$config</span>);
 
 <span class="tok-c">// each request runs in its own coroutine</span>
-<span class="tok-prop">$server</span>-><span class="tok-fn">listen</span>();`,
+<span class="tok-prop">$server</span>-><span class="tok-fn">addHttpHandler</span>(<span class="tok-kw">fn</span>(<span class="tok-prop">$req</span>, <span class="tok-prop">$res</span>) =>
+    <span class="tok-prop">$res</span>-><span class="tok-fn">end</span>(<span class="tok-str">"Hello #"</span> . <span class="tok-cls">Async</span>\\<span class="tok-fn">current_coroutine</span>()-><span class="tok-fn">getId</span>()));
+
+<span class="tok-prop">$server</span>-><span class="tok-fn">start</span>();`,
   },
 ]
 const activeDemoTab = ref(0)
