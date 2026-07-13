@@ -1267,11 +1267,11 @@ const t = computed(() => rfcI18n[currentLang.value] || rfcI18n.en)
 .rfc-th--plain { color: var(--color-text); border-left: none; }
 .rfc-th--muted { color: var(--color-text-muted); font-size: 13px; }
 .rfc-table-head > div:first-child { padding: 14px 18px; }
-.rfc-table-row { display: grid; grid-template-columns: 1fr 1.4fr 1.4fr; border-bottom: 1px solid var(--color-border); }
+.rfc-table-row { display: grid; grid-template-columns: 1fr 1.4fr 1.4fr; border-bottom: 1px solid color-mix(in srgb, var(--color-border) 45%, transparent); }
 .rfc-table-row--work { grid-template-columns: 1.6fr 1fr 1fr; }
 .rfc-table-row:last-child { border-bottom: none; }
 .rfc-table-row.is-alt { background: color-mix(in srgb, var(--color-text) 3%, transparent); }
-.rfc-td { padding: 14px 18px; font-size: 13.5px; color: var(--color-text-secondary); border-left: 1px solid var(--color-border); }
+.rfc-td { padding: 14px 18px; font-size: 13.5px; color: var(--color-text-secondary); border-left: 1px solid color-mix(in srgb, var(--color-border) 45%, transparent); }
 .rfc-td:first-child { border-left: none; }
 .rfc-td--label { font-weight: 600; color: var(--color-text); }
 .rfc-td--mono { font-family: var(--font-mono); }

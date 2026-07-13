@@ -172,14 +172,6 @@ onMounted(() => {
          the sidebar element persists and keeps its scroll position. -->
     <div :key="layout">
 
-    <!-- Page Header (roadmap only; docs/architecture use an in-content breadcrumb) -->
-    <div v-if="layout === 'roadmap'" class="page-header">
-      <div class="page-header-inner" :class="{ 'page-header-inner--narrow': layout === 'roadmap' }">
-        <h1>{{ frontmatter.page_title || 'Documentation' }}</h1>
-        <p v-if="frontmatter.description">{{ frontmatter.description }}</p>
-      </div>
-    </div>
-
     <!-- Docs / Architecture / Tutorial layouts share one sidebar+content template;
          currentSectionSidebar picks the right data source for each. -->
     <div v-if="layout === 'docs' || layout === 'architecture' || layout === 'tutorial'" class="docs-layout">

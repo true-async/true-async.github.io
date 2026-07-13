@@ -50,6 +50,15 @@
 .custom-block b, .custom-block strong {
     color: var(--color-text);
 }
+/* Default "info" block stays dark in both themes (mockup), so its text is fixed light rather than theme-reactive. */
+.custom-block.info {
+    color: #AEB6CC;
+}
+.custom-block.info .custom-block-title,
+.custom-block.info b,
+.custom-block.info strong {
+    color: #ECEAF4;
+}
 /* type variants */
 .custom-block.tip {
     --notice-bg: color-mix(in srgb, #5AD1B0 12%, var(--color-bg-subtle));

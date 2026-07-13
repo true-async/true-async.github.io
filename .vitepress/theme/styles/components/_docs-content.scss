@@ -189,33 +189,37 @@
     margin-bottom: 1.5rem;
     font-size: 0.875rem;
     line-height: 1.6;
+    border: 1px solid var(--color-border);
+    border-radius: 14px;
+    overflow: hidden;
 }
 
 .docs-content thead th {
-    background: var(--color-bg-subtle);
+    background: var(--nav-dropdown-active);
     font-weight: 600;
     color: var(--color-text);
     text-align: left;
     padding: 0.625rem 0.875rem;
-    border-bottom: 2px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
 }
 
 .docs-content tbody td {
     padding: 0.5rem 0.875rem;
     color: var(--color-text-secondary);
-    border-bottom: 1px solid var(--color-border);
+    border-bottom: 1px solid color-mix(in srgb, var(--color-border) 45%, transparent);
 }
 
 .docs-content tbody tr:last-child td { border-bottom: none; }
+.docs-content tbody tr:nth-child(even) { background: color-mix(in srgb, var(--color-text) 3%, transparent); }
 .docs-content tbody tr:hover { background: rgba(107, 88, 255, 0.03); }
 .docs-content table code { font-size: 0.8125rem; }
 
 .docs-content blockquote {
-    border-left: 3px solid var(--color-primary);
-    padding: 0.75rem 1.25rem;
+    border-left: 2px solid var(--nav-border);
+    padding: 1rem 1.25rem;
     margin: 1.5rem 0;
-    background: var(--color-bg-subtle);
-    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+    background: var(--nav-panel-hover);
+    border-radius: 0 10px 10px 0;
 }
 
 .docs-content blockquote p { margin-bottom: 0; color: var(--color-text-secondary); }

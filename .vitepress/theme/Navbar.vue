@@ -69,6 +69,7 @@ const navItems = [
   { key: 'download', path: '/download.html', icon: '<path d="M12 3v12M7 10l5 5 5-5M5 21h14"/>' },
   { key: 'rfc', path: '/rfc.html', icon: '<path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9zM14 3v6h6M9 13h6M9 17h6"/>' },
   { key: 'tutorial', path: '/tutorial.html', icon: '<path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1 2.7 2.5 6 2.5s6-1.5 6-2.5v-5"/><path d="M22 10v6"/>' },
+  { key: 'architecture', path: '/architecture.html', icon: '<path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22.54 12.43-10 4.56a2 2 0 0 1-1.66 0l-9.4-4.28"/><path d="m22.54 16.43-10 4.56a2 2 0 0 1-1.66 0l-9.4-4.28"/>' },
 ]
 
 const navLabels: Record<string, Record<string, string>> = {

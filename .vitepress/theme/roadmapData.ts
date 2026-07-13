@@ -110,7 +110,7 @@ export const roadmap: RoadmapSection[] = [
     id: 'server',
     milestones: [
       {
-        id: 'server-0.6', version: '0.6', date: '2026-05', status: 'active',
+        id: 'server-0.6', version: '0.6', date: '2026-05', status: 'done',
         features: [
           { name: 'HTTP/1.1 (llhttp 9.3.0, keep-alive, pipelining)', status: 'done' },
           { name: 'HTTP/2 (nghttp2, multiplexing, server push, rapid-reset mitigation)', status: 'done' },
