@@ -37,7 +37,7 @@ use Async\Future;
 
 $connection = openDatabaseConnection();
 
-$future = \Async\async(function() use ($connection) {
+$future = \Async\spawn(function() use ($connection) {
     return $connection->query("SELECT * FROM users");
 })
 ->finally(function() use ($connection) {
@@ -55,7 +55,7 @@ $users = $future->await();
 
 use Async\Future;
 
-$future = \Async\async(function() {
+$future = \Async\spawn(function() {
     return fetchDataFromApi();
 })
 ->map(fn($data) => processData($data))

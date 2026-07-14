@@ -50,14 +50,14 @@ function processUser($userId):string {
     spawn(logActivity(...), $userId);
 
     // Warte, bis alle Coroutinen im Scope abgeschlossen sind
-    $scope->awaitCompletion(new Async\Timeout(1000));
+    $scope->awaitCompletion(Async\timeout(1000));
 
     return "OK";
 }
 
 $scope = new Async\Scope();
 $scope->spawn(processUser(...), 123);
-$scope->awaitCompletion(new Async\Timeout(5000));
+$scope->awaitCompletion(Async\timeout(5000));
 
 // Jetzt gibt die Funktion erst zurück, wenn ALLE Coroutinen abgeschlossen sind
 ```
@@ -127,12 +127,12 @@ $mainScope->spawn(function() {
     });
 
     // Warte auf Abschluss der Teilaufgaben
-    $childScope->awaitCompletion();
+    $childScope->awaitCompletion(Async\timeout(5000));
 
     echo "Alle Teilaufgaben erledigt\n";
 });
 
-$mainScope->awaitCompletion();
+$mainScope->awaitCompletion(Async\timeout(5000));
 ```
 
 Wenn Sie `$mainScope` abbrechen, werden auch alle untergeordneten Scopes abgebrochen. Die gesamte Hierarchie.
@@ -181,7 +181,7 @@ Wenn eine Coroutine innerhalb eines Scopes mit einem Fehler fehlschlägt, kann d
 $scope = new Async\Scope();
 
 // Fehlerhandler einrichten
-$scope->setExceptionHandler(function(Throwable $e) {
+$scope->setExceptionHandler(function (Async\Scope $scope, Async\Coroutine $coroutine, Throwable $e) {
     echo "Fehler im Scope: " . $e->getMessage() . "\n";
     // Kann protokolliert, an Sentry gesendet werden usw.
 });
@@ -194,7 +194,7 @@ $scope->spawn(function() {
     echo "Ich arbeite einwandfrei\n";
 });
 
-$scope->awaitCompletion();
+$scope->awaitCompletion(Async\timeout(5000));
 
 // Ausgabe:
 // Fehler im Scope: Etwas ist schiefgelaufen!
@@ -365,7 +365,7 @@ $scope->spawn(function() { /* Aufgabe 1 */ });
 $scope->spawn(function() { /* Aufgabe 2 */ });
 
 // Die Kontrolle wird erst zurückgegeben, wenn beide Aufgaben abgeschlossen sind
-$scope->awaitCompletion();
+$scope->awaitCompletion(Async\timeout(5000));
 ```
 
 In Kotlin wird dasselbe mit `coroutineScope { }` erreicht,

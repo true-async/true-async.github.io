@@ -62,12 +62,8 @@ $workers = new Scope();
 
 for ($i = 0; $i < 10; $i++) {
     $workers->spawn(function () use ($queue) {
-        try {
-            while (true) {
-                checkAddress($queue->recv());
-            }
-        } catch (ChannelException) {
-            // le canal est fermé et vide
+        foreach ($queue as $address) {
+                checkAddress($address);
         }
     });
 }
@@ -219,13 +215,9 @@ final class ImportService
         // Workers : puisent les adresses dans le canal, pas plus de $this->workers de manière concurrente
         for ($i = 0; $i < $this->workers; $i++) {
             $this->scope->spawn(function () use ($queue, &$counter) {
-                try {
-                    while (true) {
-                        checkAddress($queue->recv());
+                foreach ($queue as $address) {
+                        checkAddress($address);
                         $counter++;
-                    }
-                } catch (ChannelException) {
-                    // le canal est fermé et vide, le travail est terminé
                 }
             });
         }

@@ -13,7 +13,7 @@ description: "Створення нового TaskSet з необов'язков
 (PHP 8.6+, True Async 1.0)
 
 ```php
-public TaskSet::__construct(?int $concurrency = null, ?Async\Scope $scope = null)
+public TaskSet::__construct(?int $concurrency = null, ?int $queueLimit = null, ?Async\Scope $scope = null)
 ```
 
 Створює новий набір завдань з автоматичним очищенням результатів після доставки.

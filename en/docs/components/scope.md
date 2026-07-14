@@ -50,14 +50,14 @@ function processUser($userId):string {
     spawn(logActivity(...), $userId);
 
     // Wait until all coroutines in scope finish
-    $scope->awaitCompletion(new Async\Timeout(1000));
+    $scope->awaitCompletion(Async\timeout(1000));
 
     return "OK";
 }
 
 $scope = new Async\Scope();
 $scope->spawn(processUser(...), 123);
-$scope->awaitCompletion(new Async\Timeout(5000));
+$scope->awaitCompletion(Async\timeout(5000));
 
 // Now the function will only return when ALL coroutines have finished
 ```
@@ -127,12 +127,12 @@ $mainScope->spawn(function() {
     });
 
     // Wait for subtasks to complete
-    $childScope->awaitCompletion();
+    $childScope->awaitCompletion(Async\timeout(5000));
 
     echo "All subtasks done\n";
 });
 
-$mainScope->awaitCompletion();
+$mainScope->awaitCompletion(Async\timeout(5000));
 ```
 
 If you cancel `$mainScope`, all child scopes will also be cancelled. The entire hierarchy.
@@ -181,7 +181,7 @@ When a coroutine inside a scope fails with an error, the scope can catch it:
 $scope = new Async\Scope();
 
 // Set up an error handler
-$scope->setExceptionHandler(function(Throwable $e) {
+$scope->setExceptionHandler(function (Async\Scope $scope, Async\Coroutine $coroutine, Throwable $e) {
     echo "Error in scope: " . $e->getMessage() . "\n";
     // Can log it, send to Sentry, etc.
 });
@@ -194,7 +194,7 @@ $scope->spawn(function() {
     echo "I'm working fine\n";
 });
 
-$scope->awaitCompletion();
+$scope->awaitCompletion(Async\timeout(5000));
 
 // Output:
 // Error in scope: Something broke!
@@ -365,7 +365,7 @@ $scope->spawn(function() { /* task 1 */ });
 $scope->spawn(function() { /* task 2 */ });
 
 // Control won't return until both tasks complete
-$scope->awaitCompletion();
+$scope->awaitCompletion(Async\timeout(5000));
 ```
 
 In Kotlin, the same is done with `coroutineScope { }`,

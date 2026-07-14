@@ -13,7 +13,7 @@ description: "Надіслати значення до потокового ка
 (PHP 8.6+, True Async 1.0)
 
 ```php
-public ThreadChannel::send(mixed $value): void
+public ThreadChannel::send(mixed $value, ?Completable $cancellationToken = null): void
 ```
 
 Надсилає значення до каналу. Це **блокуюча** операція — викликаючий потік блокується,
@@ -37,7 +37,7 @@ public ThreadChannel::send(mixed $value): void
 
 ## Помилки
 
-- Кидає `Async\ChannelClosedException`, якщо канал вже закритий.
+- Кидає `Async\ThreadChannelException`, якщо канал вже закритий.
 - Кидає `Async\ThreadTransferException`, якщо значення не може бути серіалізоване для міжпотокової передачі.
 
 ## Приклади
@@ -68,7 +68,7 @@ spawn(function() {
     while (!$channel->isClosed() || !$channel->isEmpty()) {
         try {
             echo $channel->recv(), "\n";
-        } catch (\Async\ChannelClosedException) {
+        } catch (\Async\ThreadChannelException) {
             break;
         }
     }
@@ -119,7 +119,7 @@ spawn(function() {
     $thread = spawn_thread(function() use ($channel) {
         try {
             $channel->send('too late');
-        } catch (\Async\ChannelClosedException $e) {
+        } catch (\Async\ThreadChannelException $e) {
             return "Send failed: " . $e->getMessage();
         }
     });

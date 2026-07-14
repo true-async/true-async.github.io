@@ -232,7 +232,7 @@ $scope->spawn(function() {
 });
 
 try {
-    $scope->awaitCompletion();
+    $scope->awaitCompletion(Async\timeout(5000));
 } catch (Exception $e) {
     echo "Errore propagato allo scope: " . $e->getMessage() . "\n";
 }

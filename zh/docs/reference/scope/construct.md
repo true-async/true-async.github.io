@@ -33,7 +33,7 @@ $scope->spawn(function() {
     echo "Coroutine in a new scope\n";
 });
 
-$scope->awaitCompletion();
+$scope->awaitCompletion(Async\timeout(5000));
 ```
 
 ### 示例 #2 创建多个独立的作用域
@@ -58,7 +58,7 @@ $scopeB->spawn(function() {
 $scopeA->cancel();
 
 // $scopeB continues running
-$scopeB->awaitCompletion();
+$scopeB->awaitCompletion(Async\timeout(5000));
 ```
 
 ## 参见

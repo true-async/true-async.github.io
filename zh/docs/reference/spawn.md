@@ -128,7 +128,7 @@ $scope->spawn(function() {
 });
 
 // 等待作用域中所有协程完成
-$scope->awaitCompletion();
+$scope->awaitCompletion(Async\timeout(5000));
 ?>
 ```
 

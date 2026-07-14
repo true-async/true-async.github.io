@@ -61,7 +61,7 @@ $coroutine = $scope->spawn(function(string $url, int $timeout) {
     // ... Anfrage ausfuehren
 }, 'https://example.com', 5000);
 
-$scope->awaitCompletion();
+$scope->awaitCompletion(Async\timeout(5000));
 ```
 
 ## Siehe auch

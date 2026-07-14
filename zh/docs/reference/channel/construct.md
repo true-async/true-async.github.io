@@ -13,7 +13,7 @@ description: "创建用于协程间数据交换的新通道。"
 (PHP 8.6+, True Async 1.0)
 
 ```php
-public Channel::__construct(int $capacity = 0)
+public Channel::__construct(int $capacity = 0, int $noProducerTimeout = 0, int $noConsumerTimeout = 0, bool $hardTimeouts = false)
 ```
 
 创建一个用于在协程之间传递数据的新通道。

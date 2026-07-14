@@ -45,7 +45,7 @@ $scope->spawn(function() {
     throw new \RuntimeException("Something went wrong");
 });
 
-$scope->awaitCompletion();
+$scope->awaitCompletion(Async\timeout(5000));
 // Le journal contiendra : "Coroutine error: Something went wrong"
 ```
 
@@ -71,7 +71,7 @@ $scope->spawn(function() {
     throw new \LogicException("Error 2");
 });
 
-$scope->awaitCompletion();
+$scope->awaitCompletion(Async\timeout(5000));
 
 echo "Total errors: " . count($errors) . "\n"; // Total errors: 2
 ```

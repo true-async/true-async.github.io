@@ -48,7 +48,7 @@ $parentScope->spawn(function() {
         echo "Running in child scope\n";
     });
 
-    $childScope->awaitCompletion();
+    $childScope->awaitCompletion(Async\timeout(5000));
 });
 ```
 

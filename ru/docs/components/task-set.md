@@ -182,7 +182,7 @@ foreach ($tasks as $task) {
 final class Async\TaskSet implements Async\Awaitable, Countable, IteratorAggregate {
 
     /* Методы */
-    public __construct(?int $concurrency = null, ?Async\Scope $scope = null)
+    public __construct(?int $concurrency = null, ?int $queueLimit = null, ?Async\Scope $scope = null)
 
     /* Добавление задач */
     public spawn(callable $task, mixed ...$args): void

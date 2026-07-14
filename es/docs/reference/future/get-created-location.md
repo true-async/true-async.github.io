@@ -48,7 +48,7 @@ $state = new FutureState();
 $future = new Future($state);
 
 // Depurar Futures de larga duración
-\Async\async(function() use ($future) {
+\Async\spawn(function() use ($future) {
     \Async\delay(5000);
     if (!$future->isCompleted()) {
         echo "Advertencia: Future creado en "

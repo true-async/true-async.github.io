@@ -45,7 +45,7 @@ spawn(function() {
     });
 
     $group->cancel();
-    $group->awaitCompletion();
+    $group->awaitCompletion(Async\timeout(5000));
 
     echo "所有任务已取消\n";
 });
@@ -63,7 +63,7 @@ spawn(function() {
     $group->spawn(fn() => Async\delay(10000));
 
     $group->cancel(new \Async\AsyncCancellation("超时已到"));
-    $group->awaitCompletion();
+    $group->awaitCompletion(Async\timeout(5000));
 });
 ```
 

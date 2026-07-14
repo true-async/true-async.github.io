@@ -39,14 +39,15 @@ try {
 
 ```php
 use function Async\timeout;
-use Async\OperationCanceledException;
-use Async\TimeoutException;
 
-try {
-    timeout(2000);
-} catch (TimeoutException $e) {
-    
-}
+$token = timeout(2000);   // just an object; nothing happens
+```
+
+The token only takes effect once it is handed to an operation as a cancellation argument:
+
+```php
+use function Async\timeout;
+use Async\OperationCanceledException;
 
 try {
     $isValid = await($validation, timeout(2000));
@@ -56,8 +57,8 @@ try {
 }
 ```
 
-我们可以看到 `timeout` 抛出了一个 `TimeoutException`，而第二个代码块收到的却是一个
-`OperationCanceledException`。这是有意为之的，目的是简化 `await` 的 `try-catch` 处理逻辑，
+请注意：当令牌触发时，你收到的是 `OperationCanceledException`，而不是 `TimeoutException`。超时本身在其内部，
+位于 `getPrevious()` 中。这是有意为之的，目的是简化 `await` 的 `try-catch` 处理逻辑，
 并清晰地把一次被取消的等待与协程内部抛出的异常区分开来。
 协程通常不应该自己抛出 `OperationCanceledException`。
 

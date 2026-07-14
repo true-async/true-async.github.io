@@ -59,8 +59,9 @@ $progress->cancel();
 Async\AsyncCancellation
 ```
 
-`$progress` 코루틴이 `delay(1000)` 안에서 잠들어 있을 때 `cancel()`이 호출되자, `delay`가 `Async\AsyncCancellation` 예외를 던졌습니다. 흥미롭게도 이 방법은 `sleep(1)`에서는 동작하지 않습니다.
-`sleep(1)`은 예외를 던지지 않지만 `delay`는 던지는데, 바로 그 점을 여기서 활용하고 있기 때문입니다.
+`$progress` 코루틴이 `delay(1000)` 안에서 잠들어 있을 때 `cancel()`이 호출되자, `delay`가 `Async\AsyncCancellation` 예외를 던졌습니다. 일반 `sleep(1)`에서도 똑같은 일이 일어납니다.
+TrueAsync 아래에서는 `sleep()` 역시 비동기가 되며 마찬가지로 취소 지점입니다 — `delay`와 똑같이
+`Async\AsyncCancellation`을 던집니다.
 
 코드에서 `delay`를 사용하는 것은 사실상 다른 코드가 코루틴의 실행을 중단할 수 있게 하는 계약을 맺는 것이라고 말할 수 있습니다. 이는 서로 다른 모듈 간의 관심사를 다시 한번 분리해 주므로 매우 편리합니다.
 1. 코루틴은 언제 자신의 실행이 중단될지 모릅니다.

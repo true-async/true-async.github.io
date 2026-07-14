@@ -45,7 +45,7 @@ $scope = new Scope();
 // Scope 자체가 ScopeProvider를 구현합니다
 runInScope($scope);
 
-$scope->awaitCompletion();
+$scope->awaitCompletion(Async\timeout(5000));
 ```
 
 ### 예제 #2 ScopeProvider를 사용한 다형성

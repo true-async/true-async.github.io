@@ -49,7 +49,7 @@ $scope->spawn(function() {
     }
 });
 
-$scope->awaitCompletion();
+$scope->awaitCompletion(Async\timeout(5000));
 ```
 
 ### 예제 #2 제한된 수명을 가진 스코프
@@ -77,7 +77,7 @@ $scope->spawn(function() {
     echo "Task 3: OK\n"; // 출력되지 않음
 });
 
-$scope->awaitCompletion();
+$scope->awaitCompletion(Async\timeout(5000));
 ```
 
 ## 참고

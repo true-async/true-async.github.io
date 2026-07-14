@@ -48,7 +48,7 @@ $state = new FutureState();
 $future = new Future($state);
 
 // Отладка долгих Future
-\Async\async(function() use ($future) {
+\Async\spawn(function() use ($future) {
     \Async\delay(5000);
     if (!$future->isCompleted()) {
         echo "Предупреждение: Future, созданный в "

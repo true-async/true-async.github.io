@@ -13,7 +13,7 @@ description: "Sendet einen Wert an den Thread-Kanal und blockiert den aufrufende
 (PHP 8.6+, True Async 1.0)
 
 ```php
-public ThreadChannel::send(mixed $value): void
+public ThreadChannel::send(mixed $value, ?Completable $cancellationToken = null): void
 ```
 
 Sendet einen Wert an den Kanal. Dies ist eine **blockierende** Operation — der aufrufende Thread wird blockiert,
@@ -37,7 +37,7 @@ nicht serialisierbare Objekte verursachen eine `ThreadTransferException`.
 
 ## Fehler
 
-- Wirft `Async\ChannelClosedException`, wenn der Kanal bereits geschlossen ist.
+- Wirft `Async\ThreadChannelException`, wenn der Kanal bereits geschlossen ist.
 - Wirft `Async\ThreadTransferException`, wenn der Wert nicht für die thread-übergreifende Übertragung serialisiert werden kann.
 
 ## Beispiele
@@ -68,7 +68,7 @@ spawn(function() {
     while (!$channel->isClosed() || !$channel->isEmpty()) {
         try {
             echo $channel->recv(), "\n";
-        } catch (\Async\ChannelClosedException) {
+        } catch (\Async\ThreadChannelException) {
             break;
         }
     }
@@ -119,7 +119,7 @@ spawn(function() {
     $thread = spawn_thread(function() use ($channel) {
         try {
             $channel->send('too late');
-        } catch (\Async\ChannelClosedException $e) {
+        } catch (\Async\ThreadChannelException $e) {
             return "Senden fehlgeschlagen: " . $e->getMessage();
         }
     });

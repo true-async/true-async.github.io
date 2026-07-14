@@ -60,12 +60,8 @@ $workers = new Scope();
 
 for ($i = 0; $i < 10; $i++) {
     $workers->spawn(function () use ($queue) {
-        try {
-            while (true) {
-                checkAddress($queue->recv());
-            }
-        } catch (ChannelException) {
-            // канал закрито й порожньо
+        foreach ($queue as $address) {
+                checkAddress($address);
         }
     });
 }
@@ -214,13 +210,9 @@ final class ImportService
         // Воркери: витягують адреси з каналу, не більш ніж $this->workers конкурентно
         for ($i = 0; $i < $this->workers; $i++) {
             $this->scope->spawn(function () use ($queue, &$counter) {
-                try {
-                    while (true) {
-                        checkAddress($queue->recv());
+                foreach ($queue as $address) {
+                        checkAddress($address);
                         $counter++;
-                    }
-                } catch (ChannelException) {
-                    // канал закрито й порожньо, роботу зроблено
                 }
             });
         }

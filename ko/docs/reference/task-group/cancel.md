@@ -45,7 +45,7 @@ spawn(function() {
     });
 
     $group->cancel();
-    $group->awaitCompletion();
+    $group->awaitCompletion(Async\timeout(5000));
 
     echo "모든 태스크가 취소되었습니다\n";
 });
@@ -63,7 +63,7 @@ spawn(function() {
     $group->spawn(fn() => Async\delay(10000));
 
     $group->cancel(new \Async\AsyncCancellation("타임아웃 초과"));
-    $group->awaitCompletion();
+    $group->awaitCompletion(Async\timeout(5000));
 });
 ```
 

@@ -60,8 +60,9 @@ Async\AsyncCancellation
 ```
 
 当 `$progress` 协程正在 `delay(1000)` 里休眠，此时又调用了 `cancel()`，
-`delay` 就抛出了一个 `Async\AsyncCancellation` 异常。有意思的是，这个技巧对 `sleep(1)` 不起作用，
-因为 `sleep(1)` 不会抛出异常，而 `delay` 会，而这正是我们在这里所依赖的。
+`delay` 就抛出了一个 `Async\AsyncCancellation` 异常。普通的 `sleep(1)` 也是一样：
+在 TrueAsync 下 `sleep()` 同样变成异步的，也同样是一个取消点 —— 它会像 `delay` 一样抛出
+`Async\AsyncCancellation`。
 
 可以说，在你的代码中使用 `delay` 实际上就建立了一份契约，允许其他代码中断协程的执行。
 这非常方便，因为它再一次在不同模块之间分离了关注点：

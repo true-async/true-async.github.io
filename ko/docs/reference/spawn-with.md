@@ -66,7 +66,7 @@ $c2 = spawn_with($scope, function() {
 });
 
 // 스코프 내의 모든 코루틴 완료를 대기합니다
-$scope->awaitCompletion();
+$scope->awaitCompletion(Async\timeout(5000));
 ?>
 ```
 

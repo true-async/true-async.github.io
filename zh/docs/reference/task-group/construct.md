@@ -13,7 +13,7 @@ description: "创建一个新的 TaskGroup，支持可选的并发限制。"
 (PHP 8.6+, True Async 1.0)
 
 ```php
-public TaskGroup::__construct(?int $concurrency = null, ?Async\Scope $scope = null)
+public TaskGroup::__construct(?int $concurrency = null, ?int $queueLimit = null, ?Async\Scope $scope = null)
 ```
 
 创建一个新的任务组。

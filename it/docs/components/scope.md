@@ -50,14 +50,14 @@ function processUser($userId):string {
     spawn(logActivity(...), $userId);
 
     // Attendi finché tutte le coroutine nello scope non terminano
-    $scope->awaitCompletion(new Async\Timeout(1000));
+    $scope->awaitCompletion(Async\timeout(1000));
 
     return "OK";
 }
 
 $scope = new Async\Scope();
 $scope->spawn(processUser(...), 123);
-$scope->awaitCompletion(new Async\Timeout(5000));
+$scope->awaitCompletion(Async\timeout(5000));
 
 // Ora la funzione tornerà solo quando TUTTE le coroutine saranno terminate
 ```
@@ -127,12 +127,12 @@ $mainScope->spawn(function() {
     });
 
     // Attendi il completamento dei sotto-task
-    $childScope->awaitCompletion();
+    $childScope->awaitCompletion(Async\timeout(5000));
 
     echo "Tutti i sotto-task completati\n";
 });
 
-$mainScope->awaitCompletion();
+$mainScope->awaitCompletion(Async\timeout(5000));
 ```
 
 Se cancelli `$mainScope`, tutti gli scope figli verranno anch'essi cancellati. L'intera gerarchia.
@@ -181,7 +181,7 @@ Quando una coroutine all'interno di uno scope fallisce con un errore, lo scope p
 $scope = new Async\Scope();
 
 // Imposta un handler degli errori
-$scope->setExceptionHandler(function(Throwable $e) {
+$scope->setExceptionHandler(function (Async\Scope $scope, Async\Coroutine $coroutine, Throwable $e) {
     echo "Errore nello scope: " . $e->getMessage() . "\n";
     // Può registrarlo, inviarlo a Sentry, ecc.
 });
@@ -194,7 +194,7 @@ $scope->spawn(function() {
     echo "Sto funzionando bene\n";
 });
 
-$scope->awaitCompletion();
+$scope->awaitCompletion(Async\timeout(5000));
 
 // Output:
 // Errore nello scope: Qualcosa si è rotto!
@@ -365,7 +365,7 @@ $scope->spawn(function() { /* task 1 */ });
 $scope->spawn(function() { /* task 2 */ });
 
 // Il controllo non tornerà finché entrambi i task non saranno completati
-$scope->awaitCompletion();
+$scope->awaitCompletion(Async\timeout(5000));
 ```
 
 In Kotlin, lo stesso viene fatto con `coroutineScope { }`,

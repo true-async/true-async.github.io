@@ -18,14 +18,14 @@ public ThreadChannel::close(): void
 
 채널을 닫습니다. 닫힌 후:
 
-- `send()`를 호출하면 `ChannelClosedException`이 던져집니다.
+- `send()`를 호출하면 `ThreadChannelException`이 던져집니다.
 - `recv()`는 버퍼가 비워질 때까지 이미 버퍼에 있는 값을 계속 반환합니다.
-  버퍼가 비워지면 `recv()`는 `ChannelClosedException`을 던집니다.
-- 현재 `send()` 또는 `recv()`에서 차단된 스레드들은 차단 해제되고 `ChannelClosedException`을 받습니다.
+  버퍼가 비워지면 `recv()`는 `ThreadChannelException`을 던집니다.
+- 현재 `send()` 또는 `recv()`에서 차단된 스레드들은 차단 해제되고 `ThreadChannelException`을 받습니다.
 
 이미 닫힌 채널에 `close()`를 호출하는 것은 아무 동작도 하지 않습니다 — 예외를 던지지 않습니다.
 
-`close()`는 소비하는 측에 "스트림 종료"를 알리는 표준 방법입니다. 생산자는 모든 항목을 전송한 후 채널을 닫고; 소비자는 `ChannelClosedException`을 잡을 때까지 읽습니다.
+`close()`는 소비하는 측에 "스트림 종료"를 알리는 표준 방법입니다. 생산자는 모든 항목을 전송한 후 채널을 닫고; 소비자는 `ThreadChannelException`을 잡을 때까지 읽습니다.
 
 `close()` 자체는 스레드 안전하며 어떤 스레드에서도 호출할 수 있습니다.
 
@@ -56,7 +56,7 @@ spawn(function() {
             while (true) {
                 echo $channel->recv(), "\n";
             }
-        } catch (\Async\ChannelClosedException) {
+        } catch (\Async\ThreadChannelException) {
             echo "Stream ended\n";
         }
     });
@@ -83,7 +83,7 @@ spawn(function() {
     $waiter = spawn_thread(function() use ($channel) {
         try {
             $channel->recv(); // 차단됨
-        } catch (\Async\ChannelClosedException) {
+        } catch (\Async\ThreadChannelException) {
             return "Unblocked by close()";
         }
     });

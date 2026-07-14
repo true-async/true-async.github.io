@@ -13,7 +13,7 @@ description: "Отримати наступне значення з потоко
 (PHP 8.6+, True Async 1.0)
 
 ```php
-public ThreadChannel::recv(): mixed
+public ThreadChannel::recv(?Completable $cancellationToken = null): mixed
 ```
 
 Отримує наступне значення з каналу. Це **блокуюча** операція — викликаючий потік
@@ -24,7 +24,7 @@ public ThreadChannel::recv(): mixed
 - Для **небуферизованого каналу** (`capacity = 0`), `recv()` блокує до тих пір, поки інший потік не викличе `send()`.
 
 Якщо канал закрито і буфер ще містить значення, ці значення повертаються нормально.
-Як тільки буфер спустошено і канал закрито, `recv()` кидає `ChannelClosedException`.
+Як тільки буфер спустошено і канал закрито, `recv()` кидає `ThreadChannelException`.
 
 Отримане значення є **глибокою копією** оригіналу — зміни поверненого значення не
 впливають на копію відправника.
@@ -35,7 +35,7 @@ public ThreadChannel::recv(): mixed
 
 ## Помилки
 
-- Кидає `Async\ChannelClosedException`, якщо канал закритий і буфер порожній.
+- Кидає `Async\ThreadChannelException`, якщо канал закритий і буфер порожній.
 
 ## Приклади
 
@@ -64,7 +64,7 @@ spawn(function() {
         while (true) {
             echo $channel->recv(), "\n";
         }
-    } catch (\Async\ChannelClosedException) {
+    } catch (\Async\ThreadChannelException) {
         echo "All values received\n";
     }
 
@@ -100,7 +100,7 @@ spawn(function() {
             while (true) {
                 $collected[] = $channel->recv();
             }
-        } catch (\Async\ChannelClosedException) {
+        } catch (\Async\ThreadChannelException) {
             // буфер спустошено і канал закрито
         }
         return $collected;

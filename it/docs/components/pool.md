@@ -82,7 +82,22 @@ $resource = $pool->acquire(timeout: 5000);
 Se il pool è pieno (tutte le risorse sono in uso e `max` è raggiunto), la coroutine **si sospende**
 e attende finché un'altra coroutine non restituisce una risorsa. Le altre coroutine continuano a funzionare.
 
-Al timeout, viene lanciata una `PoolException`.
+Al timeout viene lanciata `Async\TimeoutException`, non `PoolException`. Un timeout non e un guasto del
+pool: il pool e sano, e semplicemente occupato, ed e scaduta la tua stessa scadenza. `PoolException`
+significa che il pool stesso e inutilizzabile (chiuso, mai inizializzato, factory fallita).
+
+Nota che `TimeoutException` estende `Exception`, non `PoolException`, quindi `catch (PoolException)`
+**non** intercettera un timeout.
+
+```php
+try {
+    $resource = $pool->acquire(timeout: 5000);
+} catch (Async\TimeoutException $e) {
+    // la risorsa non si e liberata in 5 secondi -- riprova o arretra
+} catch (Async\PoolException $e) {
+    // il pool e chiuso -- riprovare e inutile
+}
+```
 
 ### tryAcquire Non Bloccante
 
@@ -184,6 +199,7 @@ use Async\CircuitBreakerStrategy;
 class MyStrategy implements CircuitBreakerStrategy
 {
     private int $failures = 0;
+    private int $openedAt = 0;
 
     public function reportSuccess(mixed $source): void {
         $this->failures = 0;
@@ -193,8 +209,13 @@ class MyStrategy implements CircuitBreakerStrategy
     public function reportFailure(mixed $source, \Throwable $error): void {
         $this->failures++;
         if ($this->failures >= 5) {
+            $this->openedAt = time();
             $source->deactivate();
         }
+    }
+
+    public function shouldRecover(): bool {
+        return time() - $this->openedAt >= 30;
     }
 }
 

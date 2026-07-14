@@ -13,7 +13,7 @@ description: "선택적 동시성 제한이 있는 새 TaskGroup을 생성합니
 (PHP 8.6+, True Async 1.0)
 
 ```php
-public TaskGroup::__construct(?int $concurrency = null, ?Async\Scope $scope = null)
+public TaskGroup::__construct(?int $concurrency = null, ?int $queueLimit = null, ?Async\Scope $scope = null)
 ```
 
 새로운 태스크 그룹을 생성합니다.

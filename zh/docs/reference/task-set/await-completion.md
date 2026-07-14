@@ -44,7 +44,7 @@ spawn(function() {
     $set->spawn(fn() => throw new \RuntimeException("ошибка"));
 
     $set->close();
-    $set->awaitCompletion(); // Не бросает исключение, даже если задачи упали
+    $set->awaitCompletion(Async\timeout(5000)); // Не бросает исключение, даже если задачи упали
 
     echo "Все задачи завершены\n";
 });

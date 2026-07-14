@@ -36,7 +36,7 @@ $state = new FutureState();
 $future = new Future($state);
 
 // Завершаем Future из другой корутины
-\Async\async(function() use ($state) {
+\Async\spawn(function() use ($state) {
     $result = performComputation();
     $state->complete($result);
 });
@@ -63,13 +63,13 @@ function createDeferredFuture(): array {
 [$future, $state] = createDeferredFuture();
 
 // Одна корутина ожидает результат
-\Async\async(function() use ($future) {
+\Async\spawn(function() use ($future) {
     $result = $future->await();
     echo "Результат: $result\n";
 });
 
 // Другая корутина предоставляет результат
-\Async\async(function() use ($state) {
+\Async\spawn(function() use ($state) {
     \Async\delay(100);
     $state->complete("Готово!");
 });

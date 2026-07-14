@@ -61,7 +61,7 @@ function connectToService(string $host): Future {
         );
     }
 
-    return \Async\async(function() use ($host) {
+    return \Async\spawn(function() use ($host) {
         return performConnection($host);
     });
 }

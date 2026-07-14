@@ -13,7 +13,7 @@ description: "Получить следующее значение из пото
 (PHP 8.6+, True Async 1.0)
 
 ```php
-public ThreadChannel::recv(): mixed
+public ThreadChannel::recv(?Completable $cancellationToken = null): mixed
 ```
 
 Получает следующее значение из канала. Это **блокирующая** операция — вызывающий поток
@@ -25,7 +25,7 @@ public ThreadChannel::recv(): mixed
   поток не вызовет `send()`.
 
 Если канал закрыт, но в буфере ещё есть значения, они возвращаются в обычном режиме.
-После опустошения буфера и закрытия канала `recv()` выбрасывает `ChannelClosedException`.
+После опустошения буфера и закрытия канала `recv()` выбрасывает `ThreadChannelException`.
 
 Полученное значение является **глубокой копией** оригинала — изменения возвращённого значения
 не затрагивают копию отправителя.
@@ -36,7 +36,7 @@ public ThreadChannel::recv(): mixed
 
 ## Ошибки
 
-- Выбрасывает `Async\ChannelClosedException`, если канал закрыт и буфер пуст.
+- Выбрасывает `Async\ThreadChannelException`, если канал закрыт и буфер пуст.
 
 ## Примеры
 
@@ -65,7 +65,7 @@ spawn(function() {
         while (true) {
             echo $channel->recv(), "\n";
         }
-    } catch (\Async\ChannelClosedException) {
+    } catch (\Async\ThreadChannelException) {
         echo "All values received\n";
     }
 
@@ -101,7 +101,7 @@ spawn(function() {
             while (true) {
                 $collected[] = $channel->recv();
             }
-        } catch (\Async\ChannelClosedException) {
+        } catch (\Async\ThreadChannelException) {
             // буфер опустошён и канал закрыт
         }
         return $collected;

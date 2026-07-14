@@ -129,22 +129,16 @@ spawn(function() use ($ch) {
 
 // Ricevitore A
 spawn(function() use ($ch) {
-    try {
-        while (true) {
-            $v = $ch->recv();
+    foreach ($ch as $v) {
             echo "A ha ricevuto: $v\n";
-        }
-    } catch (\Async\ChannelException) {}
+    }
 });
 
 // Ricevitore B
 spawn(function() use ($ch) {
-    try {
-        while (true) {
-            $v = $ch->recv();
+    foreach ($ch as $v) {
             echo "B ha ricevuto: $v\n";
-        }
-    } catch (\Async\ChannelException) {}
+    }
 });
 
 // Ogni valore (1, 2, 3) verrà ricevuto solo da A o B, ma non da entrambi

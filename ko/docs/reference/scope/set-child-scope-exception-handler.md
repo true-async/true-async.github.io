@@ -47,7 +47,7 @@ $childScope->spawn(function() {
     throw new \RuntimeException("Child scope error");
 });
 
-$childScope->awaitCompletion();
+$childScope->awaitCompletion(Async\timeout(5000));
 // 오류가 처리되어 $parentScope로 전파되지 않습니다
 ```
 
@@ -77,7 +77,7 @@ $cacheScope->spawn(function() {
     echo "Cache is working fine\n";
 });
 
-$appScope->awaitCompletion();
+$appScope->awaitCompletion(Async\timeout(5000));
 ```
 
 ## 참고

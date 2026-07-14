@@ -39,7 +39,7 @@ $scope->spawn(function() {
 
 var_dump($scope->isFinished()); // bool(false)
 
-$scope->awaitCompletion();
+$scope->awaitCompletion(Async\timeout(5000));
 
 var_dump($scope->isFinished()); // bool(true)
 ```

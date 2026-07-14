@@ -49,7 +49,7 @@ echo $future->await(); // Результат: 10
 
 use Async\Future;
 
-$future = \Async\async(function() {
+$future = \Async\spawn(function() {
     return file_get_contents('https://api.example.com/data');
 })
 ->map(fn(string $json) => json_decode($json, true))

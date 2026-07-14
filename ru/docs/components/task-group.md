@@ -45,12 +45,30 @@ description: "Async\\TaskGroup — высокоуровневый паттерн
 - **`any()`** — возвращает `Future`, который разрешится результатом первой *успешно* завершившейся задачи,
   игнорируя ошибки. Если все задачи упали — реджектится с `CompositeException`.
 - **`awaitCompletion()`** — ожидает полного завершения всех задач, а также других корутин в `Scope`.
+  Группу необходимо сначала закрыть через `close()`, иначе метод бросит
+  `Async\AsyncException: TaskGroup must be closed before calling awaitCompletion()`.
 
 ## Лимит конкурентности
 
 При указании параметра `concurrency` `TaskGroup` работает как пул корутин:
 задачи, превышающие лимит, ожидают в очереди и не создают корутину до появления свободного слота.
 Это позволяет экономить память и контролировать нагрузку при обработке большого числа задач.
+
+### Ограничение очереди
+
+Второй параметр конструктора — `queueLimit` — ограничивает саму очередь ожидающих задач.
+Он защищает от переполнения памяти, когда producer добавляет задачи быстрее, чем они выполняются:
+
+- `null` (по умолчанию) — `2 * $concurrency`; игнорируется, если лимит конкурентности не задан;
+- `0` — очередь без ограничений (может привести к росту памяти);
+- `N` — при `N` ожидающих задач `spawn()` приостанавливает вызывающую корутину (backpressure).
+
+```php
+$group = new Async\TaskGroup(concurrency: 10, queueLimit: 100);
+```
+
+Обратите внимание: `queueLimit` стоит **вторым**, поэтому позиционный вызов `new TaskGroup(10, $scope)`
+не работает — `Scope` нужно передавать именованным аргументом: `new TaskGroup(concurrency: 10, scope: $scope)`.
 
 ## TaskGroup и Scope
 
@@ -79,7 +97,7 @@ description: "Async\\TaskGroup — высокоуровневый паттерн
 final class Async\TaskGroup implements Async\Awaitable, Countable, IteratorAggregate {
 
     /* Методы */
-    public __construct(?int $concurrency = null, ?Async\Scope $scope = null)
+    public __construct(?int $concurrency = null, ?int $queueLimit = null, ?Async\Scope $scope = null)
 
     /* Добавление задач */
     public spawn(callable $task, mixed ...$args): void

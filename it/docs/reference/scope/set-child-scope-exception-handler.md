@@ -47,7 +47,7 @@ $childScope->spawn(function() {
     throw new \RuntimeException("Errore dello scope figlio");
 });
 
-$childScope->awaitCompletion();
+$childScope->awaitCompletion(Async\timeout(5000));
 // Errore gestito, non si propaga a $parentScope
 ```
 
@@ -77,7 +77,7 @@ $cacheScope->spawn(function() {
     echo "La cache funziona correttamente\n";
 });
 
-$appScope->awaitCompletion();
+$appScope->awaitCompletion(Async\timeout(5000));
 ```
 
 ## Vedi anche

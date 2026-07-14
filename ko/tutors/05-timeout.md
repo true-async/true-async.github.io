@@ -33,18 +33,20 @@ try {
 
 ## OperationCanceledException
 
-다음 코드를 실행하면
+`timeout()`은 그 자체로는 아무것도 던지지 않습니다. **취소 토큰**인 `Async\Timeout` 객체를 반환할 뿐입니다.
+아래 코드는 스크립트가 아무리 오래 돌아도 결코 예외를 던지지 않습니다:
+
+```php
+use function Async\timeout;
+
+$token = timeout(2000);   // just an object; nothing happens
+```
+
+The token only takes effect once it is handed to an operation as a cancellation argument:
 
 ```php
 use function Async\timeout;
 use Async\OperationCanceledException;
-use Async\TimeoutException;
-
-try {
-    timeout(2000);
-} catch (TimeoutException $e) {
-    
-}
 
 try {
     $isValid = await($validation, timeout(2000));
@@ -54,7 +56,7 @@ try {
 }
 ```
 
-`timeout`은 `TimeoutException`을 던지지만, 두 번째 블록은 `OperationCanceledException`을 받는 것을 볼 수 있습니다. 이는 의도된 것으로, `await`에 대한 `try-catch` 처리 로직을 단순화하고 취소된 대기와 코루틴 내부에서 발생한 예외를 명확히 구분하기 위한 것입니다.
+토큰이 작동하면 `TimeoutException`이 아니라 `OperationCanceledException`이 옵니다. 타임아웃 자체는 그 안의 `getPrevious()`에 들어 있습니다. 이는 의도된 것으로, `await`에 대한 `try-catch` 처리 로직을 단순화하고 취소된 대기와 코루틴 내부에서 발생한 예외를 명확히 구분하기 위한 것입니다.
 코루틴은 일반적으로 스스로 `OperationCanceledException`을 던지면 안 됩니다.
 
 `await` 대기를 제한하는 데 사용하는 것이 반드시 `timeout()`일 필요는 없습니다. 다른 어떤 코루틴이 될 수도 있고, 임의의 작업 완료를 나타내는 논리적 계약인 `Future`가 될 수도 있습니다.

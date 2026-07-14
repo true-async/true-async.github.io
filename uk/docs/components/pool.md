@@ -82,7 +82,22 @@ $resource = $pool->acquire(timeout: 5000);
 Якщо пул заповнений (всі ресурси зайняті і `max` досягнуто), корутина **призупиняється**
 і чекає, поки інша корутина поверне ресурс. Інші корутини продовжують працювати.
 
-При таймауті кидається `PoolException`.
+При таймауті кидається `Async\TimeoutException`, а не `PoolException`. Таймаут — це не поломка пулу:
+пул справний, він просто зайнятий, і збіг ваш власний дедлайн. `PoolException` означає, що пул
+непридатний (закритий, не ініціалізований, фабрика впала).
+
+Зверніть увагу: `TimeoutException` успадковується від `Exception`, а не від `PoolException`, тому
+`catch (PoolException)` таймаут **не спіймає**.
+
+```php
+try {
+    $resource = $pool->acquire(timeout: 5000);
+} catch (Async\TimeoutException $e) {
+    // ресурс не звільнився за 5 секунд — можна повторити або відступити
+} catch (Async\PoolException $e) {
+    // пул закрито — повторювати немає сенсу
+}
+```
 
 ### Неблокуючий tryAcquire
 
@@ -184,6 +199,7 @@ use Async\CircuitBreakerStrategy;
 class MyStrategy implements CircuitBreakerStrategy
 {
     private int $failures = 0;
+    private int $openedAt = 0;
 
     public function reportSuccess(mixed $source): void {
         $this->failures = 0;
@@ -193,8 +209,13 @@ class MyStrategy implements CircuitBreakerStrategy
     public function reportFailure(mixed $source, \Throwable $error): void {
         $this->failures++;
         if ($this->failures >= 5) {
+            $this->openedAt = time();
             $source->deactivate();
         }
+    }
+
+    public function shouldRecover(): bool {
+        return time() - $this->openedAt >= 30;
     }
 }
 

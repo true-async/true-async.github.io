@@ -82,7 +82,22 @@ $resource = $pool->acquire(timeout: 5000);
 Если пул заполнен (все ресурсы заняты и достигнут `max`), корутина **приостанавливается**
 и ждёт, пока другая корутина не вернёт ресурс. Другие корутины продолжают работать.
 
-При таймауте выбрасывается `PoolException`.
+При таймауте выбрасывается `Async\TimeoutException`, а не `PoolException`. Таймаут — это не поломка
+пула: пул исправен, он просто занят, и истёк ваш собственный дедлайн. `PoolException` означает, что
+пул непригоден (закрыт, не инициализирован, фабрика упала).
+
+Обратите внимание: `TimeoutException` наследуется от `Exception`, а не от `PoolException`, поэтому
+`catch (PoolException)` таймаут **не поймает**.
+
+```php
+try {
+    $resource = $pool->acquire(timeout: 5000);
+} catch (Async\TimeoutException $e) {
+    // Ресурс не освободился за 5 секунд — можно повторить или отступить
+} catch (Async\PoolException $e) {
+    // Пул закрыт — повторять бессмысленно
+}
+```
 
 ### Неблокирующий tryAcquire
 
@@ -184,6 +199,7 @@ use Async\CircuitBreakerStrategy;
 class MyStrategy implements CircuitBreakerStrategy
 {
     private int $failures = 0;
+    private int $openedAt = 0;
 
     public function reportSuccess(mixed $source): void {
         $this->failures = 0;
@@ -193,17 +209,27 @@ class MyStrategy implements CircuitBreakerStrategy
     public function reportFailure(mixed $source, \Throwable $error): void {
         $this->failures++;
         if ($this->failures >= 5) {
+            $this->openedAt = time();
             $source->deactivate();
         }
+    }
+
+    public function shouldRecover(): bool {
+        // Пробуем снова через 30 секунд после размыкания
+        return time() - $this->openedAt >= 30;
     }
 }
 
 $pool->setCircuitBreakerStrategy(new MyStrategy());
 ```
 
+Интерфейс требует **три** метода. Если пропустить `shouldRecover()`, класс не загрузится вовсе:
+`Fatal error: Class MyStrategy must implement the remaining method (Async\CircuitBreakerStrategy::shouldRecover)`.
+
 Стратегия вызывается автоматически:
 - `reportSuccess()` — при успешном возврате ресурса в пул
 - `reportFailure()` — когда `beforeRelease` вернул `false` (ресурс повреждён)
+- `shouldRecover()` — периодически, пока пул в состоянии `INACTIVE`, чтобы решить, переходить ли в `RECOVERING`
 
 ## Жизненный цикл ресурса
 

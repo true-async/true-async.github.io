@@ -39,14 +39,15 @@ try {
 
 ```php
 use function Async\timeout;
-use Async\OperationCanceledException;
-use Async\TimeoutException;
 
-try {
-    timeout(2000);
-} catch (TimeoutException $e) {
-    
-}
+$token = timeout(2000);   // just an object; nothing happens
+```
+
+The token only takes effect once it is handed to an operation as a cancellation argument:
+
+```php
+use function Async\timeout;
+use Async\OperationCanceledException;
 
 try {
     $isValid = await($validation, timeout(2000));
@@ -56,8 +57,8 @@ try {
 }
 ```
 
-ми побачимо, що `timeout` викидає `TimeoutException`, проте другий блок отримує
-`OperationCanceledException`. Це зроблено навмисно, щоб спростити логіку обробки `try-catch` для
+Зверніть увагу: коли токен спрацьовує, приходить `OperationCanceledException`, а не `TimeoutException`.
+Саме спрацювання таймауту лежить усередині, у `getPrevious()`. Це зроблено навмисно, щоб спростити логіку обробки `try-catch` для
 `await` і чітко відрізнити скасоване очікування від винятку, що виник всередині корутини.
 Корутини зазвичай не повинні викидати `OperationCanceledException` самостійно.
 

@@ -95,7 +95,7 @@ $server->addHttpHandler(function ($req, $res) {
     request_context()->set('user_id', authUser($req));
 
     // Fan-out
-    [$user, $posts] = await(\Async\all([
+    [$user, $posts] = await(\Async\await_all([
         spawn(fn() => fetchUser()),   // 这里看得到 request_id
         spawn(fn() => fetchPosts()),  // 这里也看得到
     ]));

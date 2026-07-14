@@ -49,7 +49,7 @@ $scope->spawn(function() {
     }
 });
 
-$scope->awaitCompletion();
+$scope->awaitCompletion(Async\timeout(5000));
 ```
 
 ### Esempio #2 Scope con durata limitata
@@ -77,7 +77,7 @@ $scope->spawn(function() {
     echo "Task 3: OK\n"; // Non verra' stampato
 });
 
-$scope->awaitCompletion();
+$scope->awaitCompletion(Async\timeout(5000));
 ```
 
 ## Vedi anche

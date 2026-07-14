@@ -44,7 +44,7 @@ spawn(function() {
     $set->spawn(fn() => throw new \RuntimeException("error"));
 
     $set->close();
-    $set->awaitCompletion(); // Does not throw even if tasks failed
+    $set->awaitCompletion(Async\timeout(5000)); // Does not throw even if tasks failed
 
     echo "All tasks completed\n";
 });

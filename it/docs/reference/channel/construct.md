@@ -13,7 +13,7 @@ description: "Crea un nuovo canale per lo scambio di dati tra coroutine."
 (PHP 8.6+, True Async 1.0)
 
 ```php
-public Channel::__construct(int $capacity = 0)
+public Channel::__construct(int $capacity = 0, int $noProducerTimeout = 0, int $noConsumerTimeout = 0, bool $hardTimeouts = false)
 ```
 
 Crea un nuovo canale per il passaggio di dati tra coroutine.

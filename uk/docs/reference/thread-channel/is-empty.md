@@ -80,7 +80,7 @@ spawn(function() {
             }
             try {
                 echo $channel->recv(), "\n";
-            } catch (\Async\ChannelClosedException) {
+            } catch (\Async\ThreadChannelException) {
                 break;
             }
         }

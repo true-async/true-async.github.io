@@ -50,14 +50,14 @@ function processUser($userId):string {
     spawn(logActivity(...), $userId);
 
     // Ждем, пока все корутины в scope завершатся
-    $scope->awaitCompletion(new Async\Timeout(1000));
+    $scope->awaitCompletion(Async\timeout(1000));
 
     return "OK";
 }
 
 $scope = new Async\Scope();
 $scope->spawn(processUser(...), 123);
-$scope->awaitCompletion(new Async\Timeout(5000));
+$scope->awaitCompletion(Async\timeout(5000));
 
 // Теперь функция вернется только когда ВСЕ корутины закончат работу
 ```
@@ -127,12 +127,12 @@ $mainScope->spawn(function() {
     });
 
     // Ждем завершения подзадач
-    $childScope->awaitCompletion();
+    $childScope->awaitCompletion(Async\timeout(5000));
 
     echo "Все подзадачи готовы\n";
 });
 
-$mainScope->awaitCompletion();
+$mainScope->awaitCompletion(Async\timeout(5000));
 ```
 
 Если отменить `$mainScope`, отменятся и все дочерние scope. Вся иерархия.
@@ -181,7 +181,7 @@ $scope->cancel();
 $scope = new Async\Scope();
 
 // Устанавливаем обработчик ошибок
-$scope->setExceptionHandler(function(Throwable $e) {
+$scope->setExceptionHandler(function (Async\Scope $scope, Async\Coroutine $coroutine, Throwable $e) {
     echo "Ошибка в scope: " . $e->getMessage() . "\n";
     // Можно залогировать, отправить в Sentry, etc
 });
@@ -194,7 +194,7 @@ $scope->spawn(function() {
     echo "Я работаю нормально\n";
 });
 
-$scope->awaitCompletion();
+$scope->awaitCompletion(Async\timeout(5000));
 
 // Вывод:
 // Ошибка в scope: Что-то сломалось!
@@ -365,7 +365,7 @@ $scope->spawn(function() { /* задача 1 */ });
 $scope->spawn(function() { /* задача 2 */ });
 
 // Управление не вернётся, пока обе задачи не завершатся
-$scope->awaitCompletion();
+$scope->awaitCompletion(Async\timeout(5000));
 ```
 
 В Kotlin то же самое делает `coroutineScope { }`,

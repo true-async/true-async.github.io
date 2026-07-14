@@ -65,7 +65,7 @@ try {
         \Async\delay(5000);
     });
 
-    $scope->awaitCompletion();
+    $scope->awaitCompletion(Async\timeout(5000));
 } finally {
     $scope->dispose();
 }

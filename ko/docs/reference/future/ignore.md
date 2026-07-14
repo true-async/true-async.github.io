@@ -32,7 +32,7 @@ public function ignore(): Future
 use Async\Future;
 
 // 오류를 신경 쓰지 않는 작업 실행
-\Async\async(function() {
+\Async\spawn(function() {
     // 이 작업은 실패할 수 있음
     sendAnalytics(['event' => 'page_view']);
 })->ignore();
@@ -49,7 +49,7 @@ use Async\Future;
 
 function warmupCache(array $keys): void {
     foreach ($keys as $key) {
-        \Async\async(function() use ($key) {
+        \Async\spawn(function() use ($key) {
             $data = loadFromDatabase($key);
             saveToCache($key, $data);
         })->ignore(); // 캐시 오류는 치명적이지 않음

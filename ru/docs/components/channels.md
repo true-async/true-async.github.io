@@ -129,22 +129,16 @@ spawn(function() use ($ch) {
 
 // Получатель A
 spawn(function() use ($ch) {
-    try {
-        while (true) {
-            $v = $ch->recv();
+    foreach ($ch as $v) {
             echo "A получил: $v\n";
-        }
-    } catch (\Async\ChannelException) {}
+    }
 });
 
 // Получатель B
 spawn(function() use ($ch) {
-    try {
-        while (true) {
-            $v = $ch->recv();
+    foreach ($ch as $v) {
             echo "B получил: $v\n";
-        }
-    } catch (\Async\ChannelException) {}
+    }
 });
 
 // Каждое значение (1, 2, 3) получит только A или B, но не оба

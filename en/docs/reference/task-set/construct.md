@@ -13,7 +13,7 @@ description: "Create a new TaskSet with optional concurrency limit."
 (PHP 8.6+, True Async 1.0)
 
 ```php
-public TaskSet::__construct(?int $concurrency = null, ?Async\Scope $scope = null)
+public TaskSet::__construct(?int $concurrency = null, ?int $queueLimit = null, ?Async\Scope $scope = null)
 ```
 
 Creates a new task set with automatic cleanup of results after delivery.

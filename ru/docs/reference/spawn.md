@@ -128,7 +128,7 @@ $scope->spawn(function() {
 });
 
 // Ожидаем завершения всех корутин в scope
-$scope->awaitCompletion();
+$scope->awaitCompletion(Async\timeout(5000));
 ?>
 ```
 

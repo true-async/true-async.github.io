@@ -39,7 +39,7 @@ Future가 오류로 완료되었거나 취소된 경우 예외를 발생시킵�
 
 use Async\Future;
 
-$future = \Async\async(function() {
+$future = \Async\spawn(function() {
     \Async\delay(100);
     return 42;
 });
@@ -55,7 +55,7 @@ echo "Result: $result\n"; // Result: 42
 
 use Async\Future;
 
-$future = \Async\async(function() {
+$future = \Async\spawn(function() {
     throw new \RuntimeException("Something went wrong");
 });
 

@@ -16,7 +16,10 @@ description: "Crea un nuovo FileSystemWatcher e inizia il monitoraggio di file o
 public FileSystemWatcher::__construct(
     string $path,
     bool $recursive = false,
-    bool $coalesce = true
+    bool $coalesce = true,
+    int $debounceMs = 0,
+    int $maxHoldMs = 0,
+    array $extensions = []
 )
 ```
 

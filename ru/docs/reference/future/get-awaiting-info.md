@@ -36,11 +36,11 @@ $state = new FutureState();
 $future = new Future($state);
 
 // Запускаем несколько корутин, ожидающих один Future
-\Async\async(function() use ($future) {
+\Async\spawn(function() use ($future) {
     $future->await();
 });
 
-\Async\async(function() use ($future) {
+\Async\spawn(function() use ($future) {
     $future->await();
 });
 

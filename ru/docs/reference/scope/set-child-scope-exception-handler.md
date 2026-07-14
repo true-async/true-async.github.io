@@ -47,7 +47,7 @@ $childScope->spawn(function() {
     throw new \RuntimeException("Ошибка в дочернем scope");
 });
 
-$childScope->awaitCompletion();
+$childScope->awaitCompletion(Async\timeout(5000));
 // Ошибка обработана, не всплывает в $parentScope
 ```
 
@@ -77,7 +77,7 @@ $cacheScope->spawn(function() {
     echo "Кеш работает нормально\n";
 });
 
-$appScope->awaitCompletion();
+$appScope->awaitCompletion(Async\timeout(5000));
 ```
 
 ## См. также

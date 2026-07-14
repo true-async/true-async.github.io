@@ -60,8 +60,9 @@ Async\AsyncCancellation
 ```
 
 When the `$progress` coroutine was asleep inside `delay(1000)` and `cancel()` was then called,
-`delay` threw an `Async\AsyncCancellation` exception. Interestingly, this trick doesn't work with `sleep(1)`,
-since `sleep(1)` doesn't throw an exception, while `delay` does, and that's exactly what we're relying on here.
+`delay` threw an `Async\AsyncCancellation` exception. The same happens with a plain `sleep(1)`:
+under TrueAsync `sleep()` becomes asynchronous too and is likewise a cancellation point — it throws
+`Async\AsyncCancellation` exactly like `delay`.
 
 You could say that using `delay` in your code effectively establishes a contract that lets other code
 interrupt the coroutine's execution. This is very convenient, since it once again separates concerns

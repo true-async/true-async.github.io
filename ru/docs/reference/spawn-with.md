@@ -66,7 +66,7 @@ $c2 = spawn_with($scope, function() {
 });
 
 // Ожидаем завершения всех корутин в scope
-$scope->awaitCompletion();
+$scope->awaitCompletion(Async\timeout(5000));
 ?>
 ```
 

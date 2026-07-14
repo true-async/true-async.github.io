@@ -13,7 +13,7 @@ description: "Receive the next value from the thread channel, blocking the calli
 (PHP 8.6+, True Async 1.0)
 
 ```php
-public ThreadChannel::recv(): mixed
+public ThreadChannel::recv(?Completable $cancellationToken = null): mixed
 ```
 
 Receives the next value from the channel. This is a **blocking** operation — the calling thread
@@ -24,7 +24,7 @@ is blocked if no values are currently available in the channel.
 - For an **unbuffered channel** (`capacity = 0`), `recv()` blocks until another thread calls `send()`.
 
 If the channel is closed and the buffer still contains values, those values are returned normally.
-Once the buffer is drained and the channel is closed, `recv()` throws `ChannelClosedException`.
+Once the buffer is drained and the channel is closed, `recv()` throws `ThreadChannelException`.
 
 The received value is a **deep copy** of the original — modifications to the returned value do
 not affect the sender's copy.
@@ -35,7 +35,7 @@ The next value from the channel (`mixed`).
 
 ## Errors
 
-- Throws `Async\ChannelClosedException` if the channel is closed and the buffer is empty.
+- Throws `Async\ThreadChannelException` if the channel is closed and the buffer is empty.
 
 ## Examples
 
@@ -64,7 +64,7 @@ spawn(function() {
         while (true) {
             echo $channel->recv(), "\n";
         }
-    } catch (\Async\ChannelClosedException) {
+    } catch (\Async\ThreadChannelException) {
         echo "All values received\n";
     }
 
@@ -100,7 +100,7 @@ spawn(function() {
             while (true) {
                 $collected[] = $channel->recv();
             }
-        } catch (\Async\ChannelClosedException) {
+        } catch (\Async\ThreadChannelException) {
             // buffer drained and channel closed
         }
         return $collected;
