@@ -49,7 +49,7 @@ $scope->spawn(function() {
     }
 });
 
-$scope->awaitCompletion();
+$scope->awaitCompletion(Async\timeout(5000));
 ```
 
 ### 示例 #2 限定生命周期的作用域
@@ -77,7 +77,7 @@ $scope->spawn(function() {
     echo "Task 3: OK\n"; // Will not be printed
 });
 
-$scope->awaitCompletion();
+$scope->awaitCompletion(Async\timeout(5000));
 ```
 
 ## 参见

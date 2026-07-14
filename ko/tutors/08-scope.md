@@ -62,12 +62,8 @@ $workers = new Scope();
 
 for ($i = 0; $i < 10; $i++) {
     $workers->spawn(function () use ($queue) {
-        try {
-            while (true) {
-                checkAddress($queue->recv());
-            }
-        } catch (ChannelException) {
-            // 채널이 닫혔고 비어 있음
+        foreach ($queue as $address) {
+                checkAddress($address);
         }
     });
 }
@@ -218,13 +214,9 @@ final class ImportService
         // 워커: 채널에서 주소를 꺼냄, 병행으로 $this->workers 개를 넘지 않음
         for ($i = 0; $i < $this->workers; $i++) {
             $this->scope->spawn(function () use ($queue, &$counter) {
-                try {
-                    while (true) {
-                        checkAddress($queue->recv());
+                foreach ($queue as $address) {
+                        checkAddress($address);
                         $counter++;
-                    }
-                } catch (ChannelException) {
-                    // 채널이 닫혔고 비어 있음, 작업 완료
                 }
             });
         }

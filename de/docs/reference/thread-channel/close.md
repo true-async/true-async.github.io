@@ -18,17 +18,17 @@ public ThreadChannel::close(): void
 
 Schließt den Kanal. Nach dem Schließen:
 
-- Der Aufruf von `send()` wirft eine `ChannelClosedException`.
+- Der Aufruf von `send()` wirft eine `ThreadChannelException`.
 - Der Aufruf von `recv()` gibt weiterhin bereits im Puffer vorhandene Werte zurück, bis dieser geleert ist.
-  Sobald der Puffer leer ist, wirft `recv()` eine `ChannelClosedException`.
+  Sobald der Puffer leer ist, wirft `recv()` eine `ThreadChannelException`.
 - Threads, die aktuell in `send()` oder `recv()` blockiert sind, werden entsperrt und erhalten eine
-  `ChannelClosedException`.
+  `ThreadChannelException`.
 
 Der Aufruf von `close()` auf einem bereits geschlossenen Kanal ist ein No-op — es wird keine Ausnahme geworfen.
 
 `close()` ist die Standardmethode, um dem konsumierenden Ende das "Stream-Ende" zu signalisieren. Der Produzent
 schließt den Kanal, nachdem alle Elemente gesendet wurden; der Konsument liest, bis er
-`ChannelClosedException` auffängt.
+`ThreadChannelException` auffängt.
 
 `close()` selbst ist thread-sicher und kann von jedem Thread aus aufgerufen werden.
 
@@ -59,7 +59,7 @@ spawn(function() {
             while (true) {
                 echo $channel->recv(), "\n";
             }
-        } catch (\Async\ChannelClosedException) {
+        } catch (\Async\ThreadChannelException) {
             echo "Stream beendet\n";
         }
     });
@@ -86,7 +86,7 @@ spawn(function() {
     $waiter = spawn_thread(function() use ($channel) {
         try {
             $channel->recv(); // blockiert
-        } catch (\Async\ChannelClosedException) {
+        } catch (\Async\ThreadChannelException) {
             return "Durch close() entsperrt";
         }
     });

@@ -127,22 +127,16 @@ spawn(function() use ($ch) {
 
 // 接收者 A
 spawn(function() use ($ch) {
-    try {
-        while (true) {
-            $v = $ch->recv();
+    foreach ($ch as $v) {
             echo "A 接收到: $v\n";
-        }
-    } catch (\Async\ChannelException) {}
+    }
 });
 
 // 接收者 B
 spawn(function() use ($ch) {
-    try {
-        while (true) {
-            $v = $ch->recv();
+    foreach ($ch as $v) {
             echo "B 接收到: $v\n";
-        }
-    } catch (\Async\ChannelException) {}
+    }
 });
 
 // 每个值（1, 2, 3）只会被 A 或 B 接收，但不会被两者同时接收

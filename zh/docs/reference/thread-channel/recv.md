@@ -13,7 +13,7 @@ description: "从线程通道接收下一个值，如果没有可用值则阻塞
 (PHP 8.6+, True Async 1.0)
 
 ```php
-public ThreadChannel::recv(): mixed
+public ThreadChannel::recv(?Completable $cancellationToken = null): mixed
 ```
 
 从通道接收下一个值。这是一个**阻塞**操作 — 如果通道中当前没有可用值，调用线程将被阻塞。
@@ -23,7 +23,7 @@ public ThreadChannel::recv(): mixed
 - 对于**无缓冲通道**（`capacity = 0`），`recv()` 阻塞直到另一个线程调用 `send()`。
 
 如果通道已关闭且缓冲区仍有值，这些值将正常返回。
-一旦缓冲区排空且通道已关闭，`recv()` 将抛出 `ChannelClosedException`。
+一旦缓冲区排空且通道已关闭，`recv()` 将抛出 `ThreadChannelException`。
 
 接收到的值是原始值的**深拷贝** — 对返回值的修改不会影响发送方的副本。
 
@@ -33,7 +33,7 @@ public ThreadChannel::recv(): mixed
 
 ## 错误
 
-- 如果通道已关闭且缓冲区为空，抛出 `Async\ChannelClosedException`。
+- 如果通道已关闭且缓冲区为空，抛出 `Async\ThreadChannelException`。
 
 ## 示例
 
@@ -62,7 +62,7 @@ spawn(function() {
         while (true) {
             echo $channel->recv(), "\n";
         }
-    } catch (\Async\ChannelClosedException) {
+    } catch (\Async\ThreadChannelException) {
         echo "All values received\n";
     }
 
@@ -98,7 +98,7 @@ spawn(function() {
             while (true) {
                 $collected[] = $channel->recv();
             }
-        } catch (\Async\ChannelClosedException) {
+        } catch (\Async\ThreadChannelException) {
             // 缓冲区已排空且通道已关闭
         }
         return $collected;

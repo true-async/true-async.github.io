@@ -232,7 +232,7 @@ $scope->spawn(function() {
 });
 
 try {
-    $scope->awaitCompletion();
+    $scope->awaitCompletion(Async\timeout(5000));
 } catch (Exception $e) {
     echo "Error subio al scope: " . $e->getMessage() . "\n";
 }

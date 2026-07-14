@@ -45,7 +45,7 @@ $scope = new Scope();
 // Scope itself implements ScopeProvider
 runInScope($scope);
 
-$scope->awaitCompletion();
+$scope->awaitCompletion(Async\timeout(5000));
 ```
 
 ### Приклад #2 Поліморфізм із ScopeProvider

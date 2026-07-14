@@ -45,7 +45,7 @@ $scope->spawn(function() {
     throw new \RuntimeException("Qualcosa e' andato storto");
 });
 
-$scope->awaitCompletion();
+$scope->awaitCompletion(Async\timeout(5000));
 // Il log conterra': "Errore coroutine: Qualcosa e' andato storto"
 ```
 
@@ -71,7 +71,7 @@ $scope->spawn(function() {
     throw new \LogicException("Errore 2");
 });
 
-$scope->awaitCompletion();
+$scope->awaitCompletion(Async\timeout(5000));
 
 echo "Errori totali: " . count($errors) . "\n"; // Errori totali: 2
 ```

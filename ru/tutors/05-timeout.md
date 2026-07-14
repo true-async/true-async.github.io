@@ -35,17 +35,20 @@ try {
 
 ## OperationCanceledException
 
-Если выполнить код 
+Сам по себе `timeout()` ничего не бросает. Он возвращает **токен отмены** — объект `Async\Timeout`.
+Вот этот код не выбросит исключение никогда, сколько бы ни работал скрипт:
+
+```php
+use function Async\timeout;
+
+$token = timeout(2000);   // просто объект, ничего не происходит
+```
+
+Токен начинает действовать только тогда, когда его передают операции в качестве ограничения:
+
 ```php
 use function Async\timeout;
 use Async\OperationCanceledException;
-use Async\TimeoutException;
-
-try {
-    timeout(2000);
-} catch (TimeoutException $e) {
-    
-}
 
 try {
     $isValid = await($validation, timeout(2000));
@@ -55,9 +58,10 @@ try {
 }
 ```
 
-Можно заметить, что timeout бросает исключение `TimeoutException`, однако во втором блоке приходит `OperationCanceledException`.
-Это сделано намеренно, чтобы упростить логику обработки конструкций `try-catch` для `await` и явно отличать
-отмену ожидания от исключения внутри корутины. Обычно корутины не должны бросать `OperationCanceledException`.
+Обратите внимание: когда токен срабатывает, приходит `OperationCanceledException`, а не `TimeoutException`.
+Само срабатывание таймаута лежит внутри, в `getPrevious()`. Это сделано намеренно, чтобы упростить логику
+обработки конструкций `try-catch` для `await` и явно отличать отмену ожидания от исключения внутри корутины.
+Обычно корутины не должны бросать `OperationCanceledException`.
 
 В качестве ограничения ожидания `await` может быть и любая другая корутина, а также `Future`, 
 логический контракт завершения произвольной операции.

@@ -13,7 +13,7 @@ description: "向线程通道发送值，如果通道无法立即接受则阻塞
 (PHP 8.6+, True Async 1.0)
 
 ```php
-public ThreadChannel::send(mixed $value): void
+public ThreadChannel::send(mixed $value, ?Completable $cancellationToken = null): void
 ```
 
 向通道发送值。这是一个**阻塞**操作 — 如果通道无法立即接受值，调用线程将被阻塞。
@@ -32,7 +32,7 @@ public ThreadChannel::send(mixed $value): void
 
 ## 错误
 
-- 如果通道已关闭，抛出 `Async\ChannelClosedException`。
+- 如果通道已关闭，抛出 `Async\ThreadChannelException`。
 - 如果值无法序列化以进行跨线程传输，抛出 `Async\ThreadTransferException`。
 
 ## 示例
@@ -63,7 +63,7 @@ spawn(function() {
     while (!$channel->isClosed() || !$channel->isEmpty()) {
         try {
             echo $channel->recv(), "\n";
-        } catch (\Async\ChannelClosedException) {
+        } catch (\Async\ThreadChannelException) {
             break;
         }
     }
@@ -114,7 +114,7 @@ spawn(function() {
     $thread = spawn_thread(function() use ($channel) {
         try {
             $channel->send('too late');
-        } catch (\Async\ChannelClosedException $e) {
+        } catch (\Async\ThreadChannelException $e) {
             return "Send failed: " . $e->getMessage();
         }
     });

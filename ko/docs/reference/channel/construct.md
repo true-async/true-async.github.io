@@ -13,7 +13,7 @@ description: "코루틴 간 데이터 교환을 위한 새로운 채널을 생�
 (PHP 8.6+, True Async 1.0)
 
 ```php
-public Channel::__construct(int $capacity = 0)
+public Channel::__construct(int $capacity = 0, int $noProducerTimeout = 0, int $noConsumerTimeout = 0, bool $hardTimeouts = false)
 ```
 
 코루틴 간 데이터 전달을 위한 새로운 채널을 생성합니다.

@@ -51,7 +51,7 @@ use Async\FutureState;
 $state = new FutureState();
 $future = new Future($state);
 
-\Async\async(function() use ($state) {
+\Async\spawn(function() use ($state) {
     \Async\delay(50);
     $state->complete("done");
 });

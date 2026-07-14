@@ -50,14 +50,14 @@ function processUser($userId):string {
     spawn(logActivity(...), $userId);
 
     // 等待作用域中所有协程完成
-    $scope->awaitCompletion(new Async\Timeout(1000));
+    $scope->awaitCompletion(Async\timeout(1000));
 
     return "OK";
 }
 
 $scope = new Async\Scope();
 $scope->spawn(processUser(...), 123);
-$scope->awaitCompletion(new Async\Timeout(5000));
+$scope->awaitCompletion(Async\timeout(5000));
 
 // 现在函数只有在所有协程完成后才会返回
 ```
@@ -127,12 +127,12 @@ $mainScope->spawn(function() {
     });
 
     // 等待子任务完成
-    $childScope->awaitCompletion();
+    $childScope->awaitCompletion(Async\timeout(5000));
 
     echo "All subtasks done\n";
 });
 
-$mainScope->awaitCompletion();
+$mainScope->awaitCompletion(Async\timeout(5000));
 ```
 
 如果你取消 `$mainScope`，所有子作用域也会被取消。整个层级。
@@ -181,7 +181,7 @@ $scope->cancel();
 $scope = new Async\Scope();
 
 // 设置错误处理器
-$scope->setExceptionHandler(function(Throwable $e) {
+$scope->setExceptionHandler(function (Async\Scope $scope, Async\Coroutine $coroutine, Throwable $e) {
     echo "Error in scope: " . $e->getMessage() . "\n";
     // 可以记录日志、发送到 Sentry 等
 });
@@ -194,7 +194,7 @@ $scope->spawn(function() {
     echo "I'm working fine\n";
 });
 
-$scope->awaitCompletion();
+$scope->awaitCompletion(Async\timeout(5000));
 
 // 输出：
 // Error in scope: Something broke!
@@ -362,7 +362,7 @@ $scope->spawn(function() { /* 任务 1 */ });
 $scope->spawn(function() { /* 任务 2 */ });
 
 // 两个任务都完成前不会返回控制权
-$scope->awaitCompletion();
+$scope->awaitCompletion(Async\timeout(5000));
 ```
 
 在 Kotlin 中，同样的操作通过 `coroutineScope { }` 实现，

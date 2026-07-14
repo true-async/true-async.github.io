@@ -46,7 +46,7 @@ $scope->spawn(function() {
     echo "Executing task\n";
 });
 
-$scope->awaitCompletion();
+$scope->awaitCompletion(Async\timeout(5000));
 // Sortie : "Executing task"
 // Sortie : "Scope completed, cleaning up resources"
 ```

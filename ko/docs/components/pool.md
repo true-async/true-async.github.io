@@ -82,7 +82,22 @@ $resource = $pool->acquire(timeout: 5000);
 풀이 가득 찬 경우 (모든 리소스가 사용 중이고 `max`에 도달), 코루틴은 **일시 중단**되고
 다른 코루틴이 리소스를 반환할 때까지 기다립니다. 다른 코루틴은 계속 실행됩니다.
 
-타임아웃 시 `PoolException`이 발생합니다.
+타임아웃 시에는 `PoolException`이 아니라 `Async\TimeoutException`이 발생합니다. 타임아웃은 풀의 고장이
+아닙니다. 풀은 정상이며 단지 바쁠 뿐이고, 만료된 것은 여러분이 지정한 마감 시간입니다. `PoolException`은
+풀 자체를 쓸 수 없다는 뜻입니다(닫힘, 초기화되지 않음, 팩토리 실패).
+
+주의: `TimeoutException`은 `PoolException`이 아니라 `Exception`을 상속하므로 `catch (PoolException)`으로는
+타임아웃을 **잡을 수 없습니다**.
+
+```php
+try {
+    $resource = $pool->acquire(timeout: 5000);
+} catch (Async\TimeoutException $e) {
+    // 5초 안에 리소스가 반환되지 않음 -- 재시도하거나 백오프
+} catch (Async\PoolException $e) {
+    // 풀이 닫힘 -- 재시도는 무의미
+}
+```
 
 ### 논블로킹 tryAcquire
 
@@ -184,6 +199,7 @@ use Async\CircuitBreakerStrategy;
 class MyStrategy implements CircuitBreakerStrategy
 {
     private int $failures = 0;
+    private int $openedAt = 0;
 
     public function reportSuccess(mixed $source): void {
         $this->failures = 0;
@@ -193,8 +209,13 @@ class MyStrategy implements CircuitBreakerStrategy
     public function reportFailure(mixed $source, \Throwable $error): void {
         $this->failures++;
         if ($this->failures >= 5) {
+            $this->openedAt = time();
             $source->deactivate();
         }
+    }
+
+    public function shouldRecover(): bool {
+        return time() - $this->openedAt >= 30;
     }
 }
 

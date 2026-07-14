@@ -52,7 +52,7 @@ echo $result; // valor por defecto
 
 use Async\Future;
 
-$future = \Async\async(function() {
+$future = \Async\spawn(function() {
     $response = httpGet('https://api.example.com/users');
     if ($response->status !== 200) {
         throw new \RuntimeException("Error HTTP: {$response->status}");

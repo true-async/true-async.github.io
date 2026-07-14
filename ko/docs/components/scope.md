@@ -50,14 +50,14 @@ function processUser($userId):string {
     spawn(logActivity(...), $userId);
 
     // scope 내의 모든 코루틴이 완료될 때까지 대기
-    $scope->awaitCompletion(new Async\Timeout(1000));
+    $scope->awaitCompletion(Async\timeout(1000));
 
     return "OK";
 }
 
 $scope = new Async\Scope();
 $scope->spawn(processUser(...), 123);
-$scope->awaitCompletion(new Async\Timeout(5000));
+$scope->awaitCompletion(Async\timeout(5000));
 
 // 이제 함수는 모든 코루틴이 완료된 후에만 반환됩니다
 ```
@@ -127,12 +127,12 @@ $mainScope->spawn(function() {
     });
 
     // 하위 작업 완료 대기
-    $childScope->awaitCompletion();
+    $childScope->awaitCompletion(Async\timeout(5000));
 
     echo "모든 하위 작업 완료\n";
 });
 
-$mainScope->awaitCompletion();
+$mainScope->awaitCompletion(Async\timeout(5000));
 ```
 
 `$mainScope`를 취소하면 모든 자식 스코프도 취소됩니다. 전체 계층 구조가 취소됩니다.
@@ -181,7 +181,7 @@ $scope->cancel();
 $scope = new Async\Scope();
 
 // 오류 핸들러 설정
-$scope->setExceptionHandler(function(Throwable $e) {
+$scope->setExceptionHandler(function (Async\Scope $scope, Async\Coroutine $coroutine, Throwable $e) {
     echo "스코프 내 오류: " . $e->getMessage() . "\n";
     // 로그 기록, Sentry로 전송 등이 가능합니다
 });
@@ -194,7 +194,7 @@ $scope->spawn(function() {
     echo "저는 정상 작동 중입니다\n";
 });
 
-$scope->awaitCompletion();
+$scope->awaitCompletion(Async\timeout(5000));
 
 // 출력:
 // 스코프 내 오류: 뭔가 고장났습니다!
@@ -362,7 +362,7 @@ $scope->spawn(function() { /* 작업 1 */ });
 $scope->spawn(function() { /* 작업 2 */ });
 
 // 두 작업이 모두 완료될 때까지 제어가 반환되지 않습니다
-$scope->awaitCompletion();
+$scope->awaitCompletion(Async\timeout(5000));
 ```
 
 Kotlin에서는 `coroutineScope { }`로,

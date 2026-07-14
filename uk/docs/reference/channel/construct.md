@@ -13,7 +13,7 @@ description: "Створити новий канал для обміну дан�
 (PHP 8.6+, True Async 1.0)
 
 ```php
-public Channel::__construct(int $capacity = 0)
+public Channel::__construct(int $capacity = 0, int $noProducerTimeout = 0, int $noConsumerTimeout = 0, bool $hardTimeouts = false)
 ```
 
 Створює новий канал для передачі даних між корутинами.

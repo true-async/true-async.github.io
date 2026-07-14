@@ -82,7 +82,7 @@ spawn(function() {
                 $val = $channel->recv();
                 // procesar $val ...
             }
-        } catch (\Async\ChannelClosedException) {
+        } catch (\Async\ThreadChannelException) {
             echo "Hecho\n";
         }
     });

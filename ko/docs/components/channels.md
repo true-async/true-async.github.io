@@ -129,22 +129,16 @@ spawn(function() use ($ch) {
 
 // 수신자 A
 spawn(function() use ($ch) {
-    try {
-        while (true) {
-            $v = $ch->recv();
+    foreach ($ch as $v) {
             echo "A 수신: $v\n";
-        }
-    } catch (\Async\ChannelException) {}
+    }
 });
 
 // 수신자 B
 spawn(function() use ($ch) {
-    try {
-        while (true) {
-            $v = $ch->recv();
+    foreach ($ch as $v) {
             echo "B 수신: $v\n";
-        }
-    } catch (\Async\ChannelException) {}
+    }
 });
 
 // 각 값(1, 2, 3)은 A 또는 B 중 하나만 수신하며, 둘 다 수신하지 않습니다

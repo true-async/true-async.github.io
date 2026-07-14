@@ -32,7 +32,7 @@ Marca el `Future` como ignorado. Si el Future se completa con un error y el erro
 use Async\Future;
 
 // Lanzar una tarea cuyos errores no nos importan
-\Async\async(function() {
+\Async\spawn(function() {
     // Esta operación puede fallar
     sendAnalytics(['event' => 'page_view']);
 })->ignore();
@@ -49,7 +49,7 @@ use Async\Future;
 
 function warmupCache(array $keys): void {
     foreach ($keys as $key) {
-        \Async\async(function() use ($key) {
+        \Async\spawn(function() use ($key) {
             $data = loadFromDatabase($key);
             saveToCache($key, $data);
         })->ignore(); // Los errores de caché no son críticos

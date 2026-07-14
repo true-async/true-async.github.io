@@ -58,12 +58,8 @@ $workers = new Scope();
 
 for ($i = 0; $i < 10; $i++) {
     $workers->spawn(function () use ($queue) {
-        try {
-            while (true) {
-                checkAddress($queue->recv());
-            }
-        } catch (ChannelException) {
-            // 通道已关闭且为空
+        foreach ($queue as $address) {
+                checkAddress($address);
         }
     });
 }
@@ -209,13 +205,9 @@ final class ImportService
         // Worker：从通道里取出地址，并发数不超过 $this->workers
         for ($i = 0; $i < $this->workers; $i++) {
             $this->scope->spawn(function () use ($queue, &$counter) {
-                try {
-                    while (true) {
-                        checkAddress($queue->recv());
+                foreach ($queue as $address) {
+                        checkAddress($address);
                         $counter++;
-                    }
-                } catch (ChannelException) {
-                    // 通道已关闭且为空，工作已完成
                 }
             });
         }

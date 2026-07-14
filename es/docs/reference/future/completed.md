@@ -56,7 +56,7 @@ function fetchData(string $key): Future {
     }
 
     // De lo contrario, iniciar una operación asíncrona
-    return \Async\async(function() use ($key) {
+    return \Async\spawn(function() use ($key) {
         return loadFromDatabase($key);
     });
 }

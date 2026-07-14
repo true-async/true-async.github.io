@@ -32,7 +32,7 @@ public function ignore(): Future
 use Async\Future;
 
 // Запускаем задачу, ошибки которой нас не интересуют
-\Async\async(function() {
+\Async\spawn(function() {
     // Эта операция может завершиться с ошибкой
     sendAnalytics(['event' => 'page_view']);
 })->ignore();
@@ -49,7 +49,7 @@ use Async\Future;
 
 function warmupCache(array $keys): void {
     foreach ($keys as $key) {
-        \Async\async(function() use ($key) {
+        \Async\spawn(function() use ($key) {
             $data = loadFromDatabase($key);
             saveToCache($key, $data);
         })->ignore(); // Ошибки кэширования не критичны

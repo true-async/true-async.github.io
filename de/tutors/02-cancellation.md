@@ -60,8 +60,9 @@ Async\AsyncCancellation
 ```
 
 Als die Coroutine `$progress` innerhalb von `delay(1000)` schlief und dann `cancel()` aufgerufen wurde,
-warf `delay` eine Ausnahme vom Typ `Async\AsyncCancellation`. Interessanterweise funktioniert dieser Trick nicht mit `sleep(1)`,
-denn `sleep(1)` wirft keine Ausnahme, während `delay` das tut, und genau darauf verlassen wir uns hier.
+warf `delay` eine Ausnahme vom Typ `Async\AsyncCancellation`. Dasselbe passiert mit einem gewöhnlichen `sleep(1)`:
+Unter TrueAsync wird auch `sleep()` asynchron und ist ebenfalls ein Abbruchpunkt — es wirft
+`Async\AsyncCancellation` genau wie `delay`.
 
 Man könnte sagen, dass die Verwendung von `delay` in deinem Code faktisch einen Vertrag begründet, der es anderem Code erlaubt,
 die Ausführung der Coroutine zu unterbrechen. Das ist sehr praktisch, denn es trennt einmal mehr die Zuständigkeiten

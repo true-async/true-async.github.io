@@ -39,7 +39,7 @@ public function await(?Completable $cancellation = null): mixed
 
 use Async\Future;
 
-$future = \Async\async(function() {
+$future = \Async\spawn(function() {
     \Async\delay(100);
     return 42;
 });
@@ -55,7 +55,7 @@ echo "Результат: $result\n"; // Результат: 42
 
 use Async\Future;
 
-$future = \Async\async(function() {
+$future = \Async\spawn(function() {
     throw new \RuntimeException("Что-то пошло не так");
 });
 

@@ -48,7 +48,7 @@ $state = new FutureState();
 $future = new Future($state);
 
 // Lang laufende Futures debuggen
-\Async\async(function() use ($future) {
+\Async\spawn(function() use ($future) {
     \Async\delay(5000);
     if (!$future->isCompleted()) {
         echo "Warnung: Future erstellt bei "

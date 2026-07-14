@@ -107,12 +107,8 @@ $queue = new Channel(100);
 
 for ($i = 0; $i < 10; $i++) {
     spawn(function () use ($queue) {
-        try {
-            while (true) {
-                checkAddress($queue->recv());
-            }
-        } catch (ChannelException) {
-            // el canal está cerrado y vacío, no viene más trabajo
+        foreach ($queue as $address) {
+                checkAddress($address);
         }
     });
 }

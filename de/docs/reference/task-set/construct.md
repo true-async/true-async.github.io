@@ -13,7 +13,7 @@ description: "Ein neues TaskSet mit optionalem Nebenläufigkeitslimit erstellen.
 (PHP 8.6+, True Async 1.0)
 
 ```php
-public TaskSet::__construct(?int $concurrency = null, ?Async\Scope $scope = null)
+public TaskSet::__construct(?int $concurrency = null, ?int $queueLimit = null, ?Async\Scope $scope = null)
 ```
 
 Erstellt ein neues Task-Set mit automatischer Bereinigung der Ergebnisse nach der Auslieferung.

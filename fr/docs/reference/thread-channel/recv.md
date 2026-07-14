@@ -13,7 +13,7 @@ description: "Recevoir la prochaine valeur du canal de thread, bloquant le threa
 (PHP 8.6+, True Async 1.0)
 
 ```php
-public ThreadChannel::recv(): mixed
+public ThreadChannel::recv(?Completable $cancellationToken = null): mixed
 ```
 
 Reçoit la prochaine valeur du canal. Il s'agit d'une opération **bloquante** — le thread appelant
@@ -24,7 +24,7 @@ est bloqué si aucune valeur n'est actuellement disponible dans le canal.
 - Pour un **canal non bufferisé** (`capacity = 0`), `recv()` se bloque jusqu'à ce qu'un autre thread appelle `send()`.
 
 Si le canal est fermé et que le tampon contient encore des valeurs, ces valeurs sont retournées normalement.
-Une fois le tampon vidé et le canal fermé, `recv()` lève une `ChannelClosedException`.
+Une fois le tampon vidé et le canal fermé, `recv()` lève une `ThreadChannelException`.
 
 La valeur reçue est une **copie profonde** de l'originale — les modifications apportées à la valeur
 retournée n'affectent pas la copie de l'émetteur.
@@ -35,7 +35,7 @@ La prochaine valeur du canal (`mixed`).
 
 ## Erreurs
 
-- Lève `Async\ChannelClosedException` si le canal est fermé et que le tampon est vide.
+- Lève `Async\ThreadChannelException` si le canal est fermé et que le tampon est vide.
 
 ## Exemples
 
@@ -64,7 +64,7 @@ spawn(function() {
         while (true) {
             echo $channel->recv(), "\n";
         }
-    } catch (\Async\ChannelClosedException) {
+    } catch (\Async\ThreadChannelException) {
         echo "All values received\n";
     }
 
@@ -100,7 +100,7 @@ spawn(function() {
             while (true) {
                 $collected[] = $channel->recv();
             }
-        } catch (\Async\ChannelClosedException) {
+        } catch (\Async\ThreadChannelException) {
             // tampon vidé et canal fermé
         }
         return $collected;

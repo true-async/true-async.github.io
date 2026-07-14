@@ -45,7 +45,7 @@ $scope->spawn(function() {
     throw new \RuntimeException("Etwas ist schiefgelaufen");
 });
 
-$scope->awaitCompletion();
+$scope->awaitCompletion(Async\timeout(5000));
 // Log enthaelt: "Koroutinen-Fehler: Etwas ist schiefgelaufen"
 ```
 
@@ -71,7 +71,7 @@ $scope->spawn(function() {
     throw new \LogicException("Fehler 2");
 });
 
-$scope->awaitCompletion();
+$scope->awaitCompletion(Async\timeout(5000));
 
 echo "Fehler insgesamt: " . count($errors) . "\n"; // Fehler insgesamt: 2
 ```

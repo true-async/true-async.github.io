@@ -36,7 +36,7 @@ $state = new FutureState();
 $future = new Future($state);
 
 // 다른 코루틴에서 Future 완료
-\Async\async(function() use ($state) {
+\Async\spawn(function() use ($state) {
     $result = performComputation();
     $state->complete($result);
 });
@@ -63,13 +63,13 @@ function createDeferredFuture(): array {
 [$future, $state] = createDeferredFuture();
 
 // 하나의 코루틴이 결과를 대기
-\Async\async(function() use ($future) {
+\Async\spawn(function() use ($future) {
     $result = $future->await();
     echo "Result: $result\n";
 });
 
 // 다른 코루틴이 결과를 제공
-\Async\async(function() use ($state) {
+\Async\spawn(function() use ($state) {
     \Async\delay(100);
     $state->complete("Done!");
 });

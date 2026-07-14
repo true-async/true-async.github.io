@@ -40,7 +40,7 @@ $state = new FutureState();
 $future = new Future($state);
 
 // Корутина, що очікує результат
-\Async\async(function() use ($future) {
+\Async\spawn(function() use ($future) {
     try {
         $result = $future->await();
     } catch (\Async\AsyncCancellation $e) {
@@ -64,7 +64,7 @@ use Async\AsyncCancellation;
 $state = new FutureState();
 $future = new Future($state);
 
-\Async\async(function() use ($future) {
+\Async\spawn(function() use ($future) {
     try {
         $future->await();
     } catch (\Async\AsyncCancellation $e) {

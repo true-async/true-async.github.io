@@ -45,7 +45,7 @@ $scope->spawn(function() {
     throw new \RuntimeException("Что-то пошло не так");
 });
 
-$scope->awaitCompletion();
+$scope->awaitCompletion(Async\timeout(5000));
 // В лог будет записано: "Ошибка в корутине: Что-то пошло не так"
 ```
 
@@ -71,7 +71,7 @@ $scope->spawn(function() {
     throw new \LogicException("Ошибка 2");
 });
 
-$scope->awaitCompletion();
+$scope->awaitCompletion(Async\timeout(5000));
 
 echo "Всего ошибок: " . count($errors) . "\n"; // Всего ошибок: 2
 ```

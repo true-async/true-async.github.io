@@ -19,13 +19,9 @@ $pdo = new PDO('mysql:host=localhost;dbname=profiles', 'app', 'secret');
 
 for ($i = 0; $i < 10; $i++) {
     $workers->spawn(function () use ($queue, $pdo) {
-        try {
-            while (true) {
-                $address = $queue->recv();
+        foreach ($queue as $address) {
                 checkAddress($address);
                 saveAddress($pdo, $address);
-            }
-        } catch (ChannelException) {
         }
     });
 }

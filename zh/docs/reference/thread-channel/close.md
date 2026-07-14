@@ -18,15 +18,15 @@ public ThreadChannel::close(): void
 
 关闭通道。关闭后：
 
-- 调用 `send()` 将抛出 `ChannelClosedException`。
+- 调用 `send()` 将抛出 `ThreadChannelException`。
 - 调用 `recv()` 继续返回缓冲区中已有的值，直到缓冲区排空。
-  一旦缓冲区为空，`recv()` 将抛出 `ChannelClosedException`。
+  一旦缓冲区为空，`recv()` 将抛出 `ThreadChannelException`。
 - 当前在 `send()` 或 `recv()` 中阻塞的任何线程都将被解除阻塞，并收到
-  `ChannelClosedException`。
+  `ThreadChannelException`。
 
 在已关闭的通道上调用 `close()` 是空操作 — 不会抛出异常。
 
-`close()` 是向消费侧发出"流结束"信号的标准方式。生产者在发送完所有元素后关闭通道；消费者持续读取直到捕获到 `ChannelClosedException`。
+`close()` 是向消费侧发出"流结束"信号的标准方式。生产者在发送完所有元素后关闭通道；消费者持续读取直到捕获到 `ThreadChannelException`。
 
 `close()` 本身是线程安全的，可以从任何线程调用。
 
@@ -57,7 +57,7 @@ spawn(function() {
             while (true) {
                 echo $channel->recv(), "\n";
             }
-        } catch (\Async\ChannelClosedException) {
+        } catch (\Async\ThreadChannelException) {
             echo "Stream ended\n";
         }
     });
@@ -84,7 +84,7 @@ spawn(function() {
     $waiter = spawn_thread(function() use ($channel) {
         try {
             $channel->recv(); // 阻塞
-        } catch (\Async\ChannelClosedException) {
+        } catch (\Async\ThreadChannelException) {
             return "Unblocked by close()";
         }
     });

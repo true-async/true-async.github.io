@@ -231,7 +231,7 @@ $scope->spawn(function() {
 });
 
 try {
-    $scope->awaitCompletion();
+    $scope->awaitCompletion(Async\timeout(5000));
 } catch (Exception $e) {
     echo "Error bubbled up to scope: " . $e->getMessage() . "\n";
 }

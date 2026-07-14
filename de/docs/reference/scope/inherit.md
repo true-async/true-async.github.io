@@ -48,7 +48,7 @@ $parentScope->spawn(function() {
         echo "Ausfuehrung im Kind-Scope\n";
     });
 
-    $childScope->awaitCompletion();
+    $childScope->awaitCompletion(Async\timeout(5000));
 });
 ```
 

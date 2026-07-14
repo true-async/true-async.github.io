@@ -36,11 +36,11 @@ $state = new FutureState();
 $future = new Future($state);
 
 // 하나의 Future를 대기하는 여러 코루틴 실행
-\Async\async(function() use ($future) {
+\Async\spawn(function() use ($future) {
     $future->await();
 });
 
-\Async\async(function() use ($future) {
+\Async\spawn(function() use ($future) {
     $future->await();
 });
 

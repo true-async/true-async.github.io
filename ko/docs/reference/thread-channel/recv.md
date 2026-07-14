@@ -13,7 +13,7 @@ description: "스레드 채널에서 다음 값을 수신합니다. 사용 가�
 (PHP 8.6+, True Async 1.0)
 
 ```php
-public ThreadChannel::recv(): mixed
+public ThreadChannel::recv(?Completable $cancellationToken = null): mixed
 ```
 
 채널에서 다음 값을 수신합니다. 이것은 **차단** 작업입니다 — 채널에 현재 사용 가능한 값이 없으면 호출 스레드가 차단됩니다.
@@ -23,7 +23,7 @@ public ThreadChannel::recv(): mixed
 - **버퍼 없는 채널**(`capacity = 0`)의 경우, 다른 스레드가 `send()`를 호출할 때까지 `recv()`가 차단됩니다.
 
 채널이 닫혀 있고 버퍼에 여전히 값이 있으면, 그 값들이 정상적으로 반환됩니다.
-버퍼가 비워지고 채널이 닫혀 있으면, `recv()`는 `ChannelClosedException`을 던집니다.
+버퍼가 비워지고 채널이 닫혀 있으면, `recv()`는 `ThreadChannelException`을 던집니다.
 
 수신된 값은 원본의 **깊은 복사본**입니다 — 반환된 값을 수정해도 발신자의 복사본에 영향을 미치지 않습니다.
 
@@ -33,7 +33,7 @@ public ThreadChannel::recv(): mixed
 
 ## 오류
 
-- 채널이 닫혀 있고 버퍼가 비어 있으면 `Async\ChannelClosedException`을 던집니다.
+- 채널이 닫혀 있고 버퍼가 비어 있으면 `Async\ThreadChannelException`을 던집니다.
 
 ## 예제
 
@@ -62,7 +62,7 @@ spawn(function() {
         while (true) {
             echo $channel->recv(), "\n";
         }
-    } catch (\Async\ChannelClosedException) {
+    } catch (\Async\ThreadChannelException) {
         echo "All values received\n";
     }
 
@@ -98,7 +98,7 @@ spawn(function() {
             while (true) {
                 $collected[] = $channel->recv();
             }
-        } catch (\Async\ChannelClosedException) {
+        } catch (\Async\ThreadChannelException) {
             // 버퍼가 비워지고 채널이 닫힘
         }
         return $collected;

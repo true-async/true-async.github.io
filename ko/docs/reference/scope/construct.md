@@ -33,7 +33,7 @@ $scope->spawn(function() {
     echo "Coroutine in a new scope\n";
 });
 
-$scope->awaitCompletion();
+$scope->awaitCompletion(Async\timeout(5000));
 ```
 
 ### 예제 #2 여러 개의 독립적인 스코프 생성
@@ -58,7 +58,7 @@ $scopeB->spawn(function() {
 $scopeA->cancel();
 
 // $scopeB는 계속 실행됩니다
-$scopeB->awaitCompletion();
+$scopeB->awaitCompletion(Async\timeout(5000));
 ```
 
 ## 참고

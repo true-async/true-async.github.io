@@ -13,7 +13,7 @@ description: "Creer un nouveau TaskGroup avec une limite de concurrence optionne
 (PHP 8.6+, True Async 1.0)
 
 ```php
-public TaskGroup::__construct(?int $concurrency = null, ?Async\Scope $scope = null)
+public TaskGroup::__construct(?int $concurrency = null, ?int $queueLimit = null, ?Async\Scope $scope = null)
 ```
 
 Cree un nouveau groupe de taches.

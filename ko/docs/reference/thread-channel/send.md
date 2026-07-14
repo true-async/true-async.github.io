@@ -13,7 +13,7 @@ description: "스레드 채널에 값을 전송합니다. 채널이 즉시 값�
 (PHP 8.6+, True Async 1.0)
 
 ```php
-public ThreadChannel::send(mixed $value): void
+public ThreadChannel::send(mixed $value, ?Completable $cancellationToken = null): void
 ```
 
 채널에 값을 전송합니다. 이것은 **차단** 작업입니다 — 채널이 값을 즉시 받을 수 없으면 호출 스레드가 차단됩니다.
@@ -32,7 +32,7 @@ public ThreadChannel::send(mixed $value): void
 
 ## 오류
 
-- 채널이 이미 닫혀 있으면 `Async\ChannelClosedException`을 던집니다.
+- 채널이 이미 닫혀 있으면 `Async\ThreadChannelException`을 던집니다.
 - 값이 크로스 스레드 전송을 위해 직렬화될 수 없으면 `Async\ThreadTransferException`을 던집니다.
 
 ## 예제
@@ -63,7 +63,7 @@ spawn(function() {
     while (!$channel->isClosed() || !$channel->isEmpty()) {
         try {
             echo $channel->recv(), "\n";
-        } catch (\Async\ChannelClosedException) {
+        } catch (\Async\ThreadChannelException) {
             break;
         }
     }
@@ -114,7 +114,7 @@ spawn(function() {
     $thread = spawn_thread(function() use ($channel) {
         try {
             $channel->send('too late');
-        } catch (\Async\ChannelClosedException $e) {
+        } catch (\Async\ThreadChannelException $e) {
             return "Send failed: " . $e->getMessage();
         }
     });

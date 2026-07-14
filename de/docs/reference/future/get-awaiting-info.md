@@ -36,11 +36,11 @@ $state = new FutureState();
 $future = new Future($state);
 
 // Mehrere Coroutinen starten, die auf ein Future warten
-\Async\async(function() use ($future) {
+\Async\spawn(function() use ($future) {
     $future->await();
 });
 
-\Async\async(function() use ($future) {
+\Async\spawn(function() use ($future) {
     $future->await();
 });
 

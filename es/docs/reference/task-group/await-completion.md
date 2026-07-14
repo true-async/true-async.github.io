@@ -48,7 +48,7 @@ spawn(function() {
     });
 
     $group->cancel();
-    $group->awaitCompletion();
+    $group->awaitCompletion(Async\timeout(5000));
 
     echo "todas las corrutinas finalizaron\n";
     var_dump($group->isFinished()); // bool(true)
@@ -69,7 +69,7 @@ spawn(function() {
     $group->spawn(fn() => throw new \RuntimeException("fallo"));
 
     $group->close();
-    $group->awaitCompletion();
+    $group->awaitCompletion(Async\timeout(5000));
 
     // Sin excepciones — verificar manualmente
     $results = $group->getResults();

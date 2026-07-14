@@ -33,7 +33,7 @@ $scope->spawn(function() {
     echo "Coroutine in un nuovo scope\n";
 });
 
-$scope->awaitCompletion();
+$scope->awaitCompletion(Async\timeout(5000));
 ```
 
 ### Esempio #2 Creazione di scope indipendenti multipli
@@ -58,7 +58,7 @@ $scopeB->spawn(function() {
 $scopeA->cancel();
 
 // $scopeB continua a funzionare
-$scopeB->awaitCompletion();
+$scopeB->awaitCompletion(Async\timeout(5000));
 ```
 
 ## Vedi anche

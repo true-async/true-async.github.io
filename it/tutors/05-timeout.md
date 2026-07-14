@@ -35,18 +35,20 @@ aspettarti.
 
 ## OperationCanceledException
 
-Se eseguiamo il seguente codice
+`timeout()` da solo non lancia nulla. Restituisce un **token di cancellazione** — un oggetto `Async\Timeout`.
+Il codice seguente non lancerà mai un'eccezione, per quanto a lungo giri lo script:
+
+```php
+use function Async\timeout;
+
+$token = timeout(2000);   // just an object; nothing happens
+```
+
+The token only takes effect once it is handed to an operation as a cancellation argument:
 
 ```php
 use function Async\timeout;
 use Async\OperationCanceledException;
-use Async\TimeoutException;
-
-try {
-    timeout(2000);
-} catch (TimeoutException $e) {
-    
-}
 
 try {
     $isValid = await($validation, timeout(2000));
@@ -56,8 +58,8 @@ try {
 }
 ```
 
-possiamo vedere che `timeout` lancia una `TimeoutException`, eppure il secondo blocco riceve una
-`OperationCanceledException`. Questo è intenzionale, per semplificare la logica di gestione `try-catch` per
+Nota che quando il token scatta ricevi una `OperationCanceledException`, non una `TimeoutException`.
+Il timeout stesso sta all'interno, in `getPrevious()`. Questo è intenzionale, per semplificare la logica di gestione `try-catch` per
 `await` e per distinguere chiaramente un'attesa cancellata da un'eccezione sollevata all'interno della coroutine.
 Normalmente le coroutine non dovrebbero lanciare `OperationCanceledException` da sole.
 

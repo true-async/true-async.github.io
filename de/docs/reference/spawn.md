@@ -128,7 +128,7 @@ $scope->spawn(function() {
 });
 
 // Auf den Abschluss aller Coroutinen im Scope warten
-$scope->awaitCompletion();
+$scope->awaitCompletion(Async\timeout(5000));
 ?>
 ```
 

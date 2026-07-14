@@ -39,7 +39,7 @@ Throws an exception if the Future completed with an error or was cancelled.
 
 use Async\Future;
 
-$future = \Async\async(function() {
+$future = \Async\spawn(function() {
     \Async\delay(100);
     return 42;
 });
@@ -55,7 +55,7 @@ echo "Result: $result\n"; // Result: 42
 
 use Async\Future;
 
-$future = \Async\async(function() {
+$future = \Async\spawn(function() {
     throw new \RuntimeException("Something went wrong");
 });
 

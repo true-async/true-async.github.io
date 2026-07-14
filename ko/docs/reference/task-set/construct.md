@@ -13,7 +13,7 @@ description: "선택적 동시성 제한으로 새 TaskSet을 생성합니다."
 (PHP 8.6+, True Async 1.0)
 
 ```php
-public TaskSet::__construct(?int $concurrency = null, ?Async\Scope $scope = null)
+public TaskSet::__construct(?int $concurrency = null, ?int $queueLimit = null, ?Async\Scope $scope = null)
 ```
 
 결과 전달 후 자동 정리되는 새 작업 세트를 생성합니다.

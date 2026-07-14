@@ -16,7 +16,10 @@ description: "새로운 FileSystemWatcher를 생성하고 파일 또는 디렉�
 public FileSystemWatcher::__construct(
     string $path,
     bool $recursive = false,
-    bool $coalesce = true
+    bool $coalesce = true,
+    int $debounceMs = 0,
+    int $maxHoldMs = 0,
+    array $extensions = []
 )
 ```
 

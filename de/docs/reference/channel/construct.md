@@ -13,7 +13,7 @@ description: "Einen neuen Channel zum Datenaustausch zwischen Coroutinen erstell
 (PHP 8.6+, True Async 1.0)
 
 ```php
-public Channel::__construct(int $capacity = 0)
+public Channel::__construct(int $capacity = 0, int $noProducerTimeout = 0, int $noConsumerTimeout = 0, bool $hardTimeouts = false)
 ```
 
 Erstellt einen neuen Channel zur Datenübergabe zwischen Coroutinen.

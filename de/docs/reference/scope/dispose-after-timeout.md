@@ -49,7 +49,7 @@ $scope->spawn(function() {
     }
 });
 
-$scope->awaitCompletion();
+$scope->awaitCompletion(Async\timeout(5000));
 ```
 
 ### Beispiel #2 Scope mit begrenzter Lebensdauer
@@ -77,7 +77,7 @@ $scope->spawn(function() {
     echo "Aufgabe 3: OK\n"; // Wird nicht ausgegeben
 });
 
-$scope->awaitCompletion();
+$scope->awaitCompletion(Async\timeout(5000));
 ```
 
 ## Siehe auch

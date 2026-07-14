@@ -80,7 +80,20 @@ $resource = $pool->acquire(timeout: 5000);
 如果池已满（所有资源都在使用中且已达到 `max`），协程**挂起**
 并等待另一个协程归还资源。其他协程继续运行。
 
-超时时抛出 `PoolException`。
+超时时抛出的是 `Async\TimeoutException`，而不是 `PoolException`。超时并不是连接池的故障：连接池是健康的，
+只是繁忙，到期的是你自己设定的截止时间。`PoolException` 表示连接池本身不可用（已关闭、未初始化、工厂失败）。
+
+注意：`TimeoutException` 继承自 `Exception` 而非 `PoolException`，因此 `catch (PoolException)` **捕获不到**超时。
+
+```php
+try {
+    $resource = $pool->acquire(timeout: 5000);
+} catch (Async\TimeoutException $e) {
+    // 资源在 5 秒内没有释放 —— 可以重试或退避
+} catch (Async\PoolException $e) {
+    // 连接池已关闭 —— 重试没有意义
+}
+```
 
 ### 非阻塞式 tryAcquire
 
@@ -182,6 +195,7 @@ use Async\CircuitBreakerStrategy;
 class MyStrategy implements CircuitBreakerStrategy
 {
     private int $failures = 0;
+    private int $openedAt = 0;
 
     public function reportSuccess(mixed $source): void {
         $this->failures = 0;
@@ -191,8 +205,13 @@ class MyStrategy implements CircuitBreakerStrategy
     public function reportFailure(mixed $source, \Throwable $error): void {
         $this->failures++;
         if ($this->failures >= 5) {
+            $this->openedAt = time();
             $source->deactivate();
         }
+    }
+
+    public function shouldRecover(): bool {
+        return time() - $this->openedAt >= 30;
     }
 }
 

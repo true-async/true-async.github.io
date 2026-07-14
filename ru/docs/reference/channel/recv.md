@@ -22,6 +22,15 @@ public Channel::recv(?Completable $cancellationToken = null): mixed
 Если канал закрыт и буфер пуст, выбрасывается `ChannelException`.
 Если канал закрыт, но в буфере остались значения, они будут возвращены.
 
+`ChannelException` означает «канал закрыт» — но **не только** штатным `close()`. Тем же исключением
+сообщается о дедлоке (`NO_PRODUCERS`, `NO_CONSUMERS`, `DEADLOCK`) и об исчезновении канала
+(`DISPOSED`, `SCOPE_DISPOSED`). Отличать их нужно по свойству `$e->reason` (перечисление
+`ChannelCloseReason`).
+
+Поэтому `catch (ChannelException) { break; }` **опасен**: он превращает дедлок в «поток штатно
+кончился», и корутина молча завершается с нулём обработанных значений. Проверяйте `reason` —
+либо используйте `foreach`, который сам завершается при штатном закрытии и пробрасывает всё остальное.
+
 ## Параметры
 
 **cancellationToken**
@@ -63,9 +72,28 @@ spawn(function() use ($channel) {
             $value = $channel->recv();
             echo "Получено: $value\n";
         }
-    } catch (\Async\ChannelException) {
+    } catch (\Async\ChannelException $e) {
+        // Дедлок и потеря канала приходят тем же исключением — их нельзя принимать
+        // за штатный конец потока, иначе ошибка исчезнет без следа.
+        if ($e->reason !== \Async\ChannelCloseReason::EXPLICIT) {
+            throw $e;
+        }
+
         echo "Канал закрыт и пуст\n";
     }
+});
+```
+
+То же самое, но без ручной проверки — `foreach` завершается сам при штатном закрытии,
+а дедлок и потерю канала пробрасывает наружу:
+
+```php
+spawn(function() use ($channel) {
+    foreach ($channel as $value) {
+        echo "Получено: $value\n";
+    }
+
+    echo "Канал закрыт и пуст\n";
 });
 ```
 

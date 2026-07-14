@@ -32,7 +32,7 @@ Markiert das `Future` als ignoriert. Wenn das Future mit einem Fehler abgeschlos
 use Async\Future;
 
 // Eine Aufgabe starten, deren Fehler uns nicht interessieren
-\Async\async(function() {
+\Async\spawn(function() {
     // Diese Operation kann fehlschlagen
     sendAnalytics(['event' => 'page_view']);
 })->ignore();
@@ -49,7 +49,7 @@ use Async\Future;
 
 function warmupCache(array $keys): void {
     foreach ($keys as $key) {
-        \Async\async(function() use ($key) {
+        \Async\spawn(function() use ($key) {
             $data = loadFromDatabase($key);
             saveToCache($key, $data);
         })->ignore(); // Cache-Fehler sind nicht kritisch

@@ -48,7 +48,7 @@ spawn(function() {
     });
 
     $group->cancel();
-    $group->awaitCompletion();
+    $group->awaitCompletion(Async\timeout(5000));
 
     echo "all coroutines finished\n";
     var_dump($group->isFinished()); // bool(true)
@@ -69,7 +69,7 @@ spawn(function() {
     $group->spawn(fn() => throw new \RuntimeException("fail"));
 
     $group->close();
-    $group->awaitCompletion();
+    $group->awaitCompletion(Async\timeout(5000));
 
     // No exceptions — check manually
     $results = $group->getResults();

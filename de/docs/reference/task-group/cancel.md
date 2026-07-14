@@ -45,7 +45,7 @@ spawn(function() {
     });
 
     $group->cancel();
-    $group->awaitCompletion();
+    $group->awaitCompletion(Async\timeout(5000));
 
     echo "Alle Aufgaben abgebrochen\n";
 });
@@ -63,7 +63,7 @@ spawn(function() {
     $group->spawn(fn() => Async\delay(10000));
 
     $group->cancel(new \Async\AsyncCancellation("Timeout ueberschritten"));
-    $group->awaitCompletion();
+    $group->awaitCompletion(Async\timeout(5000));
 });
 ```
 

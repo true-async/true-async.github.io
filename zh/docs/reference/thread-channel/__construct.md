@@ -88,7 +88,7 @@ spawn(function() {
         while (!$channel->isClosed() || !$channel->isEmpty()) {
             try {
                 $results[] = $channel->recv();
-            } catch (\Async\ChannelClosedException) {
+            } catch (\Async\ThreadChannelException) {
                 break;
             }
         }

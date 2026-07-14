@@ -232,7 +232,7 @@ $scope->spawn(function() {
 });
 
 try {
-    $scope->awaitCompletion();
+    $scope->awaitCompletion(Async\timeout(5000));
 } catch (Exception $e) {
     echo "Fehler wurde an den Scope weitergereicht: " . $e->getMessage() . "\n";
 }

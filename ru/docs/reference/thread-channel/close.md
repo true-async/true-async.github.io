@@ -18,17 +18,17 @@ public ThreadChannel::close(): void
 
 Закрывает канал. После закрытия:
 
-- Вызов `send()` выбрасывает `ChannelClosedException`.
+- Вызов `send()` выбрасывает `ThreadChannelException`.
 - Вызов `recv()` продолжает возвращать значения, находящиеся в буфере, до его опустошения.
-  После того как буфер опустеет, `recv()` выбрасывает `ChannelClosedException`.
+  После того как буфер опустеет, `recv()` выбрасывает `ThreadChannelException`.
 - Все потоки, заблокированные в `send()` или `recv()`, разблокируются и получают
-  `ChannelClosedException`.
+  `ThreadChannelException`.
 
 Вызов `close()` на уже закрытом канале — это холостая операция, исключение не выбрасывается.
 
 `close()` — это стандартный способ сигнализировать потребляющей стороне о завершении потока данных.
 Производитель закрывает канал после отправки всех элементов; потребитель читает данные до тех пор,
-пока не поймает `ChannelClosedException`.
+пока не поймает `ThreadChannelException`.
 
 `close()` является потокобезопасной и может быть вызвана из любого потока.
 
@@ -59,7 +59,7 @@ spawn(function() {
             while (true) {
                 echo $channel->recv(), "\n";
             }
-        } catch (\Async\ChannelClosedException) {
+        } catch (\Async\ThreadChannelException) {
             echo "Stream ended\n";
         }
     });
@@ -86,7 +86,7 @@ spawn(function() {
     $waiter = spawn_thread(function() use ($channel) {
         try {
             $channel->recv(); // блокируется
-        } catch (\Async\ChannelClosedException) {
+        } catch (\Async\ThreadChannelException) {
             return "Unblocked by close()";
         }
     });
