@@ -30,12 +30,22 @@ Marks the `Future` as ignored. If the Future completes with an error and the err
 <?php
 
 use Async\Future;
+use Async\FutureState;
 
 // Launch a task whose errors we don't care about
-\Async\spawn(function() {
+$state  = new FutureState();
+$future = new Future($state);
+$future->ignore();
+
+\Async\spawn(function() use ($state) {
     // This operation may fail
-    sendAnalytics(['event' => 'page_view']);
-})->ignore();
+    try {
+        sendAnalytics(['event' => 'page_view']);
+        $state->complete(null);
+    } catch (\Throwable $e) {
+        $state->error($e);
+    }
+});
 
 // The error will not be passed to the event loop handler
 ```
@@ -46,13 +56,22 @@ use Async\Future;
 <?php
 
 use Async\Future;
+use Async\FutureState;
 
 function warmupCache(array $keys): void {
     foreach ($keys as $key) {
-        \Async\spawn(function() use ($key) {
-            $data = loadFromDatabase($key);
-            saveToCache($key, $data);
-        })->ignore(); // Cache errors are not critical
+        $state = new FutureState();
+        (new Future($state))->ignore();  // Cache errors are not critical
+
+        \Async\spawn(function() use ($state, $key) {
+            try {
+                $data = loadFromDatabase($key);
+                saveToCache($key, $data);
+                $state->complete(null);
+            } catch (\Throwable $e) {
+                $state->error($e);
+            }
+        });
     }
 }
 

@@ -34,6 +34,7 @@ Registra un manejador de errores para el `Future`. El callback se invoca si el F
 <?php
 
 use Async\Future;
+use Async\FutureState;
 
 $future = Future::failed(new \RuntimeException("Servicio no disponible"))
     ->catch(function(\Throwable $e) {
@@ -51,15 +52,25 @@ echo $result; // valor por defecto
 <?php
 
 use Async\Future;
+use Async\FutureState;
 
-$future = \Async\spawn(function() {
-    $response = httpGet('https://api.example.com/users');
-    if ($response->status !== 200) {
-        throw new \RuntimeException("Error HTTP: {$response->status}");
+$state  = new FutureState();
+$source = new Future($state);
+
+\Async\spawn(function() use ($state) {
+    try {
+        $response = httpGet('https://api.example.com/users');
+        if ($response->status !== 200) {
+            throw new \RuntimeException("Error HTTP: {$response->status}");
+        }
+        $state->complete(json_decode($response->body, true));
+    } catch (\Throwable $e) {
+        $state->error($e);
     }
-    return json_decode($response->body, true);
-})
-->catch(function(\Throwable $e) {
+});
+
+$future = $source
+    ->catch(function(\Throwable $e) {
     // Registrar el error y devolver un array vacío
     error_log("Error de API: " . $e->getMessage());
     return [];

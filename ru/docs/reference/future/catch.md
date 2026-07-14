@@ -34,6 +34,7 @@ public function catch(callable $catch): Future
 <?php
 
 use Async\Future;
+use Async\FutureState;
 
 $future = Future::failed(new \RuntimeException("Сервис недоступен"))
     ->catch(function(\Throwable $e) {
@@ -51,15 +52,25 @@ echo $result; // значение по умолчанию
 <?php
 
 use Async\Future;
+use Async\FutureState;
 
-$future = \Async\spawn(function() {
-    $response = httpGet('https://api.example.com/users');
-    if ($response->status !== 200) {
-        throw new \RuntimeException("HTTP ошибка: {$response->status}");
+$state  = new FutureState();
+$source = new Future($state);
+
+\Async\spawn(function() use ($state) {
+    try {
+        $response = httpGet('https://api.example.com/users');
+        if ($response->status !== 200) {
+            throw new \RuntimeException("HTTP ошибка: {$response->status}");
+        }
+        $state->complete(json_decode($response->body, true));
+    } catch (\Throwable $e) {
+        $state->error($e);
     }
-    return json_decode($response->body, true);
-})
-->catch(function(\Throwable $e) {
+});
+
+$future = $source
+    ->catch(function(\Throwable $e) {
     // Логируем ошибку и возвращаем пустой массив
     error_log("API ошибка: " . $e->getMessage());
     return [];

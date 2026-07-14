@@ -34,13 +34,19 @@ Registriert einen Callback, der bei Abschluss des `Future` ausgeführt wird, una
 <?php
 
 use Async\Future;
+use Async\FutureState;
 
 $connection = openDatabaseConnection();
 
-$future = \Async\spawn(function() use ($connection) {
-    return $connection->query("SELECT * FROM users");
-})
-->finally(function() use ($connection) {
+$state  = new FutureState();
+$source = new Future($state);
+
+\Async\spawn(function() use ($state, $connection) {
+    $state->complete($connection->query("SELECT * FROM users"));
+});
+
+$future = $source
+    ->finally(function() use ($connection) {
     $connection->close();
     echo "Verbindung geschlossen\n";
 });
@@ -54,11 +60,17 @@ $users = $future->await();
 <?php
 
 use Async\Future;
+use Async\FutureState;
 
-$future = \Async\spawn(function() {
-    return fetchDataFromApi();
-})
-->map(fn($data) => processData($data))
+$state  = new FutureState();
+$source = new Future($state);
+
+\Async\spawn(function() use ($state) {
+    $state->complete(fetchDataFromApi());
+});
+
+$future = $source
+    ->map(fn($data) => processData($data))
 ->catch(function(\Throwable $e) {
     error_log("Fehler: " . $e->getMessage());
     return [];

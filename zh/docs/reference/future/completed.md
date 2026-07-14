@@ -34,6 +34,7 @@ public static function completed(mixed $value = null): Future
 <?php
 
 use Async\Future;
+use Async\FutureState;
 
 $future = Future::completed(42);
 
@@ -47,6 +48,7 @@ var_dump($future->await());       // int(42)
 <?php
 
 use Async\Future;
+use Async\FutureState;
 
 function fetchData(string $key): Future {
     // If data is in cache, return immediately
@@ -56,9 +58,17 @@ function fetchData(string $key): Future {
     }
 
     // Otherwise start an async operation
-    return \Async\spawn(function() use ($key) {
-        return loadFromDatabase($key);
+    $state = new FutureState();
+
+    \Async\spawn(function() use ($state, $key) {
+        try {
+            $state->complete(loadFromDatabase($key));
+        } catch (\Throwable $e) {
+            $state->error($e);
+        }
     });
+
+    return new Future($state);
 }
 
 $result = fetchData('user:1')->await();

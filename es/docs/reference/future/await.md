@@ -38,10 +38,14 @@ Lanza una excepción si el Future se completó con un error o fue cancelado.
 <?php
 
 use Async\Future;
+use Async\FutureState;
 
-$future = \Async\spawn(function() {
+$state  = new FutureState();
+$future = new Future($state);
+
+\Async\spawn(function() use ($state) {
     \Async\delay(100);
-    return 42;
+    $state->complete(42);
 });
 
 $result = $future->await();
@@ -54,9 +58,13 @@ echo "Resultado: $result\n"; // Resultado: 42
 <?php
 
 use Async\Future;
+use Async\FutureState;
 
-$future = \Async\spawn(function() {
-    throw new \RuntimeException("Algo salió mal");
+$state  = new FutureState();
+$future = new Future($state);
+
+\Async\spawn(function() use ($state) {
+    $state->error(new \RuntimeException("Algo salió mal"));
 });
 
 try {

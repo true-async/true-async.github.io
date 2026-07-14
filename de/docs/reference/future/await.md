@@ -38,10 +38,14 @@ Löst eine Ausnahme aus, wenn das Future mit einem Fehler abgeschlossen wurde od
 <?php
 
 use Async\Future;
+use Async\FutureState;
 
-$future = \Async\spawn(function() {
+$state  = new FutureState();
+$future = new Future($state);
+
+\Async\spawn(function() use ($state) {
     \Async\delay(100);
-    return 42;
+    $state->complete(42);
 });
 
 $result = $future->await();
@@ -54,9 +58,13 @@ echo "Ergebnis: $result\n"; // Ergebnis: 42
 <?php
 
 use Async\Future;
+use Async\FutureState;
 
-$future = \Async\spawn(function() {
-    throw new \RuntimeException("Etwas ist schiefgelaufen");
+$state  = new FutureState();
+$future = new Future($state);
+
+\Async\spawn(function() use ($state) {
+    $state->error(new \RuntimeException("Etwas ist schiefgelaufen"));
 });
 
 try {

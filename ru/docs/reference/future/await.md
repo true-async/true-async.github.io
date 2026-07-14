@@ -38,10 +38,14 @@ public function await(?Completable $cancellation = null): mixed
 <?php
 
 use Async\Future;
+use Async\FutureState;
 
-$future = \Async\spawn(function() {
+$state  = new FutureState();
+$future = new Future($state);
+
+\Async\spawn(function() use ($state) {
     \Async\delay(100);
-    return 42;
+    $state->complete(42);
 });
 
 $result = $future->await();
@@ -54,9 +58,13 @@ echo "Результат: $result\n"; // Результат: 42
 <?php
 
 use Async\Future;
+use Async\FutureState;
 
-$future = \Async\spawn(function() {
-    throw new \RuntimeException("Что-то пошло не так");
+$state  = new FutureState();
+$future = new Future($state);
+
+\Async\spawn(function() use ($state) {
+    $state->error(new \RuntimeException("Что-то пошло не так"));
 });
 
 try {

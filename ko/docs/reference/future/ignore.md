@@ -30,12 +30,22 @@ public function ignore(): Future
 <?php
 
 use Async\Future;
+use Async\FutureState;
 
 // 오류를 신경 쓰지 않는 작업 실행
-\Async\spawn(function() {
+$state  = new FutureState();
+$future = new Future($state);
+$future->ignore();
+
+\Async\spawn(function() use ($state) {
     // 이 작업은 실패할 수 있음
-    sendAnalytics(['event' => 'page_view']);
-})->ignore();
+    try {
+        sendAnalytics(['event' => 'page_view']);
+        $state->complete(null);
+    } catch (\Throwable $e) {
+        $state->error($e);
+    }
+});
 
 // 오류가 이벤트 루프 핸들러로 전달되지 않음
 ```
@@ -46,13 +56,22 @@ use Async\Future;
 <?php
 
 use Async\Future;
+use Async\FutureState;
 
 function warmupCache(array $keys): void {
     foreach ($keys as $key) {
-        \Async\spawn(function() use ($key) {
-            $data = loadFromDatabase($key);
-            saveToCache($key, $data);
-        })->ignore(); // 캐시 오류는 치명적이지 않음
+        $state = new FutureState();
+        (new Future($state))->ignore();  // 캐시 오류는 치명적이지 않음
+
+        \Async\spawn(function() use ($state, $key) {
+            try {
+                $data = loadFromDatabase($key);
+                saveToCache($key, $data);
+                $state->complete(null);
+            } catch (\Throwable $e) {
+                $state->error($e);
+            }
+        });
     }
 }
 

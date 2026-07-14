@@ -30,12 +30,22 @@ public function ignore(): Future
 <?php
 
 use Async\Future;
+use Async\FutureState;
 
 // Запускаем задачу, ошибки которой нас не интересуют
-\Async\spawn(function() {
+$state  = new FutureState();
+$future = new Future($state);
+$future->ignore();
+
+\Async\spawn(function() use ($state) {
     // Эта операция может завершиться с ошибкой
-    sendAnalytics(['event' => 'page_view']);
-})->ignore();
+    try {
+        sendAnalytics(['event' => 'page_view']);
+        $state->complete(null);
+    } catch (\Throwable $e) {
+        $state->error($e);
+    }
+});
 
 // Ошибка не будет передана в event loop handler
 ```
@@ -46,13 +56,22 @@ use Async\Future;
 <?php
 
 use Async\Future;
+use Async\FutureState;
 
 function warmupCache(array $keys): void {
     foreach ($keys as $key) {
-        \Async\spawn(function() use ($key) {
-            $data = loadFromDatabase($key);
-            saveToCache($key, $data);
-        })->ignore(); // Ошибки кэширования не критичны
+        $state = new FutureState();
+        (new Future($state))->ignore();  // Ошибки кэширования не критичны
+
+        \Async\spawn(function() use ($state, $key) {
+            try {
+                $data = loadFromDatabase($key);
+                saveToCache($key, $data);
+                $state->complete(null);
+            } catch (\Throwable $e) {
+                $state->error($e);
+            }
+        });
     }
 }
 

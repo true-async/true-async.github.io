@@ -30,12 +30,22 @@ Markiert das `Future` als ignoriert. Wenn das Future mit einem Fehler abgeschlos
 <?php
 
 use Async\Future;
+use Async\FutureState;
 
 // Eine Aufgabe starten, deren Fehler uns nicht interessieren
-\Async\spawn(function() {
+$state  = new FutureState();
+$future = new Future($state);
+$future->ignore();
+
+\Async\spawn(function() use ($state) {
     // Diese Operation kann fehlschlagen
-    sendAnalytics(['event' => 'page_view']);
-})->ignore();
+    try {
+        sendAnalytics(['event' => 'page_view']);
+        $state->complete(null);
+    } catch (\Throwable $e) {
+        $state->error($e);
+    }
+});
 
 // Der Fehler wird nicht an den Event-Loop-Handler weitergegeben
 ```
@@ -46,13 +56,22 @@ use Async\Future;
 <?php
 
 use Async\Future;
+use Async\FutureState;
 
 function warmupCache(array $keys): void {
     foreach ($keys as $key) {
-        \Async\spawn(function() use ($key) {
-            $data = loadFromDatabase($key);
-            saveToCache($key, $data);
-        })->ignore(); // Cache-Fehler sind nicht kritisch
+        $state = new FutureState();
+        (new Future($state))->ignore();  // Cache-Fehler sind nicht kritisch
+
+        \Async\spawn(function() use ($state, $key) {
+            try {
+                $data = loadFromDatabase($key);
+                saveToCache($key, $data);
+                $state->complete(null);
+            } catch (\Throwable $e) {
+                $state->error($e);
+            }
+        });
     }
 }
 

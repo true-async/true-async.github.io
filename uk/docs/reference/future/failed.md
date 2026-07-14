@@ -34,6 +34,7 @@ public static function failed(\Throwable $throwable): Future
 <?php
 
 use Async\Future;
+use Async\FutureState;
 
 $future = Future::failed(new \RuntimeException("Loading error"));
 
@@ -53,6 +54,7 @@ try {
 <?php
 
 use Async\Future;
+use Async\FutureState;
 
 function connectToService(string $host): Future {
     if (empty($host)) {
@@ -61,15 +63,25 @@ function connectToService(string $host): Future {
         );
     }
 
-    return \Async\spawn(function() use ($host) {
-        return performConnection($host);
+    $state = new FutureState();
+
+    \Async\spawn(function() use ($state, $host) {
+        try {
+            $state->complete(performConnection($host));
+        } catch (\Throwable $e) {
+            $state->error($e);
+        }
     });
+
+    return new Future($state);
 }
 
 $future = connectToService('');
-$future->catch(function(\Throwable $e) {
-    echo "Error: " . $e->getMessage() . "\n";
-});
+$future
+    ->catch(function(\Throwable $e) {
+        echo "Error: " . $e->getMessage() . "\n";
+    })
+    ->ignore();
 ```
 
 ## Дивіться також

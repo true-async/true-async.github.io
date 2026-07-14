@@ -34,6 +34,7 @@ Erstellt ein bereits abgeschlossenes `Future` mit dem angegebenen Wert. Dies ist
 <?php
 
 use Async\Future;
+use Async\FutureState;
 
 $future = Future::completed(42);
 
@@ -47,6 +48,7 @@ var_dump($future->await());       // int(42)
 <?php
 
 use Async\Future;
+use Async\FutureState;
 
 function fetchData(string $key): Future {
     // Wenn Daten im Cache sind, sofort zurückgeben
@@ -56,9 +58,17 @@ function fetchData(string $key): Future {
     }
 
     // Andernfalls eine asynchrone Operation starten
-    return \Async\spawn(function() use ($key) {
-        return loadFromDatabase($key);
+    $state = new FutureState();
+
+    \Async\spawn(function() use ($state, $key) {
+        try {
+            $state->complete(loadFromDatabase($key));
+        } catch (\Throwable $e) {
+            $state->error($e);
+        }
     });
+
+    return new Future($state);
 }
 
 $result = fetchData('user:1')->await();

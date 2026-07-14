@@ -34,6 +34,7 @@ public function map(callable $map): Future
 <?php
 
 use Async\Future;
+use Async\FutureState;
 
 $future = Future::completed(5)
     ->map(fn(int $x) => $x * 2)
@@ -48,13 +49,19 @@ echo $future->await(); // Result: 10
 <?php
 
 use Async\Future;
+use Async\FutureState;
 
-$future = \Async\spawn(function() {
-    return file_get_contents('https://api.example.com/data');
-})
-->map(fn(string $json) => json_decode($json, true))
-->map(fn(array $data) => $data['users'])
-->map(fn(array $users) => count($users));
+$state  = new FutureState();
+$source = new Future($state);
+
+\Async\spawn(function() use ($state) {
+    $state->complete(file_get_contents('https://api.example.com/data'));
+});
+
+$future = $source
+    ->map(fn(string $json) => json_decode($json, true))
+    ->map(fn(array $data) => $data['users'])
+    ->map(fn(array $users) => count($users));
 
 $count = $future->await();
 echo "Number of users: $count\n";
