@@ -55,12 +55,12 @@ $server->addHttpHandler(function ($req, $res) {
 $server->start();
 ```
 
-Registrar el manejador es lo que activa WebSocket: no hay un interruptor aparte que accionar.
+Registrar el manejador es lo que activa WebSocket: no hay un interruptor aparte que accionar,
+exactamente igual que HTTP/2 y `addHttp2Handler()`.
 
-> `HttpServerConfig::enableWebSocket()` parece ese interruptor, pero es un stub sin implementar
-> que lanza `HttpServerRuntimeException` cuando se le pasa `true`, y `isWebSocketEnabled()`
-> devuelve `false` incluso mientras WebSocket está sirviendo. No llames a ninguno de los dos
-> ([server#134](https://github.com/true-async/server/issues/134)).
+> `HttpServerConfig::enableWebSocket()` es un toggle heredado, no ese interruptor. Pasarle `true`
+> lanza `HttpServerRuntimeException` apuntándote a `addWebSocketHandler()`: registra el manejador
+> en su lugar.
 
 Cada conexión se atiende en su propia corrutina, el mismo modelo por solicitud que en HTTP.
 Un manejador que lanza no se lleva al worker por delante: la excepción se registra en el log y al

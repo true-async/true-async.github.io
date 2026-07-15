@@ -55,12 +55,11 @@ $server->start();
 ```
 
 Registrare l'handler è ciò che attiva WebSocket — non c'è un interruttore separato da
-azionare.
+azionare, esattamente come per HTTP/2 e `addHttp2Handler()`.
 
-> `HttpServerConfig::enableWebSocket()` sembra proprio quell'interruttore, ma è uno stub
-> non implementato che lancia `HttpServerRuntimeException` quando gli si passa `true`, e
-> `isWebSocketEnabled()` riporta `false` anche mentre WebSocket è in servizio. Non chiamare
-> nessuno dei due ([server#134](https://github.com/true-async/server/issues/134)).
+> `HttpServerConfig::enableWebSocket()` è un interruttore legacy, non è quello giusto.
+> Passargli `true` lancia `HttpServerRuntimeException` che ti rimanda a
+> `addWebSocketHandler()` — registra invece l'handler.
 
 Ogni connessione viene servita dalla propria coroutine, lo stesso modello per richiesta usato per
 HTTP. Un handler che lancia un'eccezione non porta giù il worker con sé: l'eccezione viene

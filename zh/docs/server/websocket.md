@@ -52,11 +52,10 @@ $server->addHttpHandler(function ($req, $res) {
 $server->start();
 ```
 
-注册处理程序本身就打开了 WebSocket —— 没有单独的开关要拨。
+注册处理程序本身就打开了 WebSocket —— 没有单独的开关要拨，就像 HTTP/2 和 `addHttp2Handler()` 一样。
 
-> `HttpServerConfig::enableWebSocket()` 看起来像那个开关，但它是一个未实现的桩，传 `true`
-> 时会抛 `HttpServerRuntimeException`，而且即使 WebSocket 正在服务，`isWebSocketEnabled()`
-> 也报告 `false`。这两个都不要调用（[server#134](https://github.com/true-async/server/issues/134)）。
+> `HttpServerConfig::enableWebSocket()` 是一个遗留开关，并不是那个开关。给它传 `true`
+> 会抛出 `HttpServerRuntimeException`，并指引你使用 `addWebSocketHandler()` —— 请改为注册处理程序。
 
 每个连接由自己的协程处理，与 HTTP 相同的 per-request 模型。
 处理程序抛异常不会把 worker 一起拖垮：异常会被记录，peer 会在协议内被告知 —— 如果抛在

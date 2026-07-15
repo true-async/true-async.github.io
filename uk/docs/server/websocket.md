@@ -54,12 +54,9 @@ $server->addHttpHandler(function ($req, $res) {
 $server->start();
 ```
 
-Реєстрація обробника — це і є те, що вмикає WebSocket; окремого перемикача немає.
+Реєстрація обробника — це і є те, що вмикає WebSocket; окремого перемикача немає, так само як у HTTP/2 з `addHttp2Handler()`.
 
-> `HttpServerConfig::enableWebSocket()` виглядає як такий перемикач, але це нереалізована
-> заглушка, яка кидає `HttpServerRuntimeException` при передачі `true`, а `isWebSocketEnabled()`
-> повертає `false`, навіть поки WebSocket обслуговує. Не викликайте жоден із них
-> ([server#134](https://github.com/true-async/server/issues/134)).
+> `HttpServerConfig::enableWebSocket()` — це застарілий перемикач, а не той самий. При передачі йому `true` кидає `HttpServerRuntimeException`, який вказує на `addWebSocketHandler()` — реєструйте обробник замість цього.
 
 Кожне з'єднання обслуговується власною корутиною: та сама модель, що і у звичайних HTTP-запитів.
 Обробник, що кидає виняток, не роняє воркер разом із собою: виняток логується, а peer'а

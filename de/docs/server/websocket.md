@@ -56,12 +56,11 @@ $server->start();
 ```
 
 Die Registrierung des Handlers ist das, was WebSocket einschaltet — es gibt keinen separaten
-Schalter, den man umlegen müsste.
+Schalter, den man umlegen müsste, genau wie bei HTTP/2 und `addHttp2Handler()`.
 
-> `HttpServerConfig::enableWebSocket()` sieht aus wie dieser Schalter, ist aber ein
-> unimplementierter Stub, der `HttpServerRuntimeException` wirft, wenn `true` übergeben wird, und
-> `isWebSocketEnabled()` meldet `false`, selbst während WebSocket bedient. Rufen Sie keines von
-> beiden auf ([server#134](https://github.com/true-async/server/issues/134)).
+> `HttpServerConfig::enableWebSocket()` ist ein Legacy-Umschalter, nicht dieser Schalter. Wird ihm
+> `true` übergeben, wirft er `HttpServerRuntimeException` und verweist Sie auf
+> `addWebSocketHandler()` — registrieren Sie stattdessen den Handler.
 
 Jede Verbindung wird von ihrer eigenen Coroutine bedient, dasselbe Per-Request-Modell wie bei HTTP.
 Ein Handler, der wirft, reißt den Worker nicht mit sich: die Exception wird geloggt, und dem Peer

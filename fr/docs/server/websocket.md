@@ -56,12 +56,11 @@ $server->start();
 ```
 
 Enregistrer le handler, c'est ce qui active WebSocket — il n'y a pas d'interrupteur séparé à
-basculer.
+basculer, exactement comme HTTP/2 et `addHttp2Handler()`.
 
-> `HttpServerConfig::enableWebSocket()` ressemble à cet interrupteur, mais c'est un stub non
-> implémenté qui lève `HttpServerRuntimeException` quand on lui passe `true`, et
-> `isWebSocketEnabled()` renvoie `false` alors même que WebSocket sert des connexions. N'appelez
-> ni l'un ni l'autre ([server#134](https://github.com/true-async/server/issues/134)).
+> `HttpServerConfig::enableWebSocket()` est une bascule héritée, pas cet interrupteur. Lui passer
+> `true` lève `HttpServerRuntimeException` qui vous renvoie vers `addWebSocketHandler()` —
+> enregistrez plutôt le handler.
 
 Chaque connexion est servie par sa propre coroutine, le même modèle per-request que pour HTTP.
 Un handler qui lève une exception n'emporte pas le worker avec lui : l'exception est journalisée,

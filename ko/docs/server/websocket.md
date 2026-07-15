@@ -53,12 +53,10 @@ $server->addHttpHandler(function ($req, $res) {
 $server->start();
 ```
 
-핸들러를 등록하는 것이 WebSocket을 켜는 방법입니다 — 따로 젖혀야 할 스위치는 없습니다.
+핸들러를 등록하는 것이 WebSocket을 켜는 방법입니다 — 따로 젖혀야 할 스위치는 없으며, HTTP/2 및 `addHttp2Handler()`와 정확히 동일합니다.
 
-> `HttpServerConfig::enableWebSocket()`이 그 스위치처럼 보이지만, `true`가 전달되면
-> `HttpServerRuntimeException`을 던지는 미구현 stub이며, WebSocket이 서비스 중일 때도
-> `isWebSocketEnabled()`는 `false`를 보고합니다. 둘 다 호출하지 마세요
-> ([server#134](https://github.com/true-async/server/issues/134)).
+> `HttpServerConfig::enableWebSocket()`은 그 스위치가 아니라 레거시 토글입니다. `true`를 전달하면
+> `addWebSocketHandler()`를 가리키는 `HttpServerRuntimeException`을 던집니다 — 대신 핸들러를 등록하세요.
 
 각 연결은 자체 코루틴으로 서비스되며, HTTP와 동일한 요청별 모델을 따릅니다.
 핸들러가 예외를 던져도 워커가 함께 죽지는 않습니다: 예외는 로깅되고, peer에게는 프로토콜

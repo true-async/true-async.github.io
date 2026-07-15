@@ -56,12 +56,11 @@ $server->start();
 ```
 
 Registering the handler is what turns WebSocket on — there is no separate switch to
-flip.
+flip, exactly like HTTP/2 and `addHttp2Handler()`.
 
-> `HttpServerConfig::enableWebSocket()` looks like that switch, but it is an
-> unimplemented stub that throws `HttpServerRuntimeException` when passed `true`, and
-> `isWebSocketEnabled()` reports `false` even while WebSocket is serving. Do not call
-> either ([server#134](https://github.com/true-async/server/issues/134)).
+> `HttpServerConfig::enableWebSocket()` is a legacy toggle, not that switch. Passing it
+> `true` throws `HttpServerRuntimeException` pointing you at `addWebSocketHandler()` —
+> register the handler instead.
 
 Each connection is served by its own coroutine, the same per-request model as HTTP.
 A handler that throws does not take the worker down with it: the exception is logged,

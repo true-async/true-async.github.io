@@ -54,12 +54,11 @@ $server->addHttpHandler(function ($req, $res) {
 $server->start();
 ```
 
-Регистрация обработчика и есть то, что включает WebSocket — отдельного переключателя нет.
+Регистрация обработчика и есть то, что включает WebSocket — отдельного переключателя нет, ровно как у HTTP/2 и `addHttp2Handler()`.
 
-> `HttpServerConfig::enableWebSocket()` выглядит как такой переключатель, но это
-> нереализованная заглушка, которая бросает `HttpServerRuntimeException` при вызове с `true`, а
-> `isWebSocketEnabled()` возвращает `false`, даже когда WebSocket уже обслуживает соединения. Не
-> вызывайте ни то, ни другое ([server#134](https://github.com/true-async/server/issues/134)).
+> `HttpServerConfig::enableWebSocket()` — это устаревший тумблер, а не тот самый переключатель.
+> Вызов с `true` бросает `HttpServerRuntimeException`, отсылающий вас к `addWebSocketHandler()` —
+> регистрируйте обработчик.
 
 Каждое соединение обслуживается своей корутиной: та же модель, что и у обычных HTTP-запросов.
 Исключение, брошенное обработчиком, не роняет с ним весь воркер: оно логируется, а клиенту
