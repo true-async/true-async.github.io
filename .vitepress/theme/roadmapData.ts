@@ -88,13 +88,14 @@ export const roadmap: RoadmapSection[] = [
           { name: 'Channel: safe close semantics for foreach()', status: 'done' },
           { name: 'iterate(): correct concurrency accounting', status: 'done' },
           { name: 'Thread transfer: closure-cycle safety', status: 'done' },
+          { name: 'Laravel adapter (laravel-spawn)', status: 'done' },
         ],
       },
       {
         id: 'core-0.9', version: '0.9', date: 'Q4 2026', status: 'planned', homepage: true,
         features: [
           { name: 'Framework integration layer', status: 'planned' },
-          { name: 'Laravel / Symfony adapters', status: 'planned' },
+          { name: 'Symfony adapter', status: 'planned' },
           { name: 'Migration guides', status: 'planned' },
         ],
       },
