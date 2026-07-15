@@ -51,7 +51,28 @@ $config
 
 内核随心所欲地把连接撒出去。Alice 落进了 worker 3，Bob 落进了 worker 5。每个 worker 有自己的内存，因而也有自己的 `$room`。两个同名的房间，彼此永远不会知道对方的存在。Alice 对着虚空写字，Bob 在另一个虚空里沉默。没有竞态，没有错误，聊天只是静悄悄地不再是聊天了。
 
-怎么办？标准的出路有这些。对于一个小系统，一个诚实的 `setWorkers(1)`：一个 worker 完全能撑住成千上万个 WebSocket 连接，因为它们大多在等待。对于一个大系统，把共享状态挪到外面，通常挪进 Redis pub/sub，让 worker 通过它对话。一条要记住的规则：请求状态活在请求作用域里，进程状态活在 worker 里，共享状态活在外部存储里。
+经典的出路是把共享状态挪到进程之外，挪进 Redis pub/sub，让各个 worker 通过它对话。这行得通，可现在，仅仅为了在同一台服务器的各个线程之间传递消息，一个聊天就得在旁边多跑一个服务。
+
+所以服务器自带了它自己的答案：**topic**。一个连接订阅一个名字，一条消息被发布到那个名字上，服务器就把它投递给每一个订阅者——在每一个 worker 上。不需要连接数组，也不需要 Redis。
+
+```php
+$server->addWebSocketHandler(function (WebSocket $ws, HttpRequest $req) {
+    $room = $req->getQueryParam('room', 'lobby');
+    $name = $req->getQueryParam('name', 'guest');
+
+    $ws->subscribe("chat/$room");
+
+    foreach ($ws as $msg) {
+        $ws->publish("chat/$room", "$name: {$msg->data}");
+    }
+});
+```
+
+把它和上一章的房间比一比。`SplObjectStorage` 不见了，随它一起消失的还有那个手写的广播循环，以及那个专门清扫幽灵的 `finally`。`subscribe()` 把这个连接放进房间；`publish()` 向房间里的每一个人送出一行。一个正在关闭的连接会自己离开它所在的房间。而在从前那个房间只活在某一个 worker 的内存里的地方，如今一个 topic 横跨了所有 worker：worker 3 里的 Alice 和 worker 5 里的 Bob 又重新待在同一个 `chat/general` 里了。
+
+`publish()` 从不阻塞——一个缓冲区已满的对端会丢掉这一行，而不是拖住整个房间，这和 `trySend()` 做出的取舍是同一个。它返回自己触达的本地订阅者数量；投递到其他 worker 的事在幕后发生。这个名字不只是一个字符串，它是一个 [MQTT 过滤器](/zh/docs/server/websocket.html#topics-publishsubscribe-across-every-worker)：订阅 `chat/+/typing`，你就能一次拿到每一个房间的正在输入信号。
+
+对于一个小系统，`setWorkers(1)` 仍然是一个诚实的答案——一个 worker 毫不费力地就撑住成千上万个大多在等待的 WebSocket 连接。但你不再需要仅仅为了让聊天能用而去选它了。一条要记住的规则：请求状态活在请求作用域里，进程状态活在 worker 里，共享状态要么活在一个 topic 里，要么活在外部存储里。
 
 ## HTTP/3：同样的处理器，不同的传输层
 

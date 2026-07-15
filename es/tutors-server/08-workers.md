@@ -82,13 +82,52 @@ la otra. Alice escribe al vacío, Bob calla en un vacío diferente. Sin
 carreras, sin errores, el chat simplemente dejó de ser un chat en
 silencio.
 
-¿Qué hacer? Las salidas estándar son estas. Para un sistema pequeño, un
-honesto `setWorkers(1)`: un solo worker sostiene miles de conexiones
-WebSocket sin problema, ya que en su mayoría esperan. Para uno grande,
-mueve el estado compartido afuera, normalmente a un pub/sub de Redis, y
-deja que los workers hablen a través de él. Una regla para recordar: el
-estado de la petición vive en el scope de la petición, el estado del
-proceso en el worker, el estado compartido en almacenamiento externo.
+El arreglo clásico es sacar el estado compartido fuera del proceso, a un
+pub/sub de Redis, y dejar que los workers hablen a través de él.
+Funciona, pero ahora un chat necesita un segundo servicio corriendo a su
+lado solo para pasar mensajes entre hilos del mismo servidor.
+
+Así que el servidor trae su propia respuesta: **topics**. Una conexión
+se suscribe a un nombre, un mensaje se publica a ese nombre, y el
+servidor lo entrega a cada suscriptor —en cada worker—. Sin array de
+conexiones, sin Redis.
+
+```php
+$server->addWebSocketHandler(function (WebSocket $ws, HttpRequest $req) {
+    $room = $req->getQueryParam('room', 'lobby');
+    $name = $req->getQueryParam('name', 'guest');
+
+    $ws->subscribe("chat/$room");
+
+    foreach ($ws as $msg) {
+        $ws->publish("chat/$room", "$name: {$msg->data}");
+    }
+});
+```
+
+Compáralo con la sala del capítulo anterior. El `SplObjectStorage`
+desapareció, y con él el bucle manual de broadcast y el `finally` que
+barría los fantasmas. `subscribe()` mete esta conexión en la sala;
+`publish()` envía una línea a todos los que están en ella. Una conexión
+que se cierra abandona sus salas por su cuenta. Y donde la vieja sala
+vivía en la memoria de un worker, un topic las abarca todas: Alice en el
+worker 3 y Bob en el worker 5 están de nuevo en el mismo `chat/general`.
+
+`publish()` nunca bloquea —un peer cuyo buffer está lleno descarta la
+línea en lugar de frenar la sala, el mismo compromiso que hacía
+`trySend()`—. Devuelve el número de suscriptores locales a los que
+llegó; la entrega a los otros workers ocurre entre bastidores. El nombre
+no es solo una cadena, es un [filtro MQTT](/es/docs/server/websocket.html#topics-publishsubscribe-en-todos-los-workers):
+suscríbete a `chat/+/typing` y recibes la señal de escritura de cada
+sala a la vez.
+
+`setWorkers(1)` sigue siendo una respuesta honesta para un sistema
+pequeño: un solo worker sostiene miles de conexiones WebSocket que en su
+mayoría esperan, sin problema. Pero ya no tienes que elegirlo solo para
+mantener un chat funcionando. Una regla para recordar: el estado de la
+petición vive en el scope de la petición, el estado del proceso en el
+worker, y el estado compartido o bien en un topic o bien en
+almacenamiento externo.
 
 ## HTTP/3: los mismos handlers, un transporte diferente
 
