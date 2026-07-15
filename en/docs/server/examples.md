@@ -202,34 +202,44 @@ $server->addWebSocketHandler(function (WebSocket $ws) {
     }
 });
 
+// Required: the server refuses to start without an HTTP handler, and it answers
+// the requests that are not upgrades.
+$server->addHttpHandler(fn ($req, $res) => $res->setStatusCode(404)->end());
+
 $server->start();
 ```
 
-Broadcasting to several clients without waiting on the slow ones:
+Broadcasting to every client — including those served by **other worker threads** — is what
+topics are for. Subscribe on connect, `publish()` to fan out; no shared array, no
+`setWorkers(1)`:
 
 ```php
-/** @var WebSocket[] $clients */
-$clients = [];
+use TrueAsync\HttpRequest;
 
-$server->addWebSocketHandler(function (WebSocket $ws) use (&$clients) {
-    $clients[spl_object_id($ws)] = $ws;
+$server = new HttpServer(
+    (new HttpServerConfig())
+        ->addListener('0.0.0.0', 8080)
+        ->setWorkers(4)                          // a real chat, across 4 threads
+);
 
-    try {
-        foreach ($ws as $msg) {
-            foreach ($clients as $peer) {
-                if ($peer !== $ws) {
-                    $peer->trySend($msg->data);   // non-blocking, a slow client won't stall the rest
-                }
-            }
-        }
-    } finally {
-        unset($clients[spl_object_id($ws)]);
+$server->addWebSocketHandler(function (WebSocket $ws, HttpRequest $req) {
+    $room = ltrim($req->getPath(), '/') ?: 'lobby';
+    $ws->subscribe("chat/$room");
+
+    foreach ($ws as $msg) {
+        $ws->publish("chat/$room", $msg->data);  // reaches subscribers on ALL workers
     }
 });
+
+$server->addHttpHandler(fn ($req, $res) => $res->setStatusCode(404)->end());
+
+$server->start();
 ```
 
-See the [WebSocket guide](/en/docs/server/websocket.html) for the full walkthrough of every
-method.
+`publish()` never suspends: a peer whose socket is backed up drops the message rather than
+stalling the rest of the topic. See the
+[WebSocket guide](/en/docs/server/websocket.html#topics-publishsubscribe-across-every-worker)
+for the topic model, filters, and rate limits.
 
 ## File download with auth
 

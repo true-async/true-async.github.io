@@ -5,7 +5,7 @@ path_key: "/docs/server/configuration.html"
 nav_active: docs
 permalink: /en/docs/server/configuration.html
 page_title: "TrueAsync Server: configuration"
-description: "HttpServerConfig: listeners, TLS, timeouts, backpressure, body limits, body streaming, JSON flags, logging, HTTP/3."
+description: "HttpServerConfig: listeners, TLS, timeouts, backpressure, body limits, body streaming, hot reload, WebSocket topics, multi-sink logging, statistics, HTTP/3."
 ---
 
 # TrueAsync Server configuration
@@ -94,7 +94,19 @@ $config
         require __DIR__ . '/vendor/autoload.php';
         Database::warmupPool();
         OpcacheWarm::compile();
-    });
+    })
+    ->setRequestScope(true);   // default; false saves 2 allocs/req but nulls request_context()
+```
+
+### Hot reload
+
+Replace the worker cohort without dropping a connection (pool mode only). Both triggers call
+`HttpServer::reload()`, which re-runs the bootloader in fresh workers on the same sockets:
+
+```php
+$config
+    ->enableHotReload([__DIR__ . '/app'], ['php'], debounceMs: 300, maxHoldMs: 2000)  // watch files (dev)
+    ->enableReloadOnSignal();                                                          // SIGHUP (prod)
 ```
 
 Details: [Multi-worker](/en/docs/server/workers.html).
@@ -163,11 +175,20 @@ $config
     ->setHttp3StreamWindowBytes(256 * 1024)   // per-stream flow control
     ->setHttp3MaxConcurrentStreams(100)       // initial_max_streams_bidi
     ->setHttp3PeerConnectionBudget(16)        // per-source-IP cap, slow-loris protection
+    ->setHttp3SocketBufferBytes(8 << 20)      // UDP rcv/snd buffer, absorbs inbound bursts
+    ->setHttp3Pacing(false)                   // opt-in send pacing, for lossy/rate-limited paths
     ->setHttp3AltSvcEnabled(true);            // RFC 7838 Alt-Svc advertisement
 ```
 
 The connection-level `initial_max_data` is derived as `window × max_concurrent_streams` (the nginx
 pattern).
+
+- **`setHttp3SocketBufferBytes($bytes)`** — UDP socket receive/send buffer. Absorbs inbound
+  bursts so they don't overflow into `RcvbufErrors`. Default 8 MiB; the kernel clamps to
+  `net.core.{r,w}mem_max` unless privileged. `0` leaves the OS default.
+- **`setHttp3Pacing($bool)`** — cap each burst at the congestion controller's `send_quantum`
+  and space packets on ngtcp2's pacing timer. Off by default: on a lossless path pacing only
+  adds cost, so enable it for constrained paths only.
 
 ## WebSocket
 
@@ -177,7 +198,9 @@ $config
     ->setWsMaxFrameSize(1024 * 1024)     // 1 MiB, same range
     ->setWsPingIntervalMs(30_000)        // keepalive PING on idle
     ->setWsPongTimeoutMs(60_000)         // deadline for the PONG reply
-    ->setWsPermessageDeflate(false);     // RFC 7692, off by default
+    ->setWsPermessageDeflate(false)      // RFC 7692, off by default
+    ->setWsMaxSubscriptions(0)           // topic-filter cap per connection; 0 = no limit
+    ->setWsPublishRateLimit(0);          // publish() token bucket; 0 = off
 ```
 
 - **`setWsMaxMessageSize($bytes)`** — max size for a reassembled message. Going over it
@@ -192,8 +215,14 @@ $config
   it's a deliberate opt-in, because compression costs CPU and widens the decompression-bomb
   attack surface. Negotiated only when the client itself offers this extension; requires a
   build with zlib.
+- **`setWsMaxSubscriptions($count)`** — how many distinct topic filters one connection may
+  hold. `0` (default) is no limit, as every self-hosted broker ships. Set it when client input
+  reaches `subscribe()`; over the cap, `subscribe()` throws `WebSocketException`.
+- **`setWsPublishRateLimit($perSecond, $burst = 0)`** — per-connection token bucket over
+  `publish()`, the one WS call that causes work on every worker. `0` (default) is off. Over
+  the rate, `publish()` throws `WebSocketBackpressureException`.
 
-See the [WebSocket guide](/en/docs/server/websocket.html) and the
+See the [WebSocket guide](/en/docs/server/websocket.html) for the topic pub/sub model and the
 [reference](/en/docs/reference/server/websocket.html) for the connection API itself.
 
 ## Body streaming
@@ -243,7 +272,9 @@ when the caller does not pass `$flags` explicitly. `JSON_THROW_ON_ERROR` is sile
 an encoding error produces a 500 with a JSON error body — the exception is not propagated into the
 handler.
 
-## Logging
+## Logging and statistics
+
+For a single console stream, the `setLogSeverity()` / `setLogStream()` sugar is enough:
 
 ```php
 use TrueAsync\LogSeverity;
@@ -253,10 +284,7 @@ $config
     ->setLogStream(STDERR);   // any php_stream: file, php://stderr, php://memory, user wrapper
 ```
 
-The logger is disabled by default (`LogSeverity::OFF`). Severity is fixed at start; runtime changes
-are not supported (single-threaded lock-free model).
-
-Levels (OpenTelemetry SeverityNumber):
+The logger is disabled by default (`LogSeverity::OFF`). Levels (OpenTelemetry SeverityNumber):
 
 | Level | Contents |
 |-------|----------|
@@ -268,6 +296,27 @@ Levels (OpenTelemetry SeverityNumber):
 
 `FATAL` is intentionally absent: it travels through `zend_error_noreturn(E_ERROR)`, which already
 terminates the process.
+
+> **Under a worker pool, do not use `setLogStream()`.** A parent-opened stream resource cannot
+> cross into worker threads. Use `setLogSinks()` with a `file` / `stdout` / `stderr` sink each
+> worker can open itself.
+
+For multiple destinations, a structured **access log**, syslog, or JSON output, use
+`setLogSinks()` — and opt into cross-worker `getStats()` with `setStatsEnabled(true)`:
+
+```php
+use TrueAsync\LogSeverity;
+
+$config
+    ->setStatsEnabled(true)
+    ->setLogSinks([
+        ['type' => 'file', 'path' => '/var/log/app/access.log',
+         'format' => 'json', 'category' => 'access', 'level' => LogSeverity::INFO],
+        ['type' => 'stderr', 'format' => 'pretty', 'level' => LogSeverity::WARN],
+    ]);
+```
+
+Both are covered in full on the [Observability](/en/docs/server/observability.html) page.
 
 ## Telemetry (W3C Trace Context)
 
