@@ -81,19 +81,21 @@ export const roadmap: RoadmapSection[] = [
         ],
       },
       {
-        id: 'core-0.8', version: '0.8', date: 'Q3 2026', status: 'active', homepage: true,
+        id: 'core-0.8', version: '0.8', date: '2026-07-15', status: 'done', homepage: true,
+        features: [
+          { name: 'Context API: strict get() / getLocal() semantics', status: 'done' },
+          { name: 'Reactor timer correctness under CPU-bound coroutines', status: 'done' },
+          { name: 'Channel: safe close semantics for foreach()', status: 'done' },
+          { name: 'iterate(): correct concurrency accounting', status: 'done' },
+          { name: 'Thread transfer: closure-cycle safety', status: 'done' },
+        ],
+      },
+      {
+        id: 'core-0.9', version: '0.9', date: 'Q4 2026', status: 'planned', homepage: true,
         features: [
           { name: 'Framework integration layer', status: 'planned' },
           { name: 'Laravel / Symfony adapters', status: 'planned' },
           { name: 'Migration guides', status: 'planned' },
-        ],
-      },
-      {
-        id: 'core-1.0-rc', version: '1.0-RC', date: 'August 2026', status: 'planned', tag: 'RC', homepage: true,
-        features: [
-          { name: 'Feature freeze', status: 'planned' },
-          { name: 'Community testing', status: 'planned' },
-          { name: 'Performance benchmarks', status: 'planned' },
         ],
       },
       {
@@ -147,10 +149,18 @@ export const roadmap: RoadmapSection[] = [
         ],
       },
       {
+        id: 'server-topics', version: '0.11', date: '2026-07-15', status: 'done',
+        features: [
+          { name: 'Cross-worker WebSocket topics (MQTT-style pub/sub)', status: 'done' },
+          { name: 'Cross-thread HttpServer::stop() in pool mode', status: 'done' },
+          { name: 'Observability: getStats() + multi-sink structured logging', status: 'done' },
+          { name: 'Client address API (getRemoteAddress / getRemotePort)', status: 'done' },
+        ],
+      },
+      {
         id: 'server-next', version: 'Next', status: 'planned',
         features: [
           { name: 'gRPC (over HTTP/2)', status: 'planned' },
-          { name: 'Cross-thread stop()', status: 'planned' },
         ],
       },
     ],
