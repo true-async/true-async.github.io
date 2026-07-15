@@ -5,7 +5,7 @@ path_key: "/docs/server/websocket.html"
 nav_active: docs
 permalink: /ko/docs/server/websocket.html
 page_title: "TrueAsync Server: WebSocket"
-description: "addWebSocketHandler(): RFC 6455 기반 전이중 연결, backpressure, keepalive, 서브프로토콜 협상, permessage-deflate."
+description: "addWebSocketHandler(): RFC 6455 기반 전이중 연결, 워커 간 pub/sub 토픽, backpressure, keepalive, 서브프로토콜 협상, permessage-deflate."
 ---
 
 # WebSocket
@@ -22,6 +22,8 @@ description: "addWebSocketHandler(): RFC 6455 기반 전이중 연결, backpress
 - HTTP/2에서의 Upgrade(RFC 8441 Extended CONNECT).
 - `wss://`(TLS 위의 WebSocket).
 - permessage-deflate(RFC 7692), 메시지 단위 압축.
+- 프로세스의 모든 워커에 도달하는 [pub/sub 토픽](#topics-publishsubscribe-across-every-worker).
+  덕분에 채팅에 단일 워커 서버나 외부 브로커가 필요 없습니다.
 
 > 구현은 Autobahn|Testsuite 준수성 스위트로 검증되었으며 `behavior` 카테고리의 246개 테스트를
 > 모두 통과합니다.
@@ -42,10 +44,30 @@ $server->addWebSocketHandler(function (WebSocket $ws) {
     }
 });
 
+// 필수: 서버는 HTTP 핸들러 없이는 시작을 거부하며, 이 핸들러가
+// upgrade가 아닌 요청에 응답합니다.
+$server->addHttpHandler(function ($req, $res) {
+    $res->setStatusCode(404)->end();
+});
+
 $server->start();
 ```
 
+핸들러를 등록하는 것이 WebSocket을 켜는 방법입니다 — 따로 젖혀야 할 스위치는 없습니다.
+
+> `HttpServerConfig::enableWebSocket()`이 그 스위치처럼 보이지만, `true`가 전달되면
+> `HttpServerRuntimeException`을 던지는 미구현 stub이며, WebSocket이 서비스 중일 때도
+> `isWebSocketEnabled()`는 `false`를 보고합니다. 둘 다 호출하지 마세요
+> ([server#134](https://github.com/true-async/server/issues/134)).
+
 각 연결은 자체 코루틴으로 서비스되며, HTTP와 동일한 요청별 모델을 따릅니다.
+핸들러가 예외를 던져도 워커가 함께 죽지는 않습니다: 예외는 로깅되고, peer에게는 프로토콜
+내에서 알립니다 — throw가 upgrade보다 앞섰다면 HTTP 상태로, 세션이 이미 활성 상태였다면
+`CLOSE 1011`로.
+
+핸들러는 항상 세 개의 인수로 호출되며, 선언하지 않은 것은 PHP가 버립니다 — 따라서
+`function (WebSocket $ws)`, `function (WebSocket $ws, HttpRequest $req)`, 세 매개변수 형식이
+모두 유효합니다. 사용하는 것만 선언하세요.
 
 ## 생명주기
 
@@ -108,6 +130,143 @@ if (!$ws->trySend($text)) {
 전송되지 않습니다). 버퍼 크기는
 [`HttpServerConfig::setStreamWriteBufferBytes()`](/ko/docs/reference/server/http-server-config.html#setstreamwritebufferbytes)로
 설정합니다(`0`은 한도를 해제합니다: `trySend()`는 항상 전송하고 `true`를 반환합니다).
+
+## 토픽: 모든 워커에 걸친 publish/subscribe {#topics-publishsubscribe-across-every-worker}
+
+워커는 자체 PHP 컨텍스트를 가진 스레드입니다. 그래서 채팅을 만드는 뻔한 방법 — 연결 배열을
+유지하며 순회하는 것 — 은 오직 *한* 워커의 peer에만 도달할 수 있으며, 이것이 그런 채팅을
+`setWorkers(1)`에서 돌려야 했던 이유입니다.
+
+토픽이 이를 해결합니다. 토픽은 핸들러가 아니라 서버에 존재합니다: 각 워커는 자신이 소유한
+연결을 인덱싱하고, `publish()`는 모든 워커에 넘겨져 각 워커가 자신의 소켓으로 전달합니다.
+Redis도, 메시지 브로커도, 단일 워커 서버도 없습니다.
+
+```php
+$server->addWebSocketHandler(function (WebSocket $ws, HttpRequest $req) {
+    $room = ltrim($req->getPath(), '/') ?: 'lobby';
+
+    $ws->subscribe("chat/$room");
+
+    foreach ($ws as $msg) {
+        $ws->publish("chat/$room", $msg->data);   // 모든 워커의 구독자에게 도달
+    }
+});
+```
+
+토픽은 **호출 지점에서 이름으로** 지정합니다. 획득하거나, 보유하거나, 핸들러에 전달할 토픽
+객체는 없습니다.
+
+### 필터는 MQTT를 따른다
+
+레벨은 `/`로 구분되고, `+`는 정확히 한 레벨과 매칭되며, 끝의 `#`는 나머지 전부와 매칭됩니다:
+
+| 필터 | 수신 대상 |
+|--------|----------|
+| `chat/general` | 정확히 그 토픽 |
+| `chat/+/typing` | `chat/general/typing`, `chat/random/typing` — 한 레벨, 임의의 값 |
+| `user/42/#` | `user/42`, `user/42/presence`, `user/42/dm/7` — 서브트리 전체 |
+
+와일드카드는 *구독*에 속합니다. **publish 토픽은 반드시 구체적**이어야 합니다: 패턴으로
+fan-out된 메시지는 잘 정의된 목적지가 없으므로 `publish('chat/+/typing', …)`은
+`WebSocketException`을 던집니다. 필터는 최대 128레벨 깊이까지 가능합니다.
+
+### API
+
+```php
+$ws->subscribe('chat/+/typing');            // idempotent
+$ws->unsubscribe('chat/+/typing');          // idempotent
+$ws->getTopics();                           // string[] — 이 연결의 필터
+
+$ws->publish('chat/general', $text);        // 텍스트, 모든 워커로
+$ws->publishBinary('chat/general', $bytes); // 바이너리 대응
+
+$ws->subscriberCount('chat/general');       // 모든 워커에 걸쳐, 와일드카드 포함
+```
+
+`publish()`는 **절대 일시 중단하지 않습니다**. 아웃바운드 큐가 밀린 peer는 나머지 토픽으로의
+전달을 막는 대신 메시지를 버립니다 — `trySend()`와 같은 시맨틱입니다. 전달 보장이 필요하면
+해당 연결 하나에 `send()`하세요. 자신의 여러 필터에 의해 매칭된 구독자도 정확히 한 부만
+받습니다.
+
+`$excludeSelf`는 기본값이 `true`입니다 — 채팅이 원하는 "발신자를 제외한 모두" 경우:
+
+```php
+$ws->publish('chat/general', $msg->data);                      // 발신자는 되돌려받지 않음
+$ws->publish('chat/general', $msg->data, excludeSelf: false);  // 발신자도 받음
+```
+
+반환값은 **호출한 워커에서만** 처리된 구독자 수입니다. 다른 워커로의 전달은 비동기이고 호출
+지점에서 셀 수 없으므로, 이것은 프로세스 전역이 아니라 로컬 수치입니다. `subscriberCount()`가
+프로세스 전역 수치이지만 — 각 워커가 자신의 수치로 답하고 그 답들을 합산하므로, 실시간
+카운터가 아니라 스냅샷이며, 제때 답하지 못한 워커는 빠집니다.
+
+닫히는 연결은 스스로 모든 것을 구독 해제합니다.
+
+### 한도
+
+둘 다 기본값이 off이며, 이는 모든 self-hosted 브로커가 그렇습니다(EMQX `max_subscriptions` /
+`messages_rate`, NATS `max_subs`): 얼마나 많은 토픽이 필요한지는 애플리케이션만 압니다.
+
+```php
+$config
+    ->setWsMaxSubscriptions(32)          // 한 연결이 보유할 수 있는 서로 다른 필터
+    ->setWsPublishRateLimit(50, burst: 100);
+```
+
+클라이언트 입력이 `subscribe()`에 닿을 때마다 — 예컨대 `$ws->subscribe($msg->data)` — 
+`setWsMaxSubscriptions()`를 설정하세요. 그래야 peer가 워커의 토픽 트리를 끝없이 키우지
+못합니다. 상한을 넘으면 `subscribe()`가 `WebSocketException`을 던지고 연결은 유지됩니다.
+
+`setWsPublishRateLimit()`는 연결당 토큰 버킷입니다. `publish()`는 권한 없는 peer가 프로세스의
+*모든* 워커에서 작업으로 바꿀 수 있는 유일한 WebSocket 호출입니다 — `send()`와 `trySend()`는
+자신의 소켓만 건드립니다. 계량하지 않으면, 릴레이된 메시지를 루프로 돌리는 한 클라이언트가
+모든 워커의 inbox를 채우고, 뒤따르는 drop이 *다른* 토픽의 트래픽까지 앗아갑니다. 속도를 넘으면
+`publish()`가 `WebSocketBackpressureException`을 던지고 연결은 유지됩니다: 메시지가 아무도 볼
+수 없는 가득 찬 mailbox로 사라지는 대신 발신자에게 알립니다.
+
+`$burst`는 메시지 단위의 버킷 깊이입니다 — 핸들러가 지속 속도를 얼마나 앞질러 달릴 수 있는지.
+`0`은 1초 분량을 의미합니다.
+
+```php
+try {
+    $ws->publish("chat/$room", $msg->data);
+} catch (WebSocketBackpressureException) {
+    $ws->send('you are sending too fast');
+} catch (WebSocketException $e) {
+    $ws->send('bad topic: ' . $e->getMessage());
+}
+```
+
+### 비용
+
+각 워커는 자신의 구독을 토픽 prefix의 counting Bloom filter로 요약하고, publisher는 구독자를
+확실히 보유하지 않은 워커를 깨우는 대신 건너뜁니다. 프로세스의 누구도 듣지 않는 토픽으로의
+publish는 워커 간 wake-up 비용이 0입니다. `HttpServer::getRuntimeStats()`가 결과를 보고합니다 —
+`ws_topic_posted`, `ws_topic_skipped`(필터가 제 값을 하는 것), `ws_topic_dropped`(워커의
+mailbox가 가득 참: 이것은 데이터 손실).
+
+토픽은 plaintext HTTP/1뿐 아니라 모든 WebSocket 전송에서 동작합니다 — TLS 위에서, HTTP/2
+Extended CONNECT 위에서, 그리고 permessage-deflate와 함께, 여기서 하나의 `publish()`가 압축된
+peer와 평문 peer를 각자 협상한 프레이밍으로 나란히 서비스합니다.
+
+## 클라이언트의 주소
+
+```php
+$ws->getRemoteAddress();   // "203.0.113.7" 또는 "2001:db8::1" — 포트 없는 순수 IP
+$ws->getRemotePort();      // 54321
+```
+
+`getRemoteAddress()`는 **순수 IP**를 반환합니다: 포트도 없고, IPv6 리터럴을 감싸는 대괄호도
+없습니다 — `$_SERVER['REMOTE_ADDR']`과 같은 형태이므로 `filter_var(…, FILTER_VALIDATE_IP)`,
+ACL, 또는 rate limiter에 곧바로 넣을 수 있습니다. 둘 다 IP peer가 없는 Unix 소켓 리스너에서는
+`null`을 반환합니다.
+
+이것은 TCP 연결의 peer입니다. `X-Forwarded-For`에서 유도한 것이 **아닙니다** — 프록시 뒤에서는
+그 헤더를 직접 파싱하되, 그것을 설정한 프록시를 신뢰할 때만 하세요.
+
+> **Breaking change.** `getRemoteAddress()`는 예전에 `"host:port"`를(그리고 IP peer가 없을 때는
+> `""`를) 반환했습니다. 이제는 순수 IP를, 그리고 `null`을 반환합니다. 포트는
+> `getRemotePort()`를 사용하세요.
 
 ## 연결 닫기: `close()`, `isClosed()`
 
@@ -178,9 +337,9 @@ $server->addWebSocketHandler(function (WebSocket $ws, HttpRequest $req, WebSocke
 ```
 \Exception
   └── TrueAsync\HttpServerException
-        └── TrueAsync\WebSocketException
+        └── TrueAsync\WebSocketException            // 잘못된 토픽 필터, 구독 상한도 여기
               ├── WebSocketClosedException          // closeCode / closeReason
-              ├── WebSocketBackpressureException    // 클라이언트가 충분히 빠르게 읽지 못함
+              ├── WebSocketBackpressureException    // 느린 reader — 또는 rate limit을 넘긴 publish()
               └── WebSocketConcurrentReadException  // 두 번째 recv()가 동시에 호출됨
 ```
 
@@ -197,6 +356,8 @@ $server->addWebSocketHandler(function (WebSocket $ws, HttpRequest $req, WebSocke
 | `setWsPingIntervalMs($ms)` | 30000 | 서버가 idle 연결에 ping을 보내는 주기, `0`은 비활성화 |
 | `setWsPongTimeoutMs($ms)` | 60000 | 닫기(`1001`) 전에 PONG을 기다리는 시간 |
 | `setWsPermessageDeflate($bool)` | `false` | RFC 7692, CPU 비용 때문에 opt-in |
+| `setWsMaxSubscriptions($count)` | `0` (무제한) | 한 연결이 보유할 수 있는 서로 다른 토픽 필터 |
+| `setWsPublishRateLimit($perSecond, $burst)` | `0` (off) | `publish()`에 대한 연결당 토큰 버킷 |
 
 자세한 내용은 [설정: WebSocket](/ko/docs/server/configuration.html#websocket)을 참고하세요.
 

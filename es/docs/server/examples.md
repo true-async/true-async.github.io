@@ -202,34 +202,44 @@ $server->addWebSocketHandler(function (WebSocket $ws) {
     }
 });
 
+// Obligatorio: el servidor se niega a arrancar sin un manejador HTTP, y este
+// responde a las solicitudes que no son upgrades.
+$server->addHttpHandler(fn ($req, $res) => $res->setStatusCode(404)->end());
+
 $server->start();
 ```
 
-Broadcast a varios clientes sin esperar a los lentos:
+Hacer broadcast a todos los clientes —incluidos los atendidos por **otros hilos worker**— es
+justo para lo que sirven los topics. Suscríbete al conectar, haz `publish()` para el fan-out; sin
+array compartido, sin `setWorkers(1)`:
 
 ```php
-/** @var WebSocket[] $clients */
-$clients = [];
+use TrueAsync\HttpRequest;
 
-$server->addWebSocketHandler(function (WebSocket $ws) use (&$clients) {
-    $clients[spl_object_id($ws)] = $ws;
+$server = new HttpServer(
+    (new HttpServerConfig())
+        ->addListener('0.0.0.0', 8080)
+        ->setWorkers(4)                          // un chat de verdad, a través de 4 hilos
+);
 
-    try {
-        foreach ($ws as $msg) {
-            foreach ($clients as $peer) {
-                if ($peer !== $ws) {
-                    $peer->trySend($msg->data);   // no bloqueante, un cliente lento no frena al resto
-                }
-            }
-        }
-    } finally {
-        unset($clients[spl_object_id($ws)]);
+$server->addWebSocketHandler(function (WebSocket $ws, HttpRequest $req) {
+    $room = ltrim($req->getPath(), '/') ?: 'lobby';
+    $ws->subscribe("chat/$room");
+
+    foreach ($ws as $msg) {
+        $ws->publish("chat/$room", $msg->data);  // llega a los suscriptores de TODOS los workers
     }
 });
+
+$server->addHttpHandler(fn ($req, $res) => $res->setStatusCode(404)->end());
+
+$server->start();
 ```
 
-Véase la [guía de WebSocket](/es/docs/server/websocket.html) para el recorrido completo de todos
-los métodos.
+`publish()` nunca suspende: un peer cuyo socket va atascado descarta el mensaje en lugar de frenar
+al resto del topic. Véase la
+[guía de WebSocket](/es/docs/server/websocket.html#topics-publishsubscribe-en-todos-los-workers)
+para el modelo de topics, los filtros y los rate limits.
 
 ## Descarga de archivo con auth
 

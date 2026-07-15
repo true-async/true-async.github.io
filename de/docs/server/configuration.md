@@ -5,7 +5,7 @@ path_key: "/docs/server/configuration.html"
 nav_active: docs
 permalink: /de/docs/server/configuration.html
 page_title: "TrueAsync Server: Konfiguration"
-description: "HttpServerConfig: Listener, TLS, Timeouts, Backpressure, Body-Limits, Body-Streaming, JSON-Flags, Logging, HTTP/3."
+description: "HttpServerConfig: Listener, TLS, Timeouts, Backpressure, Body-Limits, Body-Streaming, Hot Reload, WebSocket-Topics, Multi-Sink-Logging, Statistiken, HTTP/3."
 ---
 
 # Konfiguration TrueAsync Server
@@ -93,7 +93,20 @@ $config
         require __DIR__ . '/vendor/autoload.php';
         Database::warmupPool();
         OpcacheWarm::compile();
-    });
+    })
+    ->setRequestScope(true);   // Default; false spart 2 Allocs/Req, nullt aber request_context()
+```
+
+### Hot Reload
+
+Ersetzt die Worker-Kohorte, ohne eine Verbindung fallen zu lassen (nur Pool-Modus). Beide Trigger
+rufen `HttpServer::reload()` auf, das den Bootloader in frischen Workern auf denselben Sockets
+erneut ausführt:
+
+```php
+$config
+    ->enableHotReload([__DIR__ . '/app'], ['php'], debounceMs: 300, maxHoldMs: 2000)  // Dateien beobachten (dev)
+    ->enableReloadOnSignal();                                                          // SIGHUP (prod)
 ```
 
 Details: [Multi-Worker](/de/docs/server/workers.html).
@@ -161,10 +174,20 @@ $config
     ->setHttp3StreamWindowBytes(256 * 1024)   // Per-Stream Flow Control
     ->setHttp3MaxConcurrentStreams(100)       // initial_max_streams_bidi
     ->setHttp3PeerConnectionBudget(16)        // Per-Source-IP Cap, Slow-Loris-Schutz
+    ->setHttp3SocketBufferBytes(8 << 20)      // UDP-rcv/snd-Buffer, absorbiert eingehende Bursts
+    ->setHttp3Pacing(false)                   // Opt-in Send-Pacing, für verlustbehaftete/rate-limitierte Pfade
     ->setHttp3AltSvcEnabled(true);            // RFC 7838 Alt-Svc Announcement
 ```
 
 Das Connection-Level `initial_max_data` ergibt sich als `window × max_concurrent_streams` (nginx-Muster).
+
+- **`setHttp3SocketBufferBytes($bytes)`** — UDP-Socket-Empfangs-/Sendepuffer. Absorbiert
+  eingehende Bursts, sodass sie nicht in `RcvbufErrors` überlaufen. Standard 8 MiB; der Kernel
+  klemmt auf `net.core.{r,w}mem_max`, sofern nicht privilegiert. `0` lässt den OS-Default.
+- **`setHttp3Pacing($bool)`** — deckelt jeden Burst auf das `send_quantum` des
+  Congestion-Controllers und verteilt Pakete über ngtcp2s Pacing-Timer. Standardmäßig aus: auf
+  einem verlustfreien Pfad verursacht Pacing nur Kosten, aktivieren Sie es also nur für
+  eingeschränkte Pfade.
 
 ## WebSocket
 
@@ -174,7 +197,9 @@ $config
     ->setWsMaxFrameSize(1024 * 1024)     // 1 MiB, gleicher Bereich
     ->setWsPingIntervalMs(30_000)        // Keepalive-PING bei Idle
     ->setWsPongTimeoutMs(60_000)         // Deadline für die PONG-Antwort
-    ->setWsPermessageDeflate(false);     // RFC 7692, standardmäßig aus
+    ->setWsPermessageDeflate(false)      // RFC 7692, standardmäßig aus
+    ->setWsMaxSubscriptions(0)           // Topic-Filter-Cap pro Verbindung; 0 = kein Limit
+    ->setWsPublishRateLimit(0);          // publish()-Token-Bucket; 0 = aus
 ```
 
 - **`setWsMaxMessageSize($bytes)`** — max. Größe für eine reassemblierte Nachricht. Wird sie
@@ -191,8 +216,15 @@ $config
   Standardmäßig aus: ein bewusstes Opt-in, weil Komprimierung CPU kostet und die Angriffsfläche
   für Decompression-Bombs vergrößert. Wird nur ausgehandelt, wenn der Client diese Extension
   selbst anbietet; erfordert einen Build mit zlib.
+- **`setWsMaxSubscriptions($count)`** — wie viele distinkte Topic-Filter eine Verbindung halten
+  darf. `0` (Default) ist kein Limit, wie es jeder selbst gehostete Broker ausliefert. Setzen Sie
+  es, wenn Client-Eingaben `subscribe()` erreichen; über dem Cap wirft `subscribe()`
+  `WebSocketException`.
+- **`setWsPublishRateLimit($perSecond, $burst = 0)`** — Per-Connection-Token-Bucket über
+  `publish()`, den einen WS-Aufruf, der auf jedem Worker Arbeit verursacht. `0` (Default) ist aus.
+  Über der Rate wirft `publish()` `WebSocketBackpressureException`.
 
-Siehe den [WebSocket-Guide](/de/docs/server/websocket.html) und die
+Siehe den [WebSocket-Guide](/de/docs/server/websocket.html) für das Topic-Pub/Sub-Modell und die
 [Referenz](/de/docs/reference/server/websocket.html) für die Connection-API selbst.
 
 ## Body-Streaming
@@ -241,7 +273,9 @@ wenn der Aufrufer `$flags` nicht explizit übergibt. `JSON_THROW_ON_ERROR` wird 
 entfernt: ein Encoding-Fehler liefert eine 500 mit JSON-Fehlerbody, eine Exception wird nicht an
 den Handler durchgereicht.
 
-## Logging
+## Logging und Statistiken
+
+Für einen einzelnen Konsolen-Stream reicht der `setLogSeverity()` / `setLogStream()`-Zucker:
 
 ```php
 use TrueAsync\LogSeverity;
@@ -251,10 +285,8 @@ $config
     ->setLogStream(STDERR);   // beliebiger php_stream: Datei, php://stderr, php://memory, User-Wrapper
 ```
 
-Der Logger ist standardmäßig deaktiviert (`LogSeverity::OFF`). Die Severity wird beim Start
-festgeschrieben, Laufzeit-Änderungen sind nicht möglich (Single-Threaded Lock-Free-Modell).
-
-Stufen (OpenTelemetry SeverityNumber):
+Der Logger ist standardmäßig deaktiviert (`LogSeverity::OFF`). Stufen (OpenTelemetry
+SeverityNumber):
 
 | Stufe | Was geloggt wird |
 |-------|------------------|
@@ -266,6 +298,27 @@ Stufen (OpenTelemetry SeverityNumber):
 
 `FATAL` fehlt bewusst: es wird über `zend_error_noreturn(E_ERROR)` ausgeliefert, was den Prozess
 ohnehin beendet.
+
+> **Unter einem Worker-Pool `setLogStream()` nicht nutzen.** Eine vom Parent geöffnete
+> Stream-Ressource kann nicht in einen Worker-Thread übergehen. Nutzen Sie `setLogSinks()` mit
+> einem `file` / `stdout` / `stderr`-Sink, den jeder Worker selbst öffnen kann.
+
+Für mehrere Ziele, ein strukturiertes **Access-Log**, Syslog oder JSON-Ausgabe nutzen Sie
+`setLogSinks()` — und aktivieren Cross-Worker-`getStats()` per `setStatsEnabled(true)`:
+
+```php
+use TrueAsync\LogSeverity;
+
+$config
+    ->setStatsEnabled(true)
+    ->setLogSinks([
+        ['type' => 'file', 'path' => '/var/log/app/access.log',
+         'format' => 'json', 'category' => 'access', 'level' => LogSeverity::INFO],
+        ['type' => 'stderr', 'format' => 'pretty', 'level' => LogSeverity::WARN],
+    ]);
+```
+
+Beide werden vollständig auf der Seite [Observability](/de/docs/server/observability.html) behandelt.
 
 ## Telemetrie (W3C Trace Context)
 

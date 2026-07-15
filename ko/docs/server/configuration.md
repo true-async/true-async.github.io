@@ -5,7 +5,7 @@ path_key: "/docs/server/configuration.html"
 nav_active: docs
 permalink: /ko/docs/server/configuration.html
 page_title: "TrueAsync Server: 구성"
-description: "HttpServerConfig: 리스너, TLS, 타임아웃, backpressure, 본문 한도, 본문 스트리밍, JSON 플래그, 로깅, HTTP/3."
+description: "HttpServerConfig: 리스너, TLS, 타임아웃, backpressure, 본문 한도, 본문 스트리밍, hot reload, WebSocket 토픽, 멀티 sink 로깅, 통계, HTTP/3."
 ---
 
 # TrueAsync Server 구성
@@ -93,7 +93,19 @@ $config
         require __DIR__ . '/vendor/autoload.php';
         Database::warmupPool();
         OpcacheWarm::compile();
-    });
+    })
+    ->setRequestScope(true);   // 기본값; false는 요청당 할당 2회를 절약하지만 request_context()가 null이 됨
+```
+
+### Hot reload
+
+연결을 하나도 끊지 않고 워커 cohort를 교체합니다(풀 모드 전용). 두 트리거 모두
+`HttpServer::reload()`를 호출하며, 이는 같은 소켓 위의 새 워커에서 bootloader를 다시 실행합니다:
+
+```php
+$config
+    ->enableHotReload([__DIR__ . '/app'], ['php'], debounceMs: 300, maxHoldMs: 2000)  // 파일 감시 (개발)
+    ->enableReloadOnSignal();                                                          // SIGHUP (프로덕션)
 ```
 
 자세한 내용: [Multi-worker](/ko/docs/server/workers.html).
@@ -160,10 +172,19 @@ $config
     ->setHttp3StreamWindowBytes(256 * 1024)   // per-stream flow control
     ->setHttp3MaxConcurrentStreams(100)       // initial_max_streams_bidi
     ->setHttp3PeerConnectionBudget(16)        // per-source-IP cap, slow-loris 방어
+    ->setHttp3SocketBufferBytes(8 << 20)      // UDP rcv/snd 버퍼, 들어오는 burst를 흡수
+    ->setHttp3Pacing(false)                   // opt-in send pacing, 손실/속도 제한 경로용
     ->setHttp3AltSvcEnabled(true);            // RFC 7838 Alt-Svc 광고
 ```
 
 Connection-level `initial_max_data`는 `window × max_concurrent_streams`로 산출됩니다 (nginx 패턴).
+
+- **`setHttp3SocketBufferBytes($bytes)`** — UDP 소켓 수신/송신 버퍼. 들어오는 burst를 흡수해
+  `RcvbufErrors`로 넘치지 않게 합니다. 기본 8 MiB; 권한이 없으면 커널이
+  `net.core.{r,w}mem_max`로 clamp합니다. `0`은 OS 기본값을 그대로 둡니다.
+- **`setHttp3Pacing($bool)`** — 각 burst를 혼잡 제어기의 `send_quantum`으로 제한하고 ngtcp2의
+  pacing 타이머로 패킷 간격을 둡니다. 기본 off: 무손실 경로에서 pacing은 비용만 더하므로,
+  제약된 경로에서만 켜세요.
 
 ## WebSocket
 
@@ -173,7 +194,9 @@ $config
     ->setWsMaxFrameSize(1024 * 1024)     // 1 MiB, 같은 범위
     ->setWsPingIntervalMs(30_000)        // idle 상태의 keepalive PING
     ->setWsPongTimeoutMs(60_000)         // PONG 응답 데드라인
-    ->setWsPermessageDeflate(false);     // RFC 7692, 기본값 off
+    ->setWsPermessageDeflate(false)      // RFC 7692, 기본값 off
+    ->setWsMaxSubscriptions(0)           // 연결당 토픽 필터 상한; 0 = 무제한
+    ->setWsPublishRateLimit(0);          // publish() 토큰 버킷; 0 = off
 ```
 
 - **`setWsMaxMessageSize($bytes)`** — 재조립된 메시지의 최대 크기. 초과하면
@@ -187,8 +210,14 @@ $config
 - **`setWsPermessageDeflate($bool)`** — RFC 7692, 메시지 단위 압축. 기본값은 off입니다:
   압축은 CPU 비용이 들고 압축 폭탄 공격 표면을 넓히기 때문에 의도적인 opt-in입니다.
   클라이언트가 이 확장을 직접 제안할 때만 협상되며, zlib이 포함된 빌드가 필요합니다.
+- **`setWsMaxSubscriptions($count)`** — 한 연결이 보유할 수 있는 서로 다른 토픽 필터의 개수.
+  `0`(기본값)은 모든 self-hosted 브로커가 그렇듯 무제한입니다. 클라이언트 입력이 `subscribe()`에
+  닿을 때 설정하세요. 상한을 넘으면 `subscribe()`가 `WebSocketException`을 던집니다.
+- **`setWsPublishRateLimit($perSecond, $burst = 0)`** — 모든 워커에서 작업을 유발하는 유일한 WS
+  호출인 `publish()`에 대한 연결당 토큰 버킷. `0`(기본값)은 off입니다. 속도를 넘으면
+  `publish()`가 `WebSocketBackpressureException`을 던집니다.
 
-연결 API 자체는 [WebSocket 가이드](/ko/docs/server/websocket.html)와
+토픽 pub/sub 모델은 [WebSocket 가이드](/ko/docs/server/websocket.html)를, 연결 API 자체는
 [레퍼런스](/ko/docs/reference/server/websocket.html)를 참고하세요.
 
 ## Body streaming
@@ -237,7 +266,9 @@ $config->setJsonEncodeFlags(JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 `JSON_THROW_ON_ERROR`는 조용히 제거됩니다. 인코딩 오류는 JSON 본문이 있는 500을 반환하며,
 예외가 핸들러로 전파되지 않습니다.
 
-## 로깅
+## 로깅과 통계
+
+단일 콘솔 스트림이라면 `setLogSeverity()` / `setLogStream()` sugar로 충분합니다:
 
 ```php
 use TrueAsync\LogSeverity;
@@ -247,10 +278,7 @@ $config
     ->setLogStream(STDERR);   // 임의의 php_stream: 파일, php://stderr, php://memory, 사용자 wrapper
 ```
 
-로거는 기본적으로 꺼져 있습니다 (`LogSeverity::OFF`). severity는 시작 시 고정되며 런타임
-변경은 지원되지 않습니다 (단일 스레드 lock-free 모델).
-
-레벨 (OpenTelemetry SeverityNumber):
+로거는 기본적으로 꺼져 있습니다 (`LogSeverity::OFF`). 레벨 (OpenTelemetry SeverityNumber):
 
 | 레벨 | 무엇이 기록되는가 |
 |---------|--------------|
@@ -262,6 +290,27 @@ $config
 
 `FATAL`은 의도적으로 없습니다: 이미 프로세스를 종료시키는 `zend_error_noreturn(E_ERROR)`로
 처리됩니다.
+
+> **워커 풀에서는 `setLogStream()`을 쓰지 마세요.** 부모가 연 스트림 리소스는 워커 스레드로
+> 넘어갈 수 없습니다. 각 워커가 스스로 열 수 있는 `file` / `stdout` / `stderr` sink와 함께
+> `setLogSinks()`를 사용하세요.
+
+여러 목적지, 구조화된 **액세스 로그**, syslog, 또는 JSON 출력이 필요하면 `setLogSinks()`를
+사용하세요 — 그리고 `setStatsEnabled(true)`로 워커 간 `getStats()`를 opt-in하세요:
+
+```php
+use TrueAsync\LogSeverity;
+
+$config
+    ->setStatsEnabled(true)
+    ->setLogSinks([
+        ['type' => 'file', 'path' => '/var/log/app/access.log',
+         'format' => 'json', 'category' => 'access', 'level' => LogSeverity::INFO],
+        ['type' => 'stderr', 'format' => 'pretty', 'level' => LogSeverity::WARN],
+    ]);
+```
+
+둘 다 [관측성](/ko/docs/server/observability.html) 페이지에서 전부 다룹니다.
 
 ## 텔레메트리 (W3C Trace Context)
 

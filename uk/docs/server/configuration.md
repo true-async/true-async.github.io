@@ -5,7 +5,7 @@ path_key: "/docs/server/configuration.html"
 nav_active: docs
 permalink: /uk/docs/server/configuration.html
 page_title: "TrueAsync Server: конфігурація"
-description: "HttpServerConfig: listeners, TLS, таймаути, backpressure, ліміти тіла, body streaming, JSON-прапорці, логування, HTTP/3."
+description: "HttpServerConfig: listeners, TLS, таймаути, backpressure, ліміти тіла, body streaming, hot reload, WebSocket-топіки, multi-sink логування, статистика, HTTP/3."
 ---
 
 # Конфігурація TrueAsync Server
@@ -93,7 +93,20 @@ $config
         require __DIR__ . '/vendor/autoload.php';
         Database::warmupPool();
         OpcacheWarm::compile();
-    });
+    })
+    ->setRequestScope(true);   // дефолт; false економить 2 алокації/запит, але занулює request_context()
+```
+
+### Hot reload
+
+Замінюйте когорту воркерів, не роняючи жодного з'єднання (лише pool-режим). Обидва тригери
+викликають `HttpServer::reload()`, який заново запускає bootloader у свіжих воркерах на тих самих
+сокетах:
+
+```php
+$config
+    ->enableHotReload([__DIR__ . '/app'], ['php'], debounceMs: 300, maxHoldMs: 2000)  // стежити за файлами (dev)
+    ->enableReloadOnSignal();                                                          // SIGHUP (prod)
 ```
 
 Подробиці: [Multi-worker](/uk/docs/server/workers.html).
@@ -161,10 +174,19 @@ $config
     ->setHttp3StreamWindowBytes(256 * 1024)   // per-stream flow control
     ->setHttp3MaxConcurrentStreams(100)       // initial_max_streams_bidi
     ->setHttp3PeerConnectionBudget(16)        // per-source-IP cap, slow-loris захист
+    ->setHttp3SocketBufferBytes(8 << 20)      // UDP rcv/snd буфер, поглинає вхідні сплески
+    ->setHttp3Pacing(false)                   // opt-in send pacing, для lossy/rate-limited шляхів
     ->setHttp3AltSvcEnabled(true);            // RFC 7838 Alt-Svc анонс
 ```
 
 Connection-level `initial_max_data` виводиться як `window × max_concurrent_streams` (патерн nginx).
+
+- **`setHttp3SocketBufferBytes($bytes)`** — UDP receive/send буфер сокета. Поглинає вхідні
+  сплески, щоб вони не переливалися в `RcvbufErrors`. За замовчуванням 8 MiB; ядро обрізає до
+  `net.core.{r,w}mem_max`, якщо немає привілеїв. `0` лишає значення ОС за замовчуванням.
+- **`setHttp3Pacing($bool)`** — обмежувати кожен сплеск до `send_quantum` congestion
+  controller'а і розкладати пакети на pacing-таймері ngtcp2. Вимкнено за замовчуванням: на
+  безвтратному шляху pacing лише додає вартості, тож вмикайте його тільки для обмежених шляхів.
 
 ## WebSocket
 
@@ -174,7 +196,9 @@ $config
     ->setWsMaxFrameSize(1024 * 1024)     // 1 MiB, той самий діапазон
     ->setWsPingIntervalMs(30_000)        // keepalive PING на простої
     ->setWsPongTimeoutMs(60_000)         // дедлайн на відповідний PONG
-    ->setWsPermessageDeflate(false);     // RFC 7692, вимкнено за замовчуванням
+    ->setWsPermessageDeflate(false)      // RFC 7692, вимкнено за замовчуванням
+    ->setWsMaxSubscriptions(0)           // ліміт топік-фільтрів на з'єднання; 0 = без ліміту
+    ->setWsPublishRateLimit(0);          // token bucket над publish(); 0 = off
 ```
 
 - **`setWsMaxMessageSize($bytes)`** — максимум на пересібране повідомлення. Перевищення дає
@@ -189,9 +213,16 @@ $config
   замовчуванням: це свідомий opt-in, бо стиснення коштує CPU і розширює поверхню атак
   decompression-bomb. Узгоджується лише коли клієнт сам пропонує це розширення; потребує збірки
   з zlib.
+- **`setWsMaxSubscriptions($count)`** — скільки окремих топік-фільтрів може тримати одне
+  з'єднання. `0` (за замовчуванням) — без ліміту, як постачається кожен self-hosted брокер.
+  Задавайте його, коли клієнтський ввід доходить до `subscribe()`; понад ліміт `subscribe()`
+  кидає `WebSocketException`.
+- **`setWsPublishRateLimit($perSecond, $burst = 0)`** — per-connection token bucket над
+  `publish()`, єдиним WS-викликом, що спричиняє роботу на кожному воркері. `0` (за замовчуванням)
+  — off. Понад ліміт `publish()` кидає `WebSocketBackpressureException`.
 
-Подробиці про API з'єднання дивіться в [керівництві по WebSocket](/uk/docs/server/websocket.html) і
-[довіднику](/uk/docs/reference/server/websocket.html).
+Модель топіків pub/sub дивіться в [керівництві по WebSocket](/uk/docs/server/websocket.html), а сам
+API з'єднання — у [довіднику](/uk/docs/reference/server/websocket.html).
 
 ## Body streaming
 
@@ -238,7 +269,9 @@ $config->setJsonEncodeFlags(JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 коли той, хто викликає, не передав `$flags` явно. `JSON_THROW_ON_ERROR` мовчки стрипається:
 помилка кодування дає 500 з JSON-тілом помилки, виняток не пробрасується в обробник.
 
-## Логування
+## Логування і статистика
+
+Для одного консольного стріму цукру `setLogSeverity()` / `setLogStream()` достатньо:
 
 ```php
 use TrueAsync\LogSeverity;
@@ -248,10 +281,7 @@ $config
     ->setLogStream(STDERR);   // будь-який php_stream: файл, php://stderr, php://memory, user wrapper
 ```
 
-Логер вимкнено за замовчуванням (`LogSeverity::OFF`). Severity фіксується на старті, runtime-зміни
-не підтримуються (single-threaded lock-free модель).
-
-Рівні (OpenTelemetry SeverityNumber):
+Логер вимкнено за замовчуванням (`LogSeverity::OFF`). Рівні (OpenTelemetry SeverityNumber):
 
 | Рівень | Що потрапляє |
 |--------|--------------|
@@ -263,6 +293,27 @@ $config
 
 `FATAL` навмисно відсутній: він потрапляє через `zend_error_noreturn(E_ERROR)`, який і так
 перериває процес.
+
+> **Під пулом воркерів не використовуйте `setLogStream()`.** Stream-ресурс, відкритий батьком, не
+> може перетнути межу воркер-потоку. Використовуйте `setLogSinks()` із sink'ом `file` / `stdout` /
+> `stderr`, який кожен воркер може відкрити сам.
+
+Для кількох призначень, структурованого **access log**, syslog чи JSON-виводу використовуйте
+`setLogSinks()` — і ввімкніть cross-worker `getStats()` через `setStatsEnabled(true)`:
+
+```php
+use TrueAsync\LogSeverity;
+
+$config
+    ->setStatsEnabled(true)
+    ->setLogSinks([
+        ['type' => 'file', 'path' => '/var/log/app/access.log',
+         'format' => 'json', 'category' => 'access', 'level' => LogSeverity::INFO],
+        ['type' => 'stderr', 'format' => 'pretty', 'level' => LogSeverity::WARN],
+    ]);
+```
+
+Обидва повністю розписані на сторінці [Спостережуваність](/uk/docs/server/observability.html).
 
 ## Телеметрія (W3C Trace Context)
 

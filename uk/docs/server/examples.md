@@ -202,33 +202,43 @@ $server->addWebSocketHandler(function (WebSocket $ws) {
     }
 });
 
+// Обов'язково: сервер не стартує без HTTP-обробника, і саме він відповідає
+// на запити, що не є upgrade'ами.
+$server->addHttpHandler(fn ($req, $res) => $res->setStatusCode(404)->end());
+
 $server->start();
 ```
 
-Broadcast кільком клієнтам, без очікування повільних:
+Розсилка кожному клієнту — зокрема тим, кого обслуговують **інші воркер-потоки** — це те,
+для чого існують топіки. Підписуйтеся на connect, `publish()` для fan-out; жодного спільного
+масиву, жодного `setWorkers(1)`:
 
 ```php
-/** @var WebSocket[] $clients */
-$clients = [];
+use TrueAsync\HttpRequest;
 
-$server->addWebSocketHandler(function (WebSocket $ws) use (&$clients) {
-    $clients[spl_object_id($ws)] = $ws;
+$server = new HttpServer(
+    (new HttpServerConfig())
+        ->addListener('0.0.0.0', 8080)
+        ->setWorkers(4)                          // справжній чат, на 4 потоки
+);
 
-    try {
-        foreach ($ws as $msg) {
-            foreach ($clients as $peer) {
-                if ($peer !== $ws) {
-                    $peer->trySend($msg->data);   // неблокувально, повільний клієнт не стопорить решту
-                }
-            }
-        }
-    } finally {
-        unset($clients[spl_object_id($ws)]);
+$server->addWebSocketHandler(function (WebSocket $ws, HttpRequest $req) {
+    $room = ltrim($req->getPath(), '/') ?: 'lobby';
+    $ws->subscribe("chat/$room");
+
+    foreach ($ws as $msg) {
+        $ws->publish("chat/$room", $msg->data);  // доходить до підписників на ВСІХ воркерах
     }
 });
+
+$server->addHttpHandler(fn ($req, $res) => $res->setStatusCode(404)->end());
+
+$server->start();
 ```
 
-Подробиці та розбір усіх методів дивіться в [керівництві по WebSocket](/uk/docs/server/websocket.html).
+`publish()` ніколи не призупиняється: peer, чий сокет забитий, відкидає повідомлення, а не
+стопорить решту топіка. Модель топіків, фільтри й rate-limit'и дивіться в
+[керівництві по WebSocket](/uk/docs/server/websocket.html#topics-publishsubscribe-across-every-worker).
 
 ## Завантаження файлу з auth
 

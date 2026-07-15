@@ -114,8 +114,9 @@ entrantes entre ellos. Sin estado compartido, sin bloqueos globales.
 - [Archivos estáticos y sendFile](/es/docs/server/static-files.html): `StaticHandler`, sidecars precomprimidos, Range
 - [Streaming](/es/docs/server/streaming.html): streaming del cuerpo de la solicitud y de la respuesta
 - [SSE](/es/docs/server/sse.html): Server-Sent Events, `sseEvent()`, reconexión, heartbeat
-- [WebSocket](/es/docs/server/websocket.html): conexiones full-duplex, contrapresión, keepalive
-- [Multi-worker](/es/docs/server/workers.html): `setWorkers(N)`, bootloader, scope por solicitud
+- [WebSocket](/es/docs/server/websocket.html): conexiones full-duplex, topics pub/sub entre workers, contrapresión
+- [Multi-worker](/es/docs/server/workers.html): `setWorkers(N)`, bootloader, hot reload, scope por solicitud
+- [Observabilidad](/es/docs/server/observability.html): estadísticas entre workers, logging multi-sink, access log OTel
 - [Ejemplos](/es/docs/server/examples.html): JSON-API, estáticos, fan-out, subida multipart
 - [Arquitectura](/es/architecture/server.html): por dentro
 

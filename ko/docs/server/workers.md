@@ -34,7 +34,7 @@ $server = new HttpServer(
 );
 
 $server->addHttpHandler(function ($req, $res) {
-    $res->json(['pid' => getmypid(), 'tid' => /* TID */]);
+    $res->json(['pid' => getmypid()]);
 });
 
 $server->start();   // 모든 워커가 끝날 때까지 블로킹
@@ -47,8 +47,66 @@ $server->start();   // 모든 워커가 끝날 때까지 블로킹
 3. 워커 안에서 event-loop를 시작하고 리스너를 다시 바인드합니다.
 4. 부모가 모든 워커의 종료를 `await`합니다.
 
-cross-thread `stop()`은 아직 로드맵에 있습니다. 중단은 SIGINT/SIGTERM 또는 정상적인 작업 종료를
-통해 동작합니다.
+## Graceful shutdown
+
+`HttpServer::stop()`은 풀 부모에서 동작합니다. 전체 cohort를 물러나게 하고 **서버가 정말로
+내려갈 때까지 일시 중단합니다** — 반환되는 시점에는 워커가 drain을 마쳤고, 풀이 해체되었으며,
+listen 소켓이 닫힌 상태입니다. 코루틴에서 호출하세요. 시그널 핸들러가 흔한 위치입니다:
+
+```php
+use function Async\spawn;
+use function Async\await;
+use function Async\signal;
+use Async\Signal;
+
+spawn(function () use ($server) {
+    await(signal(Signal::SIGTERM));
+
+    $server->stop();       // 풀이 정말로 내려간 후에 반환
+});
+
+$server->start();
+```
+
+**단독(standalone)** 서버(`setWorkers(1)`, 기본값)에서는 `stop()`이 일시 중단하지 않습니다:
+보통 요청 핸들러에서 호출되며, shutdown drain은 바로 그 핸들러를 기다리기 때문에 — 거기서
+블로킹하는 `stop()`은 자기 자신을 기다리는 꼴이 됩니다.
+
+## Hot reload
+
+`HttpServer::reload()`는 연결을 끊지 않고 워커 cohort를 교체합니다: 워커들은 붙잡고 있던 작업을
+마치고 멈춰서 종료하며, 새 워커 스레드가 bootloader를 다시 실행해 — 바뀐 코드를 픽업하고 —
+**같은 listen 소켓** 위에서 인계받습니다. 예전 cohort가 drain을 마칠 때까지 일시 중단하며,
+그 동안 `start()`는 계속 실행됩니다. 풀 부모 전용입니다.
+
+직접 호출하는 일은 드뭅니다. 대신 트리거를 연결하세요:
+
+```php
+$config
+    ->setWorkers(4)
+    ->setBootloader(function () {
+        require __DIR__ . '/app/bootstrap.php';   // 모든 새 워커에서 다시 실행
+    })
+
+    // 개발: 트리를 감시하고, 변경이 안정되면 reload
+    ->enableHotReload([__DIR__ . '/app'], ['php'], debounceMs: 300, maxHoldMs: 2000)
+
+    // 프로덕션: 배포 스크립트가 보내는 SIGHUP에 reload
+    ->enableReloadOnSignal();
+```
+
+`enableHotReload()`는 각 경로를 재귀적으로 감시합니다. 안정된 변경 burst가 감시 대상 트리를
+opcache에서 무효화하고 `reload()`를 호출합니다. `debounceMs`는 burst가 하나의 reload를 발생시키기
+전의 정적 대기 구간입니다. `maxHoldMs`는 첫 변경 이후 최대 그만큼의 시간이 지나면 reload를
+강제하므로, 절대 조용해지지 않는 디렉터리도 여전히 reload됩니다. `enableReloadOnSignal()`은
+지속적인 SIGHUP 핸들러를 arm합니다(Windows 미지원).
+
+둘 다 풀 모드 전용입니다. 어떤 트리거든, 새 워커가 픽업하는 코드는 bootloader가 로드하는
+그것이므로 — reload되기를 원하는 것은 무엇이든 진입 스크립트 최상단이 아니라 **거기서** 로드해야
+합니다. 진입 스크립트는 부모에서 한 번만 실행되고 다시는 실행되지 않습니다.
+
+> `reload()`를 손수 호출한다면, 바뀐 파일을 먼저 무효화하거나(`opcache_invalidate()`) opcache
+> 타임스탬프 검증에 의존하세요 — 그렇지 않으면 새 워커가 예전 코드를 컴파일합니다.
 
 ## Bootloader
 
@@ -109,6 +167,10 @@ $server->addHttpHandler(function ($req, $res) {
 비교: `current_context()`는 **현재 코루틴에서만** 보이는 값을 만듭니다.
 `request_context()`는 요청 scope에 묶인 공유 서브트리를 제공합니다.
 
+자식 scope는 요청당 할당 두 번의 비용이 듭니다. `setRequestScope(false)`는 이를 없애고 연결
+scope를 그대로 재사용합니다 — 하지만 그러면 `request_context()`가 `null`을 반환하므로, 끄는
+경우 `?->`를 사용하세요.
+
 ## SO_REUSEPORT와 부하 분산
 
 Linux/BSD에서 커널은 같은 `(host, port)`에 `SO_REUSEPORT`로 열린 모든 소켓에 들어오는 연결을
@@ -133,10 +195,18 @@ Windows에서는 `SO_REUSEPORT` 등가물이 덜 예측 가능합니다. 부하 
 INFO 로깅을 켜세요.
 
 ```php
-$config
-    ->setLogSeverity(\TrueAsync\LogSeverity::INFO)
-    ->setLogStream(STDERR);
+use TrueAsync\LogSeverity;
+
+$config->setLogSinks([
+    ['type' => 'stderr', 'format' => 'pretty', 'level' => LogSeverity::INFO],
+]);
 ```
+
+> **워커 풀에서는 `setLogStream()`을 쓰지 마세요.** 부모가 연 PHP 스트림 리소스는 워커 스레드로
+> 넘어갈 수 없습니다: sink는 부모에서 활성 상태로 남고 워커에서는 시작 시 알림과 함께
+> 건너뜁니다. 워커가 스스로 열 수 있는 sink를 사용하세요 — `stderr`, `stdout`, 또는 `file`(각
+> 워커가 append 모드로 경로를 다시 엽니다). [관측성](/ko/docs/server/observability.html)을
+> 참고하세요.
 
 ## 워커 수는?
 
@@ -158,6 +228,7 @@ $config->setWorkers(\Async\available_parallelism());
 
 - [`HttpServerConfig::setWorkers()`](/ko/docs/reference/server/http-server-config.html#setworkers)
 - [`HttpServerConfig::setBootloader()`](/ko/docs/reference/server/http-server-config.html#setbootloader)
+- [관측성](/ko/docs/server/observability.html): 워커 간 통계, 풀에서의 로깅
 - [`Async\ThreadPool`](/ko/docs/components/thread-pool.html): 풀 내부
 - [`Async\request_context()`](/ko/docs/reference/request-context.html)
 - [Backpressure / drain](/ko/docs/server/configuration.html#graceful-drain-step-8)

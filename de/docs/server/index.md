@@ -112,8 +112,9 @@ Kein Shared State, keine globalen Locks.
 - [Statische Dateien und sendFile](/de/docs/server/static-files.html): `StaticHandler`, precompressed Sidecars, Range
 - [Streaming](/de/docs/server/streaming.html): Request-Body-Stream und Response-Stream
 - [SSE](/de/docs/server/sse.html): Server-Sent Events, `sseEvent()`, Reconnection, Heartbeat
-- [WebSocket](/de/docs/server/websocket.html): Full-Duplex-Verbindungen, Backpressure, Keepalive
-- [Multi-Worker](/de/docs/server/workers.html): `setWorkers(N)`, Bootloader, Per-Request Scope
+- [WebSocket](/de/docs/server/websocket.html): Full-Duplex-Verbindungen, Cross-Worker-Pub/Sub-Topics, Backpressure
+- [Multi-Worker](/de/docs/server/workers.html): `setWorkers(N)`, Bootloader, Hot Reload, Per-Request Scope
+- [Observability](/de/docs/server/observability.html): Cross-Worker-Statistiken, Multi-Sink-Logging, OTel-Access-Log
 - [Beispiele](/de/docs/server/examples.html): JSON-API, Statik, Fan-Out, Multipart Upload
 - [Architektur](/de/architecture/server.html): Interna
 

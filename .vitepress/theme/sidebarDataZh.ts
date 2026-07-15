@@ -310,6 +310,7 @@ export const docsSidebarZh: NavGroup[] = [
       { url: '/zh/docs/server/sse.html', label: 'SSE', icon: 'zap' },
       { url: '/zh/docs/server/websocket.html', label: 'WebSocket', icon: 'shuffle' },
       { url: '/zh/docs/server/workers.html', label: 'Multi-worker', icon: 'cpu' },
+      { url: '/zh/docs/server/observability.html', label: '可观测性', icon: 'eye' },
       { url: '/zh/docs/server/examples.html', label: '示例', icon: 'section-code' },
       {
         url: '/zh/docs/reference/server/http-server.html',

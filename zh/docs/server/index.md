@@ -109,8 +109,9 @@ accept ─►  parse  ─►  dispatch  ─►  respond      │
 - [静态文件与 sendFile](/zh/docs/server/static-files.html)：`StaticHandler`、预压缩 sidecar、Range
 - [流式传输](/zh/docs/server/streaming.html)：请求体流式读取与响应体流式发送
 - [SSE](/zh/docs/server/sse.html)：Server-Sent Events、`sseEvent()`、重连、心跳
-- [WebSocket](/zh/docs/server/websocket.html)：全双工连接、backpressure、keepalive
-- [多工作进程](/zh/docs/server/workers.html)：`setWorkers(N)`、bootloader、per-request scope
+- [WebSocket](/zh/docs/server/websocket.html)：全双工连接、跨 worker 的 pub/sub topic、backpressure
+- [多工作进程](/zh/docs/server/workers.html)：`setWorkers(N)`、bootloader、hot reload、per-request scope
+- [可观测性](/zh/docs/server/observability.html)：跨 worker 统计、多 sink 日志、OTel 访问日志
 - [示例](/zh/docs/server/examples.html)：JSON-API、静态文件、fan-out、multipart 上传
 - [架构](/zh/architecture/server.html)：内部细节
 

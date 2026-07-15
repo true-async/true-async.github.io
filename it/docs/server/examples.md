@@ -202,33 +202,44 @@ $server->addWebSocketHandler(function (WebSocket $ws) {
     }
 });
 
+// Obbligatorio: il server rifiuta di partire senza un handler HTTP, ed è lui a
+// rispondere alle richieste che non sono upgrade.
+$server->addHttpHandler(fn ($req, $res) => $res->setStatusCode(404)->end());
+
 $server->start();
 ```
 
-Broadcast a più client senza attendere quelli lenti:
+Il broadcast a ogni client — inclusi quelli serviti da **altri thread worker** — è
+proprio ciò a cui servono i topic. Ci si iscrive alla connessione, `publish()` fa il
+fan-out; nessun array condiviso, nessun `setWorkers(1)`:
 
 ```php
-/** @var WebSocket[] $clients */
-$clients = [];
+use TrueAsync\HttpRequest;
 
-$server->addWebSocketHandler(function (WebSocket $ws) use (&$clients) {
-    $clients[spl_object_id($ws)] = $ws;
+$server = new HttpServer(
+    (new HttpServerConfig())
+        ->addListener('0.0.0.0', 8080)
+        ->setWorkers(4)                          // una vera chat, su 4 thread
+);
 
-    try {
-        foreach ($ws as $msg) {
-            foreach ($clients as $peer) {
-                if ($peer !== $ws) {
-                    $peer->trySend($msg->data);   // non bloccante, un client lento non ferma gli altri
-                }
-            }
-        }
-    } finally {
-        unset($clients[spl_object_id($ws)]);
+$server->addWebSocketHandler(function (WebSocket $ws, HttpRequest $req) {
+    $room = ltrim($req->getPath(), '/') ?: 'lobby';
+    $ws->subscribe("chat/$room");
+
+    foreach ($ws as $msg) {
+        $ws->publish("chat/$room", $msg->data);  // raggiunge gli iscritti su TUTTI i worker
     }
 });
+
+$server->addHttpHandler(fn ($req, $res) => $res->setStatusCode(404)->end());
+
+$server->start();
 ```
 
-Vedi la [guida WebSocket](/it/docs/server/websocket.html) per l'intera panoramica di ogni metodo.
+`publish()` non sospende mai: un peer il cui socket è congestionato scarta il messaggio
+invece di rallentare il resto del topic. Vedi la
+[guida WebSocket](/it/docs/server/websocket.html#topic-publishsubscribe-su-ogni-worker)
+per il modello dei topic, i filtri e i limiti di rate.
 
 ## Download di un file con autorizzazione
 

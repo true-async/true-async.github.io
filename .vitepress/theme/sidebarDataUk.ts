@@ -309,6 +309,7 @@ export const docsSidebarUk: NavGroup[] = [
       { url: '/uk/docs/server/sse.html', label: 'SSE', icon: 'zap' },
       { url: '/uk/docs/server/websocket.html', label: 'WebSocket', icon: 'shuffle' },
       { url: '/uk/docs/server/workers.html', label: 'Multi-worker', icon: 'cpu' },
+      { url: '/uk/docs/server/observability.html', label: 'Спостережуваність', icon: 'eye' },
       { url: '/uk/docs/server/examples.html', label: 'Приклади', icon: 'section-code' },
       {
         url: '/uk/docs/reference/server/http-server.html',

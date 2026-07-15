@@ -34,7 +34,7 @@ $server = new HttpServer(
 );
 
 $server->addHttpHandler(function ($req, $res) {
-    $res->json(['pid' => getmypid(), 'tid' => /* TID */]);
+    $res->json(['pid' => getmypid()]);
 });
 
 $server->start();   // bloque jusqu'à la fin de tous les workers
@@ -47,8 +47,71 @@ $server->start();   // bloque jusqu'à la fin de tous les workers
 3. Dans le worker, lance l'event-loop qui re-bind les listeners.
 4. Le parent fait `await` sur la fin de tous les workers.
 
-Le `stop()` cross-thread est encore dans la roadmap ; l'arrêt fonctionne via SIGINT/SIGTERM ou par
-épuisement normal du travail.
+## Arrêt gracieux
+
+`HttpServer::stop()` fonctionne sur un parent de pool. Il retire toute la cohorte et **suspend
+jusqu'à ce que le serveur soit vraiment arrêté** : quand il retourne, les workers ont drainé, le
+pool est démonté et les sockets d'écoute sont fermés. Appelez-le depuis une coroutine ; un
+gestionnaire de signal est l'endroit habituel :
+
+```php
+use function Async\spawn;
+use function Async\await;
+use function Async\signal;
+use Async\Signal;
+
+spawn(function () use ($server) {
+    await(signal(Signal::SIGTERM));
+
+    $server->stop();       // retourne une fois le pool réellement arrêté
+});
+
+$server->start();
+```
+
+Sur un serveur **standalone** (`setWorkers(1)`, la valeur par défaut), `stop()` ne suspend pas :
+il est normalement appelé depuis un handler de requête, et le drain d'arrêt attend justement ce
+handler — donc un `stop()` bloquant y attendrait lui-même.
+
+## Hot reload
+
+`HttpServer::reload()` remplace la cohorte de workers sans laisser tomber une connexion : les
+workers finissent ce qu'ils tiennent, s'arrêtent et sortent, et de nouveaux threads worker
+re-exécutent le bootloader — reprenant le code modifié — et prennent le relais sur les **mêmes
+sockets d'écoute**. Il suspend jusqu'à ce que l'ancienne cohorte ait drainé ; `start()` continue
+de tourner pendant tout ce temps. Parent de pool uniquement.
+
+Vous l'appelez rarement vous-même. Câblez plutôt un déclencheur :
+
+```php
+$config
+    ->setWorkers(4)
+    ->setBootloader(function () {
+        require __DIR__ . '/app/bootstrap.php';   // re-exécuté dans chaque nouveau worker
+    })
+
+    // développement : surveiller l'arborescence et recharger quand elle se stabilise
+    ->enableHotReload([__DIR__ . '/app'], ['php'], debounceMs: 300, maxHoldMs: 2000)
+
+    // production : recharger sur SIGHUP, ce qu'envoie un script de déploiement
+    ->enableReloadOnSignal();
+```
+
+`enableHotReload()` surveille chaque chemin récursivement. Une rafale de changements stabilisée
+invalide les arborescences surveillées dans opcache et appelle `reload()`. `debounceMs` est la
+fenêtre de calme avant qu'une rafale ne déclenche un reload ; `maxHoldMs` force un reload au plus
+tard ce délai après le premier changement, pour qu'un répertoire qui ne se calme jamais recharge
+quand même. `enableReloadOnSignal()` arme un gestionnaire SIGHUP persistant (non supporté sur
+Windows).
+
+Les deux sont réservés au mode pool. Quel que soit le déclencheur, le code que reprennent les
+nouveaux workers est celui que charge le bootloader — donc tout ce que vous voulez voir rechargé
+doit être chargé **là**, pas en haut du script d'entrée, qui ne tourne qu'une fois dans le parent
+et jamais plus.
+
+> Si vous appelez `reload()` à la main, invalidez d'abord les fichiers modifiés
+> (`opcache_invalidate()`) ou reposez-vous sur la validation par timestamp d'opcache — sinon les
+> nouveaux workers compilent l'ancien code.
 
 ## Bootloader
 
@@ -110,6 +173,10 @@ $server->addHttpHandler(function ($req, $res) {
 À comparer : `current_context()` crée des valeurs visibles **uniquement** dans la coroutine
 courante ; `request_context()` fournit un sous-arbre commun lié au scope de la requête.
 
+Le scope enfant coûte deux allocations par requête. `setRequestScope(false)` le supprime et
+réutilise directement le scope de connexion — mais alors `request_context()` renvoie `null`, donc
+utilisez `?->` si vous le désactivez.
+
 ## SO_REUSEPORT et balancing
 
 Sur Linux/BSD, le noyau répartit uniformément (mais non déterministiquement) les connexions
@@ -136,10 +203,18 @@ d'accept sans signal pour l'opérateur).
 Activez le logging INFO :
 
 ```php
-$config
-    ->setLogSeverity(\TrueAsync\LogSeverity::INFO)
-    ->setLogStream(STDERR);
+use TrueAsync\LogSeverity;
+
+$config->setLogSinks([
+    ['type' => 'stderr', 'format' => 'pretty', 'level' => LogSeverity::INFO],
+]);
 ```
+
+> **N'utilisez pas `setLogStream()` sous un pool de workers.** Une ressource stream PHP ouverte
+> par le parent ne peut pas traverser vers un thread worker : le sink reste actif sur le parent et
+> est ignoré dans les workers, avec un avis au démarrage. Utilisez un sink que chaque worker peut
+> ouvrir lui-même — `stderr`, `stdout`, ou `file` (chaque worker rouvre le chemin en mode append).
+> Voir [Observabilité](/fr/docs/server/observability.html).
 
 ## Combien de workers ?
 
@@ -164,6 +239,7 @@ $config->setWorkers(\Async\available_parallelism());
 
 - [`HttpServerConfig::setWorkers()`](/fr/docs/reference/server/http-server-config.html#setworkers)
 - [`HttpServerConfig::setBootloader()`](/fr/docs/reference/server/http-server-config.html#setbootloader)
+- [Observabilité](/fr/docs/server/observability.html) : stats cross-worker, logging sous un pool
 - [`Async\ThreadPool`](/fr/docs/components/thread-pool.html) : internes du pool
 - [`Async\request_context()`](/fr/docs/reference/request-context.html)
 - [Backpressure / drain](/fr/docs/server/configuration.html#graceful-drain-step-8)

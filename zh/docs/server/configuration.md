@@ -5,7 +5,7 @@ path_key: "/docs/server/configuration.html"
 nav_active: docs
 permalink: /zh/docs/server/configuration.html
 page_title: "TrueAsync Server：配置"
-description: "HttpServerConfig：listeners、TLS、超时、backpressure、请求体上限、流式请求体、JSON 标志、日志、HTTP/3。"
+description: "HttpServerConfig：listeners、TLS、超时、backpressure、请求体上限、流式请求体、hot reload、WebSocket topic、多 sink 日志、统计、HTTP/3。"
 ---
 
 # TrueAsync Server 配置
@@ -92,7 +92,19 @@ $config
         require __DIR__ . '/vendor/autoload.php';
         Database::warmupPool();
         OpcacheWarm::compile();
-    });
+    })
+    ->setRequestScope(true);   // 默认；false 每请求省 2 次分配，但会让 request_context() 变 null
+```
+
+### Hot reload
+
+在不丢弃任何连接的前提下替换 worker cohort（仅限池模式）。两种触发器都调用
+`HttpServer::reload()`，它会在同一批套接字上于全新 worker 里重新执行 bootloader：
+
+```php
+$config
+    ->enableHotReload([__DIR__ . '/app'], ['php'], debounceMs: 300, maxHoldMs: 2000)  // 监视文件（开发）
+    ->enableReloadOnSignal();                                                          // SIGHUP（生产）
 ```
 
 详见：[Multi-worker](/zh/docs/server/workers.html)。
@@ -158,10 +170,19 @@ $config
     ->setHttp3StreamWindowBytes(256 * 1024)   // 每 stream 流控
     ->setHttp3MaxConcurrentStreams(100)       // initial_max_streams_bidi
     ->setHttp3PeerConnectionBudget(16)        // per-source-IP 上限，防 slow-loris
+    ->setHttp3SocketBufferBytes(8 << 20)      // UDP 收/发缓冲，吸收入站突发
+    ->setHttp3Pacing(false)                   // 可选的发送 pacing，用于有丢包/限速的路径
     ->setHttp3AltSvcEnabled(true);            // RFC 7838 Alt-Svc 通告
 ```
 
 连接级的 `initial_max_data` 会按 `window × max_concurrent_streams` 推导（参考 nginx 的做法）。
+
+- **`setHttp3SocketBufferBytes($bytes)`** —— UDP socket 的收/发缓冲。吸收入站突发，
+  使其不至于溢出成 `RcvbufErrors`。默认 8 MiB；除非有特权，否则内核会 clamp 到
+  `net.core.{r,w}mem_max`。`0` 表示保留 OS 默认值。
+- **`setHttp3Pacing($bool)`** —— 把每次突发限制在拥塞控制器的 `send_quantum` 内，
+  并按 ngtcp2 的 pacing 计时器间隔发包。默认关闭：在无丢包的路径上 pacing 只增加开销，
+  所以只在受限路径上启用。
 
 ## WebSocket
 
@@ -171,7 +192,9 @@ $config
     ->setWsMaxFrameSize(1024 * 1024)     // 1 MiB，范围相同
     ->setWsPingIntervalMs(30_000)        // 空闲时的 keepalive PING
     ->setWsPongTimeoutMs(60_000)         // 等待 PONG 回复的截止时间
-    ->setWsPermessageDeflate(false);     // RFC 7692，默认关闭
+    ->setWsPermessageDeflate(false)      // RFC 7692，默认关闭
+    ->setWsMaxSubscriptions(0)           // 每连接的 topic 过滤器上限；0 = 不限制
+    ->setWsPublishRateLimit(0);          // publish() 的 token bucket；0 = 关闭
 ```
 
 - **`setWsMaxMessageSize($bytes)`** —— 重组后消息的最大大小。超出会产生
@@ -185,8 +208,14 @@ $config
 - **`setWsPermessageDeflate($bool)`** —— RFC 7692，消息级压缩。默认关闭：
   这是有意的主动开启项，因为压缩要消耗 CPU，并且会扩大解压炸弹攻击面。
   仅当客户端自己提供该扩展时才会协商启用；需要带 zlib 的构建。
+- **`setWsMaxSubscriptions($count)`** —— 一个连接可以持有多少个不同的 topic 过滤器。
+  `0`（默认）表示不限制，正如每个自托管 broker 的出厂设置。当客户端输入会流进 `subscribe()`
+  时就设上它；超过上限时 `subscribe()` 抛 `WebSocketException`。
+- **`setWsPublishRateLimit($perSecond, $burst = 0)`** —— 针对 `publish()` 的 per-connection
+  token bucket，`publish()` 是唯一一个会让每个 worker 都产生工作的 WS 调用。`0`（默认）表示关闭。
+  超过速率时 `publish()` 抛 `WebSocketBackpressureException`。
 
-详见 [WebSocket 指南](/zh/docs/server/websocket.html)以及连接 API 本身的
+详见 [WebSocket 指南](/zh/docs/server/websocket.html)了解 topic pub/sub 模型，以及连接 API 本身的
 [参考文档](/zh/docs/reference/server/websocket.html)。
 
 ## 流式请求体
@@ -234,7 +263,9 @@ $config->setJsonEncodeFlags(JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 `JSON_THROW_ON_ERROR` 会被静默剥除：编码失败会返回 500 + JSON 错误体，
 异常不会向处理程序抛出。
 
-## 日志
+## 日志与统计
+
+对于单个控制台流，`setLogSeverity()` / `setLogStream()` 语法糖就够了：
 
 ```php
 use TrueAsync\LogSeverity;
@@ -244,10 +275,7 @@ $config
     ->setLogStream(STDERR);   // 任何 php_stream：文件、php://stderr、php://memory、用户 wrapper
 ```
 
-日志默认关闭（`LogSeverity::OFF`）。severity 在启动时固定，运行时不支持切换
-（单线程 lock-free 模型）。
-
-级别（OpenTelemetry SeverityNumber）：
+日志默认关闭（`LogSeverity::OFF`）。级别（OpenTelemetry SeverityNumber）：
 
 | 级别 | 输出内容 |
 |------|----------|
@@ -258,6 +286,26 @@ $config
 | `ERROR` (17) | listener bind 失败、协议级硬错误 |
 
 故意没有 `FATAL`：那种情况会走 `zend_error_noreturn(E_ERROR)`，进程已经被中断。
+
+> **在 worker 池下，不要用 `setLogStream()`。** 父进程打开的 stream 资源无法跨进 worker
+> 线程。请用 `setLogSinks()` 配 `file` / `stdout` / `stderr` sink，让每个 worker 自己打开。
+
+要输出到多个目的地、写一份结构化的**访问日志**、syslog 或 JSON，请用 `setLogSinks()`
+—— 并用 `setStatsEnabled(true)` 开启跨 worker 的 `getStats()`：
+
+```php
+use TrueAsync\LogSeverity;
+
+$config
+    ->setStatsEnabled(true)
+    ->setLogSinks([
+        ['type' => 'file', 'path' => '/var/log/app/access.log',
+         'format' => 'json', 'category' => 'access', 'level' => LogSeverity::INFO],
+        ['type' => 'stderr', 'format' => 'pretty', 'level' => LogSeverity::WARN],
+    ]);
+```
+
+两者都在 [可观测性](/zh/docs/server/observability.html) 页面里完整讲解。
 
 ## 遥测（W3C Trace Context）
 

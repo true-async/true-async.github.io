@@ -309,6 +309,7 @@ export const docsSidebarKo: NavGroup[] = [
       { url: '/ko/docs/server/sse.html', label: 'SSE', icon: 'zap' },
       { url: '/ko/docs/server/websocket.html', label: 'WebSocket', icon: 'shuffle' },
       { url: '/ko/docs/server/workers.html', label: 'Multi-worker', icon: 'cpu' },
+      { url: '/ko/docs/server/observability.html', label: '관측성', icon: 'eye' },
       { url: '/ko/docs/server/examples.html', label: '예제', icon: 'section-code' },
       {
         url: '/ko/docs/reference/server/http-server.html',

@@ -33,7 +33,7 @@ $server = new HttpServer(
 );
 
 $server->addHttpHandler(function ($req, $res) {
-    $res->json(['pid' => getmypid(), 'tid' => /* TID */]);
+    $res->json(['pid' => getmypid()]);
 });
 
 $server->start();   // 阻塞直到所有 worker 都结束
@@ -46,7 +46,63 @@ $server->start();   // 阻塞直到所有 worker 都结束
 3. 在 worker 里启动 event-loop，重新 bind listener。
 4. 父进程 `await` 所有 worker 结束。
 
-跨线程的 `stop()` 还在路线图里；当前可以靠 SIGINT/SIGTERM 或正常的工作耗尽来停止。
+## 优雅关停
+
+`HttpServer::stop()` 在池的父进程上可用。它会让整个 cohort 退役，并**挂起直到服务器真正停下**
+—— 当它返回时，worker 已经排空，池已经拆除，listen 套接字也已关闭。请从协程里调用它；
+信号处理器是通常放它的地方：
+
+```php
+use function Async\spawn;
+use function Async\await;
+use function Async\signal;
+use Async\Signal;
+
+spawn(function () use ($server) {
+    await(signal(Signal::SIGTERM));
+
+    $server->stop();       // 池真正停下之后才返回
+});
+
+$server->start();
+```
+
+在**独立**服务器上（`setWorkers(1)`，默认值），`stop()` 不会挂起：它通常是从请求处理程序里
+调用的，而关停 drain 正是在等这个处理程序 —— 所以那里一个会阻塞的 `stop()` 就等于在等它自己。
+
+## Hot reload
+
+`HttpServer::reload()` 在不丢弃任何连接的前提下替换 worker cohort：worker 处理完手上的活、
+停止并退出，全新的 worker 线程重新执行 bootloader —— 从而拾起改动过的代码 —— 并在**同一批
+listen 套接字**上接管。它会挂起直到旧 cohort 排空；整个过程中 `start()` 持续运行。仅限池的父进程。
+
+你很少会自己调用它，而是接一个触发器：
+
+```php
+$config
+    ->setWorkers(4)
+    ->setBootloader(function () {
+        require __DIR__ . '/app/bootstrap.php';   // 在每个全新 worker 里重新执行
+    })
+
+    // 开发：监视目录树，在它稳定下来时 reload
+    ->enableHotReload([__DIR__ . '/app'], ['php'], debounceMs: 300, maxHoldMs: 2000)
+
+    // 生产：在 SIGHUP 时 reload，这正是部署脚本发送的信号
+    ->enableReloadOnSignal();
+```
+
+`enableHotReload()` 递归监视每个路径。一批稳定下来的改动会让被监视的目录树在 opcache 中失效
+并调用 `reload()`。`debounceMs` 是一批改动触发一次 reload 之前的静默窗口；`maxHoldMs` 会在
+第一次改动之后最多这么久强制一次 reload，因此一个永不安静的目录也仍然会 reload。
+`enableReloadOnSignal()` 装上一个持久的 SIGHUP 处理器（Windows 不支持）。
+
+两者都仅限池模式。无论用哪种触发器，新 worker 拾起的代码就是 bootloader 加载的代码 ——
+所以任何你想让它被 reload 的东西都必须加载在**那里**，而不是入口脚本的顶部（那里只在父进程里
+运行一次，之后不再运行）。
+
+> 如果你手动调用 `reload()`，请先让改动过的文件失效（`opcache_invalidate()`）或依赖 opcache
+> 的时间戳校验 —— 否则全新的 worker 会编译旧代码。
 
 ## Bootloader
 
@@ -107,6 +163,9 @@ $server->addHttpHandler(function ($req, $res) {
 对比一下：`current_context()` 写入的值**只在**当前协程可见；
 `request_context()` 给出一个绑定到请求 scope 的共享 sub-tree。
 
+子 scope 每个请求要花两次分配。`setRequestScope(false)` 会把它去掉，直接复用连接 scope ——
+但这样 `request_context()` 就会返回 `null`，所以关掉它的话记得用 `?->`。
+
 ## SO_REUSEPORT 与负载均衡
 
 在 Linux/BSD 上，内核会把入站连接均匀（但不确定）地分发给所有在同一 `(host, port)` 上
@@ -131,10 +190,17 @@ accept 容量，运维毫无信号）。
 打开 INFO 日志：
 
 ```php
-$config
-    ->setLogSeverity(\TrueAsync\LogSeverity::INFO)
-    ->setLogStream(STDERR);
+use TrueAsync\LogSeverity;
+
+$config->setLogSinks([
+    ['type' => 'stderr', 'format' => 'pretty', 'level' => LogSeverity::INFO],
+]);
 ```
+
+> **worker 池下不要用 `setLogStream()`。** 父进程打开的 PHP stream 资源无法跨进 worker
+> 线程：该 sink 会在父进程上保持活跃，而在 worker 里被跳过，启动时给出一条提示。请用一个每个
+> worker 都能自己打开的 sink —— `stderr`、`stdout` 或 `file`（每个 worker 以 append 模式
+> 重新打开该路径）。详见 [可观测性](/zh/docs/server/observability.html)。
 
 ## 该用多少 worker？
 
@@ -155,6 +221,7 @@ $config->setWorkers(\Async\available_parallelism());
 
 - [`HttpServerConfig::setWorkers()`](/zh/docs/reference/server/http-server-config.html#setworkers)
 - [`HttpServerConfig::setBootloader()`](/zh/docs/reference/server/http-server-config.html#setbootloader)
+- [可观测性](/zh/docs/server/observability.html)：跨 worker 统计、池下的日志
 - [`Async\ThreadPool`](/zh/docs/components/thread-pool.html)：池的内部细节
 - [`Async\request_context()`](/zh/docs/reference/request-context.html)
 - [Backpressure / drain](/zh/docs/server/configuration.html#优雅排空step-8)

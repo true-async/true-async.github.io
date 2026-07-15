@@ -113,8 +113,9 @@ accept ─►  parse  ─►  dispatch  ─►  respond      │
 - [정적 파일과 sendFile](/ko/docs/server/static-files.html): `StaticHandler`, precompressed sidecar, Range
 - [스트리밍](/ko/docs/server/streaming.html): 요청 본문 스트림과 응답 스트림
 - [SSE](/ko/docs/server/sse.html): Server-Sent Events, `sseEvent()`, 재연결, 하트비트
-- [WebSocket](/ko/docs/server/websocket.html): 전이중 연결, backpressure, keepalive
-- [멀티 워커](/ko/docs/server/workers.html): `setWorkers(N)`, bootloader, 요청별 scope
+- [WebSocket](/ko/docs/server/websocket.html): 전이중 연결, 워커 간 pub/sub 토픽, backpressure
+- [멀티 워커](/ko/docs/server/workers.html): `setWorkers(N)`, bootloader, hot reload, 요청별 scope
+- [관측성](/ko/docs/server/observability.html): 워커 간 통계, 멀티 sink 로깅, OTel 액세스 로그
 - [예제](/ko/docs/server/examples.html): JSON-API, 정적 파일, fan-out, multipart 업로드
 - [아키텍처](/ko/architecture/server.html): 내부 구조
 

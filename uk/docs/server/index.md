@@ -112,8 +112,9 @@ accept ─►  parse  ─►  dispatch  ─►  respond      │
 - [Статичні файли і sendFile](/uk/docs/server/static-files.html): `StaticHandler`, precompressed sidecars, Range
 - [Стрімінг](/uk/docs/server/streaming.html): стрім тіла запиту і стрім відповіді
 - [SSE](/uk/docs/server/sse.html): Server-Sent Events, `sseEvent()`, перепідключення, heartbeat
-- [WebSocket](/uk/docs/server/websocket.html): full-duplex з'єднання, backpressure, keepalive
-- [Multi-worker](/uk/docs/server/workers.html): `setWorkers(N)`, bootloader, per-request scope
+- [WebSocket](/uk/docs/server/websocket.html): full-duplex з'єднання, cross-worker pub/sub топіки, backpressure
+- [Multi-worker](/uk/docs/server/workers.html): `setWorkers(N)`, bootloader, hot reload, per-request scope
+- [Спостережуваність](/uk/docs/server/observability.html): cross-worker статистика, multi-sink логування, OTel access log
 - [Приклади](/uk/docs/server/examples.html): JSON-API, статика, fan-out, multipart upload
 - [Архітектура](/uk/architecture/server.html): внутрішня будова
 

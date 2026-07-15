@@ -5,7 +5,7 @@ path_key: "/docs/server/websocket.html"
 nav_active: docs
 permalink: /fr/docs/server/websocket.html
 page_title: "TrueAsync Server : WebSocket"
-description: "addWebSocketHandler() : connexions full-duplex sur RFC 6455, backpressure, keepalive, négociation de sous-protocole, permessage-deflate."
+description: "addWebSocketHandler() : connexions full-duplex sur RFC 6455, topics pub/sub cross-worker, backpressure, keepalive, négociation de sous-protocole, permessage-deflate."
 ---
 
 # WebSocket
@@ -24,6 +24,8 @@ transporte du WebSocket, plus du HTTP. Pris en charge :
 - Upgrade depuis HTTP/2 (RFC 8441 Extended CONNECT).
 - `wss://` (WebSocket sur TLS).
 - permessage-deflate (RFC 7692), compression au niveau message.
+- [Topics pub/sub](#topics-publishsubscribe-across-every-worker) qui atteignent chaque worker du
+  processus, si bien qu'un chat n'a besoin ni d'un serveur mono-worker ni d'un broker externe.
 
 > L'implémentation est vérifiée contre la suite de conformité Autobahn|Testsuite et passe les 246
 > tests de la catégorie `behavior`.
@@ -44,10 +46,31 @@ $server->addWebSocketHandler(function (WebSocket $ws) {
     }
 });
 
+// Obligatoire : le serveur refuse de démarrer sans handler HTTP, et c'est lui
+// qui répond aux requêtes qui ne sont pas des upgrades.
+$server->addHttpHandler(function ($req, $res) {
+    $res->setStatusCode(404)->end();
+});
+
 $server->start();
 ```
 
+Enregistrer le handler, c'est ce qui active WebSocket — il n'y a pas d'interrupteur séparé à
+basculer.
+
+> `HttpServerConfig::enableWebSocket()` ressemble à cet interrupteur, mais c'est un stub non
+> implémenté qui lève `HttpServerRuntimeException` quand on lui passe `true`, et
+> `isWebSocketEnabled()` renvoie `false` alors même que WebSocket sert des connexions. N'appelez
+> ni l'un ni l'autre ([server#134](https://github.com/true-async/server/issues/134)).
+
 Chaque connexion est servie par sa propre coroutine, le même modèle per-request que pour HTTP.
+Un handler qui lève une exception n'emporte pas le worker avec lui : l'exception est journalisée,
+et le pair est prévenu dans le protocole — un statut HTTP si le throw précède l'upgrade, un
+`CLOSE 1011` une fois la session établie.
+
+Le handler est toujours appelé avec trois arguments, et PHP écarte ceux que vous n'avez pas
+déclarés — donc `function (WebSocket $ws)`, `function (WebSocket $ws, HttpRequest $req)` et la
+forme à trois paramètres sont toutes valides. Ne déclarez que ce que vous utilisez.
 
 ## Cycle de vie
 
@@ -112,6 +135,152 @@ immédiatement si le message a été accepté, et `false` si le buffer est plein
 message n'est simplement pas envoyé). La taille du buffer est fixée par
 [`HttpServerConfig::setStreamWriteBufferBytes()`](/fr/docs/reference/server/http-server-config.html#setstreamwritebufferbytes)
 (`0` désactive la limite : `trySend()` envoie alors toujours et renvoie `true`).
+
+## Topics : publish/subscribe sur tous les workers {#topics-publishsubscribe-across-every-worker}
+
+Un worker est un thread avec son propre contexte PHP. Donc la façon évidente de construire un
+chat — garder un tableau de connexions et boucler dessus — ne peut jamais atteindre que les pairs
+d'*un seul* worker, ce qui explique pourquoi un tel chat devait tourner en `setWorkers(1)`.
+
+Les topics corrigent cela. Ils vivent dans le serveur, pas dans votre handler : chaque worker
+indexe les connexions qu'il possède, et un `publish()` est transmis à chaque worker, qui délivre
+ensuite sur ses propres sockets. Pas de Redis, pas de message broker, pas de serveur mono-worker.
+
+```php
+$server->addWebSocketHandler(function (WebSocket $ws, HttpRequest $req) {
+    $room = ltrim($req->getPath(), '/') ?: 'lobby';
+
+    $ws->subscribe("chat/$room");
+
+    foreach ($ws as $msg) {
+        $ws->publish("chat/$room", $msg->data);   // atteint les abonnés sur TOUS les workers
+    }
+});
+```
+
+Un topic est adressé par **nom, au point d'appel**. Il n'y a pas d'objet topic à obtenir, tenir
+ou passer à un handler.
+
+### Les filtres suivent MQTT
+
+Les niveaux sont séparés par `/`, `+` correspond à exactement un niveau, et un `#` final
+correspond au reste :
+
+| Filtre | Reçoit |
+|--------|--------|
+| `chat/general` | exactement ce topic |
+| `chat/+/typing` | `chat/general/typing`, `chat/random/typing` — un niveau, n'importe quelle valeur |
+| `user/42/#` | `user/42`, `user/42/presence`, `user/42/dm/7` — tout le sous-arbre |
+
+Les wildcards appartiennent aux *abonnements*. Un **topic de publish doit être concret** : un
+message diffusé vers un pattern n'a pas de destination bien définie, donc
+`publish('chat/+/typing', …)` lève `WebSocketException`. Les filtres peuvent aller jusqu'à 128
+niveaux de profondeur.
+
+### L'API
+
+```php
+$ws->subscribe('chat/+/typing');            // idempotent
+$ws->unsubscribe('chat/+/typing');          // idempotent
+$ws->getTopics();                           // string[] — les filtres de cette connexion
+
+$ws->publish('chat/general', $text);        // texte, à chaque worker
+$ws->publishBinary('chat/general', $bytes); // pendant binaire
+
+$ws->subscriberCount('chat/general');       // sur tous les workers, wildcards inclus
+```
+
+`publish()` **ne suspend jamais**. Un pair dont la file sortante est engorgée perd le message
+plutôt que de bloquer la distribution au reste du topic — la même sémantique que `trySend()`.
+Quand vous avez besoin d'une garantie de livraison, faites `send()` vers la connexion unique. Un
+abonné qui correspond à plusieurs de ses propres filtres ne reçoit quand même qu'une seule copie.
+
+`$excludeSelf` vaut `true` par défaut — le cas « tout le monde sauf l'émetteur » que veut un chat :
+
+```php
+$ws->publish('chat/general', $msg->data);                      // l'émetteur ne le reçoit pas
+$ws->publish('chat/general', $msg->data, excludeSelf: false);  // l'émetteur le reçoit aussi
+```
+
+La valeur de retour est le nombre d'abonnés servis **sur le worker appelant uniquement**. La
+livraison aux autres workers est asynchrone et ne peut pas être comptée au point d'appel, donc
+c'est un nombre local, pas un nombre à l'échelle du processus. `subscriberCount()` est celui à
+l'échelle du processus — mais comme chaque worker répond avec son propre compte et que les
+réponses sont sommées, c'est un instantané plutôt qu'un compteur en direct, et un worker qui ne
+répond pas à temps est laissé de côté.
+
+Une connexion qui se ferme se désabonne de tout d'elle-même.
+
+### Limites
+
+Les deux sont désactivées par défaut, ce que livre chaque broker auto-hébergé (EMQX
+`max_subscriptions` / `messages_rate`, NATS `max_subs`) : seule l'application sait combien de
+topics il lui faut.
+
+```php
+$config
+    ->setWsMaxSubscriptions(32)          // filtres distincts qu'une connexion peut tenir
+    ->setWsPublishRateLimit(50, burst: 100);
+```
+
+Réglez `setWsMaxSubscriptions()` dès que de l'entrée cliente atteint `subscribe()` — disons
+`$ws->subscribe($msg->data)` — pour qu'un pair ne puisse pas faire grossir sans fin l'arbre de
+topics du worker. Au-delà du cap, `subscribe()` lève `WebSocketException` et la connexion reste
+ouverte.
+
+`setWsPublishRateLimit()` est un token bucket par connexion. `publish()` est le seul appel
+WebSocket qu'un pair non privilégié peut transformer en travail sur *chaque* worker du processus —
+`send()` et `trySend()` ne touchent jamais que son propre socket. Non mesuré, un client qui boucle
+sur un message relayé remplit l'inbox de chaque worker, et les drops qui suivent emportent aussi
+le trafic d'*autres* topics. Au-delà du débit, `publish()` lève `WebSocketBackpressureException`
+et la connexion reste ouverte : l'émetteur est prévenu, plutôt que le message ne disparaisse dans
+une mailbox pleine où personne ne peut le voir.
+
+`$burst` est la profondeur du bucket en messages — de combien un handler peut prendre de l'avance
+sur le débit soutenu. `0` vaut l'équivalent d'une seconde.
+
+```php
+try {
+    $ws->publish("chat/$room", $msg->data);
+} catch (WebSocketBackpressureException) {
+    $ws->send('vous envoyez trop vite');
+} catch (WebSocketException $e) {
+    $ws->send('mauvais topic : ' . $e->getMessage());
+}
+```
+
+### Ce que ça coûte
+
+Chaque worker résume ses abonnements dans un counting Bloom filter de préfixes de topics, et un
+publisher saute les workers qui ne détiennent prouvablement aucun abonné au lieu de les réveiller
+tous. Un publish vers un topic que personne dans le processus n'écoute coûte zéro réveil
+cross-worker. `HttpServer::getRuntimeStats()` en rapporte le résultat — `ws_topic_posted`,
+`ws_topic_skipped` (le filtre qui gagne son pain) et `ws_topic_dropped` (la mailbox d'un worker
+était pleine : celui-là est une perte de données).
+
+Les topics fonctionnent sur tous les transports WebSocket, pas seulement HTTP/1 en clair — sur
+TLS, sur HTTP/2 Extended CONNECT, et avec permessage-deflate, où un même `publish()` sert côte à
+côte un pair compressé et un pair en clair, chacun avec le framing qu'il a négocié.
+
+## L'adresse du client
+
+```php
+$ws->getRemoteAddress();   // "203.0.113.7" ou "2001:db8::1" — IP nue, sans port
+$ws->getRemotePort();      // 54321
+```
+
+`getRemoteAddress()` renvoie l'**IP nue** : pas de port, et pas de crochets autour d'un littéral
+IPv6 — la même forme que `$_SERVER['REMOTE_ADDR']`, si bien qu'elle se branche directement sur
+`filter_var(…, FILTER_VALIDATE_IP)`, une ACL, ou un rate limiter. Les deux renvoient `null` sur un
+listener socket Unix, qui n'a pas de pair IP.
+
+C'est le pair de la connexion TCP. Ce n'est **pas** dérivé de `X-Forwarded-For` — derrière un
+proxy, parsez cet en-tête vous-même, et seulement quand vous faites confiance au proxy qui l'a
+posé.
+
+> **Changement cassant.** `getRemoteAddress()` renvoyait auparavant `"host:port"` (et `""` quand
+> il n'y avait pas de pair IP). Elle renvoie désormais l'IP nue, et `null`. Utilisez
+> `getRemotePort()` pour le port.
 
 ## Fermeture d'une connexion : `close()`, `isClosed()`
 
@@ -185,9 +354,9 @@ informatif.
 ```
 \Exception
   └── TrueAsync\HttpServerException
-        └── TrueAsync\WebSocketException
+        └── TrueAsync\WebSocketException            // aussi : mauvais filtre de topic, cap d'abonnements
               ├── WebSocketClosedException          // closeCode / closeReason
-              ├── WebSocketBackpressureException    // le client ne lit pas assez vite
+              ├── WebSocketBackpressureException    // lecteur lent — ou publish() au-delà de son rate limit
               └── WebSocketConcurrentReadException  // second recv() en parallèle
 ```
 
@@ -205,6 +374,8 @@ explicite ; `$closeCode`/`$closeReason` portent la raison. Voir la
 | `setWsPingIntervalMs($ms)` | 30000 | fréquence à laquelle le serveur ping une connexion idle, `0` le désactive |
 | `setWsPongTimeoutMs($ms)` | 60000 | combien de temps attendre le PONG avant de fermer (`1001`) |
 | `setWsPermessageDeflate($bool)` | `false` | RFC 7692, opt-in en raison de son coût CPU |
+| `setWsMaxSubscriptions($count)` | `0` (sans limite) | filtres de topic distincts qu'une connexion peut tenir |
+| `setWsPublishRateLimit($perSecond, $burst)` | `0` (off) | token bucket par connexion sur `publish()` |
 
 Voir [Configuration](/fr/docs/server/configuration.html#websocket) pour plus de détails.
 

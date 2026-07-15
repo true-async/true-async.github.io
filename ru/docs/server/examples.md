@@ -202,33 +202,43 @@ $server->addWebSocketHandler(function (WebSocket $ws) {
     }
 });
 
+// Обязательно: без HTTP-обработчика сервер не стартует, и именно он отвечает
+// на запросы, которые не являются upgrade'ом.
+$server->addHttpHandler(fn ($req, $res) => $res->setStatusCode(404)->end());
+
 $server->start();
 ```
 
-Broadcast нескольким клиентам, без ожидания медленных:
+Broadcast всем клиентам — включая тех, кого обслуживают **другие воркер-потоки** — это то, для
+чего нужны топики. Подписываемся при подключении, `publish()` рассылает; никакого общего массива,
+никакого `setWorkers(1)`:
 
 ```php
-/** @var WebSocket[] $clients */
-$clients = [];
+use TrueAsync\HttpRequest;
 
-$server->addWebSocketHandler(function (WebSocket $ws) use (&$clients) {
-    $clients[spl_object_id($ws)] = $ws;
+$server = new HttpServer(
+    (new HttpServerConfig())
+        ->addListener('0.0.0.0', 8080)
+        ->setWorkers(4)                          // настоящий чат, на 4 потока
+);
 
-    try {
-        foreach ($ws as $msg) {
-            foreach ($clients as $peer) {
-                if ($peer !== $ws) {
-                    $peer->trySend($msg->data);   // неблокирующе, медленный клиент не стопорит остальных
-                }
-            }
-        }
-    } finally {
-        unset($clients[spl_object_id($ws)]);
+$server->addWebSocketHandler(function (WebSocket $ws, HttpRequest $req) {
+    $room = ltrim($req->getPath(), '/') ?: 'lobby';
+    $ws->subscribe("chat/$room");
+
+    foreach ($ws as $msg) {
+        $ws->publish("chat/$room", $msg->data);  // доходит до подписчиков на ВСЕХ воркерах
     }
 });
+
+$server->addHttpHandler(fn ($req, $res) => $res->setStatusCode(404)->end());
+
+$server->start();
 ```
 
-Подробности и разбор всех методов смотрите в [руководстве по WebSocket](/ru/docs/server/websocket.html).
+`publish()` никогда не приостанавливается: клиент, чей сокет забит, теряет сообщение, но не
+задерживает остальную часть топика. Модель топиков, фильтры и rate-limit'ы смотрите в
+[руководстве по WebSocket](/ru/docs/server/websocket.html#topics-publishsubscribe-across-every-worker).
 
 ## Скачивание файла с auth
 

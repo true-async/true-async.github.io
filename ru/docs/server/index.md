@@ -112,8 +112,9 @@ accept ─►  parse  ─►  dispatch  ─►  respond      │
 - [Статика и sendFile](/ru/docs/server/static-files.html): `StaticHandler`, precompressed sidecars, Range
 - [Streaming](/ru/docs/server/streaming.html): стрим тела запроса и стрим ответа
 - [SSE](/ru/docs/server/sse.html): Server-Sent Events, `sseEvent()`, реконнект, heartbeat
-- [WebSocket](/ru/docs/server/websocket.html): full-duplex соединения, backpressure, keepalive
-- [Multi-worker](/ru/docs/server/workers.html): `setWorkers(N)`, bootloader, per-request scope
+- [WebSocket](/ru/docs/server/websocket.html): full-duplex соединения, cross-worker pub/sub-топики, backpressure
+- [Multi-worker](/ru/docs/server/workers.html): `setWorkers(N)`, bootloader, hot reload, per-request scope
+- [Наблюдаемость](/ru/docs/server/observability.html): cross-worker статистика, multi-sink логирование, OTel access log
 - [Примеры](/ru/docs/server/examples.html): JSON-API, статика, fan-out, multipart upload
 - [Архитектура](/ru/architecture/server.html): внутренности
 

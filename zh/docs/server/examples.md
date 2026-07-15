@@ -202,33 +202,41 @@ $server->addWebSocketHandler(function (WebSocket $ws) {
     }
 });
 
+// 必需：没有 HTTP 处理程序服务器就拒绝启动，同时它也用来回应那些不是 upgrade 的请求。
+$server->addHttpHandler(fn ($req, $res) => $res->setStatusCode(404)->end());
+
 $server->start();
 ```
 
-向多个客户端广播，且不等待慢客户端：
+要向每一个客户端广播 —— 包括由**其他 worker 线程**服务的客户端 —— 这正是 topic 的用武之地。
+连接时 `subscribe()`，用 `publish()` fan-out；不需要共享数组，也不需要 `setWorkers(1)`：
 
 ```php
-/** @var WebSocket[] $clients */
-$clients = [];
+use TrueAsync\HttpRequest;
 
-$server->addWebSocketHandler(function (WebSocket $ws) use (&$clients) {
-    $clients[spl_object_id($ws)] = $ws;
+$server = new HttpServer(
+    (new HttpServerConfig())
+        ->addListener('0.0.0.0', 8080)
+        ->setWorkers(4)                          // 一个真正的聊天室，跨 4 个线程
+);
 
-    try {
-        foreach ($ws as $msg) {
-            foreach ($clients as $peer) {
-                if ($peer !== $ws) {
-                    $peer->trySend($msg->data);   // 非阻塞，一个慢客户端不会拖慢其他人
-                }
-            }
-        }
-    } finally {
-        unset($clients[spl_object_id($ws)]);
+$server->addWebSocketHandler(function (WebSocket $ws, HttpRequest $req) {
+    $room = ltrim($req->getPath(), '/') ?: 'lobby';
+    $ws->subscribe("chat/$room");
+
+    foreach ($ws as $msg) {
+        $ws->publish("chat/$room", $msg->data);  // 抵达所有 worker 上的订阅者
     }
 });
+
+$server->addHttpHandler(fn ($req, $res) => $res->setStatusCode(404)->end());
+
+$server->start();
 ```
 
-详见 [WebSocket 指南](/zh/docs/server/websocket.html)，了解每个方法的完整用法。
+`publish()` 从不挂起：一个 socket 已积压的 peer 会丢弃该消息，而不是拖慢 topic 里的其他人。
+topic 模型、过滤器和限流详见
+[WebSocket 指南](/zh/docs/server/websocket.html#topics-publishsubscribe-across-every-worker)。
 
 ## 带鉴权的文件下载
 

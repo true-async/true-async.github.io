@@ -34,7 +34,7 @@ $server = new HttpServer(
 );
 
 $server->addHttpHandler(function ($req, $res) {
-    $res->json(['pid' => getmypid(), 'tid' => /* TID */]);
+    $res->json(['pid' => getmypid()]);
 });
 
 $server->start();   // блокирует, пока все воркеры не завершатся
@@ -47,8 +47,68 @@ $server->start();   // блокирует, пока все воркеры не �
 3. Внутри воркера запускает event-loop, который re-bind'ит listeners.
 4. Родитель `await`ит завершение всех воркеров.
 
-Cross-thread `stop()` пока в roadmap; остановка работает через SIGINT/SIGTERM либо штатное
-истощение работы.
+## Graceful shutdown
+
+`HttpServer::stop()` работает на pool-родителе. Он выводит из строя всю когорту и
+**приостанавливается, пока сервер действительно не остановится**: когда он возвращает управление,
+воркеры дренированы, пул разобран, а listen-сокеты закрыты. Вызывайте его из корутины; обычное
+место — обработчик сигнала:
+
+```php
+use function Async\spawn;
+use function Async\await;
+use function Async\signal;
+use Async\Signal;
+
+spawn(function () use ($server) {
+    await(signal(Signal::SIGTERM));
+
+    $server->stop();       // возвращает управление, когда пул действительно остановлен
+});
+
+$server->start();
+```
+
+На **standalone**-сервере (`setWorkers(1)`, значение по умолчанию) `stop()` не приостанавливается:
+его обычно вызывают из обработчика запроса, а shutdown-drain ждёт именно этот обработчик — так что
+блокирующий `stop()` там ждал бы сам себя.
+
+## Hot reload
+
+`HttpServer::reload()` заменяет когорту воркеров без разрыва соединений: воркеры доделывают то, что
+держат, останавливаются и выходят, а свежие воркер-потоки заново прогоняют bootloader — подхватывая
+изменённый код — и берут работу на **тех же listen-сокетах**. Он приостанавливается, пока старая
+когорта не дренируется; `start()` всё это время продолжает работать. Только для pool-родителя.
+
+Вручную его вызывают редко. Вместо этого подключите триггер:
+
+```php
+$config
+    ->setWorkers(4)
+    ->setBootloader(function () {
+        require __DIR__ . '/app/bootstrap.php';   // заново прогоняется в каждом свежем воркере
+    })
+
+    // разработка: следить за деревом и перезагружаться, когда изменения устаканятся
+    ->enableHotReload([__DIR__ . '/app'], ['php'], debounceMs: 300, maxHoldMs: 2000)
+
+    // production: перезагрузка по SIGHUP, который шлёт deploy-скрипт
+    ->enableReloadOnSignal();
+```
+
+`enableHotReload()` следит за каждым путём рекурсивно. Устоявшийся всплеск изменений инвалидирует
+отслеживаемые деревья в opcache и вызывает `reload()`. `debounceMs` — окно тишины перед тем, как
+всплеск запустит один reload; `maxHoldMs` форсирует reload не позже, чем через это время после
+первого изменения, так что каталог, который никогда не затихает, всё равно перезагрузится.
+`enableReloadOnSignal()` ставит постоянный SIGHUP-обработчик (на Windows не поддерживается).
+
+Оба — только в pool-режиме. Каким бы ни был триггер, код, который подхватят новые воркеры, — это то,
+что загружает bootloader, поэтому всё, что вы хотите перезагружать, должно загружаться **там**, а не
+в начале entry-скрипта, который выполняется один раз в родителе и больше никогда.
+
+> Если вы вызываете `reload()` вручную, сначала инвалидируйте изменённые файлы
+> (`opcache_invalidate()`) или полагайтесь на timestamp-валидацию opcache — иначе свежие воркеры
+> скомпилируют старый код.
 
 ## Bootloader
 
@@ -109,6 +169,10 @@ $server->addHttpHandler(function ($req, $res) {
 Сравните: `current_context()` создаёт значения, видимые **только** в текущей корутине;
 `request_context()` даёт общий sub-tree, привязанный к scope запроса.
 
+Дочерний scope стоит двух аллокаций на запрос. `setRequestScope(false)` убирает его и
+переиспользует scope соединения напрямую — но тогда `request_context()` возвращает `null`, так что
+если вы его отключаете, тянитесь к `?->`.
+
 ## SO_REUSEPORT и балансировка
 
 На Linux/BSD ядро равномерно (но недетерминированно) распределяет входящие соединения по всем
@@ -133,10 +197,18 @@ Loud-логирование на неожиданный exit воркера до
 Включите INFO-логирование:
 
 ```php
-$config
-    ->setLogSeverity(\TrueAsync\LogSeverity::INFO)
-    ->setLogStream(STDERR);
+use TrueAsync\LogSeverity;
+
+$config->setLogSinks([
+    ['type' => 'stderr', 'format' => 'pretty', 'level' => LogSeverity::INFO],
+]);
 ```
+
+> **Не используйте `setLogStream()` под пулом воркеров.** PHP stream-ресурс, открытый родителем,
+> не может перейти в воркер-поток: sink остаётся активным на родителе и пропускается в воркерах, с
+> уведомлением при старте. Используйте sink, который каждый воркер может открыть сам — `stderr`,
+> `stdout` или `file` (каждый воркер переоткрывает путь в режиме append).
+> См. [Наблюдаемость](/ru/docs/server/observability.html).
 
 ## Сколько воркеров?
 
@@ -159,6 +231,7 @@ $config->setWorkers(\Async\available_parallelism());
 
 - [`HttpServerConfig::setWorkers()`](/ru/docs/reference/server/http-server-config.html#setworkers)
 - [`HttpServerConfig::setBootloader()`](/ru/docs/reference/server/http-server-config.html#setbootloader)
+- [Наблюдаемость](/ru/docs/server/observability.html): cross-worker статистика, логирование под пулом
 - [`Async\ThreadPool`](/ru/docs/components/thread-pool.html): внутренности пула
 - [`Async\request_context()`](/ru/docs/reference/request-context.html)
 - [Backpressure / drain](/ru/docs/server/configuration.html#graceful-drain-step-8)

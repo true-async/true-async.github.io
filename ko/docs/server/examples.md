@@ -202,33 +202,43 @@ $server->addWebSocketHandler(function (WebSocket $ws) {
     }
 });
 
+// 필수: 서버는 HTTP 핸들러 없이는 시작을 거부하며, 이 핸들러가
+// upgrade가 아닌 요청에 응답합니다.
+$server->addHttpHandler(fn ($req, $res) => $res->setStatusCode(404)->end());
+
 $server->start();
 ```
 
-느린 클라이언트를 기다리지 않고 여러 클라이언트에 브로드캐스트하기:
+모든 클라이언트 — **다른 워커 스레드**가 서비스하는 클라이언트를 포함해 — 에게
+브로드캐스트하는 것이 바로 토픽의 용도입니다. 연결 시 구독하고 `publish()`로 fan-out합니다.
+공유 배열도, `setWorkers(1)`도 필요 없습니다:
 
 ```php
-/** @var WebSocket[] $clients */
-$clients = [];
+use TrueAsync\HttpRequest;
 
-$server->addWebSocketHandler(function (WebSocket $ws) use (&$clients) {
-    $clients[spl_object_id($ws)] = $ws;
+$server = new HttpServer(
+    (new HttpServerConfig())
+        ->addListener('0.0.0.0', 8080)
+        ->setWorkers(4)                          // 4개 스레드에 걸친 진짜 채팅
+);
 
-    try {
-        foreach ($ws as $msg) {
-            foreach ($clients as $peer) {
-                if ($peer !== $ws) {
-                    $peer->trySend($msg->data);   // 비블로킹, 느린 클라이언트가 나머지를 막지 않음
-                }
-            }
-        }
-    } finally {
-        unset($clients[spl_object_id($ws)]);
+$server->addWebSocketHandler(function (WebSocket $ws, HttpRequest $req) {
+    $room = ltrim($req->getPath(), '/') ?: 'lobby';
+    $ws->subscribe("chat/$room");
+
+    foreach ($ws as $msg) {
+        $ws->publish("chat/$room", $msg->data);  // 모든 워커의 구독자에게 도달
     }
 });
+
+$server->addHttpHandler(fn ($req, $res) => $res->setStatusCode(404)->end());
+
+$server->start();
 ```
 
-[WebSocket 가이드](/ko/docs/server/websocket.html)에서 모든 메서드에 대한 전체 설명을
+`publish()`는 절대 일시 중단하지 않습니다: 소켓이 밀린 peer는 나머지 토픽을 막는 대신
+메시지를 버립니다. 토픽 모델, 필터, rate limit은
+[WebSocket 가이드](/ko/docs/server/websocket.html#topics-publishsubscribe-across-every-worker)를
 참고하세요.
 
 ## auth가 있는 파일 다운로드
