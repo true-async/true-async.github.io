@@ -134,6 +134,45 @@ als das Schreib-Timeout in der Warteschleife hängt, wirft es
 `WebSocketBackpressureException`. Dies betrifft einen Client, der die
 Verbindung offen hält, aber überhaupt nicht liest.
 
+## Räume, ohne die Buchführung
+
+Das `SplObjectStorage` hat funktioniert, aber zähl, was es uns gekostet
+hat: ein geteiltes Objekt, eine Broadcast-Schleife und ein `finally`, um
+die Geister hinauszufegen. Alles nur, damit eine Zeile, die einer tippt,
+die anderen erreicht. Es ist ein so verbreiteter Wunsch, dass der Server
+ihn direkt erfüllt. Eine Verbindung **abonniert** einen Namen; eine
+Nachricht, die auf diesen Namen **veröffentlicht** wird, erreicht alle,
+die ihn abonniert haben. Derselbe Chat, ohne die Buchführung:
+
+```php
+$server->addWebSocketHandler(function (WebSocket $ws, HttpRequest $req) {
+    $room = $req->getQueryParam('room', 'lobby');
+    $name = $req->getQueryParam('name', 'guest');
+
+    $ws->subscribe("chat/$room");
+
+    foreach ($ws as $msg) {
+        $ws->publish("chat/$room", "$name: {$msg->data}");
+    }
+});
+```
+
+Das `SplObjectStorage` ist weg, und mit ihm die Schleife und das
+`finally`. `subscribe()` setzt diese Verbindung in den Raum, `publish()`
+sendet eine Zeile an alle darin, und eine Verbindung, die sich schließt,
+verlässt ihre Räume von selbst. `publish()` hält dieselbe Abmachung, die
+`trySend()` gerade getroffen hat: Ein Peer, dessen Puffer sich staut,
+verwirft die Zeile, statt den Raum aufzuhalten, und blockiert nie den
+Absender.
+
+Der Name ist nicht nur eine Beschriftung, er ist ein Filter im Stil von
+MQTT. Ebenen werden durch `/` getrennt, `+` passt auf eine Ebene und `#`
+auf den Rest. Abonniere `chat/+/typing`, und du hörst das Tipp-Signal
+aus jedem Raum auf einmal; `subscriberCount("chat/general")` sagt dir,
+wie viele zuhören. Und noch eine Sache, still wichtig, die wir im
+nächsten Kapitel einlösen werden: Ein Topic ist nicht an eine Verbindung
+gebunden, nicht einmal an ein Array im Speicher. Halte daran fest.
+
 ## Wer hat die in den Chat gelassen?
 
 Im Moment kann jeder den Raum betreten. Wenn du an der Tür prüfen

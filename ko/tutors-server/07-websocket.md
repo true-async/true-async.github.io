@@ -123,6 +123,44 @@ $server->addWebSocketHandler(function (WebSocket $ws, HttpRequest $req) use ($ro
 오래 대기 중이면 `WebSocketBackpressureException`을 던집니다.
 이것은 연결을 열어둔 채 전혀 읽지 않는 클라이언트에 대한 이야기입니다.
 
+## 장부 없는 채팅방
+
+`SplObjectStorage`는 잘 작동했지만, 그것이 우리에게 무엇을 치르게
+했는지 세어 보세요. 공유 객체 하나, 브로드캐스트 루프 하나, 그리고
+유령을 쓸어내는 `finally` 하나. 한 사람이 친 한 줄이 다른 이들에게
+닿게 하려고 이 모든 것을 말이죠. 이것은 너무나 흔한 바람이라, 서버가
+직접 들어줍니다. 연결이 어떤 이름에 **구독(subscribe)** 하면, 그 이름으로
+**발행(publish)** 된 메시지가 구독한 모두에게 닿습니다. 같은 채팅, 장부는
+없이:
+
+```php
+$server->addWebSocketHandler(function (WebSocket $ws, HttpRequest $req) {
+    $room = $req->getQueryParam('room', 'lobby');
+    $name = $req->getQueryParam('name', 'guest');
+
+    $ws->subscribe("chat/$room");
+
+    foreach ($ws as $msg) {
+        $ws->publish("chat/$room", "$name: {$msg->data}");
+    }
+});
+```
+
+저장소가 사라졌고, 그와 함께 루프도 `finally`도 사라졌습니다.
+`subscribe()`는 이 연결을 채팅방에 넣고, `publish()`는 그 안의 모두에게
+한 줄을 보내며, 닫히는 연결은 자신의 채팅방들을 스스로 떠납니다.
+`publish()`는 방금 `trySend()`가 맺은 것과 같은 약속을 지킵니다.
+버퍼가 밀린 상대는 채팅방을 지체시키는 대신 그 줄을 버리며, 발신자를
+결코 막지 않습니다.
+
+이름은 그저 라벨이 아니라 MQTT 스타일 필터입니다. 레벨은 `/`로
+구분되고, `+`는 한 레벨과, `#`는 나머지 전부와 일치합니다.
+`chat/+/typing`을 구독하면 모든 채팅방의 타이핑 신호를 한꺼번에 듣게
+되고, `subscriberCount("chat/general")`은 몇 명이 듣고 있는지 알려줍니다.
+그리고 조용히 중요한 것이 하나 더 있으니, 다음 장에서 현금으로 바꿔
+쓸 것입니다. 토픽은 하나의 연결에도, 심지어 메모리 속 하나의 배열에도
+묶여 있지 않습니다. 이 점을 꼭 붙들어 두세요.
+
 ## 누가 이들을 채팅방에 들여보냈나?
 
 지금은 누구나 채팅방에 들어올 수 있습니다. 문 앞에서 검사하고

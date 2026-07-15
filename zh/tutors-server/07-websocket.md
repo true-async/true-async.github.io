@@ -77,6 +77,27 @@ $server->addWebSocketHandler(function (WebSocket $ws, HttpRequest $req) use ($ro
 
 作为最后的兜底，还有一道保护：如果 `send()` 挂在等待里的时间超过了写超时，它会抛出 `WebSocketBackpressureException`。这针对的是那种保持连接打开却完全不读取的客户端。
 
+## 房间，不用你记账
+
+`SplObjectStorage` 是能用，但数一数它让我们付出了多少：一个共享对象，一个广播循环，还有一个 `finally` 来清扫幽灵。这一切只为了让一个人敲下的一行文字送到其他人那里。这是个太常见的愿望，于是服务器直接就把它满足了。一个连接**订阅**一个名字；一条**发布**到那个名字的消息就会送达所有订阅它的人。同样的聊天，不用你记账：
+
+```php
+$server->addWebSocketHandler(function (WebSocket $ws, HttpRequest $req) {
+    $room = $req->getQueryParam('room', 'lobby');
+    $name = $req->getQueryParam('name', 'guest');
+
+    $ws->subscribe("chat/$room");
+
+    foreach ($ws as $msg) {
+        $ws->publish("chat/$room", "$name: {$msg->data}");
+    }
+});
+```
+
+存储没了，随它一起走的还有那个循环和那个 `finally`。`subscribe()` 把这个连接放进房间，`publish()` 把一行文字发给房间里的每一个人，而一个关闭的连接会自己离开它所在的房间。`publish()` 恪守着 `trySend()` 刚刚立下的同一份约定：一个缓冲区积压的对端会丢掉这一行，而不是拖住房间，并且它永远不会阻塞发送者。
+
+这个名字不只是一个标签，它是一个 MQTT 风格的过滤器。层级之间用 `/` 分隔，`+` 匹配一层，`#` 匹配其余。订阅 `chat/+/typing`，你就能一次听到每个房间的"正在输入"信号；`subscriberCount("chat/general")` 会告诉你有多少人在听。还有一件事，悄悄地重要，我们下一章就会把它兑现：一个主题并不绑定在一个连接上，甚至不绑定在内存里的一个数组上。记住这一点。
+
 ## 是谁放他们进聊天的？
 
 现在任何人都能进房间。如果你想在门口检查，就在处理器上声明第三个参数，服务器会把握手对象传进来：

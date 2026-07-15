@@ -129,6 +129,46 @@ attente plus longtemps que le timeout d'écriture, il lève
 `WebSocketBackpressureException`. Cela concerne un client qui maintient la
 connexion ouverte mais ne lit pas du tout.
 
+## Des salles, sans la paperasse
+
+Le `SplObjectStorage` faisait l'affaire, mais comptez ce qu'il nous a
+coûté : un objet partagé, une boucle de diffusion, et un `finally` pour
+balayer les fantômes. Tout ça pour qu'une ligne tapée par une personne
+parvienne aux autres. C'est un souhait si répandu que le serveur
+l'exauce directement. Une connexion **s'abonne** à un nom ; un message
+**publié** sous ce nom atteint tous les abonnés. Le même chat, sans la
+paperasse :
+
+```php
+$server->addWebSocketHandler(function (WebSocket $ws, HttpRequest $req) {
+    $room = $req->getQueryParam('room', 'lobby');
+    $name = $req->getQueryParam('name', 'guest');
+
+    $ws->subscribe("chat/$room");
+
+    foreach ($ws as $msg) {
+        $ws->publish("chat/$room", "$name: {$msg->data}");
+    }
+});
+```
+
+Le stockage a disparu, et avec lui la boucle et le `finally`.
+`subscribe()` place cette connexion dans la salle, `publish()` envoie une
+ligne à tous ceux qui s'y trouvent, et une connexion qui se ferme quitte
+ses salles d'elle-même. `publish()` respecte le même marché que
+`trySend()` vient de conclure : un pair dont le buffer est engorgé perd
+la ligne plutôt que de bloquer la salle, et il ne bloque jamais
+l'expéditeur.
+
+Le nom n'est pas qu'une étiquette, c'est un filtre à la manière de MQTT.
+Les niveaux sont séparés par `/`, `+` correspond à un niveau et `#` au
+reste. Abonnez-vous à `chat/+/typing` et vous entendez le signal de
+frappe de toutes les salles à la fois ; `subscriberCount("chat/general")`
+vous dit combien écoutent. Et une dernière chose, discrètement
+importante, que nous encaisserons au prochain chapitre : un topic n'est
+pas lié à une seule connexion ni même à un seul tableau en mémoire.
+Gardez cela à l'esprit.
+
 ## Qui les a laissés entrer dans le chat ?
 
 Pour l'instant, n'importe qui peut entrer dans la salle. Si vous voulez

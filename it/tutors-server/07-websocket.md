@@ -128,6 +128,44 @@ appeso in attesa più a lungo del timeout di scrittura, lancia
 `WebSocketBackpressureException`. Questo riguarda un client che tiene la
 connessione aperta ma non legge affatto.
 
+## Stanze, senza tenere i conti
+
+Lo `SplObjectStorage` ha funzionato, ma conta quanto ci è costato: un
+oggetto condiviso, un ciclo di broadcast e un `finally` per spazzare via
+i fantasmi. Tutto perché una riga digitata da una persona raggiunga le
+altre. È un desiderio così comune che il server lo esaudisce
+direttamente. Una connessione si **iscrive** a un nome; un messaggio
+**pubblicato** su quel nome raggiunge tutti gli iscritti. La stessa chat,
+senza tenere i conti:
+
+```php
+$server->addWebSocketHandler(function (WebSocket $ws, HttpRequest $req) {
+    $room = $req->getQueryParam('room', 'lobby');
+    $name = $req->getQueryParam('name', 'guest');
+
+    $ws->subscribe("chat/$room");
+
+    foreach ($ws as $msg) {
+        $ws->publish("chat/$room", "$name: {$msg->data}");
+    }
+});
+```
+
+Lo storage è sparito, e con esso il ciclo e il `finally`. `subscribe()`
+mette questa connessione nella stanza, `publish()` invia una riga a tutti
+quelli che vi sono dentro, e una connessione che si chiude lascia le sue
+stanze da sola. `publish()` mantiene lo stesso patto che `trySend()` ha
+appena stretto: un peer il cui buffer è intasato scarta la riga invece di
+bloccare la stanza, e non blocca mai il mittente.
+
+Il nome non è solo un'etichetta, è un filtro in stile MQTT. I livelli
+sono separati da `/`, `+` corrisponde a un livello e `#` al resto.
+Iscriviti a `chat/+/typing` e sentirai il segnale di digitazione da ogni
+stanza contemporaneamente; `subscriberCount("chat/general")` ti dice
+quanti sono in ascolto. E ancora una cosa, silenziosamente importante,
+che riscuoteremo nel prossimo capitolo: un topic non è legato a una
+connessione né a un singolo array in memoria. Tienilo a mente.
+
 ## Chi li ha fatti entrare in chat?
 
 Al momento chiunque può entrare nella stanza. Se vuoi controllare alla

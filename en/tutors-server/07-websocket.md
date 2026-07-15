@@ -126,6 +126,43 @@ in wait longer than the write timeout, it throws
 `WebSocketBackpressureException`. This is about a client that holds the
 connection open but doesn't read at all.
 
+## Rooms, Without the Bookkeeping
+
+The `SplObjectStorage` worked, but count what it cost us: a shared
+object, a broadcast loop, and a `finally` to sweep out the ghosts. All
+so that a line typed by one person reaches the others. It's such a
+common wish that the server grants it directly. A connection
+**subscribes** to a name; a message **published** to that name reaches
+everyone subscribed. The same chat, without the bookkeeping:
+
+```php
+$server->addWebSocketHandler(function (WebSocket $ws, HttpRequest $req) {
+    $room = $req->getQueryParam('room', 'lobby');
+    $name = $req->getQueryParam('name', 'guest');
+
+    $ws->subscribe("chat/$room");
+
+    foreach ($ws as $msg) {
+        $ws->publish("chat/$room", "$name: {$msg->data}");
+    }
+});
+```
+
+The storage is gone, and with it the loop and the `finally`.
+`subscribe()` puts this connection into the room, `publish()` sends a
+line to everyone in it, and a connection that closes leaves its rooms on
+its own. `publish()` keeps the same bargain `trySend()` just made: a
+peer whose buffer is backed up drops the line rather than stalling the
+room, and it never blocks the sender.
+
+The name is not just a label, it's an MQTT-style filter. Levels are
+separated by `/`, `+` matches one level and `#` the rest. Subscribe to
+`chat/+/typing` and you hear the typing signal from every room at once;
+`subscriberCount("chat/general")` tells you how many are listening. And
+one more thing, quietly important, that we'll cash in next chapter: a
+topic isn't tied to one connection or even one array in memory. Hold on
+to that.
+
 ## Who Let Them Into the Chat?
 
 Right now anyone can enter the room. If you want to check at the door,
