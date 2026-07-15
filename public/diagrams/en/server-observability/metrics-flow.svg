@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="278px" preserveAspectRatio="none" style="width:968px;height:278px;" version="1.1" viewBox="0 0 968 278" width="968px" zoomAndPan="magnify"><defs/><g><!--MD5=[60458ea4c7e04341e5153d3bb1b8580b]
+cluster srv--><rect fill="#F6F4FC" height="100" rx="6" ry="6" style="stroke: #6A4BEA; stroke-width: 1.5;" width="326" x="22" y="24"/><text fill="#2C2440" font-family="Helvetica" font-size="13" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="89" x="140.5" y="38.0669">HTTP Server</text><text fill="#2C2440" font-family="Helvetica" font-size="13" font-weight="bold" lengthAdjust="spacingAndGlyphs" textLength="100" x="135" y="53.1997">(worker pool)</text><!--MD5=[008b2f29f5a639cfabe4ebdf6d327487]
+entity w0--><rect fill="#F6F4FC" height="35.1328" rx="6" ry="6" style="stroke: #6A4BEA; stroke-width: 1.5;" width="74" x="38" y="73"/><text fill="#2C2440" font-family="Helvetica" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="54" x="48" y="95.0669">worker 0</text><!--MD5=[945bb76cb2232b12ba90c731e52d4c9b]
+entity w1--><rect fill="#F6F4FC" height="35.1328" rx="6" ry="6" style="stroke: #6A4BEA; stroke-width: 1.5;" width="74" x="147" y="73"/><text fill="#2C2440" font-family="Helvetica" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="54" x="157" y="95.0669">worker 1</text><!--MD5=[b08899d86c1d502d6a46d25a191f9f0d]
+entity wn--><rect fill="#F6F4FC" height="35.1328" rx="6" ry="6" style="stroke: #6A4BEA; stroke-width: 1.5;" width="76" x="256" y="73"/><text fill="#2C2440" font-family="Helvetica" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="56" x="266" y="95.0669">worker N</text><!--MD5=[78a5fad36a64755372f77a51cc27f3e8]
+entity slab--><path d="M132.5,215 C132.5,205 184,205 184,205 C184,205 235.5,205 235.5,215 L235.5,254.2656 C235.5,264.2656 184,264.2656 184,264.2656 C184,264.2656 132.5,264.2656 132.5,254.2656 L132.5,215 " fill="#FDF3E8" style="stroke: #E8873C; stroke-width: 1.5;"/><path d="M132.5,215 C132.5,225 184,225 184,225 C184,225 235.5,225 235.5,215 " fill="none" style="stroke: #E8873C; stroke-width: 1.5;"/><text fill="#7A4A17" font-family="Helvetica" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="83" x="142.5" y="241.0669">process-wide</text><text fill="#7A4A17" font-family="Helvetica" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="79" x="142.5" y="256.1997">counter slab</text><!--MD5=[8567416a8f69b797015a46caa6364100]
+entity mh--><rect fill="#F6F4FC" height="65.3984" rx="6" ry="6" style="stroke: #6A4BEA; stroke-width: 1.5;" width="149" x="360.5" y="202"/><text fill="#2C2440" font-family="Helvetica" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="80" x="370.5" y="224.0669">your handler</text><text fill="#2C2440" font-family="Helvetica" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="81" x="370.5" y="239.1997">GET /metrics</text><text fill="#2C2440" font-family="Helvetica" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="129" x="370.5" y="254.3325">$server-&gt;getStats()</text><!--MD5=[7617a468e6fd29cf21357e7d5e04380c]
+entity prom--><polygon fill="#EAFBF5" points="640,222,650,212,758,212,758,247.1328,748,257.1328,640,257.1328,640,222" style="stroke: #5AD1B0; stroke-width: 1.5;"/><line style="stroke: #5AD1B0; stroke-width: 1.5;" x1="748" x2="757" y1="222" y2="213"/><line style="stroke: #5AD1B0; stroke-width: 1.5;" x1="640" x2="748" y1="222" y2="222"/><line style="stroke: #5AD1B0; stroke-width: 1.5;" x1="748" x2="748" y1="222" y2="257.1328"/><text fill="#1F5C4D" font-family="Helvetica" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="78" x="655" y="244.0669">Prometheus</text><!--MD5=[c2d977b135fb8c79299c5948712bf02a]
+entity graf--><polygon fill="#EAFBF5" points="855.5,222,865.5,212,946.5,212,946.5,247.1328,936.5,257.1328,855.5,257.1328,855.5,222" style="stroke: #5AD1B0; stroke-width: 1.5;"/><line style="stroke: #5AD1B0; stroke-width: 1.5;" x1="936.5" x2="945.5" y1="222" y2="213"/><line style="stroke: #5AD1B0; stroke-width: 1.5;" x1="855.5" x2="936.5" y1="222" y2="222"/><line style="stroke: #5AD1B0; stroke-width: 1.5;" x1="936.5" x2="936.5" y1="222" y2="257.1328"/><text fill="#1F5C4D" font-family="Helvetica" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="51" x="870.5" y="244.0669">Grafana</text><!--MD5=[18251c218a41df29e407a1b6bd3303ff]
+link w0 to slab--><path d="M79.43,108.13 C84.58,125.31 94.29,152.31 109,172 C117.01,182.72 127.27,192.71 137.62,201.39 " fill="none" id="w0-&gt;slab" style="stroke: #6A4BEA; stroke-width: 1.0;"/><polygon fill="#6A4BEA" points="141.74,204.77,137.3126,195.9724,137.8721,201.6015,132.243,202.161,141.74,204.77" style="stroke: #6A4BEA; stroke-width: 1.0;"/><text fill="#555555" font-family="Helvetica" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="37" x="124" y="153.0669">bump</text><text fill="#555555" font-family="Helvetica" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="65" x="110" y="168.1997">(lock-free)</text><!--MD5=[3b380f7f8f49c656cf0ebfde1ead9d76]
+link w1 to slab--><path d="M184,108.07 C184,130.38 184,170.63 184,199.52 " fill="none" id="w1-&gt;slab" style="stroke: #6A4BEA; stroke-width: 1.0;"/><polygon fill="#6A4BEA" points="184,204.77,188,195.77,184,199.77,180,195.77,184,204.77" style="stroke: #6A4BEA; stroke-width: 1.0;"/><!--MD5=[b0105fcd1dacb3e31ca60b439068a888]
+link wn to slab--><path d="M281.17,108.07 C263.66,130.66 231.93,171.63 209.49,200.59 " fill="none" id="wn-&gt;slab" style="stroke: #6A4BEA; stroke-width: 1.0;"/><polygon fill="#6A4BEA" points="206.25,204.77,214.9177,200.0933,209.3068,200.8133,208.5869,195.2024,206.25,204.77" style="stroke: #6A4BEA; stroke-width: 1.0;"/><!--MD5=[6380664c471776b144a923bfbed400ac]
+link slab to mh--><path d="M235.7,234.5 C270.04,234.5 315.8,234.5 354.82,234.5 " fill="none" id="slab-&gt;mh" style="stroke: #6A4BEA; stroke-width: 1.0;"/><polygon fill="#6A4BEA" points="360.03,234.5,351.03,230.5,355.03,234.5,351.03,238.5,360.03,234.5" style="stroke: #6A4BEA; stroke-width: 1.0;"/><text fill="#555555" font-family="Helvetica" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="65" x="265.5" y="212.5669">getStats()</text><text fill="#555555" font-family="Helvetica" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="88" x="254" y="227.6997">reads all slots</text><!--MD5=[1c93aaaac8d97d4aad12843bd6577f69]
+link mh to prom--><path d="M509.59,234.5 C548.99,234.5 596.87,234.5 634.63,234.5 " fill="none" id="mh-&gt;prom" style="stroke: #6A4BEA; stroke-width: 1.0;"/><polygon fill="#6A4BEA" points="639.65,234.5,630.65,230.5,634.65,234.5,630.65,238.5,639.65,234.5" style="stroke: #6A4BEA; stroke-width: 1.0;"/><text fill="#555555" font-family="Helvetica" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="43" x="553.25" y="212.5669">scrape</text><text fill="#555555" font-family="Helvetica" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="94" x="527.75" y="227.6997">text exposition</text><!--MD5=[a13ce3cc5c7257f231d554e8317d8e4a]
+link prom to graf--><path d="M758.24,234.5 C787.39,234.5 822.18,234.5 850.11,234.5 " fill="none" id="prom-&gt;graf" style="stroke: #6A4BEA; stroke-width: 1.0;"/><polygon fill="#6A4BEA" points="855.25,234.5,846.25,230.5,850.25,234.5,846.25,238.5,855.25,234.5" style="stroke: #6A4BEA; stroke-width: 1.0;"/><text fill="#555555" font-family="Helvetica" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="36" x="788.75" y="212.5669">query</text><text fill="#555555" font-family="Helvetica" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="61" x="776.25" y="227.6997">(PromQL)</text><!--MD5=[0c58391b393293c8667e90a023c23d10]
+@startuml
+skinparam backgroundColor transparent
+skinparam shadowing false
+skinparam defaultFontName Helvetica
+skinparam defaultFontSize 13
+skinparam ArrowColor #6A4BEA
+skinparam ArrowFontColor #555555
+skinparam rectangle {
+  BorderColor #6A4BEA
+  BackgroundColor #F6F4FC
+  FontColor #2C2440
+  roundCorner 12
+}
+skinparam node {
+  BorderColor #5AD1B0
+  BackgroundColor #EAFBF5
+  FontColor #1F5C4D
+  roundCorner 12
+}
+skinparam database {
+  BorderColor #E8873C
+  BackgroundColor #FDF3E8
+  FontColor #7A4A17
+}
+
+rectangle "HTTP Server\n(worker pool)" as srv {
+  rectangle "worker 0" as w0
+  rectangle "worker 1" as w1
+  rectangle "worker N" as wn
+}
+
+database "process-wide\ncounter slab" as slab
+
+rectangle "your handler\nGET /metrics\n$server->getStats()" as mh
+
+node "Prometheus" as prom
+node "Grafana" as graf
+
+w0 -down-> slab : bump\n(lock-free)
+w1 -down-> slab
+wn -down-> slab
+
+slab -right-> mh : getStats()\nreads all slots
+mh -right-> prom : scrape\ntext exposition
+prom -right-> graf : query\n(PromQL)
+
+@enduml
+
+PlantUML version 1.2020.02(Sun Mar 01 10:22:07 UTC 2020)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Java Version: 21.0.11+10-1-24.04.2-Ubuntu
+Operating System: Linux
+Default Encoding: UTF-8
+Language: en
+Country: null
+--></g></svg>

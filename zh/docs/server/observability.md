@@ -5,136 +5,160 @@ path_key: "/docs/server/observability.html"
 nav_active: docs
 permalink: /zh/docs/server/observability.html
 page_title: "TrueAsync Server：可观测性"
-description: "跨 worker 的请求统计（getStats）、多 sink 结构化日志（setLogSinks）、OpenTelemetry 访问日志，以及运行时分配器计数器。"
+description: "用 getStats() 查看请求统计，用 Prometheus /metrics 端点和 Grafana 展示，用 setLogSinks() 做结构化日志和访问日志，以及运行时计数器。"
 ---
 
 # 可观测性
 
 (PHP 8.6+, true_async_server 0.10+)
 
-生产环境中的服务器需要对外暴露三样东西：**它服务了多少请求、状态码是什么**、
-**一份可以外送的日志**，以及**每个请求一条的访问记录**。本页覆盖这三者。它们都默认关闭
-—— 一台空闲的服务器不用为此付出任何代价。
+服务器可以报告请求统计、写结构化日志，并为每个请求生成一条访问记录。本页讲的这些默认都是关闭的。
 
-## 跨 worker 统计：`getStats()`
+## 请求统计：`getStats()`
 
-用 `setStatsEnabled(true)` 主动开启，然后用 `HttpServer::getStats()` 读取聚合结果：
+用 `setStatsEnabled(true)` 打开统计，然后用 `getStats()` 读取：
 
 ```php
 use TrueAsync\HttpServer;
 use TrueAsync\HttpServerConfig;
-use function Async\spawn;
 
 $config = (new HttpServerConfig())
     ->addListener('0.0.0.0', 8080)
     ->setWorkers(4)
-    ->setStatsEnabled(true);          // 必须在 start() 之前设置
+    ->setStatsEnabled(true);
 
 $server = new HttpServer($config);
 $server->addHttpHandler(fn ($req, $res) => $res->json(['ok' => true]));
 
-spawn(function () use ($server) {
-    while ($server->isRunning()) {
-        Async\delay(10_000);
-        $stats = $server->getStats();
-        error_log("requests so far: " . $stats['totals']['total_requests']);
+$server->start();
+```
+
+`getStats()` 返回每个 worker 的计数器和一份合计。如果没有打开统计，它会抛异常。
+
+```php
+[
+    'enabled' => true,
+    'workers' => [ 0 => [ /* 一个 worker 的计数器 */ ], 1 => [ … ] ],
+    'totals'  => [ /* 跨 worker 求和 */ ],
+]
+```
+
+`totals` 里有：
+
+| 计数器 | 含义 |
+|--------|------|
+| `total_requests` | 已完成的请求数 |
+| `responses_2xx_total` … `responses_5xx_total` | 按状态类别分的响应数；这四项之和等于 `total_requests` |
+| `conns_active_h1` / `_h2` / `_h3` | 按协议分的存活连接数 |
+
+合计会跨 `reload()` 继续累加；连接计数器只统计当前存活的 worker。
+
+## Prometheus 和 Grafana
+
+服务器本身不提供 `/metrics` 端点 —— `getStats()` 给你的是一个普通 PHP 数组，你把它转成监控系统需要的格式。对 Prometheus 来说，只要写一个小 handler，把数组格式化成[文本暴露格式](https://prometheus.io/docs/instrumenting/exposition_formats/)：
+
+```php
+use TrueAsync\HttpServer;
+use TrueAsync\HttpServerConfig;
+
+$config = (new HttpServerConfig())
+    ->addListener('0.0.0.0', 8080)
+    ->setWorkers(4)
+    ->setStatsEnabled(true);
+
+$server = new HttpServer($config);
+
+$server->addHttpHandler(function ($req, $res) use ($server) {
+    if ($req->getPath() === '/metrics') {
+        $t = $server->getStats()['totals'];
+
+        $body  = "# HELP http_requests_total Requests completed.\n";
+        $body .= "# TYPE http_requests_total counter\n";
+        $body .= "http_requests_total {$t['total_requests']}\n";
+
+        $body .= "# HELP http_responses_total Responses by status class.\n";
+        $body .= "# TYPE http_responses_total counter\n";
+        foreach (['2xx', '3xx', '4xx', '5xx'] as $class) {
+            $body .= "http_responses_total{class=\"{$class}\"} {$t["responses_{$class}_total"]}\n";
+        }
+
+        $body .= "# HELP http_connections_active Open connections by protocol.\n";
+        $body .= "# TYPE http_connections_active gauge\n";
+        foreach (['h1', 'h2', 'h3'] as $proto) {
+            $body .= "http_connections_active{protocol=\"{$proto}\"} {$t["conns_active_{$proto}"]}\n";
+        }
+
+        $res->setHeader('Content-Type', 'text/plain; version=0.0.4')->end($body);
+        return;
     }
+
+    $res->json(['ok' => true]);
 });
 
 $server->start();
 ```
 
-如果没有启用统计，`getStats()` 会抛异常 —— 关闭时根本不会分配计数器 slab。返回结构：
+让 Prometheus 去抓这个端点：
 
-```php
-[
-    'enabled'  => true,
-    'workers'  => [ 0 => [ /* 单个 worker 的计数器 */ ], 1 => [ … ], … ],
-    'reactors' => [ /* 完全在传输 reactor 上服务的请求 */ ],
-    'totals'   => [ /* 跨 worker 与 reactor 折叠汇总 */ ],
-]
+```yaml
+scrape_configs:
+  - job_name: 'true-async-server'
+    static_configs:
+      - targets: ['your-server:8080']
 ```
 
-采集器真正想要的是 `totals`：
+这些计数器都放在一张进程级的表里，每个 worker 更新它、`getStats()` 读它，所以抓一次就覆盖了整个池：
 
-| 计数器 | 含义 |
-|--------|------|
-| `total_requests` | 每一个完成的请求 |
-| `responses_2xx_total` … `responses_5xx_total` | 各自只分类一次，因此四者之和等于 `total_requests` |
-| `conns_active_h1` / `_h2` / `_h3` | 按协议区分的存活连接数（gauge） |
-| `log_records_dropped_total` | 满环丢弃的日志行（见下文） |
+![从 worker 汇聚到 Grafana 的指标流](/diagrams/en/server-observability/metrics-flow.svg)
 
-每个计数器都按其含义允许的方式合并。单调递增的 totals **相加，并且在 `reload()` 中存活**
-—— 退役 worker 的 totals 会被继承，因此采集器不会仅仅因为池发生了轮换就看到计数器倒退。
-活跃 gauge 只跨存活的 worker 相加，因此一个已死 worker 最后的连接数不会被当作幽灵继续携带。
-读取是 lock-free 的，因此聚合结果在轮换中最多滞后一个 worker。
+有了这些，Grafana 就能像对待任何 Prometheus 数据源一样，画出请求速率、状态类别和存活连接：
 
-> **不要在请求处理程序里 close over `$server` 来从内部调用 `getStats()`。**
-> 在 worker 池下这会形成 `HttpServer ⇄ handler` 引用环，而把 handler transfer 进 worker
-> 会让进程崩溃
-> （[true-async/php-async#196](https://github.com/true-async/php-async/issues/196)）。请像上面那样
-> 从一个持有 `$server` 的独立协程读取统计 —— 而不是从 handler 里读。
+![服务器指标的 Grafana 仪表盘](/diagrams/en/server-observability/grafana-dashboard.png)
 
-## 结构化日志：`setLogSinks()`
+## 日志：`setLogSinks()`
 
-一条日志记录会同时 fan-out 到多个 **sink**，每个 sink 有自己的目的地、格式和 severity 下限：
+`setLogSinks()` 把每条日志记录发到一个或多个目的地，每个目的地有自己的格式和最低级别：
 
 ```php
 use TrueAsync\LogSeverity;
 
 $config->setLogSinks([
-    // 结构化访问日志 -> 文件，以 OpenTelemetry JSON 格式
     ['type' => 'file', 'path' => '/var/log/app/access.log',
      'format' => 'json', 'category' => 'access', 'level' => LogSeverity::INFO],
 
-    // 人类可读的诊断 -> 控制台，带颜色
-    ['type' => 'stderr', 'format' => 'pretty',
-     'category' => 'app', 'level' => LogSeverity::WARN],
+    ['type' => 'stderr', 'format' => 'pretty', 'level' => LogSeverity::WARN],
 ]);
 ```
 
-它取代了单流的 `setLogSeverity()` / `setLogStream()` 语法糖。最多 8 个 sink；非法的 spec
-会在 `setLogSinks()` 时抛异常，而不是在 `start()` 时。
+最多 8 个目的地。它取代了单流的 `setLogSeverity()` / `setLogStream()`。
 
-**Sink 类型** —— `stream`、`file`、`stdout`、`stderr`、`syslog`。在 worker 池下请用
-`file`（或 `stdout`/`stderr`），绝不要用 `stream`：父进程打开的 PHP stream 资源无法跨进
-worker 线程 —— 该 sink 会留在父进程上，并在 worker 里被跳过，启动时给出一条提示。`file`
-可行是因为每个 worker 会自己重新打开该路径（append 模式）。
+**记录去哪里** —— `type` 是 `file`、`stdout`、`stderr`、`syslog` 或 `stream`。在 worker 池下请用 `file`（或 `stdout` / `stderr`）：父进程打开的 `stream` 资源无法共享给 worker 线程，所以它只在父进程上生效。
 
-**格式** —— `plain`、`logfmt`、`json`（每行一个 OpenTelemetry-Logs 对象）、`pretty`
-（带颜色的控制台行，颜色依据目标 fd 决定，并遵守 `NO_COLOR` / `CLICOLOR_FORCE`），
-以及用于自定义布局的 `template`：
+**长什么样** —— `format` 是 `plain`、`logfmt`、`json`、`pretty`（带颜色的控制台行）或 `template`：
 
 ```php
 ['type' => 'stdout', 'format' => 'template',
  'template' => '{ts:Y-m-d H:i:s.v} [{level}] {msg}{attrs}', 'level' => LogSeverity::INFO]
 ```
 
-`{ts}`（ISO-8601）或 `{ts:PATTERN}`，其中 PATTERN 是 `date()` 风格的子集
-（`Y y m d H i s v`），此外还有 `{level}`、`{msg}`、`{attrs}`、`{trace}`、`{span}`；
-其他内容按字面输出。
+占位符：`{ts}` 或 `{ts:PATTERN}`（`date()` 风格的 `Y y m d H i s v`）、`{level}`、`{msg}`、`{attrs}`、`{trace}`、`{span}`。其他内容按字面输出。
 
-**`syslog`** 输出 RFC 5424 —— TCP 上采用 octet-framing（RFC 6587），`udp` / `udg` 上
-每个 datagram 一条记录：
+`syslog` 目的地按 RFC 5424 说话，走 TCP、UDP 或 unix socket：
 
 ```php
 ['type' => 'syslog', 'target' => 'udg:///dev/log',
  'facility' => 'local0', 'level' => LogSeverity::INFO]
 ```
 
-### 访问日志：`'category' => 'access'`
+### 访问日志
 
-sink 的 `category` 用来路由记录类别：`app`（默认）接收服务器诊断，`access` 恰好接收
-**每个完成的请求一条结构化记录**，`all` 两者都接收 —— 这样一份 JSON 访问日志和一个 pretty
-诊断控制台就能在同一台服务器上共存。
+用 `category` 决定一个目的地收到什么：`app`（默认）收到服务器诊断，`access` 每个完成的请求收到一条记录，`all` 两者都收。这样一份 JSON 访问日志和一个易读的诊断控制台就能同时运行。
 
-访问记录使用稳定的 OpenTelemetry HTTP 语义约定。下面是 `json` formatter 输出的一行，
-经过美化：
+访问记录遵循 OpenTelemetry HTTP 约定。一条 `json` 记录：
 
 ```json
 {
     "Timestamp": "2026-07-15T07:03:37.740Z",
-    "SeverityNumber": 9,
     "SeverityText": "INFO",
     "Body": "GET /x 200",
     "Attributes": {
@@ -150,42 +174,15 @@ sink 的 `category` 用来路由记录类别：`app`（默认）接收服务器�
 }
 ```
 
-在每一条完成路径上都会发出 —— handler 返回、静态文件、`sendFile()`、压缩拒绝、
-reactor-pool dispatch —— 覆盖 HTTP/1、HTTP/2 和 HTTP/3，也包括 worker 池下。当请求携带了
-W3C trace context 时会一并附上。文本 formatter 会转义值中的控制字节，因此源自请求的字段
-无法伪造出一行日志。
+每个请求都会写一条记录，涵盖 HTTP/1、HTTP/2 和 HTTP/3，也包括 worker 池下。如果请求带了 W3C trace context，也会一并包含进去。
 
-### 没有任何 sink 会回调进 PHP
+## 运行时计数器：`getRuntimeStats()`
 
-记录是从 libuv 的 IO 回调、以及没有 PHP 上下文的 HTTP/3 reactor 线程里发出的，所以日志路径
-绝不能重新进入 VM —— 按设计根本没有"调用 PHP callable"这种 sink。要从用户态导出日志，
-请把一个 sink 指向文件或 socket 并用 `'format' => 'json'`，然后从你自己的协程里把它 drain
-出来。这就是 async-appender 的形态，同时它也把导出器的延迟挡在了请求路径之外。
-
-sink 的环是有界的 —— 生产者绝不能阻塞 —— 因此一次超过写入者速度的突发会付出丢记录的代价。
-这些会被计入 `log_records_dropped_total`（见上文 `getStats()`），而不是被悄悄丢弃。
-
-## 运行时分配器计数器：`getRuntimeStats()`
-
-`HttpServer::getRuntimeStats()` 报告服务器自己的内部分配器和跨 worker 的 topic 流量 ——
-这些计数器让你能把 RSS 归因到某个子系统，而不用靠猜：
-
-- `conn_arena_live` / `conn_arena_slots` / `conn_arena_chunks` / `conn_arena_bytes` ——
-  连接 slab（每个存活的 TCP 连接一个 `http_connection_t`）。
-- `body_pool` —— 大请求体按 size-class 分类的缓存，附带 `body_pool_total_bytes`。
-- `ws_topic_posted` / `ws_topic_skipped` / `ws_topic_dropped` —— 跨 worker 的
-  [WebSocket topic](/zh/docs/server/websocket.html#topics-publishsubscribe-across-every-worker)
-  投递：交给其他 worker 的 publish、兴趣过滤器让 publisher 得以跳过的 worker，以及因 mailbox
-  满而丢弃的 publish（最后一项是数据丢失）。
-
-与 `getStats()` 不同，这个不需要主动开启。
+`getRuntimeStats()` 报告服务器自己的内存池和跨 worker 的 WebSocket topic 流量 —— 用来把内存增长归因到某个子系统很有用。不需要打开。里面的键包括连接 arena（`conn_arena_*`）、请求体池（`body_pool*`）和 topic 投递（`ws_topic_posted` / `ws_topic_skipped` / `ws_topic_dropped`）。
 
 ## HTTP/3 计数器：`getHttp3Stats()`
 
-每个 HTTP/3 listener 一条，带 per-listener 的 QUIC 计数器（`quic_packets_sent`、
-`quic_bytes_sent`、datagram 计数、`poll_rearms`……）。在没有 `--enable-http3` 的构建上
-返回空数组。每个计数器都用单独的 relaxed 原子读取，因此即使 reactor 线程还在持续写入，
-报告在内部也是自洽的。
+`getHttp3Stats()` 为每个 HTTP/3 listener 返回一条，带它的 QUIC 计数器（`quic_packets_sent`、`quic_bytes_sent`、datagram 计数等等）。在没有 `--enable-http3` 的构建上返回空数组。
 
 ## 也可参考
 

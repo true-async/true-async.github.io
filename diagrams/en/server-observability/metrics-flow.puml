@@ -1,0 +1,47 @@
+@startuml
+skinparam backgroundColor transparent
+skinparam shadowing false
+skinparam defaultFontName Helvetica
+skinparam defaultFontSize 13
+skinparam ArrowColor #6A4BEA
+skinparam ArrowFontColor #555555
+skinparam rectangle {
+  BorderColor #6A4BEA
+  BackgroundColor #F6F4FC
+  FontColor #2C2440
+  roundCorner 12
+}
+skinparam node {
+  BorderColor #5AD1B0
+  BackgroundColor #EAFBF5
+  FontColor #1F5C4D
+  roundCorner 12
+}
+skinparam database {
+  BorderColor #E8873C
+  BackgroundColor #FDF3E8
+  FontColor #7A4A17
+}
+
+rectangle "HTTP Server\n(worker pool)" as srv {
+  rectangle "worker 0" as w0
+  rectangle "worker 1" as w1
+  rectangle "worker N" as wn
+}
+
+database "process-wide\ncounter slab" as slab
+
+rectangle "your handler\nGET /metrics\n$server->getStats()" as mh
+
+node "Prometheus" as prom
+node "Grafana" as graf
+
+w0 -down-> slab : bump\n(lock-free)
+w1 -down-> slab
+wn -down-> slab
+
+slab -right-> mh : getStats()\nreads all slots
+mh -right-> prom : scrape\ntext exposition
+prom -right-> graf : query\n(PromQL)
+
+@enduml

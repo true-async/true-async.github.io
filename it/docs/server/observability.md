@@ -5,142 +5,176 @@ path_key: "/docs/server/observability.html"
 nav_active: docs
 permalink: /it/docs/server/observability.html
 page_title: "TrueAsync Server: Osservabilità"
-description: "Statistiche delle richieste cross-worker (getStats), logging strutturato multi-sink (setLogSinks), un access log OpenTelemetry e contatori dell'allocatore a runtime."
+description: "Statistiche delle richieste con getStats(), un endpoint Prometheus /metrics e Grafana, logging strutturato e un access log con setLogSinks(), e contatori a runtime."
 ---
 
 # Osservabilità
 
 (PHP 8.6+, true_async_server 0.10+)
 
-Tre cose che un server in produzione deve esporre: **quante richieste ha servito e con
-quale stato**, **un log che può spedire da qualche parte** e **un record di accesso per
-richiesta**. Questa pagina copre tutte e tre. Nessuna è attiva di default — un server inattivo
-non paga nulla.
+Il server può riportare le statistiche delle richieste, scrivere log strutturati ed emettere un
+record di access log per ogni richiesta. Tutto ciò che segue è disattivato di default.
 
-## Statistiche cross-worker: `getStats()`
+## Statistiche delle richieste: `getStats()`
 
-Attivale con `setStatsEnabled(true)`, poi leggi l'aggregato con `HttpServer::getStats()`:
+Attiva le statistiche con `setStatsEnabled(true)`, poi leggile con `getStats()`:
 
 ```php
 use TrueAsync\HttpServer;
 use TrueAsync\HttpServerConfig;
-use function Async\spawn;
 
 $config = (new HttpServerConfig())
     ->addListener('0.0.0.0', 8080)
     ->setWorkers(4)
-    ->setStatsEnabled(true);          // deve essere impostato prima di start()
+    ->setStatsEnabled(true);
 
 $server = new HttpServer($config);
 $server->addHttpHandler(fn ($req, $res) => $res->json(['ok' => true]));
 
-spawn(function () use ($server) {
-    while ($server->isRunning()) {
-        Async\delay(10_000);
-        $stats = $server->getStats();
-        error_log("requests so far: " . $stats['totals']['total_requests']);
+$server->start();
+```
+
+`getStats()` restituisce i contatori per worker più un totale combinato. Lancia un'eccezione se
+le statistiche non sono state abilitate.
+
+```php
+[
+    'enabled' => true,
+    'workers' => [ 0 => [ /* one worker's counters */ ], 1 => [ … ] ],
+    'totals'  => [ /* summed across workers */ ],
+]
+```
+
+`totals` contiene:
+
+| Contatore | Significato |
+|-----------|-------------|
+| `total_requests` | richieste completate |
+| `responses_2xx_total` … `responses_5xx_total` | risposte per classe di stato; le quattro sommano a `total_requests` |
+| `conns_active_h1` / `_h2` / `_h3` | connessioni aperte per protocollo |
+
+I totali continuano a crescere attraverso un `reload()`; i contatori di connessione seguono solo
+i worker vivi.
+
+## Prometheus e Grafana
+
+Il server non espone da sé un endpoint `/metrics` — `getStats()` ti consegna un semplice array
+PHP, e tu lo trasformi in ciò che il tuo stack di monitoraggio si aspetta. Per Prometheus questo
+significa un piccolo handler che formatta l'array nel [text exposition
+format](https://prometheus.io/docs/instrumenting/exposition_formats/):
+
+```php
+use TrueAsync\HttpServer;
+use TrueAsync\HttpServerConfig;
+
+$config = (new HttpServerConfig())
+    ->addListener('0.0.0.0', 8080)
+    ->setWorkers(4)
+    ->setStatsEnabled(true);
+
+$server = new HttpServer($config);
+
+$server->addHttpHandler(function ($req, $res) use ($server) {
+    if ($req->getPath() === '/metrics') {
+        $t = $server->getStats()['totals'];
+
+        $body  = "# HELP http_requests_total Requests completed.\n";
+        $body .= "# TYPE http_requests_total counter\n";
+        $body .= "http_requests_total {$t['total_requests']}\n";
+
+        $body .= "# HELP http_responses_total Responses by status class.\n";
+        $body .= "# TYPE http_responses_total counter\n";
+        foreach (['2xx', '3xx', '4xx', '5xx'] as $class) {
+            $body .= "http_responses_total{class=\"{$class}\"} {$t["responses_{$class}_total"]}\n";
+        }
+
+        $body .= "# HELP http_connections_active Open connections by protocol.\n";
+        $body .= "# TYPE http_connections_active gauge\n";
+        foreach (['h1', 'h2', 'h3'] as $proto) {
+            $body .= "http_connections_active{protocol=\"{$proto}\"} {$t["conns_active_{$proto}"]}\n";
+        }
+
+        $res->setHeader('Content-Type', 'text/plain; version=0.0.4')->end($body);
+        return;
     }
+
+    $res->json(['ok' => true]);
 });
 
 $server->start();
 ```
 
-`getStats()` lancia un'eccezione se le statistiche non sono state abilitate — con esse
-disattivate, non viene allocato alcun slab di contatori. La forma:
+Punta Prometheus all'endpoint:
 
-```php
-[
-    'enabled'  => true,
-    'workers'  => [ 0 => [ /* i contatori di un worker */ ], 1 => [ … ], … ],
-    'reactors' => [ /* richieste servite interamente su un reactor di transport */ ],
-    'totals'   => [ /* aggregato su worker e reactor */ ],
-]
+```yaml
+scrape_configs:
+  - job_name: 'true-async-server'
+    static_configs:
+      - targets: ['your-server:8080']
 ```
 
-`totals` è ciò che uno scraper vuole:
+I contatori vivono in un'unica tabella a livello di processo che ogni worker aggiorna e che
+`getStats()` legge, così un singolo scrape copre l'intero pool:
 
-| Contatore | Significato |
-|-----------|-------------|
-| `total_requests` | ogni richiesta completata |
-| `responses_2xx_total` … `responses_5xx_total` | classificate una volta ciascuna, così le quattro sommano a `total_requests` |
-| `conns_active_h1` / `_h2` / `_h3` | connessioni vive per protocollo (un gauge) |
-| `log_records_dropped_total` | righe di log scartate da un ring pieno (vedi sotto) |
+![Flusso delle metriche dai worker a Grafana](/diagrams/en/server-observability/metrics-flow.svg)
 
-Ogni contatore è combinato nel modo che il suo significato consente. I totali monotoni
-**sommano, e sopravvivono a un `reload()`** — i totali di un worker in ritiro vengono
-ereditati, così uno scraper non vede mai un contatore andare all'indietro solo perché il pool
-ha ruotato. I gauge attivi sommano solo sui worker vivi, così l'ultimo conteggio di connessioni
-di un worker morto non viene trascinato avanti come un fantasma. Le letture sono lock-free,
-quindi l'aggregato può essere stantìo al più di un worker a metà rotazione.
+Da lì Grafana traccia il tasso delle richieste, le classi di stato e le connessioni aperte come
+qualunque altra sorgente Prometheus:
 
-> **Non catturare `$server` in un request handler per chiamare `getStats()` da dentro.**
-> Sotto un pool di worker questo crea un ciclo di riferimenti `HttpServer ⇄ handler`, e
-> trasferire l'handler nei worker fa crashare il processo
-> ([true-async/php-async#196](https://github.com/true-async/php-async/issues/196)). Leggi le
-> statistiche da una coroutine separata che possiede `$server`, come sopra — non dall'handler.
+![Dashboard Grafana sulle metriche del server](/diagrams/en/server-observability/grafana-dashboard.png)
 
-## Logging strutturato: `setLogSinks()`
+## Logging: `setLogSinks()`
 
-Un singolo record di log fa fan-out verso più **sink** in una volta, ciascuno con la propria
-destinazione, formato e soglia di severity:
+`setLogSinks()` invia ogni record di log a una o più destinazioni, ciascuna con il proprio
+formato e il proprio livello minimo:
 
 ```php
 use TrueAsync\LogSeverity;
 
 $config->setLogSinks([
-    // access log strutturato -> un file, come JSON OpenTelemetry
     ['type' => 'file', 'path' => '/var/log/app/access.log',
      'format' => 'json', 'category' => 'access', 'level' => LogSeverity::INFO],
 
-    // diagnostica leggibile -> la console, colorata
-    ['type' => 'stderr', 'format' => 'pretty',
-     'category' => 'app', 'level' => LogSeverity::WARN],
+    ['type' => 'stderr', 'format' => 'pretty', 'level' => LogSeverity::WARN],
 ]);
 ```
 
-Questo soppianta lo zucchero sintattico a singolo stream `setLogSeverity()` /
-`setLogStream()`. Fino a 8 sink; una spec non valida lancia al momento di `setLogSinks()`, non
-allo `start()`.
+Fino a 8 destinazioni. Questo sostituisce lo `setLogSeverity()` / `setLogStream()` a singolo
+stream.
 
-**Tipi di sink** — `stream`, `file`, `stdout`, `stderr`, `syslog`. Sotto un pool di worker usa
-`file` (o `stdout`/`stderr`), mai `stream`: una risorsa stream PHP aperta dal padre non può
-passare in un thread worker — il sink resta sul padre e viene saltato nei worker con un avviso
-all'avvio. `file` funziona perché ogni worker riapre da sé il percorso (modalità append).
+**Dove va un record** — `type` è `file`, `stdout`, `stderr`, `syslog` o `stream`. Con un pool
+di worker usa `file` (o `stdout` / `stderr`): una risorsa `stream` aperta dal padre non può
+essere condivisa con i thread worker, quindi viene usata solo sul padre.
 
-**Formati** — `plain`, `logfmt`, `json` (un oggetto OpenTelemetry-Logs per riga), `pretty`
-(una riga di console colorata, con il colore deciso dal fd di destinazione rispettando
-`NO_COLOR` / `CLICOLOR_FORCE`), e `template` per un layout personalizzato:
+**Come appare** — `format` è `plain`, `logfmt`, `json`, `pretty` (una riga di console colorata)
+o `template`:
 
 ```php
 ['type' => 'stdout', 'format' => 'template',
  'template' => '{ts:Y-m-d H:i:s.v} [{level}] {msg}{attrs}', 'level' => LogSeverity::INFO]
 ```
 
-`{ts}` (ISO-8601) o `{ts:PATTERN}` con un sottoinsieme in stile `date()` (`Y y m d H i s v`),
-più `{level}`, `{msg}`, `{attrs}`, `{trace}`, `{span}`; tutto il resto è letterale.
+Segnaposto: `{ts}` o `{ts:PATTERN}` (in stile `date()`, `Y y m d H i s v`), `{level}`, `{msg}`,
+`{attrs}`, `{trace}`, `{span}`. Tutto il resto è stampato così com'è.
 
-**`syslog`** emette RFC 5424 — octet-framed (RFC 6587) su TCP, un record per datagramma su
-`udp` / `udg`:
+Una destinazione `syslog` parla RFC 5424 su TCP, UDP o un socket unix:
 
 ```php
 ['type' => 'syslog', 'target' => 'udg:///dev/log',
  'facility' => 'local0', 'level' => LogSeverity::INFO]
 ```
 
-### L'access log: `'category' => 'access'`
+### Access log
 
-La `category` di un sink instrada i tipi di record: `app` (il default) riceve la diagnostica
-del server, `access` riceve esattamente **un record strutturato per richiesta completata**, e
-`all` riceve entrambi — così un access log JSON e una console diagnostica pretty coesistono su
-un solo server.
+Imposta `category` per scegliere cosa riceve una destinazione: `app` (il default) riceve la
+diagnostica del server, `access` riceve un record per ogni richiesta completata, `all` riceve
+entrambi. Così un access log JSON e una console di diagnostica leggibile possono coesistere.
 
-I record di accesso usano le stabili convenzioni semantiche HTTP di OpenTelemetry. Una riga dal
-formatter `json`, formattata in modo leggibile:
+I record di accesso seguono le convenzioni HTTP di OpenTelemetry. Un record `json`:
 
 ```json
 {
     "Timestamp": "2026-07-15T07:03:37.740Z",
-    "SeverityNumber": 9,
     "SeverityText": "INFO",
     "Body": "GET /x 200",
     "Attributes": {
@@ -156,47 +190,22 @@ formatter `json`, formattata in modo leggibile:
 }
 ```
 
-Emesso su ogni percorso di completamento — return dell'handler, file statico, `sendFile()`,
-compression-reject, dispatch del reactor-pool — su HTTP/1, HTTP/2 e HTTP/3, incluso sotto un
-pool di worker. Il trace context W3C viene aggiunto quando la richiesta ne portava uno. I
-formatter testuali fanno l'escape dei byte di controllo nei valori, così un campo derivato
-dalla richiesta non può falsificare una riga di log.
+Un record viene scritto per ogni richiesta su HTTP/1, HTTP/2 e HTTP/3, incluso sotto un pool di
+worker. Se la richiesta portava un trace context W3C, viene incluso.
 
-### Nessun sink richiama PHP
+## Contatori a runtime: `getRuntimeStats()`
 
-I record sono emessi da callback IO di libuv e da thread reactor di HTTP/3 che non hanno
-contesto PHP, quindi il percorso di log non deve mai rientrare nella VM — non c'è un sink
-"chiama un callable PHP", per design. Per esportare i log dall'userland, punta un sink su un
-file o un socket con `'format' => 'json'` e drenalo dalla tua coroutine. Questa è la forma
-dell'async-appender, e mantiene anche la latenza dell'exporter fuori dal percorso della
-richiesta.
-
-Il ring di un sink è limitato — il producer non deve mai bloccarsi — quindi una raffica che
-supera lo scrittore costa dei record. Questi sono conteggiati in `log_records_dropped_total`
-(vedi `getStats()` sopra), non persi silenziosamente.
-
-## Contatori dell'allocatore a runtime: `getRuntimeStats()`
-
-`HttpServer::getRuntimeStats()` riporta gli allocatori interni del server e il traffico dei
-topic cross-worker — i contatori che ti permettono di attribuire l'RSS a un sottosistema invece
-di tirare a indovinare:
-
-- `conn_arena_live` / `conn_arena_slots` / `conn_arena_chunks` / `conn_arena_bytes` — lo slab
-  delle connessioni (un `http_connection_t` per connessione TCP viva).
-- `body_pool` — cache per size-class dei corpi di richiesta grandi, con `body_pool_total_bytes`.
-- `ws_topic_posted` / `ws_topic_skipped` / `ws_topic_dropped` — consegna cross-worker dei
-  [topic WebSocket](/it/docs/server/websocket.html#topic-publishsubscribe-su-ogni-worker):
-  publish passate a un altro worker, worker che il filtro di interesse ha lasciato saltare a un
-  publisher, e publish scartate da una mailbox piena (quest'ultima è perdita di dati).
-
-A differenza di `getStats()`, questa non richiede opt-in.
+`getRuntimeStats()` riporta i pool di memoria del server stesso e il traffico dei topic
+WebSocket cross-worker — utile per attribuire la crescita della memoria a un sottosistema. Non
+serve opt-in. Le chiavi includono l'arena delle connessioni (`conn_arena_*`), il pool dei corpi
+di richiesta (`body_pool*`) e la consegna dei topic (`ws_topic_posted` / `ws_topic_skipped` /
+`ws_topic_dropped`).
 
 ## Contatori HTTP/3: `getHttp3Stats()`
 
-Una voce per listener HTTP/3, con contatori QUIC per listener (`quic_packets_sent`,
-`quic_bytes_sent`, conteggi di datagrammi, `poll_rearms`, …). Restituisce un array vuoto su una
-build senza `--enable-http3`. Ogni contatore viene letto con un singolo load atomico relaxed,
-così il report è internamente consistente anche mentre il thread reactor continua a scrivere.
+`getHttp3Stats()` restituisce una voce per ogni listener HTTP/3 con i suoi contatori QUIC
+(`quic_packets_sent`, `quic_bytes_sent`, conteggi di datagrammi, e così via). Restituisce un
+array vuoto su una build senza `--enable-http3`.
 
 ## Vedi anche
 
