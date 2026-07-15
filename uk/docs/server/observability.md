@@ -199,5 +199,3 @@ Ring у sink'а обмежений — продюсер не має права �
 - [Multi-worker](/uk/docs/server/workers.html): логування і зупинка під пулом
 - [Конфігурація](/uk/docs/server/configuration.html)
 - [`HttpServer::getStats()`](/uk/docs/reference/server/http-server.html)
-</content>
-</invoke>

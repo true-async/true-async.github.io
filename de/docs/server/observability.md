@@ -205,5 +205,3 @@ der Report intern konsistent ist, selbst während der Reactor-Thread weiterschre
 - [Multi-Worker](/de/docs/server/workers.html): Logging und Shutdown unter einem Pool
 - [Konfiguration](/de/docs/server/configuration.html)
 - [`HttpServer::getStats()`](/de/docs/reference/server/http-server.html)
-</content>
-</invoke>
