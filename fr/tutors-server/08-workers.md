@@ -82,51 +82,13 @@ son propre `$room`. Deux salles du même nom qui ne sauront jamais l'une de
 l'autre. Alice écrit dans le vide, Bob se tait dans un autre vide. Pas de
 courses, pas d'erreurs, le chat a juste cessé tranquillement d'être un chat.
 
-Le correctif classique consiste à déplacer l'état partagé hors du processus,
-dans un pub/sub Redis, et à laisser les workers communiquer à travers lui. Ça
-marche, mais voilà qu'un chat a besoin d'un second service tournant à côté
-juste pour faire passer des messages entre les threads d'un même serveur.
-
-Alors le serveur porte sa propre réponse : les **topics**. Une connexion
-s'abonne à un nom, un message est publié vers ce nom, et le serveur le délivre
-à chaque abonné — sur chaque worker. Pas de tableau de connexions, pas de
-Redis.
-
-```php
-$server->addWebSocketHandler(function (WebSocket $ws, HttpRequest $req) {
-    $room = $req->getQueryParam('room', 'lobby');
-    $name = $req->getQueryParam('name', 'guest');
-
-    $ws->subscribe("chat/$room");
-
-    foreach ($ws as $msg) {
-        $ws->publish("chat/$room", "$name: {$msg->data}");
-    }
-});
-```
-
-Comparez avec la salle du chapitre précédent. Le `SplObjectStorage` a disparu,
-et avec lui la boucle de diffusion manuelle et le `finally` qui balayait les
-fantômes. `subscribe()` place cette connexion dans la salle ; `publish()`
-envoie une ligne à tous ceux qui s'y trouvent. Une connexion qui se ferme
-quitte ses salles d'elle-même. Et là où l'ancienne salle vivait dans la
-mémoire d'un seul worker, un topic les embrasse tous : Alice dans le worker 3
-et Bob dans le worker 5 sont de nouveau dans le même `chat/general`.
-
-`publish()` ne bloque jamais — un pair dont le buffer est plein perd la ligne
-au lieu de figer la salle, le même compromis que faisait `trySend()`. Il
-renvoie le nombre d'abonnés locaux qu'il a atteints ; la livraison aux autres
-workers se fait en coulisses. Le nom n'est pas qu'une simple chaîne, c'est un
-[filtre MQTT](/fr/docs/server/websocket.html#topics-publishsubscribe-across-every-worker) :
-abonnez-vous à `chat/+/typing` et vous recevez le signal de frappe de chaque
-salle à la fois.
-
-`setWorkers(1)` reste une réponse honnête pour un petit système — un worker
-tient sans peine des milliers de connexions WebSocket qui attendent la plupart
-du temps. Mais vous n'avez plus à le choisir juste pour qu'un chat continue de
-fonctionner. Une règle à retenir : l'état de la requête vit dans le scope de la
-requête, l'état du processus dans le worker, et l'état partagé soit dans un
-topic, soit dans un stockage externe.
+Que faire ? Les issues standard sont les suivantes. Pour un petit système,
+un honnête `setWorkers(1)` : un worker tient parfaitement des milliers de
+connexions WebSocket, puisqu'elles attendent la plupart du temps. Pour un
+grand, déplacez l'état partagé à l'extérieur, généralement dans un pub/sub
+Redis, et laissez les workers communiquer à travers lui. Une règle à
+retenir : l'état de la requête vit dans le scope de la requête, l'état du
+processus dans le worker, l'état partagé dans un stockage externe.
 
 ## HTTP/3 : les mêmes handlers, un transport différent
 

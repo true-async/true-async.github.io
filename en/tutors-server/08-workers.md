@@ -81,50 +81,12 @@ own `$room`. Two rooms with the same name that will never know about
 each other. Alice writes into the void, Bob is silent in a different
 void. No races, no errors, the chat just quietly stopped being a chat.
 
-The classic fix is to move the shared state outside the process, into
-Redis pub/sub, and let the workers talk through it. It works, but now a
-chat needs a second service running next to it just to pass messages
-between threads of the same server.
-
-So the server carries its own answer: **topics**. A connection
-subscribes to a name, a message is published to that name, and the
-server delivers it to every subscriber — on every worker. No array of
-connections, no Redis.
-
-```php
-$server->addWebSocketHandler(function (WebSocket $ws, HttpRequest $req) {
-    $room = $req->getQueryParam('room', 'lobby');
-    $name = $req->getQueryParam('name', 'guest');
-
-    $ws->subscribe("chat/$room");
-
-    foreach ($ws as $msg) {
-        $ws->publish("chat/$room", "$name: {$msg->data}");
-    }
-});
-```
-
-Compare it with the previous chapter's room. The `SplObjectStorage` is
-gone, and with it the manual broadcast loop and the `finally` that swept
-up the ghosts. `subscribe()` puts this connection into the room;
-`publish()` sends a line to everyone in it. A closing connection leaves
-its rooms by itself. And where the old room lived in one worker's
-memory, a topic spans all of them: Alice in worker 3 and Bob in worker 5
-are in the same `chat/general` again.
-
-`publish()` never blocks — a peer whose buffer is full drops the line
-instead of stalling the room, the same trade-off `trySend()` made. It
-returns the number of local subscribers it reached; delivery to the
-other workers happens behind the scenes. The name is not just a string,
-it's an [MQTT filter](/en/docs/server/websocket.html#topics-publishsubscribe-across-every-worker):
-subscribe to `chat/+/typing` and you get the typing signal from every
-room at once.
-
-`setWorkers(1)` is still a fair answer for a small system — one worker
-holds thousands of mostly-waiting WebSocket connections without trouble.
-But you no longer have to choose it just to keep a chat working. A rule
-to remember: request state lives in the request scope, process state in
-the worker, and shared state either in a topic or in external storage.
+What to do? The standard ways out are these. For a small system, an
+honest `setWorkers(1)`: one worker holds thousands of WebSocket
+connections just fine, since they mostly wait. For a large one, move the
+shared state outside, usually into Redis pub/sub, and let the workers
+talk through it. A rule to remember: request state lives in the request
+scope, process state in the worker, shared state in external storage.
 
 ## HTTP/3: The Same Handlers, a Different Transport
 

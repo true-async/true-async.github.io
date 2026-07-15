@@ -81,52 +81,13 @@ l'una dell'altra. Alice scrive nel vuoto, Bob tace in un vuoto diverso.
 Nessuna race, nessun errore, la chat ha semplicemente e silenziosamente
 smesso di essere una chat.
 
-La soluzione classica è spostare lo stato condiviso fuori dal processo,
-in Redis pub/sub, e lasciare che i worker dialoghino attraverso di esso.
-Funziona, ma ora una chat ha bisogno di un secondo servizio in esecuzione
-accanto a sé solo per passare messaggi tra i thread dello stesso server.
-
-Così il server porta con sé la propria risposta: i **topic**. Una
-connessione si iscrive a un nome, un messaggio viene pubblicato su quel
-nome, e il server lo consegna a ogni iscritto — su ogni worker. Nessun
-array di connessioni, nessun Redis.
-
-```php
-$server->addWebSocketHandler(function (WebSocket $ws, HttpRequest $req) {
-    $room = $req->getQueryParam('room', 'lobby');
-    $name = $req->getQueryParam('name', 'guest');
-
-    $ws->subscribe("chat/$room");
-
-    foreach ($ws as $msg) {
-        $ws->publish("chat/$room", "$name: {$msg->data}");
-    }
-});
-```
-
-Confrontala con la stanza del capitolo precedente. Lo `SplObjectStorage`
-è sparito, e con esso il ciclo di broadcast manuale e il `finally` che
-spazzava via i fantasmi. `subscribe()` mette questa connessione nella
-stanza; `publish()` invia una riga a tutti quelli che ci sono dentro. Una
-connessione che si chiude lascia le sue stanze da sola. E là dove la
-vecchia stanza viveva nella memoria di un solo worker, un topic li
-attraversa tutti: Alice nel worker 3 e Bob nel worker 5 sono di nuovo
-nella stessa `chat/general`.
-
-`publish()` non blocca mai — un peer il cui buffer è pieno lascia cadere
-la riga invece di bloccare la stanza, lo stesso compromesso che faceva
-`trySend()`. Restituisce il numero di iscritti locali che ha raggiunto;
-la consegna agli altri worker avviene dietro le quinte. Il nome non è
-solo una stringa, è un [filtro MQTT](/it/docs/server/websocket.html#topic-publishsubscribe-su-ogni-worker):
-iscriviti a `chat/+/typing` e ricevi il segnale di digitazione da ogni
-stanza in una volta sola.
-
-`setWorkers(1)` resta una risposta onesta per un sistema piccolo — un
-worker regge migliaia di connessioni WebSocket per lo più in attesa senza
-problemi. Ma non sei più costretto a sceglierlo solo per tenere in vita
-una chat. Una regola da ricordare: lo stato della richiesta vive nello
-scope della richiesta, lo stato del processo nel worker, e lo stato
-condiviso o in un topic o nello storage esterno.
+Cosa fare? Le vie d'uscita standard sono queste. Per un sistema piccolo,
+un onesto `setWorkers(1)`: un worker regge migliaia di connessioni
+WebSocket senza problemi, dato che per lo più aspettano. Per uno grande,
+sposta lo stato condiviso all'esterno, di solito in Redis pub/sub, e
+lascia che i worker dialoghino attraverso di esso. Una regola da
+ricordare: lo stato della richiesta vive nello scope della richiesta, lo
+stato del processo nel worker, lo stato condiviso nello storage esterno.
 
 ## HTTP/3: gli stessi handler, un trasporto diverso
 

@@ -85,54 +85,13 @@ voneinander nie erfahren werden. Alice schreibt ins Leere, Bob schweigt
 in einem anderen Leeren. Keine Races, keine Fehler, der Chat hat einfach
 still aufgehört, ein Chat zu sein.
 
-Der klassische Ausweg verlegt den geteilten Zustand aus dem Prozess
-hinaus, nach Redis pub/sub, und lässt die Worker darüber miteinander
-reden. Es funktioniert, aber nun braucht ein Chat einen zweiten Dienst
-daneben, nur um Nachrichten zwischen den Threads desselben Servers zu
-reichen.
-
-Deshalb trägt der Server seine eigene Antwort in sich: **Topics**. Eine
-Verbindung abonniert einen Namen, eine Nachricht wird an diesen Namen
-veröffentlicht, und der Server stellt sie jedem Abonnenten zu — auf
-jedem Worker. Kein Array von Verbindungen, kein Redis.
-
-```php
-$server->addWebSocketHandler(function (WebSocket $ws, HttpRequest $req) {
-    $room = $req->getQueryParam('room', 'lobby');
-    $name = $req->getQueryParam('name', 'guest');
-
-    $ws->subscribe("chat/$room");
-
-    foreach ($ws as $msg) {
-        $ws->publish("chat/$room", "$name: {$msg->data}");
-    }
-});
-```
-
-Vergleiche das mit dem Raum aus dem vorigen Kapitel. Das
-`SplObjectStorage` ist weg, und mit ihm die manuelle Broadcast-Schleife
-und das `finally`, das die Geister aufkehrte. `subscribe()` steckt diese
-Verbindung in den Raum; `publish()` schickt eine Zeile an alle darin.
-Eine sich schließende Verbindung verlässt ihre Räume von selbst. Und wo
-der alte Raum im Speicher eines einzigen Workers lebte, spannt sich ein
-Topic über alle: Alice in Worker 3 und Bob in Worker 5 sind wieder im
-selben `chat/general`.
-
-`publish()` blockiert nie — ein Peer, dessen Puffer voll ist, verwirft
-die Zeile, statt den Raum aufzuhalten, derselbe Kompromiss, den
-`trySend()` einging. Es gibt die Zahl der lokalen Abonnenten zurück, die
-es erreicht hat; die Zustellung an die anderen Worker geschieht hinter
-den Kulissen. Der Name ist nicht bloß ein String, er ist ein
-[MQTT-Filter](/de/docs/server/websocket.html#topics-publishsubscribe-across-every-worker):
-Abonniere `chat/+/typing`, und du bekommst das Tipp-Signal aus jedem
-Raum auf einmal.
-
-`setWorkers(1)` ist für ein kleines System immer noch eine faire
-Antwort — ein Worker hält Tausende meist wartender WebSocket-Verbindungen
-ohne Weiteres. Aber du musst es nicht mehr wählen, nur damit ein Chat
-funktioniert. Eine Regel zum Merken: Anfragezustand lebt im
-Anfrage-Scope, Prozesszustand im Worker, und geteilter Zustand entweder
-in einem Topic oder in externem Speicher.
+Was tun? Die Standardauswege sind diese. Für ein kleines System ein
+ehrliches `setWorkers(1)`: Ein Worker hält Tausende von
+WebSocket-Verbindungen ohne Weiteres, da sie meistens warten. Für ein
+großes verlege den geteilten Zustand nach außen, üblicherweise in Redis
+pub/sub, und lass die Worker darüber miteinander reden. Eine Regel zum
+Merken: Anfragezustand lebt im Anfrage-Scope, Prozesszustand im Worker,
+geteilter Zustand in externem Speicher.
 
 ## HTTP/3: Dieselben Handler, ein anderer Transport
 
