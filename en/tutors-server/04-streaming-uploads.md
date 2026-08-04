@@ -156,7 +156,7 @@ neighbor (`report.csv.gz`) if the client understands gzip. And all of
 it with asynchronous reads from disk, without holding up the event
 loop. Writing this by hand means forgetting at least half of it.
 
-One rule: after `sendFile()` the response is sealed. Writing anything
+One rule: after `sendFile()` the response is sealed, writing anything
 more into it won't work, you'll get an exception.
 
 We can now both accept and serve a gigabyte file. But note who we
