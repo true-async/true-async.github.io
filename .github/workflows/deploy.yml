@@ -50,3 +50,7 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+        with:
+          # The site is ~155 MB across ~5k files in nine locales, and Pages now
+          # needs longer than the action's 10-minute default to publish it.
+          timeout: 1800000
