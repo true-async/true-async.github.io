@@ -81,23 +81,15 @@ export const roadmap: RoadmapSection[] = [
         ],
       },
       {
-        id: 'core-0.8', version: '0.8', date: 'Q3 2026', status: 'active', homepage: true,
+        id: 'core-0.9', version: '0.9', date: '2026-08-06', status: 'done', homepage: true,
         features: [
-          { name: 'Framework integration layer', status: 'planned' },
-          { name: 'Laravel / Symfony adapters', status: 'planned' },
-          { name: 'Migration guides', status: 'planned' },
+          { name: 'Framework integration layer', status: 'done' },
+          { name: 'Laravel / Symfony adapters', status: 'done' },
+          { name: 'Migration guides', status: 'done' },
         ],
       },
       {
-        id: 'core-1.0-rc', version: '1.0-RC', date: 'August 2026', status: 'planned', tag: 'RC', homepage: true,
-        features: [
-          { name: 'Feature freeze', status: 'planned' },
-          { name: 'Community testing', status: 'planned' },
-          { name: 'Performance benchmarks', status: 'planned' },
-        ],
-      },
-      {
-        id: 'core-1.0', version: '1.0', date: 'November 2026', status: 'planned', tag: 'Target: PHP 8.6', tagStyle: 'highlight', homepage: true,
+        id: 'core-1.0', version: '1.0', date: 'November 2026', status: 'active', tag: 'Target: PHP 8.6', tagStyle: 'highlight', homepage: true,
         features: [
           { name: 'Stable API', status: 'planned' },
           { name: 'Production ready', status: 'planned' },
@@ -147,9 +139,26 @@ export const roadmap: RoadmapSection[] = [
         ],
       },
       {
+        id: 'server-grpc', version: '0.10', date: '2026-07-10', status: 'done',
+        features: [
+          { name: 'gRPC over HTTP/2 and HTTP/3 (addGrpcHandler)', status: 'done' },
+          { name: 'Unary, server-streaming, client-streaming and bidi RPC', status: 'done' },
+          { name: 'grpc-status / grpc-message in real HTTP trailers', status: 'done' },
+          { name: 'grpc-web (binary) with in-body trailers', status: 'done' },
+        ],
+      },
+      {
+        id: 'server-topics', version: '0.11', date: '2026-07-15', status: 'done',
+        features: [
+          { name: 'Cross-worker WebSocket topics (subscribe / publish)', status: 'done' },
+          { name: 'MQTT-style filters (+ and #)', status: 'done' },
+          { name: 'Share-nothing: per-worker topic tree, no session crosses a thread', status: 'done' },
+          { name: 'Works over TLS, HTTP/2 Extended CONNECT and permessage-deflate', status: 'done' },
+        ],
+      },
+      {
         id: 'server-next', version: 'Next', status: 'planned',
         features: [
-          { name: 'gRPC (over HTTP/2)', status: 'planned' },
           { name: 'Cross-thread stop()', status: 'planned' },
         ],
       },
