@@ -5,6 +5,7 @@ path_key: "/docs/reference/await-any-of.html"
 nav_active: docs
 permalink: /en/docs/reference/await-any-of.html
 page_title: "await_any_of()"
+title: "await_any_of()"
 description: "await_any_of() — wait for the first N tasks with tolerance for partial failures."
 ---
 

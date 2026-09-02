@@ -5,6 +5,7 @@ path_key: "/docs/reference/spawn-thread.html"
 nav_active: docs
 permalink: /en/docs/reference/spawn-thread.html
 page_title: "spawn_thread()"
+title: "spawn_thread()"
 description: "spawn_thread() — run a closure in a new OS thread. Full documentation: parameters, data transfer, exceptions, examples."
 ---
 

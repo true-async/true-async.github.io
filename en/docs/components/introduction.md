@@ -5,6 +5,7 @@ path_key: "/docs/components/introduction.html"
 nav_active: docs
 permalink: /en/docs/components/introduction.html
 page_title: "Why Asynchrony?"
+title: "Why Asynchrony?"
 description: "What is asynchrony and why do you need it?"
 ---
 

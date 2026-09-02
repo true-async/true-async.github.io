@@ -7,6 +7,10 @@
 @use "abstracts/variables";
 @use "abstracts/dark";
 
+// Self-hosted fonts (Space Grotesk + JetBrains Mono, woff2 with unicode-range)
+// — no Google Fonts runtime dependency.
+@use "base/fonts";
+
 // Base + overrides for VitePress-generated markup
 @use "base/reset";
 @use "base/animations"; // shared @keyframes / @property (emit once, global by name)

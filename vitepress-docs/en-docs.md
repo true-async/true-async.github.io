@@ -5,6 +5,7 @@ path_key: "/docs.html"
 nav_active: docs
 permalink: /en/docs.html
 page_title: "Documentation"
+title: "Documentation"
 description: "TrueAsync Documentation. Learn how to install and use true asynchronous primitives for PHP."
 ---
 

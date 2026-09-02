@@ -1,4 +1,5 @@
 import { defineConfig } from 'vitepress'
+import llmstxt from 'vitepress-plugin-llms'
 import { readdirSync, statSync, existsSync } from 'node:fs'
 import { join, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -106,9 +107,11 @@ export default defineConfig({
     // Apply the saved/system theme synchronously, before first paint, so the
     // page never flashes light-then-dark on reload (no FOUC).
     ['script', {}, "(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||(!t&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.setAttribute('data-theme','dark');}}catch(e){}})();"],
-    ['link', { rel: 'preconnect', href: 'https://fonts.googleapis.com' }],
-    ['link', { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' }],
-    ['link', { href: 'https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap', rel: 'stylesheet' }],
+    // The root locale has no indexed pages of its own (all content lives under
+    // /en/, /ru/, ...), so VitePress' local search finds nothing on "/". The
+    // English landing at /en/ is identical (same HomePage hero + lang switcher),
+    // so redirect the bare root there and make search work everywhere.
+    ['script', {}, "(function(){if(location.pathname==='/'||location.pathname==='/index.html'){location.replace('/en/');}})();"],
     ['link', { rel: 'icon', type: 'image/svg+xml', href: '/assets/favicon.svg' }],
     ['link', { rel: 'icon', type: 'image/x-icon', href: '/assets/favicon.ico', sizes: '16x16 32x32 48x48' }],
     ['link', { rel: 'icon', type: 'image/png', href: '/assets/favicon.png' }],
@@ -209,6 +212,46 @@ export default defineConfig({
   },
 
   vite: {
+    plugins: [
+      // LLM-friendly docs: generates llms.txt, llms-full.txt and per-page
+      // Markdown copies into the build output. Work from the site root so
+      // generated URLs keep the /en/ prefix (workDir: 'en' would strip it and
+      // emit dead /docs/... links). Per the plugin's recommendation for
+      // multi-language sites only English is emitted; other locales and
+      // repo-only files are filtered out below.
+      llmstxt({
+        domain: 'https://true-async.github.io',
+        workDir: '.',
+        ignoreFiles: [
+          'ru/**', 'de/**', 'fr/**', 'es/**', 'it/**', 'uk/**', 'zh/**', 'ko/**',
+          'vitepress-docs/ru-docs.md', 'vitepress-docs/de-docs.md',
+          'vitepress-docs/es-docs.md', 'vitepress-docs/fr-docs.md',
+          'vitepress-docs/it-docs.md', 'vitepress-docs/ko-docs.md',
+          'vitepress-docs/uk-docs.md', 'vitepress-docs/zh-docs.md',
+          'en/index.md', 'README.md', 'CHANGELOG.md', 'docs/**',
+        ],
+        generateLLMsTxt: true,
+        generateLLMsFullTxt: true,
+        generateLLMFriendlyDocsForEachPage: true,
+        stripHTML: true,
+        injectLLMHint: true,
+        customLLMsTxtTemplate: `# {title}
+
+{description}
+
+{details}
+
+## Table of Contents
+
+{toc}
+`,
+        customTemplateVariables: {
+          title: 'TrueAsync Documentation',
+          description:
+            'Native async/await for PHP: coroutines, structured concurrency, channels, connection pooling — built into the language core.',
+        },
+      }),
+    ],
     css: {
       // Use the modern Dart Sass compiler API (silences the legacy-js-api
       // deprecation warning emitted when SCSS partials are compiled).

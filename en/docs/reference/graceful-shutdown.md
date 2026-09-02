@@ -5,6 +5,7 @@ path_key: "/docs/reference/graceful-shutdown.html"
 nav_active: docs
 permalink: /en/docs/reference/graceful-shutdown.html
 page_title: "graceful_shutdown()"
+title: "graceful_shutdown()"
 description: "graceful_shutdown() — graceful scheduler shutdown with cancellation of all coroutines."
 ---
 

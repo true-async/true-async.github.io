@@ -5,6 +5,7 @@ path_key: "/docs/reference/current-context.html"
 nav_active: docs
 permalink: /en/docs/reference/current-context.html
 page_title: "current_context()"
+title: "current_context()"
 description: "current_context() — get the context of the current Scope."
 ---
 

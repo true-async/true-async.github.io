@@ -5,6 +5,7 @@ path_key: "/docs/reference/current-coroutine.html"
 nav_active: docs
 permalink: /en/docs/reference/current-coroutine.html
 page_title: "current_coroutine()"
+title: "current_coroutine()"
 description: "current_coroutine() — get the object of the currently executing coroutine."
 ---
 

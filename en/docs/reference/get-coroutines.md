@@ -5,6 +5,7 @@ path_key: "/docs/reference/get-coroutines.html"
 nav_active: docs
 permalink: /en/docs/reference/get-coroutines.html
 page_title: "get_coroutines()"
+title: "get_coroutines()"
 description: "get_coroutines() — get a list of all active coroutines for diagnostics."
 ---
 

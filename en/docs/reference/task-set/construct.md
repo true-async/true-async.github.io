@@ -5,6 +5,7 @@ path_key: "/docs/reference/task-set/construct.html"
 nav_active: docs
 permalink: /en/docs/reference/task-set/construct.html
 page_title: "TaskSet::__construct"
+title: "TaskSet::__construct"
 description: "Create a new TaskSet with optional concurrency limit."
 ---
 

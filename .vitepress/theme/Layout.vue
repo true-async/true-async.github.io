@@ -1,19 +1,23 @@
 <script setup lang="ts">
-import { computed, ref, watch, nextTick, onMounted } from 'vue'
+import { computed, ref, watch, nextTick, onMounted, defineAsyncComponent } from 'vue'
 import { useData, useRoute } from 'vitepress'
 import Navbar from './Navbar.vue'
 import Footer from './Footer.vue'
-import HomePage from './HomePage.vue'
 import Sidebar from './Sidebar.vue'
-import RoadmapPage from './RoadmapPage.vue'
-import DownloadPage from './DownloadPage.vue'
-import RfcPage from './RfcPage.vue'
-import CoroutineDemoPage from './CoroutineDemoPage.vue'
 import DocFeedback from './DocFeedback.vue'
-import LearningMap from './LearningMap.vue'
 import CodeTooltips from './CodeTooltips.vue'
 import DocsToc from './DocsToc.vue'
 import TutorialProgress from './TutorialProgress.vue'
+// Page-level components are code-split into their own chunks: the shared theme
+// bundle stays lean, and each layout downloads only the page it renders (docs
+// pages never fetch the roadmap/RFC/download/demo/home chunks, and LearningMap
+// loads only on the docs hub page).
+const HomePage = defineAsyncComponent(() => import('./HomePage.vue'))
+const RoadmapPage = defineAsyncComponent(() => import('./RoadmapPage.vue'))
+const DownloadPage = defineAsyncComponent(() => import('./DownloadPage.vue'))
+const RfcPage = defineAsyncComponent(() => import('./RfcPage.vue'))
+const CoroutineDemoPage = defineAsyncComponent(() => import('./CoroutineDemoPage.vue'))
+const LearningMap = defineAsyncComponent(() => import('./LearningMap.vue'))
 import { tutorialSlugFromPath } from './tutorialProgress'
 import { docsSidebar, architectureSidebar } from './sidebarData'
 import { docsSidebarRu, architectureSidebarRu } from './sidebarDataRu'

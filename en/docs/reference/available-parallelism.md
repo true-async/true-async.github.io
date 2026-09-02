@@ -5,6 +5,7 @@ path_key: "/docs/reference/available-parallelism.html"
 nav_active: docs
 permalink: /en/docs/reference/available-parallelism.html
 page_title: "available_parallelism()"
+title: "available_parallelism()"
 description: "Async\\available_parallelism() — returns the number of CPUs available to the process. Honours cgroup quotas, affinity, and container limits."
 ---
 

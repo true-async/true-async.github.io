@@ -5,6 +5,7 @@ path_key: "/docs/reference/spawn-with.html"
 nav_active: docs
 permalink: /en/docs/reference/spawn-with.html
 page_title: "spawn_with()"
+title: "spawn_with()"
 description: "spawn_with() — launch a coroutine in a specified Scope or via a ScopeProvider."
 ---
 

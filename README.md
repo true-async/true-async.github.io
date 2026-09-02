@@ -75,6 +75,7 @@ npm run dev
 - **[VitePress](https://vitepress.dev/)** — Vue-powered static site generator
 - **[Vue 3](https://vuejs.org/)** — custom theme with SFC components
 - **[Shiki](https://shiki.style/)** — syntax highlighting with dual light/dark themes
+- **[vitepress-plugin-llms](https://github.com/okineadev/vitepress-plugin-llms)** — LLM-friendly docs: `llms.txt`, `llms-full.txt` and per-page Markdown copies
 - **[MathJax](https://www.mathjax.org/)** — mathematical formulas (built-in VitePress support)
 - Custom i18n system with 9 languages
 - Dark/light theme with system preference detection

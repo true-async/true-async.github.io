@@ -5,6 +5,7 @@ path_key: "/docs/reference/task-group/construct.html"
 nav_active: docs
 permalink: /en/docs/reference/task-group/construct.html
 page_title: "TaskGroup::__construct"
+title: "TaskGroup::__construct"
 description: "Create a new TaskGroup with optional concurrency limit."
 ---
 
