@@ -76,7 +76,7 @@ $pdo = new PDO($dsn, $user, $password, [
     PDO::ATTR_POOL_ENABLED              => true,  // Включить пул
     PDO::ATTR_POOL_MIN                  => 0,     // Минимум соединений (по умолчанию 0)
     PDO::ATTR_POOL_MAX                  => 10,    // Максимум соединений (по умолчанию 10)
-    PDO::ATTR_POOL_HEALTHCHECK_INTERVAL => 30,    // Интервал проверки здоровья (сек, 0 = выключено)
+    PDO::ATTR_POOL_HEALTHCHECK_INTERVAL => 30000, // Интервал проверки здоровья (мс, 0 = выключено)
 ]);
 ```
 
@@ -85,7 +85,7 @@ $pdo = new PDO($dsn, $user, $password, [
 | `POOL_ENABLED`              | Включить пул                                                          | `false`      |
 | `POOL_MIN`                  | Минимальное количество соединений, которые пул поддерживает открытыми | `0`          |
 | `POOL_MAX`                  | Максимальное количество одновременных соединений                      | `10`         |
-| `POOL_HEALTHCHECK_INTERVAL` | Как часто проверять, что соединение живое (в секундах)                | `0`          |
+| `POOL_HEALTHCHECK_INTERVAL` | Как часто проверять, что соединение живое (в миллисекундах)           | `0`          |
 | `POOL_STMT_CACHE_SIZE`      | Размер кэша prepared statements на одно физическое соединение         | `0` (выкл)   |
 
 ## Привязка соединения к корутине

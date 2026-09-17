@@ -348,7 +348,7 @@ completed: 6
 
 | Método                | Qué devuelve                                                                            |
 |-----------------------|-----------------------------------------------------------------------------------------|
-| `getWorkerCount()`    | Número de hilos de trabajo (establecido en el constructor)                              |
+| `getWorkerCount()`    | Número de hilos de trabajo activos ahora mismo; un pool cerrado devuelve 0 una vez que sus hilos han terminado |
 | `getPendingCount()`   | Tareas en la cola, aún no recogidas por un trabajador                                   |
 | `getRunningCount()`   | Tareas que actualmente está ejecutando un trabajador                                    |
 | `getCompletedCount()` | Total de tareas completadas desde que se creó el pool (monotónicamente creciente)       |

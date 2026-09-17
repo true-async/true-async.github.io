@@ -20,7 +20,7 @@ Restituisce informazioni di debug su cosa sta attualmente attendendo la coroutin
 
 ## Valore di ritorno
 
-`array` -- un array con informazioni sull'attesa. Un array vuoto se l'informazione non è disponibile.
+`array` -- un array con informazioni sull'attesa. Nella build attuale l'estensione non lo popola, quindi il metodo restituisce sempre un array vuoto; usa `getSuspendLocation()` e `getTrace()` per vedere dove una coroutine è ferma.
 
 ## Esempi
 

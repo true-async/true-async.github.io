@@ -20,7 +20,7 @@ public Coroutine::getAwaitingInfo(): array
 
 ## 返回值
 
-`array` -- 包含等待信息的数组。如果信息不可用则返回空数组。
+`array` -- 包含等待信息的数组。在当前构建中扩展尚未填充它，因此该方法总是返回空数组；要查看协程停在了哪里，请使用 `getSuspendLocation()` 和 `getTrace()`。
 
 ## 示例
 

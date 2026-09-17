@@ -20,7 +20,7 @@ Gibt Debug-Informationen darueber zurueck, worauf die Coroutine gerade wartet. N
 
 ## Rueckgabewert
 
-`array` -- ein Array mit Warteinformationen. Ein leeres Array, wenn die Informationen nicht verfuegbar sind.
+`array` -- ein Array mit Warteinformationen. Im aktuellen Build fuellt die Extension es nicht, daher gibt die Methode immer ein leeres Array zurueck; `getSuspendLocation()` und `getTrace()` verwenden, um zu sehen, wo eine Coroutine angehalten ist.
 
 ## Beispiele
 

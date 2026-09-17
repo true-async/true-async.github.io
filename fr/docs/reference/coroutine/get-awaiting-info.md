@@ -20,7 +20,7 @@ Retourne des informations de débogage sur ce que la coroutine attend actuelleme
 
 ## Valeur de retour
 
-`array` -- un tableau contenant les informations d'attente. Un tableau vide si l'information n'est pas disponible.
+`array` -- un tableau contenant les informations d'attente. Dans la version actuelle, l'extension ne le remplit pas, donc la méthode retourne toujours un tableau vide ; utilisez `getSuspendLocation()` et `getTrace()` pour voir où une coroutine est arrêtée.
 
 ## Exemples
 

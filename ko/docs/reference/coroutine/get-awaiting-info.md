@@ -20,7 +20,7 @@ public Coroutine::getAwaitingInfo(): array
 
 ## 반환값
 
-`array` -- 대기 정보가 담긴 배열입니다. 정보를 사용할 수 없는 경우 빈 배열을 반환합니다.
+`array` -- 대기 정보가 담긴 배열입니다. 현재 빌드에서는 확장이 이 값을 채우지 않으므로 이 메서드는 항상 빈 배열을 반환합니다; 코루틴이 멈춘 위치를 확인하려면 `getSuspendLocation()`과 `getTrace()`를 사용하세요.
 
 ## 예제
 

@@ -58,7 +58,9 @@ I valori impostati qui sono visibili a tutte le coroutine in questo Scope.
 ### coroutine_context()
 
 Restituisce il contesto della coroutine corrente. Questo è un contesto **privato** che appartiene solo a questa coroutine.
-Le altre coroutine non possono vedere i dati impostati qui.
+Le altre coroutine non possono vedere i dati impostati qui. Il contesto di una coroutine non ha nessuno Scope sopra
+di sé, quindi `find()` su di esso cerca solo tra le proprie chiavi: usa `current_context()` o `root_context()` per
+cercare nell'albero degli Scope.
 
 ### root_context()
 
@@ -141,7 +143,7 @@ $ctx = current_context();
 $ctx->set('key', 'value');
 
 // set ripetuto senza replace -- errore
-$ctx->set('key', 'new_value'); // Errore: A context key already exists
+$ctx->set('key', 'new_value'); // Errore: la chiave esiste già e replace è false
 
 // Con replace esplicito = true
 $ctx->set('key', 'new_value', replace: true); // OK

@@ -16,9 +16,9 @@ description: "Annule toutes les coroutines et ferme le scope."
 public function dispose(): void
 ```
 
-Annule de manière forcée toutes les coroutines du scope et le ferme. Après l'appel à `dispose()`, le scope est marqué comme fermé et annulé. De nouvelles coroutines ne peuvent pas être ajoutées à un scope fermé.
+Ferme le scope et annule toutes les coroutines qu'il contient. Après l'appel à `dispose()`, le scope est marqué comme fermé et annulé. De nouvelles coroutines ne peuvent pas être ajoutées à un scope fermé.
 
-Cela équivaut à appeler `cancel()` suivi de la fermeture du scope.
+Pour un scope sans le drapeau dispose-safely (`new Scope()` par défaut), cela équivaut à appeler `cancel()` suivi de la fermeture du scope. Un scope qui a le drapeau, activé par `allowZombies()` ou hérité d'un parent qui l'a, comme le scope principal, laisse ses coroutines continuer à s'exécuter comme zombies à la place, exactement comme `disposeSafely()`.
 
 ## Valeur de retour
 

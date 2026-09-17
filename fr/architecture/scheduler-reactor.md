@@ -153,9 +153,10 @@ struct _async_fiber_context_s {
 Au lieu de creer et detruire constamment de la memoire, le Scheduler retourne les contextes au pool
 et les reutilise encore et encore.
 
-Des algorithmes de gestion intelligente de la taille du pool sont prevus
-qui s'adapteront dynamiquement a la charge de travail
-pour minimiser a la fois la latence `mmap`/`mprotect` et l'empreinte memoire globale.
+La taille du pool suit la charge. Un minimum de 4 contextes est toujours conserve. Quand une coroutine se termine et que
+le pool contient moins de contextes qu'il n'y a de coroutines en attente dans la file, son contexte est rendu au pool ;
+sinon le contexte est detruit. Ainsi le pool grandit sous la pression et se reduit quand la file se vide,
+ce qui borne a la fois la latence `mmap`/`mprotect` et l'empreinte memoire.
 
 ### Gestionnaires de commutation
 

@@ -58,7 +58,8 @@ $rootCtx = root_context();
 ### coroutine_context()
 
 현재 코루틴의 컨텍스트를 반환합니다. 이것은 이 코루틴만의 **비공개** 컨텍스트입니다.
-다른 코루틴은 여기에 설정된 데이터를 볼 수 없습니다.
+다른 코루틴은 여기에 설정된 데이터를 볼 수 없습니다. 코루틴 컨텍스트 위에는 `Scope`가 없으므로 여기서의 `find()`는
+자신의 키만 검색합니다: 스코프 트리를 조회하려면 `current_context()` 또는 `root_context()`를 사용하세요.
 
 ### root_context()
 
@@ -141,7 +142,7 @@ $ctx = current_context();
 $ctx->set('key', 'value');
 
 // replace 없이 반복 set -- 오류
-$ctx->set('key', 'new_value'); // Error: A context key already exists
+$ctx->set('key', 'new_value'); // Error: Context key already exists and replace is false
 
 // 명시적 replace = true
 $ctx->set('key', 'new_value', replace: true); // OK

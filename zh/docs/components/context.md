@@ -57,7 +57,8 @@ $rootCtx = root_context();
 ### coroutine_context()
 
 返回当前协程的上下文。这是一个**私有**上下文，仅属于此协程。
-其他协程无法看到在此处设置的数据。
+其他协程无法看到在此处设置的数据。协程上下文之上没有 Scope，因此对它调用 `find()`
+只会在自己的键中查找：要沿 Scope 树向上查找，请使用 `current_context()` 或 `root_context()`。
 
 ### root_context()
 
@@ -140,7 +141,7 @@ $ctx = current_context();
 $ctx->set('key', 'value');
 
 // 不带 replace 重复设置 -- 错误
-$ctx->set('key', 'new_value'); // Error: A context key already exists
+$ctx->set('key', 'new_value'); // Error: Context key already exists and replace is false
 
 // 显式 replace = true
 $ctx->set('key', 'new_value', replace: true); // OK

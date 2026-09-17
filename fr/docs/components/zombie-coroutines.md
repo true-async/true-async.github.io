@@ -160,26 +160,29 @@ S'il n'y a plus de coroutines actives, l'application se termine et meme les coro
 
 ## Heritage du drapeau Safely
 
-Par defaut, un `Scope` est cree avec le drapeau `DISPOSE_SAFELY`.
-Cela signifie : si le `Scope` est detruit (par ex., dans le destructeur d'un objet),
-les coroutines deviennent des `zombies` plutot que d'etre annulees.
+Seul le scope global a le drapeau `DISPOSE_SAFELY` par defaut. Un `new Scope()` est cree sans ce drapeau :
+quand un tel `Scope` est detruit (par ex., dans le destructeur d'un objet), ses coroutines sont annulees.
+`allowZombies()` active le drapeau, et les coroutines deviennent alors des `zombies` plutot que d'etre annulees.
 
-Un `Scope` enfant herite de ce drapeau de son parent :
+Un `Scope` enfant herite du drapeau de son parent :
 
 ```php
-$parent = new Async\Scope();
-// le parent a le drapeau DISPOSE_SAFELY par defaut
+$parent = (new Async\Scope())->allowZombies();
+// le parent a le drapeau DISPOSE_SAFELY
 
 $child = Async\Scope::inherit($parent);
 // l'enfant a aussi le drapeau DISPOSE_SAFELY
+
+$top = Async\Scope::inherit();
+// au niveau superieur, le parent est le scope global, donc $top a aussi le drapeau
 ```
 
-Si vous voulez une annulation forcee a la destruction, utilisez `asNotSafely()` :
+Pour forcer l'annulation a la destruction d'un Scope herite, utilisez `asNotSafely()` :
 
 ```php
-$scope = (new Async\Scope())->asNotSafely();
+$scope = Async\Scope::inherit()->asNotSafely();
 // Maintenant, quand l'objet Scope est detruit,
-// les coroutines seront annulees de force plutot que marquees comme zombies
+// les coroutines seront annulees plutot que marquees comme zombies
 ```
 
 ## Exemple : serveur HTTP avec middleware
@@ -209,7 +212,7 @@ class RequestHandler
 
     public function __destruct() {
         // A la destruction : le middleware peut ne pas etre pret pour l'annulation,
-        // donc on utilise disposeSafely() (comportement par defaut).
+        // donc on utilise disposeSafely() au lieu de dispose().
         // Les coroutines zombie termineront d'elles-memes.
         $this->scope->disposeSafely();
     }

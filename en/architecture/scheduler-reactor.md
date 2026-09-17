@@ -153,9 +153,10 @@ struct _async_fiber_context_s {
 Instead of constantly creating and destroying memory, the Scheduler returns contexts to the pool
 and reuses them over and over.
 
-Smart pool size management algorithms are planned
-that will dynamically adapt to the workload
-to minimize both `mmap`/`mprotect` latency and overall memory footprint.
+The pool size follows the load. A minimum of 4 contexts is always kept. When a coroutine finishes and the
+pool holds fewer contexts than there are coroutines waiting in the queue, its context is returned to the pool;
+otherwise the context is destroyed. So the pool grows under pressure and shrinks back when the queue drains,
+which bounds both `mmap`/`mprotect` latency and memory footprint.
 
 ### Switch Handlers
 

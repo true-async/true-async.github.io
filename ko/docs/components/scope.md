@@ -270,19 +270,26 @@ foreach ($group as $key => [$result, $error]) {
 
 ## 글로벌 Scope: 항상 부모가 있습니다
 
-스코프를 명시적으로 지정하지 않으면 코루틴은 **글로벌 스코프**에서 생성됩니다:
+스코프를 명시적으로 지정하지 않으면 코루틴은 **현재 스코프**에서 생성됩니다.
+스크립트의 최상위 레벨에서 현재 스코프는 **글로벌 스코프**입니다(메인 스코프라고도 합니다):
 
 ```php
-// 스코프를 지정하지 않은 경우
+// 최상위 레벨: 코루틴은 글로벌 스코프로 들어갑니다
 spawn(function() {
     echo "글로벌 스코프에 있습니다\n";
 });
 
-// 이것과 동일합니다:
-Async\Scope::global()->spawn(function() {
-    echo "글로벌 스코프에 있습니다\n";
+// 코루틴 내부: 코루틴은 호출자의 스코프로 들어갑니다
+$scope = new Async\Scope();
+$scope->spawn(function() {
+    spawn(function() {
+        echo "저는 부모와 같은 \$scope에 있습니다\n";
+    });
 });
 ```
+
+글로벌 스코프에는 PHP 객체가 없습니다: `Scope::global()` 메서드는 존재하지 않습니다. 그 컨텍스트는
+`Async\root_context()`를 통해 접근할 수 있으며, 최상위 레벨에서 호출한 `Async\Scope::inherit()`는 글로벌 스코프의 자식을 생성합니다.
 
 글로벌 스코프는 전체 요청 동안 유지됩니다. PHP가 종료되면 글로벌 스코프의 모든 코루틴이 정상적으로 취소됩니다.
 
@@ -347,7 +354,7 @@ unset($client);
 | `$scope->spawn(Closure, ...$args)`       | Scope 내에서 코루틴을 실행합니다                                   |
 | `$scope->awaitCompletion($cancellation)` | Scope 내의 모든 코루틴 완료를 대기합니다                            |
 | `$scope->cancel()`                       | 모든 코루틴에 취소 신호를 보냅니다                                  |
-| `$scope->dispose()`                      | Scope를 닫고 모든 코루틴을 강제 취소합니다                          |
+| `$scope->dispose()`                      | Scope를 닫습니다; 코루틴을 취소하거나, `DISPOSE_SAFELY`인 경우 좀비로 표시합니다 |
 | `$scope->disposeSafely()`               | Scope를 닫습니다; 코루틴은 취소되지 않고 좀비로 표시됩니다           |
 | `$scope->awaitAfterCancellation()`       | 좀비를 포함한 모든 코루틴 완료를 대기합니다                         |
 | `$scope->disposeAfterTimeout(int $ms)`   | 타임아웃 후 코루틴을 취소합니다                                    |
@@ -378,13 +385,18 @@ $scope->cancel();
 
 **3. 부모가 Scope를 닫고 리소스를 해제**
 
-`dispose()`는 Scope를 닫고 모든 코루틴을 강제 취소합니다:
+`dispose()`는 Scope를 닫고 모든 코루틴을 취소합니다:
 
 ```php
 $scope->dispose();
 // Scope가 닫혔습니다. 모든 코루틴이 취소되었습니다.
 // 이 Scope에 새 코루틴을 추가할 수 없습니다.
 ```
+
+`dispose()`는 Scope의 `DISPOSE_SAFELY` 플래그를 따릅니다. `new Scope()`는 기본적으로 이 플래그가 없으므로 코루틴이
+취소됩니다. 이 플래그를 가진 Scope(`allowZombies()` 호출 후, 또는 이 플래그를 가진 부모로부터 상속받은 경우 --
+예를 들어 글로벌 스코프)는 코루틴을 취소하는 대신 `disposeSafely()`와 마찬가지로 좀비로 표시합니다.
+[좀비 코루틴](zombie-coroutines.md)을 참고하세요.
 
 Scope를 닫되 현재 코루틴이 **작업을 완료**할 수 있도록 하려면
 `disposeSafely()`를 사용하세요 -- 코루틴은 좀비로 표시됩니다

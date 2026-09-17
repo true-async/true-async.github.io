@@ -271,19 +271,27 @@ foreach ($group as $key => [$result, $error]) {
 
 ## Globaler Scope: Es gibt immer einen Elternteil
 
-Wenn Sie keinen Scope explizit angeben, wird die Coroutine im **globalen Scope** erstellt:
+Wenn Sie keinen Scope explizit angeben, wird die Coroutine im **aktuellen Scope** erstellt.
+Auf oberster Ebene eines Skripts ist der aktuelle Scope der **globale Scope** (auch Main-Scope genannt):
 
 ```php
-// Ohne Angabe eines Scopes
+// Auf oberster Ebene: Die Coroutine landet im globalen Scope
 spawn(function() {
     echo "Ich bin im globalen Scope\n";
 });
 
-// Dasselbe wie:
-Async\Scope::global()->spawn(function() {
-    echo "Ich bin im globalen Scope\n";
+// Innerhalb einer Coroutine: Die Coroutine landet im Scope des Aufrufers
+$scope = new Async\Scope();
+$scope->spawn(function() {
+    spawn(function() {
+        echo "Ich bin in \$scope, genau wie mein Elternteil\n";
+    });
 });
 ```
+
+Der globale Scope hat kein PHP-Objekt: Es gibt keine Methode `Scope::global()`. Sein Kontext ist über
+`Async\root_context()` erreichbar, und `Async\Scope::inherit()` erzeugt, auf oberster Ebene aufgerufen,
+einen Kind-Scope davon.
 
 Der globale Scope lebt für die gesamte Anfrage. Wenn PHP beendet wird, werden alle Coroutinen im globalen Scope ordnungsgemäß abgebrochen.
 
@@ -350,7 +358,7 @@ explizit zu steuern, mit folgenden Methoden:
 | `$scope->spawn(Closure, ...$args)`       | Startet eine Coroutine innerhalb des Scopes                      |
 | `$scope->awaitCompletion($cancellation)` | Wartet auf Abschluss aller Coroutinen im Scope                   |
 | `$scope->cancel()`                       | Sendet ein Abbruchsignal an alle Coroutinen                      |
-| `$scope->dispose()`                      | Schließt den Scope und bricht alle Coroutinen erzwungen ab       |
+| `$scope->dispose()`                      | Schließt den Scope; bricht Coroutinen ab, oder markiert sie unter `DISPOSE_SAFELY` als Zombie |
 | `$scope->disposeSafely()`               | Schließt den Scope; Coroutinen werden nicht abgebrochen, sondern als Zombie markiert |
 | `$scope->awaitAfterCancellation()`       | Wartet auf Abschluss aller Coroutinen, einschließlich Zombie-Coroutinen |
 | `$scope->disposeAfterTimeout(int $ms)`   | Bricht Coroutinen nach einem Timeout ab                          |
@@ -381,13 +389,18 @@ $scope->cancel();
 
 **3. Elternteil schließt den Scope und gibt Ressourcen frei**
 
-`dispose()` schließt den Scope und bricht alle seine Coroutinen erzwungen ab:
+`dispose()` schließt den Scope und bricht alle seine Coroutinen ab:
 
 ```php
 $scope->dispose();
 // Scope ist geschlossen. Alle Coroutinen sind abgebrochen.
 // Neue Coroutinen können nicht zu diesem Scope hinzugefügt werden.
 ```
+
+`dispose()` folgt dem `DISPOSE_SAFELY`-Flag des Scopes. Ein `new Scope()` hat es nicht, daher werden seine
+Coroutinen abgebrochen. Ein Scope mit dem Flag (nach `allowZombies()`, oder von einem Elternteil mit diesem
+Flag geerbt, etwa dem globalen Scope) markiert seine Coroutinen stattdessen als Zombie, genau wie
+`disposeSafely()`. Siehe [Zombie-Coroutinen](zombie-coroutines.md).
 
 Wenn Sie den Scope schließen, aber den aktuellen Coroutinen erlauben möchten, **ihre Arbeit zu beenden**,
 verwenden Sie `disposeSafely()` -- Coroutinen werden als Zombie markiert

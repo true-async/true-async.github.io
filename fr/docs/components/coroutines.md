@@ -366,7 +366,9 @@ $info = $coro->getAwaitingInfo();
 print_r($info);
 ```
 
-Tres utile pour le debogage -- vous pouvez immediatement voir d'ou vient une coroutine et ou elle s'est arretee.
+Cette methode est reservee au debogage. Dans la version actuelle, elle retourne toujours un tableau vide :
+l'extension ne le remplit pas encore. Utilisez `getSpawnLocation()` et `getSuspendLocation()` pour voir d'ou vient
+une coroutine et ou elle s'est arretee.
 
 ## Coroutines vs Threads
 

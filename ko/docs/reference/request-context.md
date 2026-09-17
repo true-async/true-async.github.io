@@ -29,8 +29,8 @@ Request-scope는 **임베딩 C 코드**(예: HTTP 서버)가 할당하며 모든
 
 | 함수 | 무엇을 반환 |
 |---------|----------------|
-| `current_context()` | **현재 코루틴**의 컨텍스트 — 각 코루틴마다 격리됨 |
-| `coroutine_context()` | `current_context()` 별칭 |
+| `current_context()` | **현재 Scope**의 컨텍스트 — 해당 Scope의 모든 코루틴이 공유함 |
+| `coroutine_context()` | **현재 코루틴**의 비공개 컨텍스트 — 각 코루틴마다 격리됨 |
 | `request_context()` | **요청**의 컨텍스트 — 핸들러와 모든 자식 코루틴에 공유됨 |
 | `root_context()` | root-scope의 컨텍스트 |
 
@@ -97,25 +97,25 @@ function audit_log(string $event): void
 // (request_context() === null, $rid === 'no-request') 모두에서 동작.
 ```
 
-### 예제 #3 `current_context()`와의 비교
+### 예제 #3 `coroutine_context()`와의 비교
 
 ```php
 <?php
 use function Async\spawn;
 use function Async\await;
 use function Async\request_context;
-use function Async\current_context;
+use function Async\coroutine_context;
 
 $server->addHttpHandler(function ($req, $res) {
     request_context()->set('request_id', 'abc-123');
-    current_context()->set('local',      'handler-only');
+    coroutine_context()->set('local',    'handler-only');
 
     $child = spawn(function () {
         // request_context는 요청 scope 전체에 공유되므로 보임.
         var_dump(request_context()->get('request_id')); // string(7) "abc-123"
 
-        // 자식 코루틴의 current_context()는 자체 컨텍스트.
-        var_dump(current_context()->find('local'));     // NULL
+        // 자식 코루틴은 자신만의 coroutine_context()를 가지며, 트리를 조회하지 않음.
+        var_dump(coroutine_context()->find('local'));   // NULL
     });
     await($child);
 

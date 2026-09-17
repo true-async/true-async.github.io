@@ -76,7 +76,7 @@ $pdo = new PDO($dsn, $user, $password, [
     PDO::ATTR_POOL_ENABLED              => true,  // 풀 활성화
     PDO::ATTR_POOL_MIN                  => 0,     // 최소 연결 수 (기본값 0)
     PDO::ATTR_POOL_MAX                  => 10,    // 최대 연결 수 (기본값 10)
-    PDO::ATTR_POOL_HEALTHCHECK_INTERVAL => 30,    // 상태 확인 간격 (초, 0 = 비활성화)
+    PDO::ATTR_POOL_HEALTHCHECK_INTERVAL => 30000, // 상태 확인 간격 (밀리초, 0 = 비활성화)
 ]);
 ```
 
@@ -85,7 +85,7 @@ $pdo = new PDO($dsn, $user, $password, [
 | `POOL_ENABLED`              | 풀 활성화                                                             | `false` |
 | `POOL_MIN`                  | 풀이 열어두는 최소 연결 수                                              | `0`     |
 | `POOL_MAX`                  | 최대 동시 연결 수                                                      | `10`    |
-| `POOL_HEALTHCHECK_INTERVAL` | 연결이 살아있는지 확인하는 빈도 (초 단위)                                | `0`     |
+| `POOL_HEALTHCHECK_INTERVAL` | 연결이 살아있는지 확인하는 빈도 (밀리초 단위)                             | `0`     |
 | `POOL_STMT_CACHE_SIZE`      | 물리 연결당 prepared statement 캐시 크기                                | `0` (꺼짐) |
 
 ## 코루틴에 연결 바인딩

@@ -160,26 +160,29 @@ Scope
 
 ## 继承 Safely 标志
 
-默认情况下，`Scope` 使用 `DISPOSE_SAFELY` 标志创建。
-这意味着：如果 `Scope` 被销毁（例如在对象的析构函数中），
-协程变成 `zombies` 而不是被取消。
+默认情况下，只有全局作用域拥有 `DISPOSE_SAFELY` 标志。`new Scope()` 创建时没有这个标志：
+当这样的 `Scope` 被销毁时（例如在对象的析构函数中），它的协程会被取消。
+`allowZombies()` 会打开这个标志，之后协程会变成 `zombies` 而不是被取消。
 
 子 `Scope` 从父级继承此标志：
 
 ```php
-$parent = new Async\Scope();
-// parent 默认有 DISPOSE_SAFELY 标志
+$parent = (new Async\Scope())->allowZombies();
+// parent 有 DISPOSE_SAFELY 标志
 
 $child = Async\Scope::inherit($parent);
 // child 也有 DISPOSE_SAFELY 标志
+
+$top = Async\Scope::inherit();
+// 在顶层，父级是全局作用域，所以 $top 也有这个标志
 ```
 
-如果你想在销毁时强制取消，使用 `asNotSafely()`：
+要让继承而来的 Scope 在销毁时强制取消，使用 `asNotSafely()`：
 
 ```php
-$scope = (new Async\Scope())->asNotSafely();
+$scope = Async\Scope::inherit()->asNotSafely();
 // 现在当 Scope 对象被销毁时，
-// 协程将被强制取消而不是标记为僵尸
+// 协程将被取消而不是标记为僵尸
 ```
 
 ## 示例：带中间件的 HTTP 服务器
@@ -209,7 +212,7 @@ class RequestHandler
 
     public function __destruct() {
         // 销毁时：中间件可能不适合取消，
-        // 所以我们使用 disposeSafely()（默认行为）。
+        // 所以我们使用 disposeSafely() 而不是 dispose()。
         // 僵尸协程会自行完成。
         $this->scope->disposeSafely();
     }

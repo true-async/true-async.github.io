@@ -20,7 +20,7 @@ Devuelve información de depuración sobre lo que la coroutine está esperando a
 
 ## Valor de retorno
 
-`array` -- un array con información de espera. Un array vacío si la información no está disponible.
+`array` -- un array con información de espera. En la build actual la extensión no lo rellena, así que el método siempre devuelve un array vacío; usa `getSuspendLocation()` y `getTrace()` para ver dónde está detenida una coroutine.
 
 ## Ejemplos
 

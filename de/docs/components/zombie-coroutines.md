@@ -160,26 +160,30 @@ Wenn es keine aktiven Coroutinen mehr gibt, wird die Anwendung beendet und selbs
 
 ## Vererbung des Safely-Flags
 
-Standardmäßig wird ein `Scope` mit dem `DISPOSE_SAFELY`-Flag erstellt.
-Das bedeutet: Wenn der `Scope` zerstört wird (z.B. im Destruktor eines Objekts),
-werden Coroutinen zu `Zombies`, anstatt abgebrochen zu werden.
+Nur der globale Scope hat standardmäßig das `DISPOSE_SAFELY`-Flag. Ein `new Scope()` wird ohne dieses Flag
+erstellt: Wenn ein solcher `Scope` zerstört wird (z.B. im Destruktor eines Objekts), werden seine Coroutinen
+abgebrochen. `allowZombies()` schaltet das Flag ein, und dann werden Coroutinen zu `Zombies`, anstatt
+abgebrochen zu werden.
 
-Ein Kind-`Scope` erbt dieses Flag von seinem Elternteil:
+Ein Kind-`Scope` erbt das Flag von seinem Elternteil:
 
 ```php
-$parent = new Async\Scope();
-// parent hat standardmäßig das DISPOSE_SAFELY-Flag
+$parent = (new Async\Scope())->allowZombies();
+// parent hat das DISPOSE_SAFELY-Flag
 
 $child = Async\Scope::inherit($parent);
 // child hat ebenfalls das DISPOSE_SAFELY-Flag
+
+$top = Async\Scope::inherit();
+// auf oberster Ebene ist der Elternteil der globale Scope, daher hat $top das Flag ebenfalls
 ```
 
-Wenn Sie erzwungenen Abbruch bei Zerstörung wünschen, verwenden Sie `asNotSafely()`:
+Um bei einem geerbten Scope den erzwungenen Abbruch bei Zerstörung zu erreichen, verwenden Sie `asNotSafely()`:
 
 ```php
-$scope = (new Async\Scope())->asNotSafely();
+$scope = Async\Scope::inherit()->asNotSafely();
 // Jetzt werden beim Zerstören des Scope-Objekts
-// Coroutinen erzwungen abgebrochen, anstatt als Zombies markiert zu werden
+// Coroutinen abgebrochen, anstatt als Zombies markiert zu werden
 ```
 
 ## Beispiel: HTTP-Server mit Middleware
@@ -209,7 +213,7 @@ class RequestHandler
 
     public function __destruct() {
         // Bei Zerstörung: Middleware ist möglicherweise nicht für Abbruch bereit,
-        // daher verwenden wir disposeSafely() (Standardverhalten).
+        // daher verwenden wir disposeSafely() statt dispose().
         // Zombie-Coroutinen werden von selbst fertig.
         $this->scope->disposeSafely();
     }

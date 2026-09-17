@@ -153,9 +153,10 @@ struct _async_fiber_context_s {
 En lugar de crear y destruir memoria constantemente, el Scheduler devuelve los contextos al pool
 y los reutiliza una y otra vez.
 
-Se planifican algoritmos inteligentes de gestion del tamano del pool
-que se adaptaran dinamicamente a la carga de trabajo
-para minimizar tanto la latencia de `mmap`/`mprotect` como el uso total de memoria.
+El tamano del pool sigue a la carga. Se mantiene siempre un minimo de 4 contextos. Cuando una corrutina termina
+y el pool tiene menos contextos que corrutinas esperando en la cola, su contexto se devuelve al pool;
+en caso contrario, el contexto se destruye. Asi el pool crece bajo presion y se reduce cuando la cola se vacia,
+lo que limita tanto la latencia de `mmap`/`mprotect` como el uso de memoria.
 
 ### Switch Handlers
 

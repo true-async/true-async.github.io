@@ -76,7 +76,7 @@ $pdo = new PDO($dsn, $user, $password, [
     PDO::ATTR_POOL_ENABLED              => true,  // Enable pool
     PDO::ATTR_POOL_MIN                  => 0,     // Minimum connections (default 0)
     PDO::ATTR_POOL_MAX                  => 10,    // Maximum connections (default 10)
-    PDO::ATTR_POOL_HEALTHCHECK_INTERVAL => 30,    // Health check interval (sec, 0 = disabled)
+    PDO::ATTR_POOL_HEALTHCHECK_INTERVAL => 30000, // Health check interval (ms, 0 = disabled)
 ]);
 ```
 
@@ -85,7 +85,7 @@ $pdo = new PDO($dsn, $user, $password, [
 | `POOL_ENABLED`              | Enable the pool                                                      | `false` |
 | `POOL_MIN`                  | Minimum number of connections the pool keeps open                    | `0`     |
 | `POOL_MAX`                  | Maximum number of simultaneous connections                           | `10`    |
-| `POOL_HEALTHCHECK_INTERVAL` | How often to check that a connection is alive (in seconds)           | `0`     |
+| `POOL_HEALTHCHECK_INTERVAL` | How often to check that a connection is alive (in milliseconds)      | `0`     |
 | `POOL_STMT_CACHE_SIZE`      | Prepared-statement cache size per physical connection                | `0` (off) |
 
 ## Binding Connections to Coroutines

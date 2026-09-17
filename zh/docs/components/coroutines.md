@@ -365,7 +365,8 @@ $info = $coro->getAwaitingInfo();
 print_r($info);
 ```
 
-对调试非常有用 -- 你可以立即看到协程来自哪里以及停在了哪里。
+该方法是为调试保留的。在当前构建中它总是返回空数组：
+扩展尚未填充它。要查看协程来自哪里以及停在了哪里，请使用 `getSpawnLocation()` 和 `getSuspendLocation()`。
 
 ## 协程 vs 线程
 

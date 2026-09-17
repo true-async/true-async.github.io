@@ -58,7 +58,8 @@ $rootCtx = root_context();
 ### coroutine_context()
 
 Возвращает контекст текущей корутины. Это **приватный** контекст, принадлежащий только этой корутине.
-Другие корутины не видят данные, установленные здесь.
+Другие корутины не видят данные, установленные здесь. Над контекстом корутины нет Scope, поэтому `find()`
+у него ищет только среди своих ключей: для подъёма по дереву Scope есть `current_context()` и `root_context()`.
 
 ### root_context()
 
@@ -141,7 +142,7 @@ $ctx = current_context();
 $ctx->set('key', 'value');
 
 // Повторная установка без replace — ошибка
-$ctx->set('key', 'new_value'); // Error: A context key already exists
+$ctx->set('key', 'new_value'); // Error: Context key already exists and replace is false
 
 // С явным replace = true
 $ctx->set('key', 'new_value', replace: true); // OK

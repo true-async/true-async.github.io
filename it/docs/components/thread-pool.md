@@ -347,7 +347,7 @@ completed: 6
 
 | Metodo                | Cosa restituisce                                                                        |
 |-----------------------|-----------------------------------------------------------------------------------------|
-| `getWorkerCount()`    | Numero di thread worker (impostato nel costruttore)                                     |
+| `getWorkerCount()`    | Numero di thread worker attualmente in esecuzione; un pool chiuso riporta 0 una volta che i suoi worker sono usciti |
 | `getPendingCount()`   | Attività nella coda, non ancora raccolte da un worker                                   |
 | `getRunningCount()`   | Attività attualmente in esecuzione da un worker                                         |
 | `getCompletedCount()` | Totale attività completate dalla creazione del pool (monotonicamente crescente)         |

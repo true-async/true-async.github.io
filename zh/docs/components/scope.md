@@ -270,19 +270,26 @@ foreach ($group as $key => [$result, $error]) {
 
 ## 全局 Scope：总有一个父级
 
-如果你没有显式指定作用域，协程会在**全局作用域**中创建：
+如果你没有显式指定作用域，协程会在**当前作用域**中创建。
+在脚本的顶层，当前作用域就是**全局作用域**（也叫 main scope）：
 
 ```php
-// 不指定作用域
+// 在顶层：协程进入全局作用域
 spawn(function() {
     echo "I'm in global scope\n";
 });
 
-// 等同于：
-Async\Scope::global()->spawn(function() {
-    echo "I'm in global scope\n";
+// 在协程内部：协程进入调用者所在的作用域
+$scope = new Async\Scope();
+$scope->spawn(function() {
+    spawn(function() {
+        echo "I'm in \$scope, same as my parent\n";
+    });
 });
 ```
+
+全局作用域没有 PHP 对象：不存在 `Scope::global()` 方法。它的上下文可以通过
+`Async\root_context()` 访问；在顶层调用 `Async\Scope::inherit()` 会创建它的子作用域。
 
 全局作用域存在于整个请求期间。当 PHP 退出时，全局作用域中的所有协程会被优雅取消。
 
@@ -347,7 +354,7 @@ unset($client);
 | `$scope->spawn(Closure, ...$args)`       | 在 Scope 内启动协程                                             |
 | `$scope->awaitCompletion($cancellation)` | 等待 Scope 中所有协程完成                                       |
 | `$scope->cancel()`                       | 向所有协程发送取消信号                                           |
-| `$scope->dispose()`                      | 关闭 Scope 并强制取消所有协程                                   |
+| `$scope->dispose()`                      | 关闭 Scope；取消协程，或在 `DISPOSE_SAFELY` 下标记为僵尸        |
 | `$scope->disposeSafely()`               | 关闭 Scope；协程不被取消但标记为僵尸                             |
 | `$scope->awaitAfterCancellation()`       | 等待所有协程完成，包括僵尸协程                                   |
 | `$scope->disposeAfterTimeout(int $ms)`   | 超时后取消协程                                                   |
@@ -378,13 +385,18 @@ $scope->cancel();
 
 **3. 父级关闭 Scope 并释放资源**
 
-`dispose()` 关闭 Scope 并强制取消所有协程：
+`dispose()` 关闭 Scope 并取消所有协程：
 
 ```php
 $scope->dispose();
 // Scope 被关闭。所有协程被取消。
 // 不能再向此 Scope 添加新协程。
 ```
+
+`dispose()` 遵循 Scope 的 `DISPOSE_SAFELY` 标志。`new Scope()` 默认没有这个标志，因此它的协程会被取消。
+带有该标志的 Scope（调用过 `allowZombies()`，或从带有该标志的父级继承而来，比如全局作用域）
+会像 `disposeSafely()` 一样将协程标记为僵尸，而不是取消。参见
+[僵尸协程](/zh/docs/components/zombie-coroutines.html)。
 
 如果需要关闭 Scope 但允许当前协程**完成工作**，
 使用 `disposeSafely()` -- 协程被标记为僵尸

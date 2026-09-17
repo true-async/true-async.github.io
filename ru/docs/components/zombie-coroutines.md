@@ -160,26 +160,29 @@ Scope
 
 ## Наследование флага safely
 
-По умолчанию `Scope` создаётся с флагом `DISPOSE_SAFELY`.
-Это означает: если `Scope` уничтожается (например, в деструкторе объекта),
-корутины становятся `zombie`, а не отменяются.
+Флаг `DISPOSE_SAFELY` по умолчанию есть только у global scope. `new Scope()` создаётся без него:
+при уничтожении такого `Scope` (например, в деструкторе объекта) корутины отменяются.
+`allowZombies()` включает флаг, и тогда корутины становятся `zombie`, а не отменяются.
 
-Дочерний `Scope` наследует этот флаг от родителя:
+Дочерний `Scope` наследует флаг от родителя:
 
 ```php
-$parent = new Async\Scope();
-// parent имеет флаг DISPOSE_SAFELY по умолчанию
+$parent = (new Async\Scope())->allowZombies();
+// parent имеет флаг DISPOSE_SAFELY
 
 $child = Async\Scope::inherit($parent);
 // child тоже имеет флаг DISPOSE_SAFELY
+
+$top = Async\Scope::inherit();
+// на верхнем уровне родитель — global scope, поэтому у $top флаг тоже есть
 ```
 
-Если вы хотите принудительную отмену при уничтожении, используйте `asNotSafely()`:
+Чтобы унаследованный Scope при уничтожении отменял корутины, используйте `asNotSafely()`:
 
 ```php
-$scope = (new Async\Scope())->asNotSafely();
+$scope = Async\Scope::inherit()->asNotSafely();
 // Теперь при уничтожении объекта Scope
-// корутины будут отменены принудительно, а не помечены как zombie
+// корутины будут отменены, а не помечены как zombie
 ```
 
 ## Пример: HTTP-сервер с middleware
@@ -209,7 +212,7 @@ class RequestHandler
 
     public function __destruct() {
         // При уничтожении: middleware может быть не готов к отмене,
-        // поэтому используем disposeSafely() (поведение по умолчанию).
+        // поэтому используем disposeSafely(), а не dispose().
         // Zombie-корутины доработают сами.
         $this->scope->disposeSafely();
     }

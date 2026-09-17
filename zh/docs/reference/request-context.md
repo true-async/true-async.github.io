@@ -28,8 +28,8 @@ Request-scope 由**宿主 C 代码**（例如 HTTP 服务器）建立，并自�
 
 | 函数 | 返回什么 |
 |------|----------|
-| `current_context()` | **当前协程**的上下文 —— 每个协程独立 |
-| `coroutine_context()` | `current_context()` 的别名 |
+| `current_context()` | **当前 Scope** 的上下文 —— 该 Scope 中的所有协程共享 |
+| `coroutine_context()` | 当前协程的**私有**上下文 —— 每个协程独立 |
 | `request_context()` | **请求**上下文 —— handler 与其所有子协程共享 |
 | `root_context()` | root-scope 的上下文 |
 
@@ -96,25 +96,25 @@ function audit_log(string $event): void
 // 在后台 CLI 任务里 request_context() === null，$rid === 'no-request'。
 ```
 
-### 示例 #3 与 `current_context()` 的区别
+### 示例 #3 与 `coroutine_context()` 的区别
 
 ```php
 <?php
 use function Async\spawn;
 use function Async\await;
 use function Async\request_context;
-use function Async\current_context;
+use function Async\coroutine_context;
 
 $server->addHttpHandler(function ($req, $res) {
     request_context()->set('request_id', 'abc-123');
-    current_context()->set('local',      'handler-only');
+    coroutine_context()->set('local',    'handler-only');
 
     $child = spawn(function () {
         // 能看到 request_context，因为它在整个请求 scope 共享。
         var_dump(request_context()->get('request_id')); // string(7) "abc-123"
 
-        // 子协程的 current_context() 是它自己的。
-        var_dump(current_context()->find('local'));     // NULL
+        // 子协程有自己的 coroutine_context()，它不会向上查找。
+        var_dump(coroutine_context()->find('local'));   // NULL
     });
     await($child);
 

@@ -153,9 +153,11 @@ struct _async_fiber_context_s {
 Anstatt ständig Speicher zu erstellen und zu zerstören, gibt der Scheduler Kontexte an den Pool zurück
 und verwendet sie immer wieder.
 
-Intelligente Pool-Größenverwaltungsalgorithmen sind geplant,
-die sich dynamisch an die Arbeitslast anpassen,
-um sowohl die `mmap`/`mprotect`-Latenz als auch den gesamten Speicherverbrauch zu minimieren.
+Die Poolgröße folgt der Last. Mindestens 4 Kontexte werden immer vorgehalten. Wenn eine Coroutine
+beendet wird und der Pool weniger Kontexte enthält, als Coroutinen in der Warteschlange warten, wird
+ihr Kontext an den Pool zurückgegeben; andernfalls wird der Kontext zerstört. So wächst der Pool unter
+Last und schrumpft wieder, sobald sich die Warteschlange leert, was sowohl die `mmap`/`mprotect`-Latenz
+als auch den Speicherverbrauch begrenzt.
 
 ### Switch-Handler
 

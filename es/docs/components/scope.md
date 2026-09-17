@@ -271,19 +271,26 @@ foreach ($group as $key => [$result, $error]) {
 
 ## Scope Global: Siempre Hay un Padre
 
-Si no especificas un scope explicitamente, la corrutina se crea en el **scope global**:
+Si no especificas un scope explicitamente, la corrutina se crea en el **scope actual**.
+En el nivel superior de un script, el scope actual es el **scope global** (tambien llamado main scope):
 
 ```php
-// Sin especificar un scope
+// En el nivel superior: la corrutina va al scope global
 spawn(function() {
     echo "Estoy en el scope global\n";
 });
 
-// Lo mismo que:
-Async\Scope::global()->spawn(function() {
-    echo "Estoy en el scope global\n";
+// Dentro de una corrutina: la corrutina va al scope del llamador
+$scope = new Async\Scope();
+$scope->spawn(function() {
+    spawn(function() {
+        echo "Estoy en \$scope, igual que mi padre\n";
+    });
 });
 ```
+
+El scope global no tiene objeto PHP: no existe el metodo `Scope::global()`. Su contexto es accesible via
+`Async\root_context()`, y `Async\Scope::inherit()` llamado en el nivel superior crea un hijo de el.
 
 El scope global vive durante toda la solicitud. Cuando PHP termina, todas las corrutinas en el scope global se cancelan de forma elegante.
 
@@ -350,7 +357,7 @@ usando los siguientes metodos:
 | `$scope->spawn(Closure, ...$args)`       | Lanza una corrutina dentro del Scope                             |
 | `$scope->awaitCompletion($cancellation)` | Espera a que todas las corrutinas en el Scope completen          |
 | `$scope->cancel()`                       | Envia una senal de cancelacion a todas las corrutinas            |
-| `$scope->dispose()`                      | Cierra el Scope y cancela forzosamente todas las corrutinas      |
+| `$scope->dispose()`                      | Cierra el Scope; cancela las corrutinas o las marca zombie con `DISPOSE_SAFELY` |
 | `$scope->disposeSafely()`               | Cierra el Scope; las corrutinas no se cancelan sino que se marcan zombie |
 | `$scope->awaitAfterCancellation()`       | Espera a que todas las corrutinas completen, incluyendo las zombie |
 | `$scope->disposeAfterTimeout(int $ms)`   | Cancela las corrutinas despues de un tiempo de espera            |
@@ -381,13 +388,18 @@ $scope->cancel();
 
 **3. El padre cierra el Scope y libera recursos**
 
-`dispose()` cierra el Scope y cancela forzosamente todas sus corrutinas:
+`dispose()` cierra el Scope y cancela todas sus corrutinas:
 
 ```php
 $scope->dispose();
 // El Scope esta cerrado. Todas las corrutinas estan canceladas.
 // No se pueden anadir nuevas corrutinas a este Scope.
 ```
+
+`dispose()` sigue la bandera `DISPOSE_SAFELY` del Scope. Un `new Scope()` no la tiene, asi que sus corrutinas
+se cancelan. Un Scope que tiene la bandera (tras `allowZombies()`, o heredada de un padre que la tiene, como
+el scope global) marca sus corrutinas como zombie en lugar de cancelarlas, igual que `disposeSafely()`. Ver
+[Corrutinas Zombie](zombie-coroutines.md).
 
 Si necesitas cerrar el Scope pero permitir que las corrutinas actuales **terminen su trabajo**,
 usa `disposeSafely()` -- las corrutinas se marcan como zombie

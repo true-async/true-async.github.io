@@ -160,26 +160,29 @@ Scope
 
 ## Safely 플래그 상속
 
-기본적으로 `Scope`는 `DISPOSE_SAFELY` 플래그와 함께 생성됩니다.
-이는 `Scope`가 파괴될 때(예: 객체의 소멸자에서)
-코루틴이 취소되지 않고 `좀비`가 됨을 의미합니다.
+기본적으로 `DISPOSE_SAFELY` 플래그를 가지는 것은 글로벌 스코프뿐입니다. `new Scope()`는 이 플래그 없이 생성됩니다:
+이러한 `Scope`가 파괴되면(예: 객체의 소멸자에서) 코루틴은 취소됩니다.
+`allowZombies()`는 이 플래그를 켜며, 그러면 코루틴은 취소되는 대신 `좀비`가 됩니다.
 
 자식 `Scope`는 부모로부터 이 플래그를 상속합니다:
 
 ```php
-$parent = new Async\Scope();
-// parent는 기본적으로 DISPOSE_SAFELY 플래그를 가집니다
+$parent = (new Async\Scope())->allowZombies();
+// parent는 DISPOSE_SAFELY 플래그를 가집니다
 
 $child = Async\Scope::inherit($parent);
 // child도 DISPOSE_SAFELY 플래그를 가집니다
+
+$top = Async\Scope::inherit();
+// 최상위 레벨에서는 부모가 글로벌 스코프이므로, $top도 이 플래그를 가집니다
 ```
 
-파괴 시 강제 취소를 원하면 `asNotSafely()`를 사용하세요:
+상속된 Scope에서 파괴 시 강제 취소를 원하면 `asNotSafely()`를 사용하세요:
 
 ```php
-$scope = (new Async\Scope())->asNotSafely();
+$scope = Async\Scope::inherit()->asNotSafely();
 // 이제 Scope 객체가 파괴되면
-// 코루틴은 좀비로 표시되지 않고 강제로 취소됩니다
+// 코루틴은 좀비로 표시되지 않고 취소됩니다
 ```
 
 ## 예제: 미들웨어가 있는 HTTP 서버
@@ -209,7 +212,7 @@ class RequestHandler
 
     public function __destruct() {
         // 파괴 시: 미들웨어가 취소에 준비되지 않았을 수 있으므로
-        // disposeSafely()를 사용합니다 (기본 동작).
+        // dispose() 대신 disposeSafely()를 사용합니다.
         // 좀비 코루틴은 스스로 완료됩니다.
         $this->scope->disposeSafely();
     }

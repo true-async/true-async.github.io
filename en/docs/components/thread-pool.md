@@ -344,7 +344,7 @@ completed: 6
 
 | Method                | What it returns                                                                         |
 |-----------------------|-----------------------------------------------------------------------------------------|
-| `getWorkerCount()`    | Number of worker threads (set in the constructor)                                       |
+| `getWorkerCount()`    | Number of worker threads running now; a closed pool reports 0 once its workers have exited |
 | `getPendingCount()`   | Tasks in the queue, not yet picked up by a worker                                       |
 | `getRunningCount()`   | Tasks currently being executed by a worker                                              |
 | `getCompletedCount()` | Total tasks completed since the pool was created (monotonically increasing)             |

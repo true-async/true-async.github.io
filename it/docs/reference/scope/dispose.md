@@ -16,9 +16,9 @@ description: "Cancella tutte le coroutine e chiude lo scope."
 public function dispose(): void
 ```
 
-Cancella forzatamente tutte le coroutine nello scope e lo chiude. Dopo aver chiamato `dispose()`, lo scope viene contrassegnato sia come chiuso che come cancellato. Non e' possibile aggiungere nuove coroutine a uno scope chiuso.
+Chiude lo scope e cancella tutte le coroutine al suo interno. Dopo aver chiamato `dispose()`, lo scope viene contrassegnato sia come chiuso che come cancellato. Non e' possibile aggiungere nuove coroutine a uno scope chiuso.
 
-Questo equivale a chiamare `cancel()` seguito dalla chiusura dello scope.
+Per uno scope senza il flag dispose-safely (`new Scope()` per impostazione predefinita) questo equivale a chiamare `cancel()` seguito dalla chiusura dello scope. Uno scope che porta il flag, impostato da `allowZombies()` o ereditato da un genitore che lo possiede, come lo scope principale, lascia invece le sue coroutine in esecuzione come zombie, esattamente come `disposeSafely()`.
 
 ## Valore di ritorno
 

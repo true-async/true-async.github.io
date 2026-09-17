@@ -74,7 +74,7 @@ $pdo = new PDO($dsn, $user, $password, [
     PDO::ATTR_POOL_ENABLED              => true,  // 启用连接池
     PDO::ATTR_POOL_MIN                  => 0,     // 最小连接数（默认 0）
     PDO::ATTR_POOL_MAX                  => 10,    // 最大连接数（默认 10）
-    PDO::ATTR_POOL_HEALTHCHECK_INTERVAL => 30,    // 健康检查间隔（秒，0 = 禁用）
+    PDO::ATTR_POOL_HEALTHCHECK_INTERVAL => 30000, // 健康检查间隔（毫秒，0 = 禁用）
 ]);
 ```
 
@@ -83,7 +83,7 @@ $pdo = new PDO($dsn, $user, $password, [
 | `POOL_ENABLED`              | 启用连接池                                                           | `false` |
 | `POOL_MIN`                  | 连接池保持打开的最小连接数                                           | `0`     |
 | `POOL_MAX`                  | 最大同时连接数                                                       | `10`    |
-| `POOL_HEALTHCHECK_INTERVAL` | 检查连接是否存活的频率（秒）                                         | `0`     |
+| `POOL_HEALTHCHECK_INTERVAL` | 检查连接是否存活的频率（毫秒）                                       | `0`     |
 | `POOL_STMT_CACHE_SIZE`      | 每个物理连接上 prepared statement 的缓存大小                         | `0`（关）|
 
 ## 连接绑定到协程

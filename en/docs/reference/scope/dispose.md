@@ -16,9 +16,9 @@ description: "Cancels all coroutines and closes the scope."
 public function dispose(): void
 ```
 
-Forcefully cancels all coroutines in the scope and closes it. After calling `dispose()`, the scope is marked as both closed and cancelled. New coroutines cannot be added to a closed scope.
+Closes the scope and cancels all coroutines in it. After calling `dispose()`, the scope is marked as both closed and cancelled. New coroutines cannot be added to a closed scope.
 
-This is equivalent to calling `cancel()` followed by closing the scope.
+For a scope without the dispose-safely flag (`new Scope()` by default) this is equivalent to calling `cancel()` followed by closing the scope. A scope that carries the flag, set by `allowZombies()` or inherited from a parent that has it, such as the main scope, leaves its coroutines running as zombies instead, exactly like `disposeSafely()`.
 
 ## Return Value
 

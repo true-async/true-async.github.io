@@ -160,26 +160,29 @@ Scope
 
 ## Успадкування прапорця Safely
 
-За замовчуванням `Scope` створюється з прапорцем `DISPOSE_SAFELY`.
-Це означає: якщо `Scope` знищується (наприклад, у деструкторі об'єкта),
-корутини стають `zombie`, а не скасовуються.
+Прапорець `DISPOSE_SAFELY` за замовчуванням є лише у глобального scope. `new Scope()` створюється без нього:
+коли такий `Scope` знищується (наприклад, у деструкторі об'єкта), його корутини скасовуються.
+`allowZombies()` вмикає прапорець, і тоді корутини стають `zombie`, а не скасовуються.
 
-Дочірній `Scope` успадковує цей прапорець від батьківського:
+Дочірній `Scope` успадковує прапорець від батьківського:
 
 ```php
-$parent = new Async\Scope();
-// parent має прапорець DISPOSE_SAFELY за замовчуванням
+$parent = (new Async\Scope())->allowZombies();
+// parent має прапорець DISPOSE_SAFELY
 
 $child = Async\Scope::inherit($parent);
 // child також має прапорець DISPOSE_SAFELY
+
+$top = Async\Scope::inherit();
+// на верхньому рівні батько -- глобальний scope, тому $top теж має прапорець
 ```
 
-Якщо ви хочете примусове скасування при знищенні, використовуйте `asNotSafely()`:
+Щоб успадкований Scope при знищенні скасовував корутини, використовуйте `asNotSafely()`:
 
 ```php
-$scope = (new Async\Scope())->asNotSafely();
+$scope = Async\Scope::inherit()->asNotSafely();
 // Тепер при знищенні об'єкта Scope
-// корутини будуть примусово скасовані, а не позначені як zombie
+// корутини будуть скасовані, а не позначені як zombie
 ```
 
 ## Приклад: HTTP-сервер з Middleware
@@ -209,7 +212,7 @@ class RequestHandler
 
     public function __destruct() {
         // При знищенні: middleware може бути не готовий до скасування,
-        // тому використовуємо disposeSafely() (поведінка за замовчуванням).
+        // тому використовуємо disposeSafely(), а не dispose().
         // Zombie-корутини завершаться самостійно.
         $this->scope->disposeSafely();
     }

@@ -366,7 +366,9 @@ $info = $coro->getAwaitingInfo();
 print_r($info);
 ```
 
-Muy util para depuracion -- puedes ver inmediatamente de donde vino una corrutina y donde se detuvo.
+El metodo esta reservado para depuracion. En la build actual siempre devuelve un array vacio:
+la extension todavia no lo rellena. Usa `getSpawnLocation()` y `getSuspendLocation()` para ver de donde
+vino una corrutina y donde se detuvo.
 
 ## Corrutinas vs Hilos
 

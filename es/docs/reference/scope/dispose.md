@@ -16,9 +16,9 @@ description: "Cancela todas las corrutinas y cierra el ámbito."
 public function dispose(): void
 ```
 
-Cancela de forma forzada todas las corrutinas del ámbito y lo cierra. Después de llamar a `dispose()`, el ámbito se marca como cerrado y cancelado. No se pueden agregar nuevas corrutinas a un ámbito cerrado.
+Cierra el ámbito y cancela todas las corrutinas que contiene. Después de llamar a `dispose()`, el ámbito se marca como cerrado y cancelado. No se pueden agregar nuevas corrutinas a un ámbito cerrado.
 
-Esto es equivalente a llamar a `cancel()` seguido del cierre del ámbito.
+Para un ámbito sin la bandera dispose-safely (la que tiene `new Scope()` por defecto), esto equivale a llamar a `cancel()` y luego cerrar el ámbito. Un ámbito que lleva la bandera, activada con `allowZombies()` o heredada de un padre que la tiene, como el ámbito principal, deja sus corrutinas ejecutándose como zombis en su lugar, igual que `disposeSafely()`.
 
 ## Valor de retorno
 

@@ -76,7 +76,7 @@ $pdo = new PDO($dsn, $user, $password, [
     PDO::ATTR_POOL_ENABLED              => true,  // Abilita il pool
     PDO::ATTR_POOL_MIN                  => 0,     // Connessioni minime (predefinito 0)
     PDO::ATTR_POOL_MAX                  => 10,    // Connessioni massime (predefinito 10)
-    PDO::ATTR_POOL_HEALTHCHECK_INTERVAL => 30,    // Intervallo di health check (sec, 0 = disabilitato)
+    PDO::ATTR_POOL_HEALTHCHECK_INTERVAL => 30000, // Intervallo di health check (ms, 0 = disabilitato)
 ]);
 ```
 
@@ -85,7 +85,7 @@ $pdo = new PDO($dsn, $user, $password, [
 | `POOL_ENABLED`              | Abilita il pool                                                      | `false`     |
 | `POOL_MIN`                  | Numero minimo di connessioni mantenute aperte dal pool               | `0`         |
 | `POOL_MAX`                  | Numero massimo di connessioni simultanee                             | `10`        |
-| `POOL_HEALTHCHECK_INTERVAL` | Quanto spesso verificare che una connessione sia attiva (in secondi) | `0`         |
+| `POOL_HEALTHCHECK_INTERVAL` | Quanto spesso verificare che una connessione sia attiva (in ms)      | `0`         |
 | `POOL_STMT_CACHE_SIZE`      | Dimensione della cache di prepared statement per singola connessione fisica | `0` (off) |
 
 ## Associazione delle Connessioni alle Coroutine

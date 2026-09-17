@@ -348,7 +348,7 @@ completed: 6
 
 | Méthode               | Ce qu'elle retourne                                                                      |
 |-----------------------|------------------------------------------------------------------------------------------|
-| `getWorkerCount()`    | Nombre de threads de travail (défini dans le constructeur)                               |
+| `getWorkerCount()`    | Nombre de threads de travail actifs actuellement ; un pool fermé indique 0 une fois que ses travailleurs ont quitté |
 | `getPendingCount()`   | Tâches dans la file d'attente, pas encore prises par un travailleur                      |
 | `getRunningCount()`   | Tâches en cours d'exécution par un travailleur                                           |
 | `getCompletedCount()` | Total des tâches terminées depuis la création du pool (croissance monotone)              |

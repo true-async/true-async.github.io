@@ -366,7 +366,9 @@ $info = $coro->getAwaitingInfo();
 print_r($info);
 ```
 
-Very useful for debugging -- you can immediately see where a coroutine came from and where it stopped.
+The method is reserved for debugging. In the current build it always returns an empty array:
+the extension does not fill it yet. Use `getSpawnLocation()` and `getSuspendLocation()` to see where a coroutine
+came from and where it stopped.
 
 ## Coroutines vs Threads
 

@@ -58,7 +58,9 @@ Los valores establecidos aqui son visibles para todas las corrutinas en este Sco
 ### coroutine_context()
 
 Devuelve el contexto de la corrutina actual. Este es un contexto **privado** que pertenece solo a esta corrutina.
-Otras corrutinas no pueden ver los datos establecidos aqui.
+Otras corrutinas no pueden ver los datos establecidos aqui. El contexto de una corrutina no tiene un Scope por
+encima, por lo que `find()` sobre el busca solo entre sus propias claves: usa `current_context()` o `root_context()`
+para buscar en el arbol de Scope.
 
 ### root_context()
 
@@ -141,7 +143,7 @@ $ctx = current_context();
 $ctx->set('key', 'value');
 
 // set repetido sin replace -- error
-$ctx->set('key', 'new_value'); // Error: A context key already exists
+$ctx->set('key', 'new_value'); // Error: Context key already exists and replace is false
 
 // Con replace = true explicito
 $ctx->set('key', 'new_value', replace: true); // OK

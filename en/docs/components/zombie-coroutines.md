@@ -160,26 +160,29 @@ If there are no more active coroutines, the application terminates and even `zom
 
 ## Inheriting the Safely Flag
 
-By default, a `Scope` is created with the `DISPOSE_SAFELY` flag.
-This means: if the `Scope` is destroyed (e.g., in an object's destructor),
-coroutines become `zombies` rather than being cancelled.
+Only the global scope has the `DISPOSE_SAFELY` flag by default. A `new Scope()` is created without it:
+when such a `Scope` is destroyed (e.g., in an object's destructor), its coroutines are cancelled.
+`allowZombies()` turns the flag on, and then coroutines become `zombies` rather than being cancelled.
 
-A child `Scope` inherits this flag from its parent:
+A child `Scope` inherits the flag from its parent:
 
 ```php
-$parent = new Async\Scope();
-// parent has the DISPOSE_SAFELY flag by default
+$parent = (new Async\Scope())->allowZombies();
+// parent has the DISPOSE_SAFELY flag
 
 $child = Async\Scope::inherit($parent);
 // child also has the DISPOSE_SAFELY flag
+
+$top = Async\Scope::inherit();
+// at the top level the parent is the global scope, so $top has the flag too
 ```
 
-If you want forced cancellation on destruction, use `asNotSafely()`:
+To force cancellation on destruction for an inherited Scope, use `asNotSafely()`:
 
 ```php
-$scope = (new Async\Scope())->asNotSafely();
+$scope = Async\Scope::inherit()->asNotSafely();
 // Now when the Scope object is destroyed,
-// coroutines will be forcefully cancelled rather than marked as zombies
+// coroutines will be cancelled rather than marked as zombies
 ```
 
 ## Example: HTTP Server with Middleware
@@ -209,7 +212,7 @@ class RequestHandler
 
     public function __destruct() {
         // On destruction: middleware may not be ready for cancellation,
-        // so we use disposeSafely() (default behavior).
+        // so we use disposeSafely() instead of dispose().
         // Zombie coroutines will finish on their own.
         $this->scope->disposeSafely();
     }

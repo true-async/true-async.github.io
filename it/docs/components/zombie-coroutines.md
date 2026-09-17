@@ -160,26 +160,29 @@ Se non ci sono più coroutine attive, l'applicazione termina e anche le coroutin
 
 ## Ereditarietà del Flag Safely
 
-Per impostazione predefinita, uno `Scope` viene creato con il flag `DISPOSE_SAFELY`.
-Questo significa: se lo `Scope` viene distrutto (es. nel distruttore di un oggetto),
-le coroutine diventano `zombie` anziché essere cancellate.
+Solo lo scope globale ha per impostazione predefinita il flag `DISPOSE_SAFELY`. Un `new Scope()` viene creato
+senza di esso: quando tale `Scope` viene distrutto (es. nel distruttore di un oggetto), le sue coroutine vengono
+cancellate. `allowZombies()` attiva il flag, e allora le coroutine diventano `zombie` anziché essere cancellate.
 
-Uno `Scope` figlio eredita questo flag dal genitore:
+Uno `Scope` figlio eredita il flag dal genitore:
 
 ```php
-$parent = new Async\Scope();
-// parent ha il flag DISPOSE_SAFELY per impostazione predefinita
+$parent = (new Async\Scope())->allowZombies();
+// parent ha il flag DISPOSE_SAFELY
 
 $child = Async\Scope::inherit($parent);
 // child ha anch'esso il flag DISPOSE_SAFELY
+
+$top = Async\Scope::inherit();
+// al livello più alto il genitore è lo scope globale, quindi anche $top ha il flag
 ```
 
-Se vuoi la cancellazione forzata alla distruzione, usa `asNotSafely()`:
+Per forzare la cancellazione alla distruzione di uno Scope ereditato, usa `asNotSafely()`:
 
 ```php
-$scope = (new Async\Scope())->asNotSafely();
+$scope = Async\Scope::inherit()->asNotSafely();
 // Ora quando l'oggetto Scope viene distrutto,
-// le coroutine verranno cancellate forzatamente anziché marcate come zombie
+// le coroutine verranno cancellate anziché marcate come zombie
 ```
 
 ## Esempio: Server HTTP con Middleware
@@ -209,7 +212,7 @@ class RequestHandler
 
     public function __destruct() {
         // Alla distruzione: il middleware potrebbe non essere pronto per la cancellazione,
-        // quindi usiamo disposeSafely() (comportamento predefinito).
+        // quindi usiamo disposeSafely() invece di dispose().
         // Le coroutine zombie termineranno da sole.
         $this->scope->disposeSafely();
     }

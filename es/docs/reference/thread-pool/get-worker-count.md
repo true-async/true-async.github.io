@@ -16,11 +16,11 @@ description: "Obtener el número de hilos de trabajo en el pool de hilos."
 public ThreadPool::getWorkerCount(): int
 ```
 
-Devuelve el número de hilos de trabajo en el pool. Este valor se fija en el momento de la construcción y no cambia durante la vida útil del pool. Es igual al argumento `$workers` pasado a [`new ThreadPool()`](/es/docs/reference/thread-pool/__construct.html).
+Devuelve el número de hilos de trabajo activos en el pool ahora mismo. Empieza en el argumento `$workers` pasado a [`new ThreadPool()`](/es/docs/reference/thread-pool/__construct.html) y disminuye a medida que los trabajadores terminan.
 
 ## Valor de retorno
 
-`int` — número de hilos de trabajo (tal como se definió en el constructor).
+`int` — número de hilos de trabajo activos ahora mismo. Un trabajador sale del conteo cuando su hilo termina, así que un pool cerrado reporta 0 una vez que sus trabajadores han drenado, y un pool que perdió un hilo reporta uno menos que el número con el que se construyó.
 
 ## Ejemplos
 

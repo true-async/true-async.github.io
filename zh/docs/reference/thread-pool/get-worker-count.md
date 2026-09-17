@@ -16,11 +16,11 @@ description: "获取线程池中工作线程的数量。"
 public ThreadPool::getWorkerCount(): int
 ```
 
-返回池中工作线程的数量。该值在构造时固定，在池的整个生命周期内不会改变。它等于传递给 [`new ThreadPool()`](/zh/docs/reference/thread-pool/__construct.html) 的 `$workers` 参数值。
+返回池中此刻正在运行的工作线程数量。初始值等于传递给 [`new ThreadPool()`](/zh/docs/reference/thread-pool/__construct.html) 的 `$workers` 参数值，并随着工作线程退出而减少。
 
 ## 返回值
 
-`int` — 工作线程数量（与构造函数中设置的一致）。
+`int` — 当前正在运行的工作线程数量。线程结束时会从计数中移除，因此已关闭的池在其工作线程全部退出后返回 0，而丢失了一个线程的池返回的数值比构造时设置的少一。
 
 ## 示例
 

@@ -20,7 +20,7 @@ Returns debug information about what the coroutine is currently awaiting. Useful
 
 ## Return Value
 
-`array` -- an array with awaiting information. An empty array if the information is unavailable.
+`array` -- an array with awaiting information. In the current build the extension does not fill it, so the method always returns an empty array; use `getSuspendLocation()` and `getTrace()` to see where a coroutine is stopped.
 
 ## Examples
 

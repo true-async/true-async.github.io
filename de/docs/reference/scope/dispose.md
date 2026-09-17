@@ -16,9 +16,9 @@ description: "Bricht alle Koroutinen ab und schliesst den Scope."
 public function dispose(): void
 ```
 
-Bricht erzwungen alle Koroutinen im Scope ab und schliesst ihn. Nach dem Aufruf von `dispose()` wird der Scope als geschlossen und abgebrochen markiert. Einem geschlossenen Scope koennen keine neuen Koroutinen hinzugefuegt werden.
+Schliesst den Scope und bricht alle Koroutinen darin ab. Nach dem Aufruf von `dispose()` wird der Scope als geschlossen und abgebrochen markiert. Einem geschlossenen Scope koennen keine neuen Koroutinen hinzugefuegt werden.
 
-Dies entspricht dem Aufruf von `cancel()` gefolgt vom Schliessen des Scopes.
+Fuer einen Scope ohne das dispose-safely-Flag (`new Scope()` standardmaessig) entspricht dies dem Aufruf von `cancel()` gefolgt vom Schliessen des Scopes. Ein Scope, der das Flag traegt -- gesetzt durch `allowZombies()` oder von einem Elternteil geerbt, der es hat, etwa dem main scope -- laesst seine Koroutinen stattdessen als Zombies weiterlaufen, genau wie `disposeSafely()`.
 
 ## Rueckgabewert
 

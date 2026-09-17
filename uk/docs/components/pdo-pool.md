@@ -76,7 +76,7 @@ $pdo = new PDO($dsn, $user, $password, [
     PDO::ATTR_POOL_ENABLED              => true,  // Увімкнути пул
     PDO::ATTR_POOL_MIN                  => 0,     // Мінімум з'єднань (за замовчуванням 0)
     PDO::ATTR_POOL_MAX                  => 10,    // Максимум з'єднань (за замовчуванням 10)
-    PDO::ATTR_POOL_HEALTHCHECK_INTERVAL => 30,    // Інтервал перевірки здоров'я (сек, 0 = вимкнено)
+    PDO::ATTR_POOL_HEALTHCHECK_INTERVAL => 30000, // Інтервал перевірки здоров'я (мс, 0 = вимкнено)
 ]);
 ```
 
@@ -85,7 +85,7 @@ $pdo = new PDO($dsn, $user, $password, [
 | `POOL_ENABLED`              | Увімкнути пул                                                    | `false`          |
 | `POOL_MIN`                  | Мінімальна кількість з'єднань, що підтримуються відкритими       | `0`              |
 | `POOL_MAX`                  | Максимальна кількість одночасних з'єднань                        | `10`             |
-| `POOL_HEALTHCHECK_INTERVAL` | Як часто перевіряти, що з'єднання живе (у секундах)              | `0`              |
+| `POOL_HEALTHCHECK_INTERVAL` | Як часто перевіряти, що з'єднання живе (у мілісекундах)          | `0`              |
 | `POOL_STMT_CACHE_SIZE`      | Розмір кешу prepared statements на одне фізичне з'єднання        | `0` (вимк)       |
 
 ## Прив'язка з'єднань до корутин

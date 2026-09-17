@@ -160,26 +160,29 @@ Si no quedan mas corrutinas activas, la aplicacion termina e incluso las corruti
 
 ## Herencia de la Bandera Safely
 
-Por defecto, un `Scope` se crea con la bandera `DISPOSE_SAFELY`.
-Esto significa: si el `Scope` es destruido (por ejemplo, en el destructor de un objeto),
-las corrutinas se convierten en `zombies` en lugar de ser canceladas.
+Solo el scope global tiene por defecto la bandera `DISPOSE_SAFELY`. Un `new Scope()` se crea sin ella:
+cuando ese `Scope` es destruido (por ejemplo, en el destructor de un objeto), sus corrutinas se cancelan.
+`allowZombies()` activa la bandera, y entonces las corrutinas se convierten en `zombies` en lugar de ser canceladas.
 
-Un `Scope` hijo hereda esta bandera de su padre:
+Un `Scope` hijo hereda la bandera de su padre:
 
 ```php
-$parent = new Async\Scope();
-// parent tiene la bandera DISPOSE_SAFELY por defecto
+$parent = (new Async\Scope())->allowZombies();
+// parent tiene la bandera DISPOSE_SAFELY
 
 $child = Async\Scope::inherit($parent);
 // child tambien tiene la bandera DISPOSE_SAFELY
+
+$top = Async\Scope::inherit();
+// en el nivel superior el padre es el scope global, asi que $top tambien tiene la bandera
 ```
 
-Si deseas cancelacion forzada en la destruccion, usa `asNotSafely()`:
+Para forzar la cancelacion en la destruccion de un Scope heredado, usa `asNotSafely()`:
 
 ```php
-$scope = (new Async\Scope())->asNotSafely();
+$scope = Async\Scope::inherit()->asNotSafely();
 // Ahora cuando el objeto Scope sea destruido,
-// las corrutinas seran canceladas forzosamente en lugar de marcarse como zombies
+// las corrutinas seran canceladas en lugar de marcarse como zombies
 ```
 
 ## Ejemplo: Servidor HTTP con Middleware
@@ -209,7 +212,7 @@ class RequestHandler
 
     public function __destruct() {
         // En la destruccion: el middleware puede no estar listo para la cancelacion,
-        // asi que usamos disposeSafely() (comportamiento por defecto).
+        // asi que usamos disposeSafely() en lugar de dispose().
         // Las corrutinas zombie terminaran por su cuenta.
         $this->scope->disposeSafely();
     }

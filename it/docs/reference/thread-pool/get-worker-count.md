@@ -16,11 +16,11 @@ description: "Ottieni il numero di thread worker nel pool di thread."
 public ThreadPool::getWorkerCount(): int
 ```
 
-Restituisce il numero di thread worker nel pool. Questo valore è fissato al momento della costruzione e non cambia durante la vita del pool. È uguale all'argomento `$workers` passato a [`new ThreadPool()`](/it/docs/reference/thread-pool/__construct.html).
+Restituisce il numero di thread worker attualmente in esecuzione nel pool. Parte dall'argomento `$workers` passato a [`new ThreadPool()`](/it/docs/reference/thread-pool/__construct.html) e diminuisce man mano che i worker terminano.
 
 ## Valore restituito
 
-`int` — numero di thread worker (impostato nel costruttore).
+`int` — numero di thread worker attualmente in esecuzione. Un worker esce dal conteggio quando il suo thread termina, quindi un pool chiuso riporta 0 una volta che i suoi worker si sono esauriti, e un pool che ha perso un thread riporta un'unità in meno rispetto a quella con cui è stato costruito.
 
 ## Esempi
 

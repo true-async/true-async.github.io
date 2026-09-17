@@ -29,8 +29,8 @@ Request-scope назначает **встраивающий C-код** (напр
 
 | Функция | Что возвращает |
 |---------|----------------|
-| `current_context()` | Контекст **текущей корутины** — изолирован для каждой корутины |
-| `coroutine_context()` | Алиас `current_context()` |
+| `current_context()` | Контекст **текущего Scope** — общий для всех корутин этого Scope |
+| `coroutine_context()` | **Приватный** контекст текущей корутины — изолирован для каждой корутины |
 | `request_context()` | Контекст **запроса** — общий для handler и всех его дочерних корутин |
 | `root_context()` | Контекст root-scope |
 
@@ -97,25 +97,25 @@ function audit_log(string $event): void
 // и в фоновой CLI-задаче (request_context() === null, $rid === 'no-request').
 ```
 
-### Пример #3 Сравнение с `current_context()`
+### Пример #3 Сравнение с `coroutine_context()`
 
 ```php
 <?php
 use function Async\spawn;
 use function Async\await;
 use function Async\request_context;
-use function Async\current_context;
+use function Async\coroutine_context;
 
 $server->addHttpHandler(function ($req, $res) {
     request_context()->set('request_id', 'abc-123');
-    current_context()->set('local',      'handler-only');
+    coroutine_context()->set('local',    'handler-only');
 
     $child = spawn(function () {
         // Виден request_context, потому что он общий для всего scope запроса.
         var_dump(request_context()->get('request_id')); // string(7) "abc-123"
 
-        // current_context() у дочерней корутины — свой.
-        var_dump(current_context()->find('local'));     // NULL
+        // coroutine_context() у дочерней корутины — свой, и вверх по дереву он не ищет.
+        var_dump(coroutine_context()->find('local'));   // NULL
     });
     await($child);
 

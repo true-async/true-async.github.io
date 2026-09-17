@@ -271,19 +271,26 @@ foreach ($group as $key => [$result, $error]) {
 
 ## Global Scope: всегда есть родитель
 
-Если вы не указали scope явно, корутина создается в **global scope**:
+Если вы не указали scope явно, корутина создается в **текущем scope**.
+На верхнем уровне скрипта текущий scope — это **global scope** (он же main scope):
 
 ```php
-// Без указания scope
+// На верхнем уровне: корутина попадает в global scope
 spawn(function() {
     echo "Я в global scope\n";
 });
 
-// То же самое, что:
-Async\Scope::global()->spawn(function() {
-    echo "Я в global scope\n";
+// Внутри корутины: корутина попадает в scope вызывающего
+$scope = new Async\Scope();
+$scope->spawn(function() {
+    spawn(function() {
+        echo "Я в \$scope, как и родитель\n";
+    });
 });
 ```
+
+У global scope нет PHP-объекта: метода `Scope::global()` не существует. Его контекст доступен через
+`Async\root_context()`, а `Async\Scope::inherit()`, вызванный на верхнем уровне, создаёт его дочерний scope.
 
 Global scope живет весь запрос. Когда PHP завершается, все корутины в global scope отменяются gracefully.
 
@@ -350,7 +357,7 @@ unset($client);
 | `$scope->spawn(Closure, ...$args)`       | Запускает корутину внутри Scope                               |
 | `$scope->awaitCompletion($cancellation)` | Ожидает завершения всех корутин в Scope                       |
 | `$scope->cancel()`                       | Отправляет сигнал отмены всем корутинам                       |
-| `$scope->dispose()`                      | Закрывает Scope и принудительно отменяет все корутины         |
+| `$scope->dispose()`                      | Закрывает Scope; отменяет корутины или помечает zombie при `DISPOSE_SAFELY` |
 | `$scope->disposeSafely()`                | Закрывает Scope; корутины не отменяются, а помечаются zombie  |
 | `$scope->awaitAfterCancellation()`       | Ожидает завершения всех корутин, включая zombie               |
 | `$scope->disposeAfterTimeout(int $ms)`   | Отменяет корутины после тайм-аута                             |
@@ -381,13 +388,18 @@ $scope->cancel();
 
 **3. Родитель закрывает Scope и освобождает ресурсы**
 
-`dispose()` закрывает Scope и принудительно отменяет все его корутины:
+`dispose()` закрывает Scope и отменяет все его корутины:
 
 ```php
 $scope->dispose();
 // Scope закрыт. Все корутины отменены.
 // Новые корутины в этот Scope добавить нельзя.
 ```
+
+`dispose()` учитывает флаг `DISPOSE_SAFELY` у Scope. У `new Scope()` флага нет, поэтому корутины отменяются.
+Scope с флагом (после `allowZombies()` или унаследованный от родителя с флагом, например от global scope)
+вместо отмены помечает корутины как zombie, так же как `disposeSafely()`. См.
+[Zombie-корутины](zombie-coroutines.md).
 
 Если нужно закрыть Scope, но позволить текущим корутинам **доработать**,
 используйте `disposeSafely()` — корутины помечаются как zombie

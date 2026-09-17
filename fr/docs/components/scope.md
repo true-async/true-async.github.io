@@ -271,19 +271,26 @@ foreach ($group as $key => [$result, $error]) {
 
 ## Scope global : il y a toujours un parent
 
-Si vous ne specifiez pas de scope explicitement, la coroutine est creee dans le **scope global** :
+Si vous ne specifiez pas de scope explicitement, la coroutine est creee dans le **scope courant**.
+Au niveau superieur d'un script, le scope courant est le **scope global** (aussi appele scope principal) :
 
 ```php
-// Sans specifier de scope
+// Au niveau superieur : la coroutine va dans le scope global
 spawn(function() {
     echo "Je suis dans le scope global\n";
 });
 
-// Equivalent a :
-Async\Scope::global()->spawn(function() {
-    echo "Je suis dans le scope global\n";
+// A l'interieur d'une coroutine : la coroutine va dans le scope de l'appelant
+$scope = new Async\Scope();
+$scope->spawn(function() {
+    spawn(function() {
+        echo "Je suis dans \$scope, comme mon parent\n";
+    });
 });
 ```
+
+Le scope global n'a pas d'objet PHP : il n'existe pas de methode `Scope::global()`. Son contexte est accessible via
+`Async\root_context()`, et `Async\Scope::inherit()` appele au niveau superieur cree un enfant de ce scope.
 
 Le scope global vit pendant toute la requete. Quand PHP se termine, toutes les coroutines du scope global sont annulees gracieusement.
 
@@ -350,7 +357,7 @@ en utilisant les methodes suivantes :
 | `$scope->spawn(Closure, ...$args)`       | Lance une coroutine a l'interieur du Scope                       |
 | `$scope->awaitCompletion($cancellation)` | Attend la fin de toutes les coroutines du Scope                  |
 | `$scope->cancel()`                       | Envoie un signal d'annulation a toutes les coroutines            |
-| `$scope->dispose()`                      | Ferme le Scope et annule de force toutes les coroutines          |
+| `$scope->dispose()`                      | Ferme le Scope ; annule les coroutines, ou les marque zombie sous `DISPOSE_SAFELY` |
 | `$scope->disposeSafely()`               | Ferme le Scope ; les coroutines ne sont pas annulees mais marquees zombie |
 | `$scope->awaitAfterCancellation()`       | Attend la fin de toutes les coroutines, y compris les zombies    |
 | `$scope->disposeAfterTimeout(int $ms)`   | Annule les coroutines apres un timeout                           |
@@ -381,13 +388,18 @@ $scope->cancel();
 
 **3. Le parent ferme le Scope et libere les ressources**
 
-`dispose()` ferme le Scope et annule de force toutes ses coroutines :
+`dispose()` ferme le Scope et annule toutes ses coroutines :
 
 ```php
 $scope->dispose();
 // Le Scope est ferme. Toutes les coroutines sont annulees.
 // De nouvelles coroutines ne peuvent pas etre ajoutees a ce Scope.
 ```
+
+`dispose()` suit le drapeau `DISPOSE_SAFELY` du Scope. Un `new Scope()` ne l'a pas, donc ses coroutines sont
+annulees. Un Scope qui a le drapeau (apres `allowZombies()`, ou herite d'un parent qui l'a, comme le scope
+global) marque ses coroutines comme zombies a la place, exactement comme `disposeSafely()`. Voir
+[Coroutines zombie](zombie-coroutines.md).
 
 Si vous devez fermer le Scope mais permettre aux coroutines courantes de **terminer leur travail**,
 utilisez `disposeSafely()` -- les coroutines sont marquees comme zombie

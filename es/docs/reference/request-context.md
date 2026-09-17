@@ -29,8 +29,8 @@ visible a todo el árbol de corrutinas de la solicitud.
 
 | Función | Qué devuelve |
 |---------|--------------|
-| `current_context()` | Contexto de la **corrutina actual**, aislado por corrutina |
-| `coroutine_context()` | Alias de `current_context()` |
+| `current_context()` | Contexto del **Scope actual**, compartido por todas las corrutinas de ese Scope |
+| `coroutine_context()` | Contexto **privado** de la corrutina actual, aislado por corrutina |
 | `request_context()` | Contexto de la **solicitud**, común al handler y a todas sus corrutinas hijas |
 | `root_context()` | Contexto del root-scope |
 
@@ -97,25 +97,25 @@ function audit_log(string $event): void
 // (request_context() === null, $rid === 'no-request').
 ```
 
-### Ejemplo #3 Comparativa con `current_context()`
+### Ejemplo #3 Comparativa con `coroutine_context()`
 
 ```php
 <?php
 use function Async\spawn;
 use function Async\await;
 use function Async\request_context;
-use function Async\current_context;
+use function Async\coroutine_context;
 
 $server->addHttpHandler(function ($req, $res) {
     request_context()->set('request_id', 'abc-123');
-    current_context()->set('local',      'handler-only');
+    coroutine_context()->set('local',    'handler-only');
 
     $child = spawn(function () {
         // Se ve request_context porque es común a todo el scope de la solicitud.
         var_dump(request_context()->get('request_id')); // string(7) "abc-123"
 
-        // current_context() de la corrutina hija es suyo propio.
-        var_dump(current_context()->find('local'));     // NULL
+        // coroutine_context() de la corrutina hija es suyo propio, y no busca hacia arriba en el árbol.
+        var_dump(coroutine_context()->find('local'));   // NULL
     });
     await($child);
 

@@ -348,7 +348,7 @@ completed: 6
 
 | Methode               | Was zurückgegeben wird                                                                    |
 |-----------------------|-------------------------------------------------------------------------------------------|
-| `getWorkerCount()`    | Anzahl der Worker-Threads (im Konstruktor festgelegt)                                     |
+| `getWorkerCount()`    | Anzahl der aktuell laufenden Worker-Threads; ein geschlossener Pool meldet 0, sobald seine Worker beendet sind |
 | `getPendingCount()`   | Aufgaben in der Warteschlange, noch nicht von einem Worker aufgenommen                    |
 | `getRunningCount()`   | Aufgaben, die gerade von einem Worker ausgeführt werden                                   |
 | `getCompletedCount()` | Insgesamt abgeschlossene Aufgaben seit der Pool-Erstellung (monoton steigend)             |
