@@ -54,7 +54,7 @@ $orders = spawn(fn() => $db->query('SELECT * FROM orders'));
 | **[Evidence](https://true-async.github.io/en/docs/evidence/concurrency-efficiency.html)** | Benchmarks, production cases, academic research |
 | **[Interactive Demos](https://true-async.github.io/en/interactive/coroutine-demo.html)** | Visual coroutine timeline, learning map, PDO pool simulator |
 | **[RFC](https://true-async.github.io/en/rfc.html)** | Formal proposal for PHP internals |
-| **[llms.txt](https://true-async.github.io/llms.txt)** | Site map for AI agents: every page with a one-line summary |
+| **[llms.txt](https://true-async.github.io/llms.txt)** | Site map for AI agents, one line per page; [llms-full.txt](https://true-async.github.io/llms-full.txt) carries the full text |
 
 ## Building Locally
 
