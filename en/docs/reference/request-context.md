@@ -5,6 +5,7 @@ path_key: "/docs/reference/request-context.html"
 nav_active: docs
 permalink: /en/docs/reference/request-context.html
 page_title: "request_context()"
+title: "request_context()"
 description: "Async\\request_context() — shared request context visible to the entire handler coroutine tree. Bound to the request scope set by the embedding C code (HTTP server)."
 ---
 

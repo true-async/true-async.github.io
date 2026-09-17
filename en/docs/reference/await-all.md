@@ -5,6 +5,7 @@ path_key: "/docs/reference/await-all.html"
 nav_active: docs
 permalink: /en/docs/reference/await-all.html
 page_title: "await_all()"
+title: "await_all()"
 description: "await_all() — wait for all tasks with tolerance for partial failures."
 ---
 

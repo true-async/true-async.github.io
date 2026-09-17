@@ -5,6 +5,7 @@ path_key: "/docs/reference/thread-pool/__construct.html"
 nav_active: docs
 permalink: /en/docs/reference/thread-pool/__construct.html
 page_title: "ThreadPool::__construct()"
+title: "ThreadPool::__construct()"
 description: "Create a new ThreadPool with a fixed number of worker threads."
 ---
 

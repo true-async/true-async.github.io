@@ -5,6 +5,7 @@ path_key: "/docs/reference/coroutine-context.html"
 nav_active: docs
 permalink: /en/docs/reference/coroutine-context.html
 page_title: "coroutine_context()"
+title: "coroutine_context()"
 description: "coroutine_context() — get the private context of the current coroutine."
 ---
 

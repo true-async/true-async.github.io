@@ -5,6 +5,7 @@ path_key: "/motivation.html"
 nav_active: motivation
 permalink: /en/motivation.html
 page_title: "Motivation"
+title: "Motivation"
 description: "Why PHP needs built-in asynchronous capabilities"
 ---
 

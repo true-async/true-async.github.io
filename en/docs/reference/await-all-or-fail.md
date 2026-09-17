@@ -5,6 +5,7 @@ path_key: "/docs/reference/await-all-or-fail.html"
 nav_active: docs
 permalink: /en/docs/reference/await-all-or-fail.html
 page_title: "await_all_or_fail()"
+title: "await_all_or_fail()"
 description: "await_all_or_fail() — wait for all tasks to complete; throws an exception on the first error."
 ---
 

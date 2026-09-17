@@ -5,6 +5,7 @@ path_key: "/docs/reference/pool/construct.html"
 nav_active: docs
 permalink: /en/docs/reference/pool/construct.html
 page_title: "Pool::__construct"
+title: "Pool::__construct"
 description: "Create a new resource pool."
 ---
 

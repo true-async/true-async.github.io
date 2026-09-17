@@ -5,6 +5,7 @@ path_key: "/docs/reference/cpu-usage.html"
 nav_active: docs
 permalink: /en/docs/reference/cpu-usage.html
 page_title: "cpu_usage()"
+title: "cpu_usage()"
 description: "Async\\cpu_usage() — current process and system load with automatic delta computation between calls. Convenient for telemetry."
 ---
 

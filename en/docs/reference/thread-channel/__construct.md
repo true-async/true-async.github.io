@@ -5,6 +5,7 @@ path_key: "/docs/reference/thread-channel/__construct.html"
 nav_active: docs
 permalink: /en/docs/reference/thread-channel/__construct.html
 page_title: "ThreadChannel::__construct()"
+title: "ThreadChannel::__construct()"
 description: "Create a new thread-safe channel for exchanging data between OS threads."
 ---
 

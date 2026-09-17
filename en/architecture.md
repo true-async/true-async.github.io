@@ -5,6 +5,7 @@ path_key: "/architecture.html"
 nav_active: architecture
 permalink: /en/architecture.html
 page_title: "Architecture"
+title: "Architecture"
 description: "Internal design of TrueAsync components -- resource pool, PDO Pool, diagrams, and C API."
 ---
 

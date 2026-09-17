@@ -5,6 +5,7 @@ path_key: "/docs/reference/channel/construct.html"
 nav_active: docs
 permalink: /en/docs/reference/channel/construct.html
 page_title: "Channel::__construct"
+title: "Channel::__construct"
 description: "Create a new channel for exchanging data between coroutines."
 ---
 

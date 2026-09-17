@@ -5,6 +5,7 @@ path_key: "/docs/reference/await-any-or-fail.html"
 nav_active: docs
 permalink: /en/docs/reference/await-any-or-fail.html
 page_title: "await_any_or_fail()"
+title: "await_any_or_fail()"
 description: "await_any_or_fail() — wait for the first completed task."
 ---
 

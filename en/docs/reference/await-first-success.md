@@ -5,6 +5,7 @@ path_key: "/docs/reference/await-first-success.html"
 nav_active: docs
 permalink: /en/docs/reference/await-first-success.html
 page_title: "await_first_success()"
+title: "await_first_success()"
 description: "await_first_success() — wait for the first successfully completed task, ignoring errors from others."
 ---
 

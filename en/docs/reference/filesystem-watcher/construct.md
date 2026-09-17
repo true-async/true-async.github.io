@@ -5,6 +5,7 @@ path_key: "/docs/reference/filesystem-watcher/construct.html"
 nav_active: docs
 permalink: /en/docs/reference/filesystem-watcher/construct.html
 page_title: "FileSystemWatcher::__construct"
+title: "FileSystemWatcher::__construct"
 description: "Create a new FileSystemWatcher and start watching files or a directory."
 ---
 

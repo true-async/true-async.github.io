@@ -5,6 +5,7 @@ path_key: "/docs/reference/future/construct.html"
 nav_active: docs
 permalink: /en/docs/reference/future/construct.html
 page_title: "Future::__construct"
+title: "Future::__construct"
 description: "Creates a Future bound to a FutureState."
 ---
 

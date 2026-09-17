@@ -5,6 +5,7 @@ path_key: "/docs/reference/root-context.html"
 nav_active: docs
 permalink: /en/docs/reference/root-context.html
 page_title: "root_context()"
+title: "root_context()"
 description: "root_context() — get the global root context visible from all scopes."
 ---
 

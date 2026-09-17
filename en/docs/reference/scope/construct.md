@@ -5,6 +5,7 @@ path_key: "/docs/reference/scope/construct.html"
 nav_active: docs
 permalink: /en/docs/reference/scope/construct.html
 page_title: "Scope::__construct"
+title: "Scope::__construct"
 description: "Creates a new root Scope."
 ---
 

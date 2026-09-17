@@ -5,6 +5,7 @@ path_key: "/contributing.html"
 nav_active: contributing
 permalink: /en/contributing.html
 page_title: "Contributing"
+title: "Contributing"
 description: "How to help TrueAsync grow — code, documentation, testing and community"
 ---
 
