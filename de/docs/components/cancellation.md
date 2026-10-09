@@ -21,7 +21,7 @@ dass er abgebrochen werden könnte, muss Abbruch-Checkpoints planen und diese Si
 ## Abbruchfähig by Design
 
 Die meiste Zeit ist eine Anwendung damit beschäftigt, Daten
-aus Datenbanken, Dateien oder dem Netzwerk zu lesen. Das Unterbrechen eines Lesevorgangs ist sicher.
+aus Datenbanken, Dateien oder dem Netzwerk zu lesen. Das Unterbrechen eines Lesevorgangs ist für das Programm sicher; der unterbrochene Stream selbst muss danach geschlossen werden (siehe unten).
 Daher gilt in `TrueAsync` folgendes Prinzip: **Eine Koroutine kann jederzeit aus einem Wartezustand abgebrochen werden**.
 Dieser Ansatz reduziert die Codemenge, da der Programmierer sich in den meisten Fällen keine Gedanken
 über den Abbruch machen muss.
@@ -67,6 +67,28 @@ spawn(function() {
         processData($connection);
     } finally {
         $connection->close();
+    }
+});
+```
+
+## Abbruch einer Stream-Operation
+
+Ein Lese- oder Schreibvorgang auf einem Stream, der während des Wartens abgebrochen wird (`fread()`, `fgets()`, `stream_get_contents()`, `fwrite()` und andere),
+gibt keine Garantie für die Daten des Streams. PHP liest einen Stream blockweise in einen eigenen Puffer:
+Ein abgebrochener Lesevorgang kann bereits Bytes aus diesem Puffer entnommen haben, und diese Bytes gehen verloren.
+Ein abgebrochener Schreibvorgang kann bereits einen Teil seiner Daten gesendet haben, und der Aufrufer erfährt nicht, wie viel.
+Der Stream bleibt offen und kann weiter benutzt werden, aber seine Daten können eine Lücke haben.
+
+Nach einem abgebrochenen Lese- oder Schreibvorgang muss der Stream geschlossen werden, statt ihn weiter zu benutzen:
+
+```php
+spawn(function() use ($socket) {
+    try {
+        while (($line = fgets($socket)) !== false) {
+            processLine($line);
+        }
+    } finally {
+        fclose($socket);
     }
 });
 ```

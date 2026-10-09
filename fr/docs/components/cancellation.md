@@ -21,7 +21,7 @@ qu'il pourrait etre annule, doit planifier des points de controle d'annulation e
 ## Annulable par conception
 
 La plupart du temps, une application est occupee a lire des donnees
-depuis des bases de donnees, des fichiers ou le reseau. Interrompre une lecture est sur.
+depuis des bases de donnees, des fichiers ou le reseau. Interrompre une lecture est sur pour le programme ; le flux interrompu, lui, doit etre ferme ensuite (voir plus bas).
 C'est pourquoi, dans `TrueAsync`, le principe suivant s'applique : **une coroutine peut etre annulee a tout moment depuis un etat d'attente**.
 Cette approche reduit la quantite de code, car dans la plupart des cas, le programmeur n'a pas besoin de se preoccuper
 de l'annulation.
@@ -67,6 +67,28 @@ spawn(function() {
         processData($connection);
     } finally {
         $connection->close();
+    }
+});
+```
+
+## Annulation d'une operation sur un flux
+
+Une lecture ou une ecriture sur un flux annulee pendant qu'elle attend (`fread()`, `fgets()`, `stream_get_contents()`, `fwrite()` et les autres)
+ne donne aucune garantie sur les donnees du flux. PHP lit un flux par blocs dans son propre tampon :
+une lecture annulee a pu deja prendre des octets de ce tampon, et ces octets sont perdus.
+Une ecriture annulee a pu deja envoyer une partie de ses donnees, et l'appelant ne sait pas combien.
+Le flux reste ouvert et peut etre utilise de nouveau, mais ses donnees peuvent avoir un trou.
+
+Apres une lecture ou une ecriture annulee, fermez le flux au lieu de continuer a l'utiliser :
+
+```php
+spawn(function() use ($socket) {
+    try {
+        while (($line = fgets($socket)) !== false) {
+            processLine($line);
+        }
+    } finally {
+        fclose($socket);
     }
 });
 ```

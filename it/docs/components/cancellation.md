@@ -21,7 +21,7 @@ che potrebbe essere cancellato, deve pianificare i punti di controllo della canc
 ## Cancellabile per Design
 
 La maggior parte del tempo, un'applicazione è impegnata a leggere dati
-da database, file o dalla rete. Interrompere una lettura è sicuro.
+da database, file o dalla rete. Interrompere una lettura è sicuro per il programma; lo stream interrotto va poi chiuso (vedi sotto).
 Pertanto, in `TrueAsync` si applica il seguente principio: **una coroutine può essere cancellata in qualsiasi momento dallo stato di attesa**.
 Questo approccio riduce la quantità di codice, poiché nella maggior parte dei casi il programmatore non deve preoccuparsi
 della cancellazione.
@@ -67,6 +67,28 @@ spawn(function() {
         processData($connection);
     } finally {
         $connection->close();
+    }
+});
+```
+
+## Cancellazione di un'Operazione su Stream
+
+Una lettura o scrittura su stream cancellata mentre attende (`fread()`, `fgets()`, `stream_get_contents()`, `fwrite()` e altre)
+non dà garanzie sui dati dello stream. PHP legge uno stream a blocchi nel proprio buffer:
+una lettura cancellata può aver già preso byte da quel buffer, e quei byte vanno persi.
+Una scrittura cancellata può aver già inviato parte dei suoi dati, e il chiamante non sa quanti.
+Lo stream resta aperto e può essere usato di nuovo, ma i suoi dati possono avere una lacuna.
+
+Dopo una lettura o scrittura cancellata, chiudi lo stream invece di continuare a usarlo:
+
+```php
+spawn(function() use ($socket) {
+    try {
+        while (($line = fgets($socket)) !== false) {
+            processLine($line);
+        }
+    } finally {
+        fclose($socket);
     }
 });
 ```
