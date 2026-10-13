@@ -93,6 +93,9 @@ spawn(function() use ($socket) {
 });
 ```
 
+Il en va de meme pour les fonctions de `ext/sockets` (`socket_read()`, `socket_write()`, `socket_recv()`, `socket_send()` et autres) :
+un appel annule peut deja avoir recu ou envoye des donnees. Fermez le socket avec `socket_close()`.
+
 ## Trois scenarios d'annulation
 
 Le comportement de `cancel()` depend de l'etat de la coroutine :

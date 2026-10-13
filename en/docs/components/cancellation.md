@@ -93,6 +93,9 @@ spawn(function() use ($socket) {
 });
 ```
 
+The same applies to the `ext/sockets` functions (`socket_read()`, `socket_write()`, `socket_recv()`, `socket_send()` and others):
+a cancelled call may already have received or sent data. Close the socket with `socket_close()`.
+
 ## Three Cancellation Scenarios
 
 The behavior of `cancel()` depends on the coroutine's state:

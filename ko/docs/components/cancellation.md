@@ -93,6 +93,9 @@ spawn(function() use ($socket) {
 });
 ```
 
+`ext/sockets` 함수(`socket_read()`, `socket_write()`, `socket_recv()`, `socket_send()` 등)도 마찬가지입니다.
+취소된 호출은 이미 데이터를 받았거나 보냈을 수 있습니다. 소켓은 `socket_close()`로 닫아야 합니다.
+
 ## 세 가지 취소 시나리오
 
 `cancel()`의 동작은 코루틴의 상태에 따라 달라집니다:

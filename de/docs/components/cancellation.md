@@ -93,6 +93,9 @@ spawn(function() use ($socket) {
 });
 ```
 
+Dasselbe gilt für die Funktionen von `ext/sockets` (`socket_read()`, `socket_write()`, `socket_recv()`, `socket_send()` und andere):
+ein abgebrochener Aufruf kann bereits Daten empfangen oder gesendet haben. Der Socket muss mit `socket_close()` geschlossen werden.
+
 ## Drei Abbruchszenarien
 
 Das Verhalten von `cancel()` hängt vom Zustand der Koroutine ab:

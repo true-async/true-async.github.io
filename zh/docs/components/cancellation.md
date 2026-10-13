@@ -91,6 +91,9 @@ spawn(function() use ($socket) {
 });
 ```
 
+`ext/sockets` 的函数（`socket_read()`、`socket_write()`、`socket_recv()`、`socket_send()` 等）同样如此：
+被取消的调用可能已经接收或发送了数据。应使用 `socket_close()` 关闭套接字。
+
 ## 三种取消场景
 
 `cancel()` 的行为取决于协程的状态：
