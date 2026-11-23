@@ -100,10 +100,10 @@ export const roadmap: RoadmapSection[] = [
         ],
       },
       {
-        id: 'core-1.0', version: '1.0', date: 'November 2026', status: 'active', tag: 'Target: PHP 8.6', tagStyle: 'highlight', homepage: true,
+        id: 'core-1.0', version: '1.0', date: '2026-11-23', status: 'done', tag: 'Target: PHP 8.6', tagStyle: 'highlight', homepage: true,
         features: [
-          { name: 'Stable API', status: 'planned' },
-          { name: 'Production ready', status: 'planned' },
+          { name: 'Stable API', status: 'done' },
+          { name: 'Production ready', status: 'done' },
           { name: 'PHP RFC submission', status: 'planned' },
         ],
       },
